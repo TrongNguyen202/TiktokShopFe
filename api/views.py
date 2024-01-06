@@ -27,12 +27,17 @@ from api.ultil.tiktokApi import callProductList, getAccessToken, refreshToken, c
 from django.http import HttpResponse
 from .models import Shop, Image
 from api.ultil.constant import app_key, secret, grant_type
-
+from django.http import HttpResponse
 from django.http import JsonResponse
 import base64
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-
+import os
+import requests
+import uuid
+from PIL import Image
+from io import BytesIO
+import pandas as pd
 
 class SignUp(APIView):
     permission_classes = [AllowAny]
@@ -344,3 +349,78 @@ class UploadImage(APIView):
         else:
             # Trả về lỗi nếu không có dữ liệu ảnh
             return Response({'error': 'No image data provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+class ProcessExcel(APIView):
+
+    def post(self, request,shop_id):
+        # Lấy dữ liệu ảnh từ request.data
+        excel_file = request.data.get('excel_file')
+        shop = get_object_or_404(Shop, id=shop_id)
+        if excel_file:
+            try:
+                df = pd.read_excel(excel_file)
+                processed_data = []
+
+                # Filter columns that start with 'image' or are named 'title'
+                selected_columns = [col for col in df.columns if col.startswith('image') or col == 'title']
+                
+                for index, row in df.iterrows():
+                    row_data = {col: row[col] for col in selected_columns}
+                    processed_data.append(row_data)
+
+                 
+                    downloaded_image_paths = []
+                    for col, image_url in row_data.items():
+                        if col.startswith('image') and not pd.isna(image_url):
+                          
+                            download_dir = 'C:/anhtiktok'
+                            os.makedirs(download_dir, exist_ok=True)
+
+                          
+                            random_string = str(uuid.uuid4())[:8]
+
+                           
+                            image_filename = os.path.join(download_dir, f"{col}_{index}_{random_string}.jpg")
+
+                          
+                            response = requests.get(image_url)
+                            if response.status_code == 200:
+                                with open(image_filename, 'wb') as f:
+                                    f.write(response.content)
+                                downloaded_image_paths.append(image_filename)
+                        
+                    
+                    base64_images = []
+                    for image_path in downloaded_image_paths:
+                        try:
+                           
+                            img = Image.open(image_path)
+                            img.verify()
+                            img.close()
+
+                           
+                            with open(image_path, 'rb') as img_file:
+                                base64_image = base64.b64encode(img_file.read()).decode('utf-8')
+                            base64_images.append(base64_image)
+
+                        except Exception as e:
+                            print(f"Error processing image: {image_path}, {str(e)}")
+                    images_ids =[]   
+                    # Add your processing logic here using base64_images
+                    
+                    for img_data in base64_images:
+                        img_id = callUploadImage(access_token=shop.access_token, img_data=img_data)
+                        images_ids.append(img_id)
+                        print(img_id)
+                    # title = row_data.get('title', '')
+                    
+                    # createProduct(shop.access_token, request.data.get('category_id'), request.data.get('warehouse_id'), title, images_ids) 
+                    
+                return JsonResponse({'processed_data': processed_data, 'base64_images': base64_images}, status=status.HTTP_201_CREATED)
+
+            except Exception as e:
+                # Xử lý lỗi nếu có
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # Trả về lỗi nếu không có dữ liệu ảnh
+            return Response({'error': 'No excel data provided'}, status=status.HTTP_400_BAD_REQUEST)
