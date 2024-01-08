@@ -18,10 +18,10 @@ export const useProductsStore = create((set) => ({
     }
     set({ loading: false })
   },
-  getProductsById: async (id, onSuccess = () => {}, onFail = () => {}) => {
+  getProductsById: async (shopId, productId, onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true })
-      const response = await RepositoryRemote.products.getProductsById(id)
+      const response = await RepositoryRemote.products.getProductsById(shopId, productId)
       set({ productById: response.data.data })
       onSuccess(response.data.data)
     } catch (error) {

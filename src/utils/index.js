@@ -114,3 +114,7 @@ export const format = (number) => {
     currency: 'VND',
   })
 }
+
+export const IntlNumberFormat = (currency, style, maximumSignificantDigits, number ) => {
+  return new Intl.NumberFormat(currency, {style: `${style}`, currency: `${currency}`, maximumSignificantDigits: `${maximumSignificantDigits}` }).format(number);
+}

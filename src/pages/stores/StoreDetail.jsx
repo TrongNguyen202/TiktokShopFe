@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
-import { Col, Row, Card, Table, Badge, Divider, Button } from 'antd'
-import { useLocation, useNavigate  } from 'react-router-dom'
+import { Col, Row, Card, Table, Badge, Divider, Button, Tag } from 'antd'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { formatDate } from '../../utils/date'
 import { alerts } from '../../utils/alerts'
+import { statusProductTiktokShop } from '../../constants/index'
 import { useShopsStore } from '../../store/shopsStore'
 import { useProductsStore } from '../../store/productsStore'
 import { useCategoriesStore } from '../../store/categoriesStore'
@@ -14,12 +15,11 @@ import Loading from '../../components/loading/Index'
 export default function StoreDetail() {
   const location = useLocation();
   const navigate = useNavigate();
+  const store = location.state.store;
   const { loadingById, getStoreById, storeById } = useShopsStore((state) => state)
   const { products, getAllProducts } = useProductsStore((state) => state)
   const { getCategoriesById, categoriesById } = useCategoriesStore((state) => state)
   const { getWarehousesByShopId, warehousesById } = useWareHousesStore((state) => state)
-  
-  const store = location.state.store;
 
   useEffect(() => {
     const onSuccess = (res) => {
@@ -33,6 +33,14 @@ export default function StoreDetail() {
     getCategoriesById(store.id, onSuccess, onFail)
     getWarehousesByShopId(store.id, onSuccess, onFail)
   }, [store.id])
+
+  const hanldeProductCreate = () => {
+    navigate(`/shops/${store.id}/products/create`, { state: { store }})
+  }
+
+  const handleProductDetail = (productId) => {
+    navigate(`/shops/${store.id}/products/${productId}`)
+  }
 
   const columnCollection = [
     {
@@ -81,15 +89,24 @@ export default function StoreDetail() {
       render: (_, record) => record?.skus?.map((item, index) => (
         <div key={index}>
           {index > 0 && <Divider/>}
-          <p><span>{item.price.currency}</span> {item.price.original_price}</p>
+          <p>{item.price.original_price} <span>{item.price.currency}</span></p>
         </div>
       ))
     },
     {
       title: 'Trạng thái',
       dataIndex: 'status',
-      key: 'satus',
+      key: 'status',
       align: 'center',
+      render: (text) => (
+        <>
+          {statusProductTiktokShop.map((item, index) => (
+            <>
+              { text === index && <Tag key={index} color={item.color}>{item.title}</Tag>}
+            </>
+          ))}
+        </>
+      )
     },
     {
       title: 'Khu vực bán',
@@ -119,7 +136,7 @@ export default function StoreDetail() {
       render: (_, record) => (
         <>
           <Button type="primary" onClick={() => {}}>Sửa</Button>
-          <Button type="primary" onClick={() => (navigate(`/shops/${store.id}/products/${record.id}`))} className='ml-3'>Xem</Button>
+          <Button type="primary" onClick={() => handleProductDetail(record.id)} className='ml-3'>Xem</Button>
         </>
       )
       ,
@@ -128,7 +145,7 @@ export default function StoreDetail() {
 
   const renderStoreDetail = () => {
     if (loadingById) return <Loading />    
-    const { store_code, date_expried, created_at, name, user, name_career, updated_at, address } = storeById
+    const { shop_code, shop_name } = storeById
     const { category_list } = categoriesById
     const { warehouse_list } = warehousesById
 
@@ -143,57 +160,21 @@ export default function StoreDetail() {
               <Col span={12}>
                 <Row className='items-center gap-[4px] justify-start mt-3 break-words flex-nowrap'>
                   <Col span={4}>Tên cửa hàng:</Col>
-                  <Col className='font-medium text-[#21409A]'>{store.shop_name}</Col>
+                  <Col className='font-medium text-[#21409A]'>{shop_name}</Col>
                 </Row>
               </Col>
+
               <Col span={12}>
                 <Row className='items-center gap-[4px] justify-start mt-3 break-words flex-nowrap'>
-                  <Col span={4}>Hạn sử dụng:</Col>
-                  <Col className='font-medium text-[#21409A]'>
-                    {date_expried ? 
-                      formatDate(new Date(date_expried), 'DD/MM/yyyy').toLocaleString()
-                      :
-                      formatDate(new Date(), 'DD/MM/yyyy').toLocaleString()
-                    }
-                  </Col>
+                  <Col span={4}>Thời gian hết hạn:</Col>
+                  <Col className='font-medium text-[#21409A]'>{formatDate(new Date(), 'DD/MM/YY, h:mm:ss a')}</Col>
                 </Row>
               </Col>
 
               <Col span={12}>
                 <Row className='items-center gap-[4px] justify-start mt-3 break-words flex-nowrap'>
                   <Col span={4}>Mã cửa hàng:</Col>
-                  <Col className='font-medium text-[#21409A]'>{store.shop_code}</Col>
-                </Row>
-              </Col>
-              <Col span={12}>
-                <Row className='items-center gap-[4px] justify-start mt-3 break-words flex-nowrap'>
-                  <Col span={4}>Ngày tạo:</Col>
-                  <Col className='font-medium text-[#21409A]'>
-                    {date_expried ? 
-                      formatDate(new Date(created_at), 'DD/MM/yyyy').toLocaleString()
-                      :
-                      formatDate(new Date(), 'DD/MM/yyyy').toLocaleString()
-                    }
-                  </Col>
-                </Row>
-              </Col>
-              
-              <Col span={12}>
-                <Row className='items-center gap-[4px] justify-start mt-3 break-words flex-nowrap'>
-                  <Col span={4}>Địa chỉ:</Col>
-                  <Col className='font-medium text-[#21409A]'>{address ? address : 'Hiện không có địa chỉ'}</Col>
-                </Row>
-              </Col>
-              <Col span={12}>
-                <Row className='items-center gap-[4px] justify-start mt-3 break-words flex-nowrap'>
-                  <Col span={4}>Ngày cập nhật:</Col>
-                  <Col className='font-medium text-[#21409A]'>
-                    {updated_at ? 
-                      formatDate(new Date(updated_at), 'DD/MM/yyyy').toLocaleString()
-                      :
-                      formatDate(new Date(), 'DD/MM/yyyy').toLocaleString()
-                    }
-                  </Col>
+                  <Col className='font-medium text-[#21409A]'>{shop_code}</Col>
                 </Row>
               </Col>
             </Row>
@@ -263,10 +244,13 @@ export default function StoreDetail() {
         </div>
 
         <div>
-          <h3 className='text-[16px] font-semibold mb-3'>
-            Danh sách sản phẩm&nbsp;
-            <span className='font-bold text-[#1677ff]'>({products?.length > 0 ? products?.length : 0})</span>
-          </h3>
+          <Row justify='space-between' className='mb-3'>
+            <h3 className='text-[16px] font-semibold'>
+              Danh sách sản phẩm&nbsp;
+              <span className='font-bold text-[#1677ff]'>({products?.length > 0 ? products?.length : 0})</span>
+            </h3>
+            <Button type="primary" onClick={() => hanldeProductCreate()}>Thêm sản phẩm</Button>
+          </Row>
           <Table
             columns={columnProduct}
             scroll={{ x: 'calc(700px + 50%)', y: 350 }}

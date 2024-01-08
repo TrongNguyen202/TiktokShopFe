@@ -34,8 +34,8 @@ export const useShopsStore = create((set) => ({
     try {
       set({ loadingById: true })
       const response = await RepositoryRemote.stores.getStoreById(id)
-      set({ storeById: response.data.data })
-      onSuccess(response.data.data)
+      set({ storeById: response.data })
+      onSuccess(response.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }

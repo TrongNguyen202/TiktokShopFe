@@ -9,7 +9,6 @@ import ForgotPassword from './pages/login/ForgotPassword'
 import IdentityDetail from './pages/identityRequest/IdentityDetail'
 import Loading from './components/loading/Index'
 import MainLayout from './layouts/mainLayout/MainLayout'
-import ProductDetail from './pages/products/ProductDetail'
 import VoucherForm from './pages/vouchers/VoucherForm'
 import { useBadgesStore } from './store/badgesStore'
 
@@ -18,6 +17,8 @@ const Home = lazy(() => import('./pages/home/Index.jsx'))
 const Stores = lazy(() => import('./pages/stores/index'))
 const Vouchers = lazy(() => import('./pages/vouchers'))
 const Products = lazy(() => import('./pages/products'))
+const ProductDetail = lazy(() => import('./pages/products/ProductDetail.jsx'))
+const ProductCreate = lazy(() => import('./pages/products/ProductCreate.jsx'))
 const Customers = lazy(() => import('./pages/customers'))
 const Categories = lazy(() => import('./pages/categories'))
 const HomepageInterface = lazy(() => import('./pages/settings/homepageInterface'))
@@ -119,7 +120,25 @@ const App = () => {
                   </Suspense>
                 }
               />
-              <Route path='/products/:productId' element={<ProductDetail />} />
+
+              <Route
+                path='/shops/:id/products/:id'
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <ProductDetail />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                path='/shops/:id/products/create'
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <ProductCreate />
+                  </Suspense>
+                }
+              />
+
               {/* Vouchers */}
               <Route
                 path='/vouchers'
