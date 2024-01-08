@@ -165,8 +165,7 @@ def callUploadImage(access_token, img_data):
         response = requests.post(url, params=query_params, json=json.loads(body))
 
         data = json.loads(response.text)
-        print(data)
-      
+
         if "data" in data and "img_id" in data["data"]:
             img_id = data["data"]["img_id"]
             return img_id
