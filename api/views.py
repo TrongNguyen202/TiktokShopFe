@@ -414,17 +414,18 @@ class ProcessExcel(APIView):
                     
                     for item in images_ids:
                         print(item)
-                    # title = row_data.get('title', '')
+                    title = row_data.get('title', '')
+                    print(title)
                     
-                    # createProduct(shop.access_token, request.data.get('category_id'), request.data.get('warehouse_id'), title, images_ids) 
+                    createProduct(shop.access_token, request.data.get('category_id'), request.data.get('warehouse_id'), title, images_ids) 
                     
                 return JsonResponse({'processed_data': processed_data, 'base64_images': base64_images}, status=status.HTTP_201_CREATED)
 
             except Exception as e:
-                # Xử lý lỗi nếu có
+               
                 return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            # Trả về lỗi nếu không có dữ liệu ảnh
+          
             return Response({'error': 'No excel data provided'}, status=status.HTTP_400_BAD_REQUEST)
         
 

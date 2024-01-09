@@ -192,7 +192,7 @@ def createProduct(access_token,category_id,warehouse_id,title,images_ids):
     images_list = [{"id": image_id} for image_id in images_ids]
     body = json.dumps({
         "product_name": title,
-        "description": "",
+        "description": "no description",
         "category_id": category_id, 
         "images": images_list,
            
@@ -216,6 +216,7 @@ def createProduct(access_token,category_id,warehouse_id,title,images_ids):
     })
 
     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
+    query_params["sign"] = sign
     response = requests.post(url, params=query_params, json=json.loads(body))
 
     # Process the response
