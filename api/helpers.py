@@ -13,11 +13,8 @@ from datetime import datetime
 import base64
 
 
-
 def check_token(user, token):
     return user.customuser.verify_token == token
-
-
 
 
 def send_mail_verification(request, new_user):
@@ -44,15 +41,15 @@ def send_mail_verification(request, new_user):
         fail_silently=False,
     )
 
-# generate sign
+
 class GenerateSign:
-    def obj_key_sort(self,obj):
+    def obj_key_sort(self, obj):
         return {k: obj[k] for k in sorted(obj)}
 
     def get_timestamp(self):
         return int(datetime.now().timestamp())
 
-    def cal_sign(self,secret, url, query_params, body):
+    def cal_sign(self, secret, url, query_params, body):
         sorted_params = self.obj_key_sort(query_params)
         sorted_params.pop("sign", None)
         sorted_params.pop("access_token", None)
@@ -63,35 +60,21 @@ class GenerateSign:
         signature = hmac.new(secret.encode(), sign_string.encode(), hashlib.sha256).hexdigest()
         return signature
 
+
 class GenerateSignNoBody:
-    def obj_key_sort(self,obj):
+    def obj_key_sort(self, obj):
         return {k: obj[k] for k in sorted(obj)}
 
     def get_timestamp(self):
         return int(datetime.now().timestamp())
 
-    def cal_sign(self,secret, url, query_params):
+    def cal_sign(self, secret, url, query_params):
         sorted_params = self.obj_key_sort(query_params)
         sorted_params.pop("sign", None)
         sorted_params.pop("access_token", None)
         sign_string = secret + url.path
         for key, value in sorted_params.items():
             sign_string += key + str(value)
-        sign_string +=  secret
+        sign_string += secret
         signature = hmac.new(secret.encode(), sign_string.encode(), hashlib.sha256).hexdigest()
         return signature
-
-
-
-# def encode_image_to_base64(image_path):
-#     try:
-#         with open(image_path, "rb") as image_file:
-#             base64_image = base64.b64encode(image_file.read()).decode("utf-8")
-#             print(base64_image)
-#         return base64_image
-#     except FileNotFoundError:
-#         print(f"Error: File not found at '{image_path}'")
-#         return None
-#     except Exception as e:
-#         print(f"Error encoding image: {str(e)}")
-#         return None
