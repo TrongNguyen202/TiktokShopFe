@@ -21,7 +21,6 @@ from .serializers import (
     VerifySerializers,
     ShopSerializers,
     ShopRequestSerializers
-
 )
 from api.ultil.tiktokApi import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage
 from django.http import HttpResponse
@@ -299,26 +298,6 @@ class ShopSearchViews(generics.ListAPIView):
 
         return queryset
 
-
-# @csrf_exempt
-# def convert_image_to_base64(request):
-#     if request.method == 'POST':
-#         # Nhận dữ liệu ảnh từ request
-#         image_data = request.POST.get('img_data')
-
-#         # # Tạo một instance của model Image và lưu ảnh
-#         # image = Image.objects.create(image_data= image_data )
-
-#         # Chuyển đổi ảnh thành base64
-#         image_base64 = base64.b64encode(image_data.read()).decode('utf-8')
-
-#         # Trả về response JSON với ảnh ở định dạng base64
-#         response_data = {
-#             'image_base64': image_base64,
-#         }
-#         return JsonResponse(response_data)
-
-#     return JsonResponse({'error': 'Invalid request method'})
 
 class UploadImage(APIView):
 
