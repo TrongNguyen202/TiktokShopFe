@@ -24,5 +24,5 @@ urlpatterns = [
     path("shops/<int:shop_id>/warehouses", views.WareHouse.as_view(), name="WareHouse"),
     path("shops/search", views.ShopSearchViews.as_view(), name="Shop_search"),
     path("shops/<int:shop_id>/upload", views.UploadImage.as_view(), name="upload"),
- 
+
 ]
