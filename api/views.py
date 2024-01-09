@@ -22,7 +22,7 @@ from .serializers import (
     ShopSerializers,
     ShopRequestSerializers
 )
-from api.ultil.tiktokApi import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct
+from api.ultil.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct
 from django.http import HttpResponse
 from .models import Shop, Image
 from api.ultil.constant import app_key, secret, grant_type
@@ -349,7 +349,7 @@ class ProcessExcel(APIView):
 
                 # Filter columns that start with 'image' or are named 'title'
                 selected_columns = [col for col in df.columns if col.startswith('image') or col == 'title']
-                
+
                 for index, row in df.iterrows():
                     row_data = {col: row[col] for col in selected_columns}
                     processed_data.append(row_data)
@@ -366,7 +366,7 @@ class ProcessExcel(APIView):
                                 with open(image_filename, 'wb') as f:
                                     f.write(response.content)
                                 downloaded_image_paths.append(image_filename)
-                        
+
                     base64_images = []
                     for image_path in downloaded_image_paths:
                         try:
@@ -383,31 +383,26 @@ class ProcessExcel(APIView):
 
                         except Exception as e:
                             print(f"Error processing image: {image_path}, {str(e)}")
-                    
+
                     images_ids = []
                     # Add your processing logic here using base64_images
                     for img_data in base64_images:
                         img_id = callUploadImage(access_token=shop.access_token, img_data=img_data)
                         images_ids.append(img_id)
-                       
-                    
+
                     for item in images_ids:
                         print(item)
                     title = row_data.get('title', '')
                     print(title)
-                    
-                    createProduct(shop.access_token, request.data.get('category_id'), request.data.get('warehouse_id'), title, images_ids) 
-                    
+
+                    createProduct(shop.access_token, request.data.get('category_id'),
+                                  request.data.get('warehouse_id'), title, images_ids)
+
                 return JsonResponse({'processed_data': processed_data, 'base64_images': base64_images}, status=status.HTTP_201_CREATED)
 
             except Exception as e:
-               
+
                 return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         else:
-          
+
             return Response({'error': 'No excel data provided'}, status=status.HTTP_400_BAD_REQUEST)
-        
-
-
-
-
