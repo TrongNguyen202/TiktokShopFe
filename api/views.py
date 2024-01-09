@@ -23,7 +23,7 @@ from .serializers import (
     ShopRequestSerializers
 
 )
-from api.ultil.tiktokApi import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct
+from api.ultil.tiktokApi import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands
 from django.http import HttpResponse
 from .models import Shop, Image
 from api.ultil.constant import app_key, secret, grant_type
@@ -259,13 +259,13 @@ class Categories(APIView):
             json_data = response.json()
             categories = json_data.get('data', {}).get('category_list', [])
 
-            filtered_categories = [
-                category for category in categories if category.get('is_leaf', False)]
+            # filtered_categories = [
+            #     category for category in categories if category.get('is_leaf', False)]
 
             data = {
                 'code': 0,
                 'data': {
-                    'category_list': filtered_categories
+                    'category_list': categories
                 }
             }
 
@@ -429,6 +429,40 @@ class ProcessExcel(APIView):
             return Response({'error': 'No excel data provided'}, status=status.HTTP_400_BAD_REQUEST)
         
 
+class GetAllBrands(APIView):
 
+    def get(self, request, shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        response = getBrands(access_token=shop.access_token)
+        content = response.content
+        
+        return HttpResponse(content, content_type='application/json')
+
+
+
+class CategoriesIsleaf(APIView):
+
+    def get(self, request, shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        response = getCategories(access_token=access_token)
+
+        if response.status_code == 200:
+            json_data = response.json()
+            categories = json_data.get('data', {}).get('category_list', [])
+
+            filtered_categories = [
+                category for category in categories if category.get('is_leaf', False)]
+
+            data = {
+                'code': 0,
+                'data': {
+                    'category_list': filtered_categories
+                }
+            }
+
+            return JsonResponse(data)
+
+        return HttpResponse(response.content, content_type='application/json', status=response.status_code)
 
 

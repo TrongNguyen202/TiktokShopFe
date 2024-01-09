@@ -25,6 +25,8 @@ urlpatterns = [
     path("shops/search", views.ShopSearchViews.as_view(), name="Shop_search"),
     path("shops/<int:shop_id>/upload", views.UploadImage.as_view(), name="upload"),
     path('shops/<int:shop_id>/process_excel', views.ProcessExcel.as_view(), name='process_excel'),
-
+    path('shops/<int:shop_id>/brands', views.GetAllBrands.as_view(), name='get_brands'),
+    path("shops/<int:shop_id>/categories/is_leaf", views.CategoriesIsleaf.as_view(), name="categories_is_leaf"),
+    
  
 ]

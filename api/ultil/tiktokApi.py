@@ -12,7 +12,7 @@ SIGNNOBODY =GenerateSignNoBody()
 def callProductList(access_token):
     url = TIKTOK_API_URL['url_product_list']
     query_params = {
-        "app_key": "6atknvel13hna",
+        "app_key": app_key,
         "access_token": access_token,
         "timestamp": SIGN.get_timestamp()
     }
@@ -38,9 +38,9 @@ def getAccessToken(auth_code):
   
     body = json.dumps({
 
-       "app_key":"6atknvel13hna",
-       "app_secret":"df329e59a6f78121409d77c33ee1decfbfa088a4",
-       "grant_type":"authorized_code",
+       "app_key":app_key,
+       "app_secret":secret,
+       "grant_type":grant_type,
        "auth_code":auth_code,
     })
 
@@ -67,7 +67,7 @@ def refreshToken(refreshToken):
 def callProductDetail(access_token,product_id):
     url = TIKTOK_API_URL['url_detail_product']
     query_params = {
-        "app_key": "6atknvel13hna",
+        "app_key": app_key,
         "access_token": access_token,
         "timestamp": SIGN.get_timestamp(),
         "product_id":product_id,
@@ -184,7 +184,7 @@ def callUploadImage(access_token, img_data):
 def createProduct(access_token,category_id,warehouse_id,title,images_ids):
     url = TIKTOK_API_URL['url_create_product']
     query_params = {
-        "app_key": "6atknvel13hna",
+        "app_key": app_key,
         "access_token": access_token,
         "timestamp": SIGN.get_timestamp(),
 
@@ -223,3 +223,23 @@ def createProduct(access_token,category_id,warehouse_id,title,images_ids):
     print(response.status_code)
     print(response.text)
     return HttpResponse(response)
+
+def getBrands(access_token):
+    url = TIKTOK_API_URL['url_get_brands']
+    query_params = {
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp(),
+        
+    }
+
+
+    sign = SIGNNOBODY.cal_sign(secret, urllib.parse.urlparse(url), query_params)
+    query_params["sign"] = sign
+    
+    response = requests.get(url, params=query_params)
+  
+    print(response.status_code)
+    print(response.text)
+    return response
+

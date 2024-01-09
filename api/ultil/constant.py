@@ -11,6 +11,8 @@ TIKTOK_API_URL = {
   'url_create_product': 'https://open-api.tiktokglobalshop.com/api/products',
   'url_get_categories':'https://open-api.tiktokglobalshop.com/api/products/categories',
   'url_get_warehouse':'https://open-api.tiktokglobalshop.com/api/logistics/get_warehouse_list',
-  'url_upload_image':'https://open-api.tiktokglobalshop.com/api/products/upload_imgs'
+  'url_upload_image':'https://open-api.tiktokglobalshop.com/api/products/upload_imgs',
+  'url_get_brands':'https://open-api.tiktokglobalshop.com/api/products/brands',
+
   
 }
