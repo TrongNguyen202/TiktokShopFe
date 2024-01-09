@@ -3,6 +3,9 @@ from api.helpers import GenerateSign, GenerateSignNoBody
 import requests
 import json
 import urllib.parse
+from django.http import HttpResponse
+
+import traceback
 
 SIGN = GenerateSign()
 SIGNNOBODY = GenerateSignNoBody()
@@ -150,10 +153,30 @@ def callUploadImage(access_token, img_data):
         "timestamp": SIGN.get_timestamp(),
 
     }
+    images_list = [{"id": image_id} for image_id in images_ids]
     body = json.dumps({
-        "img_data": img_data,
-        "img_scene": 1
+        "product_name": title,
+        "description": "no description",
+        "category_id": category_id,
+        "images": images_list,
 
+        "package_dimension_unit": "metric",
+        "package_height": 1,
+        "package_length": 1,
+        "package_weight": "1",
+        "package_width": 1,
+        "is_cod_open": True,
+        "skus": [
+            {
+                "stock_infos": [
+                    {
+                        "warehouse_id": warehouse_id,
+                        "available_stock": 200
+                    }
+                ],
+                "original_price": "100"
+            }
+        ]
     })
 
     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)

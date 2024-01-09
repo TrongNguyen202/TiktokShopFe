@@ -22,3 +22,7 @@ class Shop(models.Model):
 class Image(models.Model):
     
     image_data = models.TextField()
+
+class AppKey(models.Model):
+    app_key = models.CharField(null=False, help_text='Appkey lấy từ tiktok app for developer', max_length=500, default='')
+    secret = models.CharField(null=False, help_text='app secret lấy từ tiktok app for developer', max_length=500, default='')

@@ -22,15 +22,22 @@ from .serializers import (
     ShopSerializers,
     ShopRequestSerializers
 )
-from api.ultil.tiktokApi import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage
+from api.ultil.tiktokApi import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct
 from django.http import HttpResponse
 from .models import Shop, Image
 from api.ultil.constant import app_key, secret, grant_type
-
+from django.http import HttpResponse
 from django.http import JsonResponse
 import base64
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+import os
+import requests
+import uuid
+from PIL import Image
+from io import BytesIO
+import pandas as pd
+import traceback
 
 
 class SignUp(APIView):
@@ -234,7 +241,8 @@ class ProductDetail(APIView):
     def get(self, request, shop_id, product_id):
         shop = get_object_or_404(Shop, id=shop_id)
         access_token = shop.access_token
-        response = callProductDetail(access_token=access_token, product_id=product_id)
+        response = callProductDetail(
+            access_token=access_token, product_id=product_id)
         content = response.content
         return HttpResponse(content, content_type='application/json')
 
@@ -250,7 +258,8 @@ class Categories(APIView):
             json_data = response.json()
             categories = json_data.get('data', {}).get('category_list', [])
 
-            filtered_categories = [category for category in categories if category.get('is_leaf', False)]
+            filtered_categories = [
+                category for category in categories if category.get('is_leaf', False)]
 
             data = {
                 'code': 0,
@@ -308,10 +317,12 @@ class UploadImage(APIView):
         if image_data:
             try:
                 # Chuyển đổi dữ liệu ảnh thành base64
-                image_base64 = base64.b64encode(image_data.read()).decode('utf-8')
+                image_base64 = base64.b64encode(
+                    image_data.read()).decode('utf-8')
 
                 # In base64 để kiểm tra (có thể loại bỏ trong production)
-                respond = callUploadImage(access_token=shop.access_token, img_data=image_base64)
+                respond = callUploadImage(
+                    access_token=shop.access_token, img_data=image_base64)
 
                 # Trả về response JSON với ảnh ở định dạng base64
 
@@ -323,3 +334,80 @@ class UploadImage(APIView):
         else:
             # Trả về lỗi nếu không có dữ liệu ảnh
             return Response({'error': 'No image data provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProcessExcel(APIView):
+
+    def post(self, request, shop_id):
+        # Lấy dữ liệu ảnh từ request.data
+        excel_file = request.data.get('excel_file')
+        shop = get_object_or_404(Shop, id=shop_id)
+        if excel_file:
+            try:
+                df = pd.read_excel(excel_file)
+                processed_data = []
+
+                # Filter columns that start with 'image' or are named 'title'
+                selected_columns = [col for col in df.columns if col.startswith('image') or col == 'title']
+                
+                for index, row in df.iterrows():
+                    row_data = {col: row[col] for col in selected_columns}
+                    processed_data.append(row_data)
+
+                    downloaded_image_paths = []
+                    for col, image_url in row_data.items():
+                        if col.startswith('image') and not pd.isna(image_url):
+                            download_dir = 'C:/anhtiktok'
+                            os.makedirs(download_dir, exist_ok=True)
+                            random_string = str(uuid.uuid4())[:8]
+                            image_filename = os.path.join(download_dir, f"{col}_{index}_{random_string}.jpg")
+                            response = requests.get(image_url)
+                            if response.status_code == 200:
+                                with open(image_filename, 'wb') as f:
+                                    f.write(response.content)
+                                downloaded_image_paths.append(image_filename)
+                        
+                    base64_images = []
+                    for image_path in downloaded_image_paths:
+                        try:
+                            # Check bit depth and convert to RGB if needed
+                            img = Image.open(image_path)
+                            if img.mode != 'RGB' or img.bits != 8:
+                                img = img.convert('RGB')
+                            img.verify()
+                            img.close()
+
+                            with open(image_path, 'rb') as img_file:
+                                base64_image = base64.b64encode(img_file.read()).decode('utf-8')
+                            base64_images.append(base64_image)
+
+                        except Exception as e:
+                            print(f"Error processing image: {image_path}, {str(e)}")
+                    
+                    images_ids = []
+                    # Add your processing logic here using base64_images
+                    for img_data in base64_images:
+                        img_id = callUploadImage(access_token=shop.access_token, img_data=img_data)
+                        images_ids.append(img_id)
+                       
+                    
+                    for item in images_ids:
+                        print(item)
+                    title = row_data.get('title', '')
+                    print(title)
+                    
+                    createProduct(shop.access_token, request.data.get('category_id'), request.data.get('warehouse_id'), title, images_ids) 
+                    
+                return JsonResponse({'processed_data': processed_data, 'base64_images': base64_images}, status=status.HTTP_201_CREATED)
+
+            except Exception as e:
+               
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+          
+            return Response({'error': 'No excel data provided'}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+
+
