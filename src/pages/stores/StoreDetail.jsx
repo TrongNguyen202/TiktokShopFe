@@ -37,6 +37,10 @@ export default function StoreDetail() {
   const hanldeProductCreate = () => {
     navigate(`/shops/${store.id}/products/create`, { state: { store }})
   }
+  
+  const handleProductEdit = (productId) => {
+    navigate(`/shops/${store.id}/products/${productId}/edit`, { state: { store }})
+  }
 
   const handleProductDetail = (productId) => {
     navigate(`/shops/${store.id}/products/${productId}`)
@@ -133,13 +137,13 @@ export default function StoreDetail() {
       dataIndex: 'actions',
       key: 'actions',
       align: 'center',
+      fixed: 'right',
       render: (_, record) => (
         <>
-          <Button type="primary" onClick={() => {}}>Sửa</Button>
+          <Button type="primary" onClick={() => handleProductEdit(record.id)}>Sửa</Button>
           <Button type="primary" onClick={() => handleProductDetail(record.id)} className='ml-3'>Xem</Button>
         </>
       )
-      ,
     }
   ]
 
@@ -232,11 +236,11 @@ export default function StoreDetail() {
         <div className='mb-10'>
           <h3 className='text-[16px] font-semibold mb-3'>
             Danh sách danh mục&nbsp;
-            <span className='font-bold text-[#1677ff]'>({category_list?.length > 0 ? category_list?.length : 0})</span>
+            <span className='font-bold text-[#214093]'>({category_list?.length > 0 ? category_list?.length : 0})</span>
           </h3>
           <Table
             columns={columnCollection}
-            scroll={{ x: 'calc(700px + 50%)', y: 350 }}
+            scroll={{ x: 1500}}
             size='middle'
             bordered
             dataSource={category_list && category_list?.length ? category_list : []}
@@ -247,13 +251,13 @@ export default function StoreDetail() {
           <Row justify='space-between' className='mb-3'>
             <h3 className='text-[16px] font-semibold'>
               Danh sách sản phẩm&nbsp;
-              <span className='font-bold text-[#1677ff]'>({products?.length > 0 ? products?.length : 0})</span>
+              <span className='font-bold text-[#214093]'>({products?.length > 0 ? products?.length : 0})</span>
             </h3>
             <Button type="primary" onClick={() => hanldeProductCreate()}>Thêm sản phẩm</Button>
           </Row>
           <Table
             columns={columnProduct}
-            scroll={{ x: 'calc(700px + 50%)', y: 350 }}
+            scroll={{ x: 1700}}
             size='middle'
             bordered
             dataSource={products && products.length ? products : []}

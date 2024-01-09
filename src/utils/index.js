@@ -118,3 +118,17 @@ export const format = (number) => {
 export const IntlNumberFormat = (currency, style, maximumSignificantDigits, number ) => {
   return new Intl.NumberFormat(currency, {style: `${style}`, currency: `${currency}`, maximumSignificantDigits: `${maximumSignificantDigits}` }).format(number);
 }
+
+export const buildNestedArrays = (items, parentId) => {
+  let nestedItems = [];
+  if(items){
+    nestedItems = items.filter((item) => item.parent_id === parentId);
+  }
+
+  return nestedItems.map((item) => ({
+    title: item.local_display_name,
+    value: item.id,
+    key: item.id,
+    children: buildNestedArrays(items, item.id),
+  }));
+};

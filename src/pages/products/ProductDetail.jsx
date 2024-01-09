@@ -195,7 +195,7 @@ export default function ProductDetail() {
     <div className='mt-[16px] description-detail-product'>
       <div className='min-h-[100vh]'>
         <div className='p-10'>
-          <PageTitle title='Thông tin sản phẩm' />
+          <PageTitle title='Thông tin sản phẩm' showBack />
 
           <Row className='px-[20px] pb-[20px] bg-white'>
             <Col span={12} className='border-r-[1px] border-r-[#ccc] border-solid border-t-0 border-b-0 border-l-0 pr-[12px]'>{renderLeftColumn()}</Col>

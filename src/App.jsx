@@ -18,7 +18,7 @@ const Stores = lazy(() => import('./pages/stores/index'))
 const Vouchers = lazy(() => import('./pages/vouchers'))
 const Products = lazy(() => import('./pages/products'))
 const ProductDetail = lazy(() => import('./pages/products/ProductDetail.jsx'))
-const ProductCreate = lazy(() => import('./pages/products/ProductCreate.jsx'))
+const ProductEdit = lazy(() => import('./pages/products/ProductEdit.jsx'))
 const Customers = lazy(() => import('./pages/customers'))
 const Categories = lazy(() => import('./pages/categories'))
 const HomepageInterface = lazy(() => import('./pages/settings/homepageInterface'))
@@ -131,10 +131,10 @@ const App = () => {
               />
 
               <Route
-                path='/shops/:id/products/create'
+                path='/shops/:id/products/:id/edit'
                 element={
                   <Suspense fallback={<Loading />}>
-                    <ProductCreate />
+                    <ProductEdit />
                   </Suspense>
                 }
               />
