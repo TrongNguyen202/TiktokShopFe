@@ -39,6 +39,23 @@ from PIL import Image
 from io import BytesIO
 import pandas as pd
 import traceback
+from concurrent.futures import ThreadPoolExecutor
+from django.views import View
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse, HttpResponse
+from django.core.exceptions import ObjectDoesNotExist
+import pandas as pd
+import os
+import base64
+import uuid
+from PIL import Image
+import requests
+import traceback
+from rest_framework import status
+from rest_framework.response import Response
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
 
 
 class SignUp(APIView):
@@ -231,10 +248,17 @@ class RefreshToken(APIView):
     def post(self, request, shop_id):
         shop = get_object_or_404(Shop, id=shop_id)
         respond = refreshToken(refreshToken=shop.refresh_token)
-        access_token = respond.get('data', {}).get('access_token', None)
+        json_data = respond.json()
+        data = json_data.get('data', {})
+        access_token = data.get('access_token', None)
+        refresh_token = data.get('refresh_token', None)  # Fix the typo here
+        print(access_token)
+        print(refresh_token)
         shop.access_token = access_token
+        shop.refresh_token = refresh_token
         shop.save()
         return Response(respond)
+
 
 
 class ProductDetail(APIView):
@@ -356,77 +380,77 @@ class UploadImage(APIView):
             # Trả về lỗi nếu không có dữ liệu ảnh
             return Response({'error': 'No image data provided'}, status=status.HTTP_400_BAD_REQUEST)
 
+# @method_decorator(csrf_exempt, name='dispatch')
+# class ProcessExcel(APIView):
 
-class ProcessExcel(APIView):
+#     def post(self, request, shop_id):
+#         # Lấy dữ liệu ảnh từ request.data
+#         excel_file = request.data.get('excel_file')
+#         shop = get_object_or_404(Shop, id=shop_id)
+#         if excel_file:
+#             try:
+#                 df = pd.read_excel(excel_file)
+#                 processed_data = []
 
-    def post(self, request, shop_id):
-        # Lấy dữ liệu ảnh từ request.data
-        excel_file = request.data.get('excel_file')
-        shop = get_object_or_404(Shop, id=shop_id)
-        if excel_file:
-            try:
-                df = pd.read_excel(excel_file)
-                processed_data = []
-
-                # Filter columns that start with 'image' or are named 'title'
-                selected_columns = [col for col in df.columns if col.startswith('image') or col == 'title']
+#                 # Filter columns that start with 'image' or are named 'title'
+#                 selected_columns = [col for col in df.columns if col.startswith('image') or col == 'title']
                 
-                for index, row in df.iterrows():
-                    row_data = {col: row[col] for col in selected_columns}
-                    processed_data.append(row_data)
+#                 for index, row in df.iterrows():
+#                     row_data = {col: row[col] for col in selected_columns}
+#                     processed_data.append(row_data)
 
-                    downloaded_image_paths = []
-                    for col, image_url in row_data.items():
-                        if col.startswith('image') and not pd.isna(image_url):
-                            download_dir = 'C:/anhtiktok'
-                            os.makedirs(download_dir, exist_ok=True)
-                            random_string = str(uuid.uuid4())[:8]
-                            image_filename = os.path.join(download_dir, f"{col}_{index}_{random_string}.jpg")
-                            response = requests.get(image_url)
-                            if response.status_code == 200:
-                                with open(image_filename, 'wb') as f:
-                                    f.write(response.content)
-                                downloaded_image_paths.append(image_filename)
+#                     downloaded_image_paths = []
+#                     for col, image_url in row_data.items():
+#                         if col.startswith('image') and not pd.isna(image_url):
+#                             download_dir = 'C:/anhtiktok'
+#                             os.makedirs(download_dir, exist_ok=True)
+#                             random_string = str(uuid.uuid4())[:8]
+#                             image_filename = os.path.join(download_dir, f"{col}_{index}_{random_string}.jpg")
+#                             response = requests.get(image_url)
+#                             if response.status_code == 200:
+#                                 with open(image_filename, 'wb') as f:
+#                                     f.write(response.content)
+#                                 downloaded_image_paths.append(image_filename)
                         
-                    base64_images = []
-                    for image_path in downloaded_image_paths:
-                        try:
-                            # Check bit depth and convert to RGB if needed
-                            img = Image.open(image_path)
-                            if img.mode != 'RGB' or img.bits != 8:
-                                img = img.convert('RGB')
-                            img.verify()
-                            img.close()
+#                     base64_images = []
+#                     for image_path in downloaded_image_paths:
+#                         try:
+#                             # Check bit depth and convert to RGB if needed
+#                             img = Image.open(image_path)
+#                             if img.mode != 'RGB' or img.bits != 8:
+#                                 img = img.convert('RGB')
+#                             img.verify()
+#                             img.close()
 
-                            with open(image_path, 'rb') as img_file:
-                                base64_image = base64.b64encode(img_file.read()).decode('utf-8')
-                            base64_images.append(base64_image)
+#                             with open(image_path, 'rb') as img_file:
+#                                 base64_image = base64.b64encode(img_file.read()).decode('utf-8')
+#                             base64_images.append(base64_image)
 
-                        except Exception as e:
-                            print(f"Error processing image: {image_path}, {str(e)}")
+#                         except Exception as e:
+#                             print(f"Error processing image: {image_path}, {str(e)}")
                     
-                    images_ids = []
-                    # Add your processing logic here using base64_images
-                    for img_data in base64_images:
-                        img_id = callUploadImage(access_token=shop.access_token, img_data=img_data)
-                        images_ids.append(img_id)
+#                     images_ids = []
+#                     # Add your processing logic here using base64_images
+#                     for img_data in base64_images:
+#                         img_id = callUploadImage(access_token=shop.access_token, img_data=img_data)
+#                         images_ids.append(img_id)
                        
                     
-                    for item in images_ids:
-                        print(item)
-                    title = row_data.get('title', '')
-                    print(title)
+#                     for item in images_ids:
+#                         print(item)
+#                     title = row_data.get('title', '')
+#                     print(title)
                     
-                    createProduct(shop.access_token, request.data.get('category_id'), request.data.get('warehouse_id'), title, images_ids) 
+#                     createProduct(shop.access_token, request.data.get('category_id'), request.data.get('warehouse_id'), title, images_ids) 
                     
-                return JsonResponse({'processed_data': processed_data, 'base64_images': base64_images}, status=status.HTTP_201_CREATED)
+#                 return JsonResponse({'processed_data': processed_data, 'base64_images': base64_images}, status=status.HTTP_201_CREATED)
 
-            except Exception as e:
+#             except Exception as e:
                
-                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        else:
+#                 return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+#         else:
           
-            return Response({'error': 'No excel data provided'}, status=status.HTTP_400_BAD_REQUEST)
+#             return Response({'error': 'No excel data provided'}, status=status.HTTP_400_BAD_REQUEST)
         
 
 class GetAllBrands(APIView):
@@ -466,3 +490,370 @@ class CategoriesIsleaf(APIView):
         return HttpResponse(response.content, content_type='application/json', status=response.status_code)
 
 
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class MultithreadProcessExcel(View):
+
+    def post(self, request, shop_id):
+        try:
+            excel_file = request.FILES.get('excel_file')
+            shop = get_object_or_404(Shop, id=shop_id)
+
+            if not excel_file:
+                return Response({'error': 'No excel data provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+            df = pd.read_excel(excel_file)
+            processed_data = []
+
+            selected_columns = [col for col in df.columns if col.startswith('image') or col == 'title']
+
+            with ThreadPoolExecutor() as executor:
+                futures = []
+                for index, row in df.iterrows():
+                    row_data = {col: row[col] for col in selected_columns}
+                    processed_data.append(row_data)
+
+                    category_id = request.POST.get('category_id')
+                    warehouse_id = request.POST.get('warehouse_id')
+
+                    futures.append(executor.submit(self.process_row_data, row_data, shop, category_id, warehouse_id))
+
+                for future in futures:
+                    future.result()
+
+            return JsonResponse({'processed_data': processed_data}, status=status.HTTP_201_CREATED)
+
+        except ObjectDoesNotExist as e:
+            return HttpResponse({'error': str(e)}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print(traceback.format_exc())
+            return HttpResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def process_row_data(self, row_data, shop, category_id, warehouse_id):
+        downloaded_image_paths = []
+        futures = []
+
+  
+        with ThreadPoolExecutor() as executor:
+            for col, image_url in row_data.items():
+                if col.startswith('image') and not pd.isna(image_url):
+                    futures.append(executor.submit(self.download_image, image_url, col, shop))
+
+
+            for future in futures:
+                downloaded_image_paths.append(future.result())
+
+        base64_images = self.process_images(downloaded_image_paths)
+        images_ids = self.upload_images(base64_images, shop)
+        self.create_product(shop, category_id, warehouse_id, row_data, images_ids)
+
+    def download_image(self, image_url, col, shop):
+        download_dir = 'C:/anhtiktok'
+        os.makedirs(download_dir, exist_ok=True)
+        random_string = str(uuid.uuid4())[:8]
+        image_filename = os.path.join(download_dir, f"{col}_{random_string}.jpg")
+        response = requests.get(image_url)
+        if response.status_code == 200:
+            with open(image_filename, 'wb') as f:
+                f.write(response.content)
+        return image_filename
+
+    def process_images(self, downloaded_image_paths):
+        base64_images = []
+        for image_path in downloaded_image_paths:
+            try:
+                img = Image.open(image_path)
+                if img.mode != 'RGB' or img.bits != 8:
+                    img = img.convert('RGB')
+                img.verify()
+                img.close()
+
+                with open(image_path, 'rb') as img_file:
+                    base64_image = base64.b64encode(img_file.read()).decode('utf-8')
+                base64_images.append(base64_image)
+
+            except Exception as e:
+                print(f"Error processing image: {image_path}, {str(e)}")
+
+        return base64_images
+
+    def upload_images(self, base64_images, shop):
+        images_ids = []
+        for img_data in base64_images:
+            img_id = callUploadImage(access_token=shop.access_token, img_data=img_data)
+            images_ids.append(img_id)
+        return images_ids
+
+    def create_product(self, shop, category_id, warehouse_id, row_data, images_ids):
+        for item in images_ids:
+            print(item)
+        title = row_data.get('title', '')
+        print(title)
+
+        createProduct(shop.access_token, category_id, warehouse_id, title, images_ids)
+
+# import json
+# import os
+# import base64
+# import uuid
+# import requests
+# import traceback
+# from concurrent.futures import ThreadPoolExecutor
+# from django.views import View
+# from django.shortcuts import get_object_or_404
+# from django.http import JsonResponse, HttpResponse
+# from django.core.exceptions import ObjectDoesNotExist
+# from rest_framework import status
+# from django.views.decorators.csrf import csrf_exempt
+# from django.utils.decorators import method_decorator
+# from PIL import Image
+# from .models import Shop
+
+# @method_decorator(csrf_exempt, name='dispatch')
+# class ProcessExcel(View):
+
+#     def post(self, request, shop_id):
+#         try:
+#             # Check if request.body is not empty
+#             if not request.body:
+#                 return JsonResponse({'error': 'Empty request body'}, status=status.HTTP_400_BAD_REQUEST)
+
+#             # Decode request body using 'utf-8'
+#             body_str = request.body.decode('utf-8')
+
+#             # Try loading JSON data from the body
+#             try:
+#                 data = json.loads(body_str)
+#                 excel_data = data.get('excel', [])
+#                 category_id = data.get('category_id')
+#                 warehouse_id = data.get('warehouse_id')
+#             except json.JSONDecodeError as json_error:
+#                 return JsonResponse({'error': f'Invalid JSON format in request body: {json_error}'}, status=status.HTTP_400_BAD_REQUEST)
+
+#             shop = get_object_or_404(Shop, id=shop_id)
+
+#             processed_data = []
+
+#             with ThreadPoolExecutor() as executor:
+#                 futures = []
+#                 for item in excel_data:
+#                     row_data = {
+#                         'title': item.get('title', ''),
+#                         'images': item.get('images', {}),
+#                     }
+#                     processed_data.append(row_data)
+
+#                     futures.append(executor.submit(self.process_item, item, shop, category_id, warehouse_id))
+
+#                 for future in futures:
+#                     future.result()
+
+#             return JsonResponse({'processed_data': processed_data}, status=status.HTTP_201_CREATED)
+
+#         except ObjectDoesNotExist as e:
+#             return HttpResponse({'error': str(e)}, status=status.HTTP_404_NOT_FOUND)
+#         except Exception as e:
+#             print(traceback.format_exc())
+#             return HttpResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+#     def process_item(self, item, shop, category_id, warehouse_id):
+#         title = item.get('title', '')
+#         images = item.get('images', {})
+
+#         downloaded_image_paths = []
+
+#         with ThreadPoolExecutor() as executor:
+#             image_futures = []
+
+#             for key, image_url in images.items():
+#                 image_futures.append(executor.submit(self.download_image, image_url, key, shop))
+
+#             for future in image_futures:
+#                 downloaded_image_paths.append(future.result())
+
+#         base64_images = self.process_images(downloaded_image_paths)
+#         images_ids = self.upload_images(base64_images, shop)
+#         self.create_product(shop, category_id, warehouse_id, item, images_ids)
+
+#     def download_image(self, image_url, key, shop):
+#         if image_url:
+#             download_dir = 'C:/anhtiktok'  # Đường dẫn lưu trữ hình ảnh
+#             os.makedirs(download_dir, exist_ok=True)
+#             random_string = str(uuid.uuid4())[:8]
+#             image_filename = os.path.join(download_dir, f"{key}_{random_string}.jpg")
+#             response = requests.get(image_url)
+
+#             if response.status_code == 200:
+#                 with open(image_filename, 'wb') as f:
+#                     f.write(response.content)
+#                 return image_filename
+
+#     def process_images(self, downloaded_image_paths):
+#         base64_images = []
+#         for image_path in downloaded_image_paths:
+#             try:
+#                 img = Image.open(image_path)
+#                 if img.mode != 'RGB' or img.bits != 8:
+#                     img = img.convert('RGB')
+#                 img.verify()
+#                 img.close()
+
+#                 with open(image_path, 'rb') as img_file:
+#                     base64_image = base64.b64encode(img_file.read()).decode('utf-8')
+#                 base64_images.append(base64_image)
+
+#             except Exception as e:
+#                 print(f"Error processing image: {image_path}, {str(e)}")
+
+#         return base64_images
+
+#     def upload_images(self, base64_images, shop):
+#         images_ids = []
+#         for img_data in base64_images:
+#             img_id = callUploadImage(access_token=shop.access_token, img_data=img_data)
+#             images_ids.append(img_id)
+
+#         return images_ids
+
+#     def create_product(self, shop, category_id, warehouse_id, row_data, images_ids):
+#         for item in images_ids:
+#             print(item)
+#         title = row_data.get('title', '')
+#         print(title)
+
+#         createProduct(shop.access_token, category_id, warehouse_id, title, images_ids)
+
+
+import json
+import os
+import base64
+import uuid
+import requests
+import traceback
+from concurrent.futures import ThreadPoolExecutor
+from django.views import View
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse, HttpResponse
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework import status
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from PIL import Image
+from .models import Shop
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ProcessExcel(View):
+
+    def post(self, request, shop_id):
+        try:
+            # Check if request.body is not empty
+            if not request.body:
+                return JsonResponse({'error': 'Empty request body'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Decode request body using 'utf-8'
+            body_str = request.body.decode('utf-8')
+
+            # Try loading JSON data from the body
+            try:
+                data = json.loads(body_str)
+                excel_data = data.get('excel', [])
+                category_id = data.get('category_id')
+                warehouse_id = data.get('warehouse_id')
+            except json.JSONDecodeError as json_error:
+                return JsonResponse({'error': f'Invalid JSON format in request body: {json_error}'}, status=status.HTTP_400_BAD_REQUEST)
+
+            shop = get_object_or_404(Shop, id=shop_id)
+
+            processed_data = []
+
+            with ThreadPoolExecutor() as executor:
+                futures = []
+                for item in excel_data:
+                    row_data = {
+                        'title': item.get('title', ''),
+                        'images': item.get('images', {}),
+                    }
+                    processed_data.append(row_data)
+
+                    futures.append(executor.submit(self.process_item, item, shop, category_id, warehouse_id))
+
+                for future in futures:
+                    future.result()
+
+            return JsonResponse({'processed_data': processed_data}, status=status.HTTP_201_CREATED)
+
+        except ObjectDoesNotExist as e:
+            return HttpResponse({'error': str(e)}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print(traceback.format_exc())
+            return HttpResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def process_item(self, item, shop, category_id, warehouse_id):
+        title = item.get('title', '')
+        images = item.get('images', {})
+
+        downloaded_image_paths = []
+
+        with ThreadPoolExecutor() as executor:
+            image_futures = []
+
+            for key, image_url in images.items():
+                image_futures.append(executor.submit(self.download_image, image_url, key, shop))
+
+            for future in image_futures:
+                result = future.result()
+                if result:
+                    downloaded_image_paths.append(result)
+
+        base64_images = self.process_images(downloaded_image_paths)
+        images_ids = self.upload_images(base64_images, shop)
+        self.create_product(shop, category_id, warehouse_id, item, images_ids)
+
+    def download_image(self, image_url, key, shop):
+        if image_url:
+            download_dir = 'C:/anhtiktok'  # Đường dẫn lưu trữ hình ảnh
+            os.makedirs(download_dir, exist_ok=True)
+            random_string = str(uuid.uuid4())[:8]
+            image_filename = os.path.join(download_dir, f"{key}_{random_string}.jpg")
+            response = requests.get(image_url)
+
+            if response.status_code == 200:
+                with open(image_filename, 'wb') as f:
+                    f.write(response.content)
+                return image_filename
+
+    def process_images(self, downloaded_image_paths):
+        base64_images = []
+        for image_path in downloaded_image_paths:
+            try:
+                img = Image.open(image_path)
+                if img.mode != 'RGB':
+                    img = img.convert('RGB')
+                img.verify()
+                img.close()
+
+                with open(image_path, 'rb') as img_file:
+                    base64_image = base64.b64encode(img_file.read()).decode('utf-8')
+                base64_images.append(base64_image)
+
+            except Exception as e:
+                print(f"Error processing image: {image_path}, {str(e)}")
+
+        return base64_images
+
+    def upload_images(self, base64_images, shop):
+        images_ids = []
+        for img_data in base64_images:
+            img_id = callUploadImage(access_token=shop.access_token, img_data=img_data)
+            images_ids.append(img_id)
+
+        return images_ids
+
+    def create_product(self, shop, category_id, warehouse_id, row_data, images_ids):
+        for item in images_ids:
+            print(item)
+        title = row_data.get('title', '')
+        print(title)
+
+        createProduct(shop.access_token, category_id, warehouse_id, title, images_ids)
