@@ -119,6 +119,18 @@ export const IntlNumberFormat = (currency, style, maximumSignificantDigits, numb
   return new Intl.NumberFormat(currency, {style: `${style}`, currency: `${currency}`, maximumSignificantDigits: `${maximumSignificantDigits}` }).format(number);
 }
 
+export function getCurrencySymbol (locale, currency) {
+  return (0).toLocaleString(
+    locale,
+    {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }
+  ).replace(/\d/g, '').trim()
+}
+
 export const buildNestedArrays = (items, parentId) => {
   let nestedItems = [];
   if(items){
@@ -132,3 +144,10 @@ export const buildNestedArrays = (items, parentId) => {
     children: buildNestedArrays(items, item.id),
   }));
 };
+
+export const DeleteDuplicateElements = (array) => {
+  const cachedObject = {};
+  array.map((item) => (cachedObject[item.id] = item));
+  array = Object.values(cachedObject);
+  return array
+}
