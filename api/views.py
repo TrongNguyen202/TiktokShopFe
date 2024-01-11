@@ -15,7 +15,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics
-from .helpers import send_mail_verification, GenerateSign
+from .helpers import send_mail_verification, GenerateSign,is_webp_image_without_bits
 from .serializers import (
     SignUpSerializers,
     VerifySerializers,
@@ -55,7 +55,22 @@ from rest_framework import status
 from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-
+import json
+import os
+import base64
+import uuid
+import requests
+import traceback
+from concurrent.futures import ThreadPoolExecutor
+from django.views import View
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse, HttpResponse
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework import status
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from PIL import Image
+from .models import Shop
 
 
 class SignUp(APIView):
@@ -380,77 +395,81 @@ class UploadImage(APIView):
             # Trả về lỗi nếu không có dữ liệu ảnh
             return Response({'error': 'No image data provided'}, status=status.HTTP_400_BAD_REQUEST)
 
-# @method_decorator(csrf_exempt, name='dispatch')
-# class ProcessExcel(APIView):
+@method_decorator(csrf_exempt, name='dispatch')
+class ProcessExcelNo(APIView):
 
-#     def post(self, request, shop_id):
-#         # Lấy dữ liệu ảnh từ request.data
-#         excel_file = request.data.get('excel_file')
-#         shop = get_object_or_404(Shop, id=shop_id)
-#         if excel_file:
-#             try:
-#                 df = pd.read_excel(excel_file)
-#                 processed_data = []
+    def post(self, request, shop_id):
+        # Lấy dữ liệu ảnh từ request.data
+        excel_file = request.data.get('excel_file')
+        shop = get_object_or_404(Shop, id=shop_id)
+        if excel_file:
+            try:
+                df = pd.read_excel(excel_file)
+                processed_data = []
 
-#                 # Filter columns that start with 'image' or are named 'title'
-#                 selected_columns = [col for col in df.columns if col.startswith('image') or col == 'title']
+                # Filter columns that start with 'image' or are named 'title'
+                selected_columns = [col for col in df.columns if col.startswith('image') or col == 'title']
                 
-#                 for index, row in df.iterrows():
-#                     row_data = {col: row[col] for col in selected_columns}
-#                     processed_data.append(row_data)
+                for index, row in df.iterrows():
+                    row_data = {col: row[col] for col in selected_columns}
+                    processed_data.append(row_data)
 
-#                     downloaded_image_paths = []
-#                     for col, image_url in row_data.items():
-#                         if col.startswith('image') and not pd.isna(image_url):
-#                             download_dir = 'C:/anhtiktok'
-#                             os.makedirs(download_dir, exist_ok=True)
-#                             random_string = str(uuid.uuid4())[:8]
-#                             image_filename = os.path.join(download_dir, f"{col}_{index}_{random_string}.jpg")
-#                             response = requests.get(image_url)
-#                             if response.status_code == 200:
-#                                 with open(image_filename, 'wb') as f:
-#                                     f.write(response.content)
-#                                 downloaded_image_paths.append(image_filename)
+                    downloaded_image_paths = []
+                    for col, image_url in row_data.items():
+                        if col.startswith('image') and not pd.isna(image_url):
+                            download_dir = 'C:/anhtiktok'
+                            os.makedirs(download_dir, exist_ok=True)
+                            random_string = str(uuid.uuid4())[:8]
+                            image_filename = os.path.join(download_dir, f"{col}_{index}_{random_string}.jpg")
+                            response = requests.get(image_url)
+                            if response.status_code == 200:
+                                with open(image_filename, 'wb') as f:
+                                    f.write(response.content)
+                                downloaded_image_paths.append(image_filename)
                         
-#                     base64_images = []
-#                     for image_path in downloaded_image_paths:
-#                         try:
-#                             # Check bit depth and convert to RGB if needed
-#                             img = Image.open(image_path)
-#                             if img.mode != 'RGB' or img.bits != 8:
-#                                 img = img.convert('RGB')
-#                             img.verify()
-#                             img.close()
+                    base64_images = []
+                    for image_path in downloaded_image_paths:
+                        try:
+                            # Check bit depth and convert to RGB if needed
+                            img = Image.open(image_path)
+                            if img.mode != 'RGB' or img.bits != 8:
+                                img = img.convert('RGB')
+                            if is_webp_image_without_bits(img=img):
+                               os.remove(image_path)
+                               print(f"Đã xóa ảnh: {image_path}")
+                               continue
+                            img.verify()
+                            img.close()
 
-#                             with open(image_path, 'rb') as img_file:
-#                                 base64_image = base64.b64encode(img_file.read()).decode('utf-8')
-#                             base64_images.append(base64_image)
+                            with open(image_path, 'rb') as img_file:
+                                base64_image = base64.b64encode(img_file.read()).decode('utf-8')
+                            base64_images.append(base64_image)
 
-#                         except Exception as e:
-#                             print(f"Error processing image: {image_path}, {str(e)}")
+                        except Exception as e:
+                            print(f"Error processing image: {image_path}, {str(e)}")
                     
-#                     images_ids = []
-#                     # Add your processing logic here using base64_images
-#                     for img_data in base64_images:
-#                         img_id = callUploadImage(access_token=shop.access_token, img_data=img_data)
-#                         images_ids.append(img_id)
+                    images_ids = []
+                    # Add your processing logic here using base64_images
+                    for img_data in base64_images:
+                        img_id = callUploadImage(access_token=shop.access_token, img_data=img_data)
+                        images_ids.append(img_id)
                        
                     
-#                     for item in images_ids:
-#                         print(item)
-#                     title = row_data.get('title', '')
-#                     print(title)
+                    for item in images_ids:
+                        print(item)
+                    title = row_data.get('title', '')
+                    print(title)
                     
-#                     createProduct(shop.access_token, request.data.get('category_id'), request.data.get('warehouse_id'), title, images_ids) 
+                    createProduct(shop.access_token, request.data.get('category_id'), request.data.get('warehouse_id'), title, images_ids) 
                     
-#                 return JsonResponse({'processed_data': processed_data, 'base64_images': base64_images}, status=status.HTTP_201_CREATED)
+                return JsonResponse({'processed_data': processed_data, 'base64_images': base64_images}, status=status.HTTP_201_CREATED)
 
-#             except Exception as e:
+            except Exception as e:
                
-#                 return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-#         else:
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        else:
           
-#             return Response({'error': 'No excel data provided'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'No excel data provided'}, status=status.HTTP_400_BAD_REQUEST)
         
 
 class GetAllBrands(APIView):
@@ -740,7 +759,7 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from PIL import Image
-from .models import Shop
+from PIL import UnidentifiedImageError
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ProcessExcel(View):
@@ -828,15 +847,26 @@ class ProcessExcel(View):
         for image_path in downloaded_image_paths:
             try:
                 img = Image.open(image_path)
+            except UnidentifiedImageError as e:
+                if e.args[0] == 'WebP':
+                   
+                    with open(image_path, 'rb') as img_file:
+                        base64_image = base64.b64encode(img_file.read()).decode('utf-8')
+                        base64_images.append(base64_image)
+                    continue
+                else:
+                    raise
+
+            try:
                 if img.mode != 'RGB':
                     img = img.convert('RGB')
-                img.verify()
-                img.close()
+                if not hasattr(img, 'bits') or img.bits != 8: 
+                    
+                    img = img.convert('PNG')
 
                 with open(image_path, 'rb') as img_file:
                     base64_image = base64.b64encode(img_file.read()).decode('utf-8')
-                base64_images.append(base64_image)
-
+                    base64_images.append(base64_image)
             except Exception as e:
                 print(f"Error processing image: {image_path}, {str(e)}")
 
@@ -857,3 +887,4 @@ class ProcessExcel(View):
         print(title)
 
         createProduct(shop.access_token, category_id, warehouse_id, title, images_ids)
+
