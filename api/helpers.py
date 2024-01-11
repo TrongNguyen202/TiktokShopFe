@@ -11,7 +11,8 @@ import hmac
 import hashlib
 from datetime import datetime
 import base64
-
+from PIL import Image, WebPImagePlugin
+WebPImageFile = WebPImagePlugin.WebPImageFile
 
 def check_token(user, token):
     return user.customuser.verify_token == token
@@ -78,3 +79,14 @@ class GenerateSignNoBody:
         sign_string += secret
         signature = hmac.new(secret.encode(), sign_string.encode(), hashlib.sha256).hexdigest()
         return signature
+
+
+def is_webp_image_without_bits(img):
+  
+    if isinstance(img, WebPImageFile):
+        try:
+            bits = img.bits
+        except AttributeError:
+            return True
+    return False
+
