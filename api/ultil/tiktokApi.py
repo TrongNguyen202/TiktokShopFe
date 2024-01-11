@@ -209,7 +209,7 @@ def createProduct(access_token,category_id,warehouse_id,title,images_ids):
                 "stock_infos": [
                     {
                         "warehouse_id": warehouse_id,  
-                        "available_stock": 200
+                        "available_stock": 10000
                     }
                 ],
                 "original_price": "100"

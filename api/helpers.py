@@ -11,7 +11,8 @@ import hmac
 import hashlib
 from datetime import datetime
 import base64
-
+from PIL import Image, WebPImagePlugin
+WebPImageFile = WebPImagePlugin.WebPImageFile
 
 
 def check_token(user, token):
@@ -82,16 +83,12 @@ class GenerateSignNoBody:
         return signature
 
 
+def is_webp_image_without_bits(img):
+  
+    if isinstance(img, WebPImageFile):
+        try:
+            bits = img.bits
+        except AttributeError:
+            return True
+    return False
 
-# def encode_image_to_base64(image_path):
-#     try:
-#         with open(image_path, "rb") as image_file:
-#             base64_image = base64.b64encode(image_file.read()).decode("utf-8")
-#             print(base64_image)
-#         return base64_image
-#     except FileNotFoundError:
-#         print(f"Error: File not found at '{image_path}'")
-#         return None
-#     except Exception as e:
-#         print(f"Error encoding image: {str(e)}")
-#         return None

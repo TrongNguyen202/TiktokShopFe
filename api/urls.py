@@ -24,9 +24,11 @@ urlpatterns = [
     path("shops/<int:shop_id>/warehouses", views.WareHouse.as_view(), name="WareHouse"),
     path("shops/search", views.ShopSearchViews.as_view(), name="Shop_search"),
     path("shops/<int:shop_id>/upload", views.UploadImage.as_view(), name="upload"),
-    path('shops/<int:shop_id>/process_excel', views.ProcessExcel.as_view(), name='process_excel'),
+    path('shops/<int:shop_id>/products/create_product_excel3', views.ProcessExcel.as_view(), name='process_excel'),
     path('shops/<int:shop_id>/brands', views.GetAllBrands.as_view(), name='get_brands'),
     path("shops/<int:shop_id>/categories/is_leaf", views.CategoriesIsleaf.as_view(), name="categories_is_leaf"),
+    path('shops/<int:shop_id>/products/create_product_excel2', views.MultithreadProcessExcel.as_view(), name='process_excel2'),
+    path('shops/<int:shop_id>/products/create_product_excel1', views.ProcessExcelNo.as_view(), name='process_excel3'),
     
  
 ]
