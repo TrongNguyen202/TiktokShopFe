@@ -46,9 +46,11 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "drf_spectacular",
     "widget_tweaks",
+    
 ]
 
 MIDDLEWARE = [
+    
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
@@ -73,13 +75,19 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                
+
             ],
         },
     },
 ]
 
 WSGI_APPLICATION = "tiktok.wsgi.application"
+
+CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:8000',
+    'http://localhost:5173',
+)
 
 
 # Database
@@ -144,7 +152,6 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
 
 
 EMAIL_BACKEND = config("EMAIL_BACKEND")
