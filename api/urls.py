@@ -29,5 +29,6 @@ urlpatterns = [
     path('shops/<int:shop_id>/products/create_product_excel2', views.MultithreadProcessExcel.as_view(), name='process_excel2'),
     path('shops/<int:shop_id>/products/create_product_excel1', views.ProcessExcelNo.as_view(), name='process_excel3'),
     path('shops/<int:shop_id>/products/create_product_excel3', views.ProcessExcel.as_view(), name='process_excel1'),
+    path('shops/<int:shop_id>/products/updateproduct/<int:product_id>', views.EditProductAPIView.as_view(), name='edit_product')
  
 ]

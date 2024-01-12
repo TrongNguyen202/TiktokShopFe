@@ -1,4 +1,4 @@
-from .constant import secret,TIKTOK_API_URL,app_key,grant_type
+from .constant import secret,TIKTOK_API_URL,app_key,grant_type,ProductObject
 from api.helpers import GenerateSign,GenerateSignNoBody
 import requests
 import json
@@ -56,7 +56,7 @@ def refreshToken(refreshToken):
        "app_key":app_key,
        "app_secret":secret,
        "refresh_token":refreshToken,
-       "grant_type":grant_type,
+       "grant_type":"refresh_token",
     })
     response = requests.post(url, json=json.loads(body))
     print(response.status_code)
@@ -245,3 +245,84 @@ def getBrands(access_token):
     print(response.text)
     return response
 
+
+
+def getBrands(access_token):
+    url = TIKTOK_API_URL['url_get_brands']
+    query_params = {
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp(),
+        
+    }
+
+
+    sign = SIGNNOBODY.cal_sign(secret, urllib.parse.urlparse(url), query_params)
+    query_params["sign"] = sign
+    
+    response = requests.get(url, params=query_params)
+  
+    print(response.status_code)
+    print(response.text)
+    return response
+
+
+def callEditProduct(access_token, product_object):
+    url = TIKTOK_API_URL['url_edit_product']
+    query_params = {
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp(),
+    }
+
+    images_list = [{"id": image["id"]} for image in product_object.images]
+
+    skus_list = []
+    for sku in product_object.skus:
+        sales_attributes_list = [
+            {
+                "attribute_id": attr.attribute_id,
+                "attribute_name": attr.attribute_name,
+                "value_id": attr.value_id,
+                "value_name": attr.value_name,
+            } for attr in sku.sales_attributes
+        ]
+        stock_infos_list = [
+            {
+                "warehouse_id": info.warehouse_id,
+                "available_stock": info.available_stock
+            } for info in sku.stock_infos
+        ]
+        skus_list.append({
+            "sales_attributes": sales_attributes_list,
+            "original_price": sku.original_price,
+            "stock_infos": stock_infos_list
+        })
+
+    bodyjson = {
+        "product_id": product_object.product_id,
+        "product_name": product_object.product_name,
+        "images": images_list,
+        "price": product_object.price,
+        "is_cod_open": product_object.is_cod_open,
+        "package_dimension_unit": product_object.package_dimension_unit,
+        "package_height": product_object.package_height,
+        "package_length": product_object.package_length,
+        "package_weight": product_object.package_weight,
+        "package_width": product_object.package_width,
+        "category_id": product_object.category_id,
+        "description": product_object.description,
+        "skus": skus_list
+    }
+
+    body = json.dumps(bodyjson)
+
+    sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
+    query_params["sign"] = sign
+
+    response = requests.put(url, params=query_params, json=bodyjson)
+
+    # Process the response
+    print(response.status_code)
+    print(response.text)
+    return HttpResponse(response)

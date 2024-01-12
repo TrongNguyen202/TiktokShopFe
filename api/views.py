@@ -23,10 +23,10 @@ from .serializers import (
     ShopRequestSerializers
 
 )
-from api.ultil.tiktokApi import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands
+from api.ultil.tiktokApi import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands,callEditProduct  
 from django.http import HttpResponse
 from .models import Shop, Image
-from api.ultil.constant import app_key, secret, grant_type
+from api.ultil.constant import app_key, secret, grant_type,ProductObject
 from django.http import HttpResponse
 from django.http import JsonResponse
 import base64
@@ -70,7 +70,7 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from PIL import Image
-from .models import Shop
+
 
 
 class SignUp(APIView):
@@ -869,7 +869,7 @@ class ProcessExcel(View):
                     base64_images.append(base64_image)
             except Exception as e:
                 print(f"Error processing image: {image_path}, {str(e)}")
-
+        print("countttttttttttttt", len(base64_images))
         return base64_images
 
     def upload_images(self, base64_images, shop):
@@ -888,3 +888,15 @@ class ProcessExcel(View):
 
         createProduct(shop.access_token, category_id, warehouse_id, title, images_ids)
 
+class EditProductAPIView(APIView):
+    def get(self, request, shop_id, product_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        body_raw = request.body.decode('utf-8')
+        product_data = json.loads(body_raw)
+        
+        product_object = ProductObject(**product_data)
+
+        response = callEditProduct(access_token, product_object)
+
+        return JsonResponse({"status_code": response.status_code, "response_text": response.json})
