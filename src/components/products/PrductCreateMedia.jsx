@@ -52,6 +52,7 @@ const PrductCreateMedia = ({productData}) => {
                     fileList={fileList}
                     onPreview={handlePreview}
                     onChange={handleChange}
+                    className='w-ful'
                 >
                     <button
                         style={{

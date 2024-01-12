@@ -6,20 +6,20 @@ const ProductCreateSale = () => {
     return (
         <>
             <ProductSectionTitle title='Thông tin bán hàng' />
-            <Row>
-                <Col span={6}>
+            <Row gutter={30}>
+                <Col span={8}>
                     <Form.Item name='price' label="Giá:">
                         <InputNumber min={0} className='w-full' addonAfter='USD' />
                     </Form.Item>
                 </Col>
 
-                <Col span={6}>
+                <Col span={8}>
                     <Form.Item label="Số lượng:" name='available'>
                         <InputNumber min={0} className='w-full' />
                     </Form.Item>
                 </Col>
 
-                <Col span={6}>
+                <Col span={8}>
                     <Form.Item name='seller_sku' label="SKU (Đơn vị lưu trữ hàng tồn kho):">
                         <Input />
                     </Form.Item>

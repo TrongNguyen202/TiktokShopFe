@@ -30,7 +30,28 @@ const ProductEdit = () => {
     const skuDataForm = productById?.skus?.length === 1 ? formatNumber(productById?.skus[0].seller_sku) : ''
 
     const onFinish = (values) => {
-        console.log('Success:', values);
+        const dataFormSubmit = {
+            product_id: productId,
+            product_name: values.product_name,
+            images: values.images.map((item) => ({
+                id: item.id
+            })),
+            price: values.price,
+            is_cod_open: values.is_cod_open,
+            package_dimension_unit: values.package_dimension_unit,
+            package_height: values.package_height,
+            package_length: values.package_length,
+            package_weight: values.package_weight,
+            package_width: values.package_width,
+            category_id: values.category_list.map((item) => (
+                item.value
+            )),
+            description: values.description,
+            skus: values.variation
+        }
+
+        console.log('values: ', values)
+        console.log('dataFormSubmit: ', dataFormSubmit)
     };
     
     const onFinishFailed = (errorInfo) => {
@@ -43,7 +64,10 @@ const ProductEdit = () => {
         price: priceDataForm,
         available: availableDataForm,
         seller_sku: skuDataForm,
+        // product_variation: 
     }
+
+    // console.log('productById: ', productById)
 
     useEffect(() => {
         const onSuccess = (res) => {
@@ -68,7 +92,6 @@ const ProductEdit = () => {
             </div>
 
             <Form
-                wrapperCol={{span: 18}} 
                 layout="vertical"
                 onFinish={onFinish}
                 onFinishFailed={onFinishFailed}

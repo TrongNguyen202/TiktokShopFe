@@ -115,6 +115,7 @@ export const format = (number) => {
   })
 }
 
+// style: currency, percent
 export const IntlNumberFormat = (currency, style, maximumSignificantDigits, number ) => {
   return new Intl.NumberFormat(currency, {style: `${style}`, currency: `${currency}`, maximumSignificantDigits: `${maximumSignificantDigits}` }).format(number);
 }
@@ -145,9 +146,16 @@ export const buildNestedArrays = (items, parentId) => {
   }));
 };
 
-export const DeleteDuplicateElements = (array) => {
+export const DeleteDuplicateElementsById = (array) => {
   const cachedObject = {};
   array.map((item) => (cachedObject[item.id] = item));
+  array = Object.values(cachedObject);
+  return array
+}
+
+export const DeleteDuplicateElements = (array) => {
+  const cachedObject = {};
+  array.map((item) => (cachedObject[item.id&&item.value_id] = item));
   array = Object.values(cachedObject);
   return array
 }
