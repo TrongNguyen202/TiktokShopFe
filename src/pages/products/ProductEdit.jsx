@@ -6,11 +6,13 @@ import { useCategoriesStore } from '../../store/categoriesStore'
 import { useProductsStore } from '../../store/productsStore'
 import { getPathByIndex, buildNestedArrays, formatNumber } from '../../utils'
 
+import Loading from '../../components/loading'
 import PageTitle from "../../components/common/PageTitle";
 import PrductCreateAttributes from '../../components/products/PrductCreateAttributes';
 import PrductCreateMedia from '../../components/products/PrductCreateMedia';
 import ProductCreateInformation from '../../components/products/ProductCreateInformation';
 import ProductCreateSale from '../../components/products/ProductCreateSale';
+import ProductCreateVariation from '../../components/products/ProductCreateVariation'
 import ProductCreateShipping from '../../components/products/ProductCreateShipping';
 
 
@@ -19,7 +21,7 @@ const ProductEdit = () => {
     const shopId = getPathByIndex(2)
     const productId = getPathByIndex(4)
     const [form] = Form.useForm();
-    const { getCategoriesById, categoriesById } = useCategoriesStore((state) => state)
+    const { getCategoriesById, categoriesById, loading } = useCategoriesStore((state) => state)
     const { productById, getProductsById } = useProductsStore((state) => state)
     
     const treeCategoryDefault = buildNestedArrays(productById.category_list&&productById.category_list, "0")
@@ -40,7 +42,7 @@ const ProductEdit = () => {
         category_list: treeCategoryDefault,
         price: priceDataForm,
         available: availableDataForm,
-        seller_sku: skuDataForm
+        seller_sku: skuDataForm,
     }
 
     useEffect(() => {
@@ -58,6 +60,7 @@ const ProductEdit = () => {
         
     }, [productById.product_id])
 
+    if (loading) return <Loading/>
     return (
         <>
             <div className='p-10'>
@@ -77,6 +80,11 @@ const ProductEdit = () => {
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
+                    <PrductCreateAttributes />
+                </div>
+
+                <div className='h-[10px] bg-[#f5f5f5]'/>
+                <div className='px-20 py-10'>
                     <PrductCreateMedia productData={productById} />
                 </div>
 
@@ -87,7 +95,7 @@ const ProductEdit = () => {
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
-                    <PrductCreateAttributes attributes={productById?.skus} />
+                    <ProductCreateVariation variation={productById?.skus} />
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>

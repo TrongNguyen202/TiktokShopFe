@@ -6,7 +6,6 @@ import { useShopsBrand } from '../../store/brandStore'
 import StoreDetailSectionTitle from './StoreDetailSectionTitle';
 
 const StoreDetailBrands = ({shopId}) => {
-  console.log('shop id: ', shopId)
   const { brands, getAllBrand } = useShopsBrand((state) => state)
 
     const columnBrand = [

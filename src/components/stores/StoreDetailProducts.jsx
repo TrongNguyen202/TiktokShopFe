@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { Table, Button, Tag } from 'antd'
+import { useEffect, useState } from 'react'
+import { Table, Button, Tag, Divider } from 'antd'
 import { useNavigate } from 'react-router-dom'
 
 import { alerts } from '../../utils/alerts'
@@ -28,12 +28,13 @@ const StoreDetailProducts = ({shopId}) => {
             dataIndex: ["skus", "id"],
             key: 'id',
             align: 'center',
-            render: (_, record) => record?.skus?.map((item, index) => (
-                <div key={index}>
-                {index > 0 && <Divider/>}
-                <p>{item.seller_sku}</p>
-                </div>
-            ))
+            render: (_, record) => <div className='-my-[12px]'>
+                {record?.skus?.map((item, index) => (
+                    <div key={index} className='border-solid border-0 border-b border-[#d9d9d9] last:border-b-0 py-1 px-[8px] -mx-[8px] h-[53px] flex flex-wrap items-center justify-center'>
+                        <span className='inline-block break-words'>{item.seller_sku}</span>
+                    </div>
+                ))}
+            </div>
         },
         {
             title: 'Tên sản phẩm',
@@ -45,12 +46,13 @@ const StoreDetailProducts = ({shopId}) => {
             dataIndex: ['skus', 'price'],
             key: 'price',
             align: 'center',
-            render: (_, record) => record?.skus?.map((item, index) => (
-                <div key={index}>
-                {index > 0 && <Divider/>}
-                <p>{IntlNumberFormat(item.price.currency, 'currency', 3, item.price.original_price)}</p>
-                </div>
-            ))
+            render: (_, record) => <div className='-my-[12px]'>
+                {record?.skus?.map((item, index) => (
+                    <div key={index} className='border-solid border-0 border-b border-[#d9d9d9] last:border-b-0 py-1 px-[8px] -mx-[8px] h-[53px] leading-[44px]'>
+                        {IntlNumberFormat(item.price.currency, 'currency', 3, item.price.original_price)}
+                    </div>
+                ))}
+            </div>
         },
         {
             title: 'Trạng thái',
@@ -130,10 +132,10 @@ const StoreDetailProducts = ({shopId}) => {
             <StoreDetailSectionTitle title='Danh sách sản phẩm' count={products?.length} isShowButton buttonLabel='Thêm sản phẩm' handleButton={hanldeProductCreate} />
             <Table
                 columns={columnProduct}
-                scroll={{ x: 1700}}
+                scroll={{ x: 1700, y: 1000}}
                 size='middle'
                 bordered
-                dataSource={products && products.length ? products : []}
+                dataSource={products&&products?.length > 0 ? products : []}
             />
         </>
     );

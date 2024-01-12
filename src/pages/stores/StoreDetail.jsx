@@ -5,7 +5,7 @@ import { getPathByIndex } from '../../utils'
 
 import { useShopsStore } from '../../store/shopsStore'
 
-import Loading from '../../components/loading/Index'
+import Loading from '../../components/loading'
 import PageTitle from '../../components/common/PageTitle'
 import StoreDetailBaseInformation from '../../components/stores/StoreDetailBaseInformation'
 import StoreDetailBrands from '../../components/stores/StoreDetailBrands'
