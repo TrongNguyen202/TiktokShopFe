@@ -47,7 +47,7 @@ const ProductEdit = () => {
                 item.value
             )),
             description: values.description,
-            skus: values.variation
+            skus: values.variations
         }
 
         console.log('values: ', values)
