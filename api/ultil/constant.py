@@ -96,5 +96,78 @@ class StockInfo:
         }
 
 
+class ProductCreateObject:
+    def __init__(self, is_cod_open, 
+                 package_dimension_unit, package_height, package_length, package_weight, package_width,
+                 category_id, warehouse_id,description, skus):
+        
+    
+        self.is_cod_open = is_cod_open
+        self.package_dimension_unit = package_dimension_unit
+        self.package_height = package_height
+        self.package_length = package_length
+        self.package_weight = package_weight
+        self.package_width = package_width
+        self.category_id = category_id
+        self.warehouse_id = warehouse_id
+        self.description = description
+        self.skus = [SKU(**sku_data) for sku_data in skus]
+
+    def to_json(self):
+        skus_json = [sku.to_json() for sku in self.skus]
+        return {
+        
+          
+            "is_cod_open": self.is_cod_open,
+            "package_dimension_unit": self.package_dimension_unit,
+            "package_height": self.package_height,
+            "package_length": self.package_length,
+            "package_weight": self.package_weight,
+            "package_width": self.package_width,
+            "category_id": self.category_id,
+            "warehouse_id":self.warehouse_id,
+            "description": self.description,
+            "skus": skus_json
+        }
+
+class SKU:
+    def __init__(self, sales_attributes, original_price, stock_infos):
+        self.sales_attributes = [SalesAttribute(**attr) for attr in sales_attributes]
+        self.original_price = original_price
+        self.stock_infos = [StockInfo(**stock_info) for stock_info in stock_infos]
+
+    def to_json(self):
+        sales_attributes_json = [attr.to_json() for attr in self.sales_attributes]
+        stock_infos_json = [info.to_json() for info in self.stock_infos]
+        return {
+            "sales_attributes": sales_attributes_json,
+            "original_price": self.original_price,
+            "stock_infos": stock_infos_json
+        }
+
+class SalesAttribute:
+    def __init__(self, attribute_id, attribute_name, value_id, value_name):
+        self.attribute_id = attribute_id
+        self.attribute_name = attribute_name
+        self.value_id = value_id
+        self.value_name = value_name
+
+    def to_json(self):
+        return {
+            "attribute_id": self.attribute_id,
+            "attribute_name": self.attribute_name,
+            "custom_value": self.value_name
+        }
+
+class StockInfo:
+    def __init__(self, warehouse_id, available_stock):
+        self.warehouse_id = warehouse_id
+        self.available_stock = available_stock
+
+    def to_json(self):
+        return {
+            "warehouse_id": self.warehouse_id,
+            "available_stock": self.available_stock
+        }
 
 
