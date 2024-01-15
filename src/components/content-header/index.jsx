@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 export default function ContentHeader({ title }) {
   const navigate = useNavigate()
   return (
-    <p className='pl-10 mt-4 text-[20px] font-semibold flex gap-3 items-center'>
+    <p className='mt-4 text-[20px] font-semibold flex gap-3 items-center'>
       <ArrowLeftOutlined onClick={() => navigate(-1)} />
       {title}
     </p>

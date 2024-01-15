@@ -12,8 +12,7 @@ import { alerts } from '../../utils/alerts'
 export default function Products() {
   const navigate = useNavigate()
   const location = useLocation();
-  const store = location.state.store;
-  console.log('location: ', store)
+  // const store = location.state.store;
   const statusProductByPath = getPathByIndex(3)
   const { products, getAllProducts, loading, infoTable } = useProductsStore((state) => state)
   const [tableParams, setTableParams] = useState({
@@ -168,7 +167,7 @@ export default function Products() {
       alerts.error(err)
     }
     getAllProducts(
-      store.id,
+      1,
       null,
       onSuccess,
       onFail,
