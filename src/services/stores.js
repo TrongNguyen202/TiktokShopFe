@@ -9,11 +9,11 @@ const createStore = (params) => {
 }
 
 const getStoreById = (id) => {
-  return callApi(`/manage/shops/${id}`, 'get')
+  return callApi(`/shops/${id}`, 'get')
 }
 
 const searchStores = (query) => {
-  return callApi(`/manage/shops?${query}`, 'get')
+  return callApi(`/shops?${query}`, 'get')
 }
 
 export const stores = {

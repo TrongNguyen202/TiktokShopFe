@@ -5,8 +5,8 @@ const getAllProducts = (id) => {
     `/shops/${id}/products/list`, 'get')
 }
 
-const getProductsById = (id) => {
-  return callApi(`/admin/v1/products/${id}`, 'get')
+const getProductsById = (shopId, productId) => {
+  return callApi(`/shops/${shopId}/products/${productId}`, 'get')
 }
 
 const changeStatusProduct = (id, params) => {

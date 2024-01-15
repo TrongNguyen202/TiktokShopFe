@@ -114,3 +114,48 @@ export const format = (number) => {
     currency: 'VND',
   })
 }
+
+// style: currency, percent
+export const IntlNumberFormat = (currency, style, maximumSignificantDigits, number ) => {
+  return new Intl.NumberFormat(currency, {style: `${style}`, currency: `${currency}`, maximumSignificantDigits: `${maximumSignificantDigits}` }).format(number);
+}
+
+export function getCurrencySymbol (locale, currency) {
+  return (0).toLocaleString(
+    locale,
+    {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }
+  ).replace(/\d/g, '').trim()
+}
+
+export const buildNestedArrays = (items, parentId) => {
+  let nestedItems = [];
+  if(items){
+    nestedItems = items.filter((item) => item.parent_id === parentId);
+  }
+
+  return nestedItems.map((item) => ({
+    title: item.local_display_name,
+    value: item.id,
+    key: item.id,
+    children: buildNestedArrays(items, item.id),
+  }));
+};
+
+export const DeleteDuplicateElementsById = (array) => {
+  const cachedObject = {};
+  array.map((item) => (cachedObject[item.id] = item));
+  array = Object.values(cachedObject);
+  return array
+}
+
+export const DeleteDuplicateElements = (array) => {
+  const cachedObject = {};
+  array.map((item) => (cachedObject[item.id&&item.value_id] = item));
+  array = Object.values(cachedObject);
+  return array
+}
