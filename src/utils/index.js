@@ -146,6 +146,19 @@ export const buildNestedArrays = (items, parentId) => {
   }));
 };
 
+export const buildNestedArraysMenu = (items, parentId) => {
+  const filteredItems = items?.filter(item => item.parent_id === parentId);
+
+  if (filteredItems.length === 0) {
+    return null;
+  }
+
+  return filteredItems?.map(item => {
+    const children = buildNestedArraysMenu(items, item.id);
+    return children ? { label: item.local_display_name, key: item.id , children } : { label: item.local_display_name, key: item.id };
+  });
+}
+
 export const DeleteDuplicateElementsById = (array) => {
   const cachedObject = {};
   array.map((item) => (cachedObject[item.id] = item));

@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { Table } from 'antd'
+import { Link } from 'react-router-dom';
+import { Card } from 'antd'
 
 import { useCategoriesStore } from '../../store/categoriesStore'
 
@@ -8,21 +9,6 @@ import StoreDetailSectionTitle from './StoreDetailSectionTitle';
 const StoreDetailCategories = ({shopId}) => {
     const { getCategoriesById, categoriesById } = useCategoriesStore((state) => state)
     const { category_list } = categoriesById
-
-    const columnCollection = [
-        {
-            title: 'Mã danh mục',
-            dataIndex: 'id',
-            key: 'id',
-            align: 'center',
-            width: '170px'
-        },
-        {
-            title: 'Tên danh mục',
-            dataIndex: 'local_display_name',
-            key: 'local_display_name'
-        }
-    ]
 
     useEffect(() => {
         const onSuccess = (res) => {
@@ -36,16 +22,10 @@ const StoreDetailCategories = ({shopId}) => {
     }, [shopId])
 
     return (
-        <>
-            <StoreDetailSectionTitle title='Danh sách danh mục' count={category_list?.length} />
-            <Table
-                columns={columnCollection}
-                scroll={{ x: 1199}}
-                size='middle'
-                bordered
-                dataSource={category_list?.length ? category_list : []}
-            />
-        </>
+        <Card className='cursor-pointer hover:shadow-md'>
+            <StoreDetailSectionTitle title='Danh mục' count={category_list?.length > 0 ? category_list?.length : '0'} />
+            <Link to={`/shops/${shopId}/categories`}>Xem thêm</Link>
+        </Card>
     );
 }
  

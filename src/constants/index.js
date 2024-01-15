@@ -58,3 +58,8 @@ export const statusProductTiktokShop = [
   {color: 'default', title: 'Freeze'},
   {color: 'red', title: 'Delete'}
 ]
+
+export const statusOrder = [
+  {color: 'default', title: 'UNPAID'},
+  {color: 'success', title: 'PAID'}
+]
