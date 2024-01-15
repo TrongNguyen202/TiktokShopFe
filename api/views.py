@@ -22,10 +22,12 @@ from .serializers import (
     ShopSerializers,
     ShopRequestSerializers
 )
-from api.ultil.tiktokApi import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes
+from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes
 from django.http import HttpResponse
 from .models import Shop, Image
-from api.ultil.constant import app_key, secret, grant_type,ProductCreateObject
+
+from api.utils.constant import app_key, secret, grant_type,ProductCreateObject
+
 from django.http import HttpResponse
 from django.http import JsonResponse
 import base64
