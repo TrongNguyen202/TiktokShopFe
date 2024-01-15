@@ -3,6 +3,7 @@ import { RepositoryRemote } from '../services'
 
 export const useCategoriesStore = create((set) => ({
   categories: {},
+  categoriesIsLeaf: [],
   categoriesById: {},
   infoTable: {},
   loading: false,
@@ -13,6 +14,18 @@ export const useCategoriesStore = create((set) => ({
       const response = await RepositoryRemote.categories.getAllCategories()
       set({ categories: response.data.data.data })
       set({ infoTable: response.data.data })
+      onSuccess(response.data.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  },
+  getAllCategoriesIsLeaf: async (id, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.categories.getAllCategoriesIsLeaf(id)
+      set({ categoriesIsLeaf: response.data.data.category_list })
+      set({ infoTable: response.data.category_list })
       onSuccess(response.data.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')

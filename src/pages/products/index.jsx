@@ -132,7 +132,13 @@ const Products = () => {
     return (
         <div className='p-10'>
             <PageTitle title='Danh sách sản phẩm' count={products?.length} showBack />
-            <Button type='primary' onClick={hanldeProductCreate} className='mt-5 mb-5'>Thêm sản phẩm</Button>
+            <Button type='primary' onClick={hanldeProductCreate} className='mt-5 mb-5 mr-3'>Thêm sản phẩm</Button>
+            <Button
+              type="primary"
+              onClick={() => navigate(`/shops/${shopId}/add-many-products`)}
+            >
+              Thêm hàng loạt
+            </Button>
             <Table
                 columns={columnProduct}
                 scroll={{ x: 1700, y: 1000}}
