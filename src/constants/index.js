@@ -45,3 +45,21 @@ export const statusProduct = {
   UNAPPROVED: 3,
   DELETED: 4,
 }
+
+
+export const statusProductTiktokShop = [
+  {color: 'default', title: 'all'},
+  {color: 'gray', title: 'draft'},
+  {color: 'processing', title: 'pending'},
+  {color: 'error', title: 'failed'},
+  {color: 'success', title: 'live'},
+  {color: 'warning', title: 'Seller Deactivated'},
+  {color: 'orange', title: 'Platform Deactivated'},
+  {color: 'default', title: 'Freeze'},
+  {color: 'red', title: 'Delete'}
+]
+
+export const statusOrder = [
+  {color: 'default', title: 'UNPAID'},
+  {color: 'success', title: 'PAID'}
+]
