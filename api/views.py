@@ -23,7 +23,7 @@ from .serializers import (
     ShopRequestSerializers
 
 )
-from api.ultil.tiktokApi import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands,callEditProduct  
+from api.ultil.tiktokApi import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes
 from django.http import HttpResponse
 from .models import Shop, Image
 from api.ultil.constant import app_key, secret, grant_type,ProductObject,ProductCreateObject
@@ -139,6 +139,31 @@ class ListProduct(APIView):
         return HttpResponse(content, content_type='application/json')
 
 # create shop
+    
+# order list by Shop
+class ListOrder(APIView):
+    # permission_classes = (IsAuthenticated,)
+
+    def get(self, request, shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+
+        response = callOrderList(access_token=shop.access_token)
+        content = response.content
+        print("content", content)
+        return HttpResponse(content, content_type='application/json')
+
+class OrderDetail(APIView):
+
+    def get(self, request, shop_id):
+        orderIds = request.data.get('order_id_list', [])
+        print("orderIds", orderIds)
+
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        response = callOrderDetail(
+            access_token=access_token, orderIds=orderIds)
+        content = response.content
+        return HttpResponse(content, content_type='application/json')
 
 
 class Shops(APIView):
@@ -320,6 +345,15 @@ class WareHouse(APIView):
         response = getWareHouseList(access_token=access_token)
         return HttpResponse(response.content, content_type='application/json', status=response.status_code)
 
+
+class Attributes(APIView):
+
+    def get(self, request, shop_id):
+        category_id = request.query_params.get('category_id')
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        response = getAttributes(access_token=access_token, category_id=category_id)
+        return HttpResponse(response.content, content_type='application/json', status=response.status_code)
 
 class ShopSearchViews(generics.ListAPIView):
     serializer_class = ShopSerializers

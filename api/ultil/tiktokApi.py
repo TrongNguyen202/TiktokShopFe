@@ -198,7 +198,7 @@ def createProduct(access_token,title,images_ids,product_object):
             {
                 "attribute_id": attr.attribute_id,
                 "attribute_name": attr.attribute_name,
-                "custom_value": attr.value_name,
+                "custom_value": attr.custom_value,
             } for attr in sku.sales_attributes
         ]
         stock_infos_list = [
@@ -331,12 +331,64 @@ def callEditProduct(access_token, product_object):
 
     body = json.dumps(bodyjson)
 
-    sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
-    query_params["sign"] = sign
-
     response = requests.put(url, params=query_params, json=bodyjson)
 
     # Process the response
     print(response.status_code)
     print(response.text)
     return HttpResponse(response)
+
+def callOrderList(access_token):
+    url = TIKTOK_API_URL['url_get_orders']
+    query_params = {
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp()
+    }
+    body = json.dumps({
+        "page_size": 50,
+    })
+
+    sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
+    query_params["sign"] = sign
+    response = requests.post(url, params=query_params, json=json.loads(body))
+
+    return response
+
+def callOrderDetail(access_token, orderIds):
+    url = TIKTOK_API_URL['url_get_orders']
+    query_params = {
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp(),
+    }
+   
+    body = json.dumps({
+        "order_id_list": orderIds,
+        "page_size": 50,
+    })
+
+    sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
+    query_params["sign"] = sign
+    
+    response = requests.post(url, params=query_params, json=json.loads(body))
+  
+    # Process the response
+    print(response.status_code)
+    print(response.text)
+    return response
+
+def getAttributes(access_token, category_id):
+    url = TIKTOK_API_URL['url_get_attributes']
+    query_params = {
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp(),
+        "category_id": category_id,
+    }
+    sign = SIGNNOBODY.cal_sign(secret, urllib.parse.urlparse(url), query_params)
+    query_params["sign"] = sign
+
+    response = requests.get(url, params=query_params)
+
+    return response

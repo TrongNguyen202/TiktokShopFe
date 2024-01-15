@@ -13,8 +13,9 @@ TIKTOK_API_URL = {
   'url_get_warehouse':'https://open-api.tiktokglobalshop.com/api/logistics/get_warehouse_list',
   'url_upload_image':'https://open-api.tiktokglobalshop.com/api/products/upload_imgs',
   'url_get_brands':'https://open-api.tiktokglobalshop.com/api/products/brands',
-  'url_edit_product':'https://open-api.tiktokglobalshop.com/api/products'
-
+  'url_edit_product':'https://open-api.tiktokglobalshop.com/api/products',
+  'url_get_orders' : 'https://open-api.tiktokglobalshop.com/api/orders/search',
+  'url_get_attributes' : 'https://open-api.tiktokglobalshop.com/api/products/attributes'
   
 }
 
@@ -116,8 +117,6 @@ class ProductCreateObject:
     def to_json(self):
         skus_json = [sku.to_json() for sku in self.skus]
         return {
-        
-          
             "is_cod_open": self.is_cod_open,
             "package_dimension_unit": self.package_dimension_unit,
             "package_height": self.package_height,
@@ -146,17 +145,16 @@ class SKU:
         }
 
 class SalesAttribute:
-    def __init__(self, attribute_id, attribute_name, value_id, value_name):
+    def __init__(self, attribute_id, attribute_name, custom_value):
         self.attribute_id = attribute_id
         self.attribute_name = attribute_name
-        self.value_id = value_id
-        self.value_name = value_name
+        self.custom_value = custom_value
 
     def to_json(self):
         return {
             "attribute_id": self.attribute_id,
             "attribute_name": self.attribute_name,
-            "custom_value": self.value_name
+            "custom_value": self.custom_value
         }
 
 class StockInfo:
