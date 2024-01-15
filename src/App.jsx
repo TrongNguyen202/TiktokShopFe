@@ -19,6 +19,9 @@ const Vouchers = lazy(() => import('./pages/vouchers'))
 const Products = lazy(() => import('./pages/products'))
 const ProductDetail = lazy(() => import('./pages/products/ProductDetail.jsx'))
 const ProductEdit = lazy(() => import('./pages/products/ProductEdit.jsx'))
+const Brands = lazy(() => import('./pages/brands'))
+const Orders = lazy(() => import('./pages/orders'))
+const OrderDetail = lazy(() => import('./pages/orders/OrderDetail.jsx'))
 const Customers = lazy(() => import('./pages/customers'))
 const Categories = lazy(() => import('./pages/categories'))
 const HomepageInterface = lazy(() => import('./pages/settings/homepageInterface'))
@@ -105,7 +108,7 @@ const App = () => {
               />
               {/* Products */}
               <Route
-                path='/products'
+                path='/shops/:id/products'
                 element={
                   <Suspense fallback={<Loading />}>
                     <Products />
@@ -139,6 +142,35 @@ const App = () => {
                 }
               />
 
+              {/* brands */}
+              <Route
+                path='/shops/:id/brands'
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <Brands/>
+                  </Suspense>
+                }
+              />
+
+              {/* orders */}
+              <Route
+                path='/shops/:id/orders'
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <Orders/>
+                  </Suspense>
+                }
+              />
+
+              <Route
+                path='/shops/:id/orders/:id'
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <OrderDetail/>
+                  </Suspense>
+                }
+              />
+
               {/* Vouchers */}
               <Route
                 path='/vouchers'
@@ -150,6 +182,7 @@ const App = () => {
               />
               <Route path='/vouchers/create' element={<VoucherForm />} />
               <Route path='/vouchers/:voucherId' element={<VoucherForm />} />
+              
               {/* Customers */}
               <Route
                 path='/customers'
@@ -159,9 +192,10 @@ const App = () => {
                   </Suspense>
                 }
               />
+              
               {/* Categories */}
               <Route
-                path='/categories'
+                path='shops/:id/categories'
                 element={
                   <Suspense fallback={<Loading />}>
                     <Categories />

@@ -1,29 +1,44 @@
 import { useEffect } from 'react'
-import Loading from '../../components/loading/Index'
+import { Table, List, Card, Menu } from 'antd'
+import { AppstoreOutlined, MailOutlined, SettingOutlined } from '@ant-design/icons';
+
 import { useCategoriesStore } from '../../store/categoriesStore'
-import CategoryItem from './CategoryItem'
-import CategoriesListItem from './CategoriesListItem'
+import { buildNestedArrays, buildNestedArraysMenu } from '../../utils/index'
+import { alerts } from '../../utils/alerts';
 
-export default function Categories() {
-  const { categories, getAllCategories, loading, infoTable } = useCategoriesStore((state) => state)
-  console.log('categories: ', categories)
+import PageTitle from '../../components/common/PageTitle';
 
-  useEffect(() => {
-    const onSuccess = (res) => {
-      console.log(res)
-    }
-    const onFail = (err) => {
-      alert.error(err)
-    }
-    getAllCategories(onSuccess, onFail)
-  }, [])
-  return (
-    <div className='mt-4 px-5'>
-      <p className='my-5 font-semibold text-[20px]'>Danh mục sản phẩm</p>
-      {loading ? <Loading /> : null}
-      <div className='flex'>
-        <CategoriesListItem categoriesList={categories} />
-      </div>
-    </div>
-  )
+const Categories = ({shopId}) => {
+    const { getCategoriesById, categoriesById } = useCategoriesStore((state) => state)
+    const { category_list } = categoriesById
+
+    const categories = buildNestedArraysMenu(category_list, "0")
+
+    useEffect(() => {
+        const onSuccess = (res) => {
+          console.log(res)
+        }
+        const onFail = (err) => {
+          alerts.error(err)
+        }
+
+        getCategoriesById(shopId, onSuccess, onFail)
+    }, [shopId])
+
+    return (
+        <div className='p-10 categories-list'>
+            <PageTitle title='Danh sách danh mục' count={category_list?.length} showBack />
+
+            {category_list?.length > 0 &&
+                <Menu
+                    onClick={() => {}}
+                    mode="inline"
+                    items={categories}
+                    className='!border-none'
+                />
+            }
+        </div>
+    );
 }
+ 
+export default Categories;
