@@ -25,7 +25,9 @@ from .serializers import (
 from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes
 from django.http import HttpResponse
 from .models import Shop, Image
+
 from api.utils.constant import app_key, secret, grant_type,ProductCreateObject
+
 from django.http import HttpResponse
 from django.http import JsonResponse
 import base64
