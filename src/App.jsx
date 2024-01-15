@@ -28,6 +28,7 @@ const Categories = lazy(() => import('./pages/categories'))
 const HomepageInterface = lazy(() => import('./pages/settings/homepageInterface'))
 const IdentityRequest = lazy(() => import('./pages/identityRequest/Index'))
 const StoreDetail = lazy(() => import('./pages/stores/StoreDetail.jsx'))
+const MultiAddProducts = lazy(() => import('./pages/stores/MultiAddProducts.jsx'))
 
 const PrivateRoute = () => {
   const { getAllBadges } = useBadgesStore()
@@ -104,6 +105,14 @@ const App = () => {
                 element={
                   <Suspense fallback={<Loading />}>
                     <StoreDetail />
+                  </Suspense>
+                }
+              />
+              <Route
+                path='/shops/:id/add-many-products'
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <MultiAddProducts />
                   </Suspense>
                 }
               />

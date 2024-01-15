@@ -8,6 +8,10 @@ const getCategoriesById = (id) => {
   return callApi(`/shops/${id}/categories`, 'get')
 }
 
+const getAllCategoriesIsLeaf = (id) => {
+  return callApi(`/shops/${id}/categories/is_leaf`, 'get')
+}
+
 const getCustomerById = (id) => {
   return callApi(`/admin/v1/categories/${id}`, 'get')
 }
@@ -16,4 +20,5 @@ export const categories = {
   getAllCategories,
   getCategoriesById,
   getCustomerById,
+  getAllCategoriesIsLeaf
 }

@@ -22,8 +22,8 @@ export default function StoreDetail() {
 
   useEffect(() => {
     const onSuccess = (res) => {
-      console.log(res)
-    }
+      console.log(res);
+    };
     const onFail = (err) => {
       alerts.error(err)
     }
