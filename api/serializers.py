@@ -9,6 +9,7 @@ from rest_framework.validators import UniqueValidator
 from .helpers import check_token, GenerateSign
 from .models import Shop
 
+
 class SignUpSerializers(serializers.ModelSerializer):
     username = serializers.CharField(
         max_length=30,
@@ -85,14 +86,14 @@ class VerifySerializers(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
 class ShopSerializers(serializers.ModelSerializer):
     class Meta:
         model = Shop
         fields = '__all__'
 
+
 class ShopRequestSerializers(serializers.ModelSerializer):
     class Meta:
         model = Shop
-        fields = ["shop_name","auth_code"]
-
-
+        fields = ["shop_name", "auth_code"]
