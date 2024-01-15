@@ -7,7 +7,7 @@ import { formatDate } from '../../utils/date'
 import { useShopsOrder } from '../../store/ordersStore'
 import { statusOrder } from '../../constants/index'
 
-import Loading from '../../components/loading/Index';
+import Loading from '../../components/loading';
 
 const Orders = () => {
     const shopId = getPathByIndex(2)
