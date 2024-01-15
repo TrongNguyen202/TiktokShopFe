@@ -1,4 +1,5 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { Card, Col, Row } from 'antd';
 
 import { alerts } from '../../utils/alerts'
 import { getPathByIndex } from '../../utils'
@@ -12,6 +13,8 @@ import StoreDetailBrands from '../../components/stores/StoreDetailBrands'
 import StoreDetailWareHouses from '../../components/stores/StoreDetailWareHouses'
 import StoreDetailCategories from '../../components/stores/StoreDetailCategories'
 import StoreDetailProducts from '../../components/stores/StoreDetailProducts'
+import StoreDetailOrder from '../../components/stores/StoreDetailOrder';
+import StoreDetailSectionTitle from '../../components/stores/StoreDetailSectionTitle';
 
 export default function StoreDetail() {
   const shopId = getPathByIndex(2)
@@ -31,30 +34,38 @@ export default function StoreDetail() {
     if (loadingById) return <Loading />
     
     return (
-      <div className='p-10'>
-        <PageTitle title='Chi tiết cửa hàng' showBack />
+        <div className='p-10'>
+            <PageTitle title='Chi tiết cửa hàng' showBack />
 
-        <div className='mb-10'>
-          <StoreDetailBaseInformation store={storeById} />
-                
-        </div>
+            <div className='mb-10'>
+                <StoreDetailBaseInformation store={storeById} />
+            </div>
 
-        <div className='mb-10'>
-          <StoreDetailWareHouses shopId={shopId} />          
-        </div>
+            <div className='mb-10'>
+                <StoreDetailWareHouses shopId={shopId} />          
+            </div>
 
-        <div className='mb-10'>
-          <StoreDetailBrands shopId={shopId} />
-        </div>
+            <div className='mb-10'>
+                <StoreDetailSectionTitle title='Thông tin chi tiết' />
+                <Row gutter={[30, 30]}>
+                    <Col span={6}>
+                        <StoreDetailBrands shopId={shopId} />
+                    </Col>
 
-        <div className='mb-10'>
-          <StoreDetailCategories shopId={shopId} />
-        </div>
+                    <Col span={6}>
+                        <StoreDetailCategories shopId={shopId} />
+                    </Col>
 
-        <div>
-          <StoreDetailProducts shopId={shopId}/>
+                    <Col span={6}>
+                        <StoreDetailProducts shopId={shopId}/>
+                    </Col>
+
+                    <Col span={6}>
+                        <StoreDetailOrder shopId={shopId}/>
+                    </Col>
+                </Row>
+            </div>
         </div>
-      </div>
     )
   }
 

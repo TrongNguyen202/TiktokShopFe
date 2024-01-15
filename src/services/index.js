@@ -12,6 +12,7 @@ import { buttonMenu } from './buttonMenu'
 import { badges } from './badges'
 import { warehouses } from './warehouses'
 import { brand } from './brand'
+import { orders } from './orders'
 
 export const RepositoryRemote = {
   auth,
@@ -27,5 +28,6 @@ export const RepositoryRemote = {
   buttonMenu,
   badges,
   warehouses,
-  brand
+  brand,
+  orders
 }
