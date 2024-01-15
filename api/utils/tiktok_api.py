@@ -261,24 +261,6 @@ def getBrands(access_token):
 
 
 
-def getBrands(access_token):
-    url = TIKTOK_API_URL['url_get_brands']
-    query_params = {
-        "app_key": app_key,
-        "access_token": access_token,
-        "timestamp": SIGN.get_timestamp(),
-        
-    }
-
-
-    sign = SIGNNOBODY.cal_sign(secret, urllib.parse.urlparse(url), query_params)
-    query_params["sign"] = sign
-    
-    response = requests.get(url, params=query_params)
-  
-    print(response.status_code)
-    print(response.text)
-    return response
 
 
 def callEditProduct(access_token, product_object):
@@ -328,8 +310,13 @@ def callEditProduct(access_token, product_object):
         "description": product_object.description,
         "skus": skus_list
     }
-
     body = json.dumps(bodyjson)
+
+    sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
+    query_params["sign"] = sign
+    response = requests.post(url, params=query_params, json=json.loads(body))
+
+  
 
     response = requests.put(url, params=query_params, json=bodyjson)
 
