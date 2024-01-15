@@ -18,6 +18,7 @@ urlpatterns = [
     path("shops/<int:shop_id>/products/<int:product_id>", views.ProductDetail.as_view(), name="product_detail"),
     path("shops/<int:shop_id>/categories", views.Categories.as_view(), name="categories"),
     path("shops/<int:shop_id>/warehouses", views.WareHouse.as_view(), name="WareHouse"),
+    path("shops/<int:shop_id>/attributes", views.Attributes.as_view(), name="Attributes"),
     path("shops/search", views.ShopSearchViews.as_view(), name="Shop_search"),
     path("shops/<int:shop_id>/upload", views.UploadImage.as_view(), name="upload"),
     path('shops/<int:shop_id>/brands', views.GetAllBrands.as_view(), name='get_brands'),
@@ -25,5 +26,7 @@ urlpatterns = [
     path('shops/<int:shop_id>/products/create_product_excel2', views.MultithreadProcessExcel.as_view(), name='process_excel2'),
     path('shops/<int:shop_id>/products/create_product_excel1', views.ProcessExcelNo.as_view(), name='process_excel3'),
     path('shops/<int:shop_id>/products/create_product_excel3', views.ProcessExcel.as_view(), name='process_excel1'),
- 
+    path('shops/<int:shop_id>/products/update_product/<int:product_id>', views.EditProductAPIView.as_view(), name='edit_product'),
+    path('shops/<int:shop_id>/orders/list', views.ListOrder.as_view(), name='order_list'),
+    path('shops/<int:shop_id>/orders/detail', views.OrderDetail.as_view(), name='order_detail'),
 ]
