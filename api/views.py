@@ -15,17 +15,17 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics
-from .helpers import send_mail_verification, GenerateSign,is_webp_image_without_bits
+from .helpers import send_mail_verification, GenerateSign,is_webp_image_without_bits,ProductObject
 from .serializers import (
     SignUpSerializers,
     VerifySerializers,
     ShopSerializers,
     ShopRequestSerializers
 )
-from api.ultil.tiktokApi import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes
+from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes
 from django.http import HttpResponse
 from .models import Shop, Image
-from api.ultil.constant import app_key, secret, grant_type,ProductObject,ProductCreateObject
+from api.utils.constant import app_key, secret, grant_type,ProductCreateObject
 from django.http import HttpResponse
 from django.http import JsonResponse
 import base64
@@ -624,136 +624,7 @@ class MultithreadProcessExcel(View):
 
         createProduct(shop.access_token, category_id, warehouse_id, title, images_ids)
 
-# import json
-# import os
-# import base64
-# import uuid
-# import requests
-# import traceback
-# from concurrent.futures import ThreadPoolExecutor
-# from django.views import View
-# from django.shortcuts import get_object_or_404
-# from django.http import JsonResponse, HttpResponse
-# from django.core.exceptions import ObjectDoesNotExist
-# from rest_framework import status
-# from django.views.decorators.csrf import csrf_exempt
-# from django.utils.decorators import method_decorator
-# from PIL import Image
-# from .models import Shop
 
-# @method_decorator(csrf_exempt, name='dispatch')
-# class ProcessExcel(View):
-
-#     def post(self, request, shop_id):
-#         try:
-#             # Check if request.body is not empty
-#             if not request.body:
-#                 return JsonResponse({'error': 'Empty request body'}, status=status.HTTP_400_BAD_REQUEST)
-
-#             # Decode request body using 'utf-8'
-#             body_str = request.body.decode('utf-8')
-
-#             # Try loading JSON data from the body
-#             try:
-#                 data = json.loads(body_str)
-#                 excel_data = data.get('excel', [])
-#                 category_id = data.get('category_id')
-#                 warehouse_id = data.get('warehouse_id')
-#             except json.JSONDecodeError as json_error:
-#                 return JsonResponse({'error': f'Invalid JSON format in request body: {json_error}'}, status=status.HTTP_400_BAD_REQUEST)
-
-#             shop = get_object_or_404(Shop, id=shop_id)
-
-#             processed_data = []
-
-#             with ThreadPoolExecutor() as executor:
-#                 futures = []
-#                 for item in excel_data:
-#                     row_data = {
-#                         'title': item.get('title', ''),
-#                         'images': item.get('images', {}),
-#                     }
-#                     processed_data.append(row_data)
-
-#                     futures.append(executor.submit(self.process_item, item, shop, category_id, warehouse_id))
-
-#                 for future in futures:
-#                     future.result()
-
-#             return JsonResponse({'processed_data': processed_data}, status=status.HTTP_201_CREATED)
-
-#         except ObjectDoesNotExist as e:
-#             return HttpResponse({'error': str(e)}, status=status.HTTP_404_NOT_FOUND)
-#         except Exception as e:
-#             print(traceback.format_exc())
-#             return HttpResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-#     def process_item(self, item, shop, category_id, warehouse_id):
-#         title = item.get('title', '')
-#         images = item.get('images', {})
-
-#         downloaded_image_paths = []
-
-#         with ThreadPoolExecutor() as executor:
-#             image_futures = []
-
-#             for key, image_url in images.items():
-#                 image_futures.append(executor.submit(self.download_image, image_url, key, shop))
-
-#             for future in image_futures:
-#                 downloaded_image_paths.append(future.result())
-
-#         base64_images = self.process_images(downloaded_image_paths)
-#         images_ids = self.upload_images(base64_images, shop)
-#         self.create_product(shop, category_id, warehouse_id, item, images_ids)
-
-#     def download_image(self, image_url, key, shop):
-#         if image_url:
-#             download_dir = 'C:/anhtiktok'  # Đường dẫn lưu trữ hình ảnh
-#             os.makedirs(download_dir, exist_ok=True)
-#             random_string = str(uuid.uuid4())[:8]
-#             image_filename = os.path.join(download_dir, f"{key}_{random_string}.jpg")
-#             response = requests.get(image_url)
-
-#             if response.status_code == 200:
-#                 with open(image_filename, 'wb') as f:
-#                     f.write(response.content)
-#                 return image_filename
-
-#     def process_images(self, downloaded_image_paths):
-#         base64_images = []
-#         for image_path in downloaded_image_paths:
-#             try:
-#                 img = Image.open(image_path)
-#                 if img.mode != 'RGB' or img.bits != 8:
-#                     img = img.convert('RGB')
-#                 img.verify()
-#                 img.close()
-
-#                 with open(image_path, 'rb') as img_file:
-#                     base64_image = base64.b64encode(img_file.read()).decode('utf-8')
-#                 base64_images.append(base64_image)
-
-#             except Exception as e:
-#                 print(f"Error processing image: {image_path}, {str(e)}")
-
-#         return base64_images
-
-#     def upload_images(self, base64_images, shop):
-#         images_ids = []
-#         for img_data in base64_images:
-#             img_id = callUploadImage(access_token=shop.access_token, img_data=img_data)
-#             images_ids.append(img_id)
-
-#         return images_ids
-
-#     def create_product(self, shop, category_id, warehouse_id, row_data, images_ids):
-#         for item in images_ids:
-#             print(item)
-#         title = row_data.get('title', '')
-#         print(title)
-
-#         createProduct(shop.access_token, category_id, warehouse_id, title, images_ids)
 
 
 import json
@@ -773,131 +644,7 @@ from django.utils.decorators import method_decorator
 from PIL import Image
 from PIL import UnidentifiedImageError
 
-# @method_decorator(csrf_exempt, name='dispatch')
-# class ProcessExcel(View):
 
-#     def post(self, request, shop_id):
-#         try:
-#             # Check if request.body is not empty
-#             if not request.body:
-#                 return JsonResponse({'error': 'Empty request body'}, status=status.HTTP_400_BAD_REQUEST)
-
-#             # Decode request body using 'utf-8'
-#             body_str = request.body.decode('utf-8')
-
-#             # Try loading JSON data from the body
-#             try:
-#                 data = json.loads(body_str)
-#                 excel_data = data.get('excel', [])
-#                 category_id = data.get('category_id')
-#                 warehouse_id = data.get('warehouse_id')
-#             except json.JSONDecodeError as json_error:
-#                 return JsonResponse({'error': f'Invalid JSON format in request body: {json_error}'}, status=status.HTTP_400_BAD_REQUEST)
-
-#             shop = get_object_or_404(Shop, id=shop_id)
-
-#             processed_data = []
-
-#             with ThreadPoolExecutor() as executor:
-#                 futures = []
-#                 for item in excel_data:
-#                     row_data = {
-#                         'title': item.get('title', ''),
-#                         'images': item.get('images', {}),
-#                     }
-#                     processed_data.append(row_data)
-
-#                     futures.append(executor.submit(self.process_item, item, shop, category_id, warehouse_id))
-
-#                 for future in futures:
-#                     future.result()
-
-#             return JsonResponse({'processed_data': processed_data}, status=status.HTTP_201_CREATED)
-
-#         except ObjectDoesNotExist as e:
-#             return HttpResponse({'error': str(e)}, status=status.HTTP_404_NOT_FOUND)
-#         except Exception as e:
-#             print(traceback.format_exc())
-#             return HttpResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-#     def process_item(self, item, shop, category_id, warehouse_id):
-#         title = item.get('title', '')
-#         images = item.get('images', {})
-
-#         downloaded_image_paths = []
-
-#         with ThreadPoolExecutor() as executor:
-#             image_futures = []
-
-#             for key, image_url in images.items():
-#                 image_futures.append(executor.submit(self.download_image, image_url, key, shop))
-
-#             for future in image_futures:
-#                 result = future.result()
-#                 if result:
-#                     downloaded_image_paths.append(result)
-
-#         base64_images = self.process_images(downloaded_image_paths)
-#         images_ids = self.upload_images(base64_images, shop)
-#         self.create_product(shop, category_id, warehouse_id, item, images_ids)
-
-#     def download_image(self, image_url, key, shop):
-#         if image_url:
-#             download_dir = 'C:/anhtiktok'  # Đường dẫn lưu trữ hình ảnh
-#             os.makedirs(download_dir, exist_ok=True)
-#             random_string = str(uuid.uuid4())[:8]
-#             image_filename = os.path.join(download_dir, f"{key}_{random_string}.jpg")
-#             response = requests.get(image_url)
-
-#             if response.status_code == 200:
-#                 with open(image_filename, 'wb') as f:
-#                     f.write(response.content)
-#                 return image_filename
-
-#     def process_images(self, downloaded_image_paths):
-#         base64_images = []
-#         for image_path in downloaded_image_paths:
-#             try:
-#                 img = Image.open(image_path)
-#             except UnidentifiedImageError as e:
-#                 if e.args[0] == 'WebP':
-                   
-#                     with open(image_path, 'rb') as img_file:
-#                         base64_image = base64.b64encode(img_file.read()).decode('utf-8')
-#                         base64_images.append(base64_image)
-#                     continue
-#                 else:
-#                     raise
-
-#             try:
-#                 if img.mode != 'RGB':
-#                     img = img.convert('RGB')
-#                 if img.mode == 'RGBA':
-#                      img = img.convert('RGB')
-
-#                 with open(image_path, 'rb') as img_file:
-#                     base64_image = base64.b64encode(img_file.read()).decode('utf-8')
-#                     base64_images.append(base64_image)
-#             except Exception as e:
-#                 print(f"Error processing image: {image_path}, {str(e)}")
-#         print("countttttttttttttt", len(base64_images))
-#         return base64_images
-
-#     def upload_images(self, base64_images, shop):
-#         images_ids = []
-#         for img_data in base64_images:
-#             img_id = callUploadImage(access_token=shop.access_token, img_data=img_data)
-#             images_ids.append(img_id)
-
-#         return images_ids
-
-#     def create_product(self, shop, category_id, warehouse_id, row_data, images_ids):
-#         for item in images_ids:
-#             print(item)
-#         title = row_data.get('title', '')
-#         print(title)
-
-#         createProduct(shop.access_token, category_id, warehouse_id, title, images_ids)
 
 
 
@@ -1033,6 +780,51 @@ class ProcessExcel(View):
         createProduct(shop.access_token, title, images_ids, product_object)
 
 
+# class EditProductAPIView(APIView):
+#     def get(self, request, shop_id, product_id):
+#         shop = get_object_or_404(Shop, id=shop_id)
+#         access_token = shop.access_token
+#         body_raw = request.body.decode('utf-8')
+#         product_data = json.loads(body_raw)
+
+#         print(product_data.get("skus")[0].get("sales_attributes"))
+        
+#         product_object = ProductObject(
+
+#         )
+
+#         response = callEditProduct(access_token, product_object)
+
+#         return JsonResponse({"status_code": response.status_code, "response_text": response.json})
+        
+
+# class EditProductAPIView(APIView):
+#     def get(self, request, shop_id, product_id):
+#         shop = get_object_or_404(Shop, id=shop_id)
+#         access_token = shop.access_token
+#         body_raw = request.body.decode('utf-8')
+#         product_data = json.loads(body_raw)
+#         print(product_data.get("skus"))
+#         product_object = ProductObject(
+#             product_id=product_data.get("product_id"),
+#             product_name=product_data.get("product_name"),
+#             images=product_data.get("images", []),
+#             price=product_data.get("price"),
+#             is_cod_open=product_data.get("is_cod_open"),
+#             package_dimension_unit=product_data.get("package_dimension_unit"),
+#             package_height=product_data.get("package_height"),
+#             package_length=product_data.get("package_length"),
+#             package_weight=product_data.get("package_weight"),
+#             package_width=product_data.get("package_width"),
+#             category_id=product_data.get("category_id"),
+#             description=product_data.get("description"),
+#             skus= product_data.get("skus")
+#         )
+#         print("class product la ",product_object)
+
+#         response = callEditProduct(access_token, product_object)
+
+#         return JsonResponse({"status_code": response.status_code, "response_text": response.json})
 class EditProductAPIView(APIView):
     def get(self, request, shop_id, product_id):
         shop = get_object_or_404(Shop, id=shop_id)
@@ -1042,6 +834,8 @@ class EditProductAPIView(APIView):
         
         product_object = ProductObject(**product_data)
 
-        response = callEditProduct(access_token, product_object)
+        callEditProduct(access_token, product_object)
 
-        return JsonResponse({"status_code": response.status_code, "response_text": response.json})
+        return JsonResponse({'status': 'success'}, status=200)
+    
+
