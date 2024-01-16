@@ -838,14 +838,37 @@ class EditProductAPIView(APIView):
         callEditProduct(access_token, product_object)
 
         return JsonResponse({'status': 'success'}, status=200)
-    
+import base64
+from PIL import Image
+import io  
 class CreateOneProduct(APIView):
     # permission_classes = (IsAuthenticated,)
 
-
+    def count_bits(self, img_data):
+   
+            image = Image.open(io.BytesIO(base64.b64decode(img_data)))
+            mode_to_bpp = {'1':1, 'L':8, 'P':8, 'RGB':24, 'RGBA':32, 'CMYK':32, 'YCbCr':24, 'I':32, 'F':32}
+            data= mode_to_bpp[image.mode]
+            print(data)
+            return data
+       
+    def convert_to_rgb(self, img_data):
+        try:
+            image = Image.open(io.BytesIO(base64.b64decode(img_data)))
+            rgb_image = Image.new("RGB", image.size)
+            rgb_image.paste(image)
+            buffered = io.BytesIO()
+            rgb_image.save(buffered, format="JPEG")
+            return base64.b64encode(buffered.getvalue()).decode('utf-8')
+        except Exception as e:
+            return None
     def upload_images(self, base64_images, acess_token):
         images_ids = []
         for img_data in base64_images:
+            if self.count_bits(img_data) >24:
+                img_data = self.convert_to_rgb(img_data)
+            if img_data is None:
+                continue
             img_id = callUploadImage(acess_token, img_data=img_data)
             images_ids.append(img_id)
         return images_ids
