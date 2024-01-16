@@ -1,3 +1,4 @@
+import PIL
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.forms import model_to_dict
@@ -135,7 +136,7 @@ class ListProduct(APIView):
 
         response = callProductList(access_token=shop.access_token)
         content = response.content
-        print("content", content)
+        
         return HttpResponse(content, content_type='application/json')
 
 # create shop
@@ -644,10 +645,19 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from PIL import Image
 from PIL import UnidentifiedImageError
-
-
-
-
+import base64
+import json
+import os
+import traceback
+import uuid
+from concurrent.futures import ThreadPoolExecutor
+from PIL import Image
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import JsonResponse, HttpResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.views import View
+import requests
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ProcessExcel(View):
@@ -656,7 +666,6 @@ class ProcessExcel(View):
         try:
             data = json.loads(request.body.decode('utf-8'))
 
-            # Lấy dữ liệu từ JSON
             excel_data = data.get('excel', [])
             category_id = data.get('category_id', '')
             warehouse_id = data.get('warehouse_id', '')
@@ -665,7 +674,7 @@ class ProcessExcel(View):
             package_length = data.get('package_length', 1)
             package_weight = data.get('package_weight', "1")
             package_width = data.get('package_width', 1)
-            description = data.get('description','')
+            description = data.get('description', '')
             skus = data.get('skus', [])
 
             shop = Shop.objects.get(id=shop_id)
@@ -677,7 +686,8 @@ class ProcessExcel(View):
                         'title': item.get('title', ''),
                         'images': item.get('images', {}),
                     }
-                    futures.append(executor.submit(self.process_item, item, shop, category_id, warehouse_id,is_cod_open, package_height,package_length,package_weight,package_width,description,skus))
+                    futures.append(executor.submit(self.process_item, item, shop, category_id, warehouse_id, is_cod_open,
+                                                   package_height, package_length, package_weight, package_width, description, skus))
 
                 for future in futures:
                     future.result()
@@ -689,8 +699,9 @@ class ProcessExcel(View):
         except Exception as e:
             print(traceback.format_exc())
             return HttpResponse({'error': str(e)}, status=400)
-        
-    def process_item(self, item, shop, category_id, warehouse_id,is_cod_open, package_height,package_length,package_weight,package_width,description,skus):
+
+    def process_item(self, item, shop, category_id, warehouse_id, is_cod_open, package_height, package_length,
+                     package_weight, package_width, description, skus):
         title = item.get('title', '')
         images = item.get('images', [])
 
@@ -709,11 +720,12 @@ class ProcessExcel(View):
 
         base64_images = self.process_images(downloaded_image_paths)
         images_ids = self.upload_images(base64_images, shop)
-        self.create_product_fun(shop,item, category_id, warehouse_id, is_cod_open, package_height,package_length,package_weight,package_width,images_ids,description, skus)
+        self.create_product_fun(shop, item, category_id, warehouse_id, is_cod_open, package_height, package_length,
+                                package_weight, package_width, images_ids, description, skus)
 
     def download_image(self, image_url, key, shop):
         if image_url:
-            download_dir = 'C:/anhtiktok'  # Đường dẫn lưu trữ hình ảnh
+            download_dir = 'C:/anhtiktok'  # Update with your desired directory
             os.makedirs(download_dir, exist_ok=True)
             random_string = str(uuid.uuid4())[:8]
             image_filename = os.path.join(download_dir, f"{key}_{random_string}.jpg")
@@ -723,46 +735,41 @@ class ProcessExcel(View):
                 with open(image_filename, 'wb') as f:
                     f.write(response.content)
                 return image_filename
+            else:
+                print(f"Failed to download image: {image_url}, Status code: {response.status_code}")
+                return None
 
     def process_images(self, downloaded_image_paths):
         base64_images = []
+        mode_to_bpp = {'1': 1, 'L': 8, 'P': 8, 'RGB': 24, 'RGBA': 32, 'CMYK': 32, 'YCbCr': 24, 'I': 32, 'F': 32}
         for image_path in downloaded_image_paths:
             try:
                 img = Image.open(image_path)
-            except UnidentifiedImageError as e:
-                if e.args[0] == 'WebP':
-                   
-                    with open(image_path, 'rb') as img_file:
-                        base64_image = base64.b64encode(img_file.read()).decode('utf-8')
-                        base64_images.append(base64_image)
+                if img is None:
                     continue
-                else:
-                    raise
-
-            try:
-                if img.mode != 'RGB':
-                    img = img.convert('RGB')
-                if not hasattr(img, 'bits') or img.bits != 8: 
-                    
-                    img = img.convert('PNG')
+                if mode_to_bpp[img.mode]>24:
+                    img.convert("RGB", palette=Image.ADAPTIVE, colors=24)
 
                 with open(image_path, 'rb') as img_file:
                     base64_image = base64.b64encode(img_file.read()).decode('utf-8')
                     base64_images.append(base64_image)
             except Exception as e:
                 print(f"Error processing image: {image_path}, {str(e)}")
-        print("countttttttttttttt", len(base64_images))
+
         return base64_images
 
     def upload_images(self, base64_images, shop):
-        images_ids = []
-        for img_data in base64_images:
-            img_id = callUploadImage(access_token=shop.access_token, img_data=img_data)
-            images_ids.append(img_id)
+    # Use list comprehension to call callUploadImage for each img_data
+       images_ids = [callUploadImage(access_token=shop.access_token, img_data=img_data) for img_data in base64_images]
 
-        return images_ids
+    # Filter out empty strings from the list
+       images_ids = [img_id for img_id in images_ids if img_id != ""]
 
-    def create_product_fun(self, shop, item, category_id, warehouse_id, is_cod_open, package_height, package_length, package_weight, package_width, images_ids, description, skus):
+       return images_ids
+
+
+    def create_product_fun(self, shop, item, category_id, warehouse_id, is_cod_open, package_height, package_length,
+                            package_weight, package_width, images_ids, description, skus):
         title = item.get('title', '')
         product_object = ProductCreateObject(
             is_cod_open=is_cod_open,
@@ -776,9 +783,15 @@ class ProcessExcel(View):
             description=description,
             skus=skus
         )
-        print(product_object.to_json)
+        
 
         createProduct(shop.access_token, title, images_ids, product_object)
+
+
+
+
+
+
 
 
 # class EditProductAPIView(APIView):
@@ -845,12 +858,17 @@ class CreateOneProduct(APIView):
     # permission_classes = (IsAuthenticated,)
 
     def count_bits(self, img_data):
-   
-            image = Image.open(io.BytesIO(base64.b64decode(img_data)))
-            mode_to_bpp = {'1':1, 'L':8, 'P':8, 'RGB':24, 'RGBA':32, 'CMYK':32, 'YCbCr':24, 'I':32, 'F':32}
-            data= mode_to_bpp[image.mode]
-            print(data)
-            return data
+       try:
+           image = Image.open(io.BytesIO(base64.b64decode(img_data)))
+           mode_to_bpp = {'1': 1, 'L': 8, 'P': 8, 'RGB': 24, 'RGBA': 32, 'CMYK': 32, 'YCbCr': 24, 'I': 32, 'F': 32}
+           data = mode_to_bpp[image.mode]
+           return data
+       except PIL.UnidentifiedImageError:
+           print("UnidentifiedImageError: Cannot identify image file")
+           return None  # or another appropriate default value
+
+      
+
        
     def convert_to_rgb(self, img_data):
         try:
@@ -862,16 +880,18 @@ class CreateOneProduct(APIView):
             return base64.b64encode(buffered.getvalue()).decode('utf-8')
         except Exception as e:
             return None
-    def upload_images(self, base64_images, acess_token):
-        images_ids = []
-        for img_data in base64_images:
-            if self.count_bits(img_data) >24:
-                img_data = self.convert_to_rgb(img_data)
-            if img_data is None:
-                continue
-            img_id = callUploadImage(acess_token, img_data=img_data)
-            images_ids.append(img_id)
-        return images_ids
+    def upload_images(self, base64_images, access_token):
+       images_ids = []
+       for img_data in base64_images:
+           bits = self.count_bits(img_data)
+           if bits is not None and bits > 24:
+               img_data = self.convert_to_rgb(img_data)
+           if img_data is not None:
+               img_id = callUploadImage(access_token, img_data=img_data)
+               if img_id !="":
+                   images_ids.append(img_id)
+       return images_ids
+
 
     def post(self, request,shop_id):
         shop = get_object_or_404(Shop, id=shop_id)
@@ -879,7 +899,8 @@ class CreateOneProduct(APIView):
         body_raw = request.body.decode('utf-8')
         product_data = json.loads(body_raw)
         base64_images = product_data.get('images', [])
-        images_ids = self.upload_images(base64_images=base64_images,acess_token=access_token)
+        images_ids = self.upload_images(base64_images=base64_images, access_token=access_token)
+
         product_object = ProductCreateOneObject(
             product_name=product_data.get("product_name"),
             images=images_ids,
@@ -893,7 +914,7 @@ class CreateOneProduct(APIView):
             description=product_data.get("description"),
             skus= product_data.get("skus")
         )
-        print("img la",product_object.images)
+        
 
         callCreateOneProduct(access_token, product_object)
 

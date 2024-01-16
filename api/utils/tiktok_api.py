@@ -1,5 +1,5 @@
 from .constant import secret,TIKTOK_API_URL,app_key,grant_type
-from api.helpers import GenerateSign,GenerateSignNoBody,ProductObject
+from api.helpers import GenerateSign,GenerateSignNoBody,ProductObject,convert_to_rgb,count_bits
 import requests
 import json
 import urllib.parse
@@ -29,8 +29,7 @@ def callProductList(access_token):
     response = requests.post(url, params=query_params, json=json.loads(body))
   
     # Process the response
-    print(response.status_code)
-    print(response.text)
+    
     return response
 
 def getAccessToken(auth_code):
@@ -147,7 +146,10 @@ def getWareHouseList(access_token):
 def callUploadImage(access_token, img_data):
     try:
         url = TIKTOK_API_URL['url_upload_image']
-
+        countbits = count_bits(img_data=img_data)
+        if countbits > 24:
+            print("countbits lon hon 24", countbits)
+            img_data = convert_to_rgb(img_data=img_data)
         query_params = {
             "app_key": app_key,
             "access_token": access_token,
@@ -165,23 +167,19 @@ def callUploadImage(access_token, img_data):
         response = requests.post(url, params=query_params, json=json.loads(body))
 
         data = json.loads(response.text)
-     
-       
 
-        if "data" in data and "img_id" in data["data"]:
+        if data and "data" in data and "img_id" in data["data"]:
             img_id = data["data"]["img_id"]
-            print(img_id)
             return img_id
         else:
-          
-            raise Exception("Invalid response format: 'data' or 'img_id' not found in the response")
+            print(f"Invalid response format: 'data' or 'img_id' not found in the response")
+            return ""
 
     except Exception as e:
-      
         print(f"Error in callUploadImage: {str(e)}")
         print(traceback.format_exc())
-        print(f"Error in callUploadImage: {str(e)}")
-        raise 
+        return ""
+
    
 
 def createProduct(access_token,title,images_ids,product_object):
@@ -315,7 +313,6 @@ def callEditProduct(access_token, product_object):
 
     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
     query_params["sign"] = sign
-    response = requests.post(url, params=query_params, json=json.loads(body))
 
   
 
