@@ -22,11 +22,11 @@ from .serializers import (
     ShopSerializers,
     ShopRequestSerializers
 )
-from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes
-from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes
+
+from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes,callCreateOneProduct
 from django.http import HttpResponse
 from .models import Shop, Image
-from api.utils.constant import app_key, secret, grant_type,ProductObject,ProductCreateObject
+from api.utils.constant import app_key, secret, grant_type,ProductCreateObject,ProductCreateOneObject
 from django.http import HttpResponse
 from django.http import JsonResponse
 import base64
@@ -839,4 +839,41 @@ class EditProductAPIView(APIView):
 
         return JsonResponse({'status': 'success'}, status=200)
     
+class CreateOneProduct(APIView):
+    # permission_classes = (IsAuthenticated,)
+
+
+    def upload_images(self, base64_images, acess_token):
+        images_ids = []
+        for img_data in base64_images:
+            img_id = callUploadImage(acess_token, img_data=img_data)
+            images_ids.append(img_id)
+        return images_ids
+
+    def post(self, request,shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        body_raw = request.body.decode('utf-8')
+        product_data = json.loads(body_raw)
+        base64_images = product_data.get('images', [])
+        images_ids = self.upload_images(base64_images=base64_images,acess_token=access_token)
+        product_object = ProductCreateOneObject(
+            product_name=product_data.get("product_name"),
+            images=images_ids,
+            is_cod_open=product_data.get("is_cod_open"),
+            package_dimension_unit=product_data.get("package_dimension_unit"),
+            package_height=product_data.get("package_height"),
+            package_length=product_data.get("package_length"),
+            package_weight=product_data.get("package_weight"),
+            package_width=product_data.get("package_width"),
+            category_id=product_data.get("category_id"),
+            description=product_data.get("description"),
+            skus= product_data.get("skus")
+        )
+        print("img la",product_object.images)
+
+        callCreateOneProduct(access_token, product_object)
+
+        return JsonResponse({'status': 'success'}, status=201)
+
 
