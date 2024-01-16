@@ -93,3 +93,38 @@ class StockInfo:
         }
 
 
+class ProductCreateOneObject:
+    def __init__(self, product_name,images,is_cod_open, 
+                 package_dimension_unit, package_height, package_length, package_weight, package_width,
+                 category_id,description, skus):
+        
+        self.product_name = product_name
+        self.images = images
+        self.is_cod_open = is_cod_open
+        self.package_dimension_unit = package_dimension_unit
+        self.package_height = package_height
+        self.package_length = package_length
+        self.package_weight = package_weight
+        self.package_width = package_width
+        self.category_id = category_id
+        self.description = description
+        self.skus = [SKU(**sku_data) for sku_data in skus]
+
+    def to_json(self):
+        skus_json = [sku.to_json() for sku in self.skus]
+        return {
+            "product_name": self.product_name,
+            "images":self.images,
+            "is_cod_open": self.is_cod_open,
+            "package_dimension_unit": self.package_dimension_unit,
+            "package_height": self.package_height,
+            "package_length": self.package_length,
+            "package_weight": self.package_weight,
+            "package_width": self.package_width,
+            "category_id": self.category_id,
+            "description": self.description,
+            "skus": skus_json
+        }
+
+
+        

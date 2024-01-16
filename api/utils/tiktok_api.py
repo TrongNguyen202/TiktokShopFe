@@ -170,6 +170,7 @@ def callUploadImage(access_token, img_data):
 
         if "data" in data and "img_id" in data["data"]:
             img_id = data["data"]["img_id"]
+            print(img_id)
             return img_id
         else:
           
@@ -379,3 +380,62 @@ def getAttributes(access_token, category_id):
     response = requests.get(url, params=query_params)
 
     return response
+
+def callCreateOneProduct(access_token,product_object):
+    url = TIKTOK_API_URL['url_create_product']
+    query_params = {
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp(),
+
+    }
+    
+    skus_list = []
+    for sku in product_object.skus:
+        sales_attributes_list = [
+            {
+                "attribute_id": attr.attribute_id,
+                "attribute_name": attr.attribute_name,
+                "custom_value": attr.custom_value,
+            } for attr in sku.sales_attributes
+        ]
+        stock_infos_list = [
+            {
+                "warehouse_id": info.warehouse_id,
+                "available_stock": info.available_stock
+            } for info in sku.stock_infos
+        ]
+        skus_list.append({
+            "sales_attributes": sales_attributes_list,
+            "original_price": sku.original_price,
+            "stock_infos": stock_infos_list
+        })
+
+    bodyjson = {
+        "product_name": product_object.product_name,
+        "images": [{"id": image_id} for image_id in product_object.images],
+        "is_cod_open": product_object.is_cod_open,
+        "package_dimension_unit": product_object.package_dimension_unit,
+        "package_height": product_object.package_height,
+        "package_length": product_object.package_length,
+        "package_weight": product_object.package_weight,
+        "package_width": product_object.package_width,
+        "category_id": product_object.category_id,
+        "description": product_object.description or "",
+        "skus": skus_list
+    }
+
+    body = json.dumps(bodyjson)
+    print("Images:", product_object.images)
+
+
+    sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
+    query_params["sign"] = sign
+
+    query_params["sign"] = sign
+    response = requests.post(url, params=query_params, json=json.loads(body))
+
+    # Process the response
+    print(response.status_code)
+    print(response.text)
+    return HttpResponse(response)
