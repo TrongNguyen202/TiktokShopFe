@@ -3,7 +3,7 @@ import { Table, Button, Tag, Divider } from 'antd'
 import { useNavigate } from 'react-router-dom'
 
 import { alerts } from '../../utils/alerts'
-import { IntlNumberFormat } from '../../utils/index'
+import { IntlNumberFormat, removeDuplicates } from '../../utils/index'
 import { formatDate } from '../../utils/date'
 import { getPathByIndex } from '../../utils'
 import { statusProductTiktokShop } from '../../constants/index'
@@ -26,35 +26,35 @@ const Products = () => {
             align: 'center'
         },
         {
-            title: 'SKU',
-            dataIndex: ["skus", "id"],
-            key: 'id',
-            align: 'center',
-            render: (_, record) => <div className='-my-[12px]'>
-                {record?.skus?.map((item, index) => (
-                    <div key={index} className='border-solid border-0 border-b border-[#d9d9d9] last:border-b-0 py-1 px-[8px] -mx-[8px] h-[53px] flex flex-wrap items-center justify-center'>
-                        <span className='inline-block break-words'>{item.seller_sku}</span>
-                    </div>
-                ))}
-            </div>
-        },
-        {
             title: 'Tên sản phẩm',
             dataIndex: 'name',
             key: 'name'
+        },
+        {
+            title: 'Loại sản phẩm',
+            dataIndex: 'type',
+            key: 'type',
+            align: 'center',
+            render: (_, record) => record?.skus?.length > 1 ? <Tag color="volcano">Sản phẩm có thuộc tính</Tag> :  <Tag color="cyan">Sản phẩm đơn</Tag>
         },
         {
             title: 'Giá sản phẩm',
             dataIndex: ['skus', 'price'],
             key: 'price',
             align: 'center',
-            render: (_, record) => <div className='-my-[12px]'>
-                {record?.skus?.map((item, index) => (
-                    <div key={index} className='border-solid border-0 border-b border-[#d9d9d9] last:border-b-0 py-1 px-[8px] -mx-[8px] h-[53px] leading-[44px]'>
-                        {IntlNumberFormat(item.price.currency, 'currency', 3, item.price.original_price)}
-                    </div>
-                ))}
-            </div>
+            render: (_, record) => {
+                const listPrice = record?.skus?.map((item) => item.price.original_price)
+                const current = removeDuplicates(record?.skus?.map((item) => item?.price?.currency), 'currency')
+                const minPrice = IntlNumberFormat(current, 'currency', 3, Math.min(...listPrice))
+                const maxPrice = IntlNumberFormat(current, 'currency', 3, Math.max(...listPrice))
+                return (
+                    <>
+                        {minPrice === maxPrice && <span>{minPrice}</span>}
+                        {minPrice !== maxPrice && <span>{minPrice} - {maxPrice}</span>}
+                    </>
+
+                )
+            }
         },
         {
             title: 'Trạng thái',

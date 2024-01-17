@@ -102,7 +102,9 @@ const Stores = () => {
     const onFail = (err) => {
       alerts.error(err)
     }
+
     getAllStores(onSuccess, onFail)
+    
     if (app_key && code) setShowModal(true)
     else setShowModal(false)
   }, [app_key, code])

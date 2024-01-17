@@ -11,7 +11,6 @@ export const useProductsStore = create((set) => ({
       set({ loading: true })
       const response = await RepositoryRemote.products.getAllProducts(id)
       set({ products: response.data.data.products })
-      console.log('products: ', products)
       set({ infoTable: response.data.data })
       onSuccess(response.data.data)
     } catch (error) {
@@ -40,4 +39,26 @@ export const useProductsStore = create((set) => ({
     }
     set({ loading: false })
   },
+  editProduct: async(shopId, productId, body, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.products.editProduct(shopId, productId, body)
+      set({ products: response.data.data })
+      onSuccess(response.data.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  },
+  createProduct: async(shopId, body, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.products.editProduct(shopId, body)
+      set({ products: response.data.data })
+      onSuccess(response.data.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  }
 }))

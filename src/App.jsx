@@ -7,7 +7,7 @@ import { getToken } from './utils/auth'
 import 'react-toastify/dist/ReactToastify.css'
 import ForgotPassword from './pages/login/ForgotPassword'
 import IdentityDetail from './pages/identityRequest/IdentityDetail'
-import Loading from './components/loading/Index'
+import Loading from './components/loading'
 import MainLayout from './layouts/mainLayout/MainLayout'
 import VoucherForm from './pages/vouchers/VoucherForm'
 import { useBadgesStore } from './store/badgesStore'
@@ -19,6 +19,7 @@ const Vouchers = lazy(() => import('./pages/vouchers'))
 const Products = lazy(() => import('./pages/products'))
 const ProductDetail = lazy(() => import('./pages/products/ProductDetail.jsx'))
 const ProductEdit = lazy(() => import('./pages/products/ProductEdit.jsx'))
+const ProductCreate = lazy(() => import ('./pages/products/ProductCreate.jsx'))
 const Brands = lazy(() => import('./pages/brands'))
 const Orders = lazy(() => import('./pages/orders'))
 const OrderDetail = lazy(() => import('./pages/orders/OrderDetail.jsx'))
@@ -41,7 +42,7 @@ const PrivateRoute = () => {
     }
 
     checkAuthentication()
-    getAllBadges()
+    // getAllBadges()
   }, [])
 
   if (loading) {
@@ -138,6 +139,15 @@ const App = () => {
                 element={
                   <Suspense fallback={<Loading />}>
                     <ProductEdit />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                path='/shops/:id/products/create'
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <ProductCreate />
                   </Suspense>
                 }
               />

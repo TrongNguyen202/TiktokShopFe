@@ -17,7 +17,7 @@ const StoreDetailWareHouses = ({shopId}) => {
         }
         
         getWarehousesByShopId(shopId, onSuccess, onFail)
-    }, [shopId])
+    }, [])
 
     const { warehouse_list } = warehousesById
 
