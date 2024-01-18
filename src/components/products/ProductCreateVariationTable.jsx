@@ -3,6 +3,7 @@ import { Button, Form, Input, Popconfirm, Table, Modal, Tooltip } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons'
 
 import { removeDuplicates } from '../../utils'
+import { variationsOption } from '../../constants'
 import ProductCreateAddVariationForm from './ProductCreateAddVariationForm';
 
 const EditableContext = React.createContext(null);
@@ -101,20 +102,30 @@ const ProductCreateVariationTable = ({variationsData, listVariation, variationsD
     };
 
     const handleAdd = (newData) => {
-        console.log('newData: ', newData)
+        const newDataConvert = {
+            price: newData.price,
+            seller_sku: newData.seller_sku,
+            stock_infos: {
+                available_stock: newData.stock_infos.available_stock,
+            },
+            variations: [
+                {
+                    id: newData.id,
+                    name: variationsOption.find(item => item.value === newData.id)?.label,
+                    value_id: newData.value_id,
+                    value_name: newData.value_name
+                }
+            ]
+        }
         
         const dataVariation = dataSource.map((item) => (
             item?.variations
         ))
+        console.log('dataVariation: ', dataVariation);
         const daVariationConvert = dataVariation&&[].concat(...dataVariation);
         const dataVariationGroup = daVariationConvert.filter((item) => item.id !== newData.id)
         const dataVariationsConvert = dataVariationGroup.map((item) => (
             {
-                price: newData?.price,
-                seller_sku: newData?.seller_sku,
-                stock_infos: {
-                    available_stock: newData?.stock_infos.available_stock
-                },
                 variations: [
                     item,
                     newData
@@ -133,9 +144,10 @@ const ProductCreateVariationTable = ({variationsData, listVariation, variationsD
                 variations: item.variations
             }
         ))
-        console.log('dataVariationsConvert: ', dataVariationsConvert)
-        setDataSource([...newDataVariations, ...dataSource]);
-        // setDataColumns([newData, ...dataSource])
+        console.log('dataVariationsConvert: ', dataVariationsConvert);
+        console.log('newDataVariations: ', newDataVariations);
+        setDataSource([newDataConvert, ...newDataVariations]);
+        setDataColumns([newDataConvert, ...newDataVariations])
         setIsModalOpen(false)
     };
 

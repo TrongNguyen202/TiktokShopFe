@@ -6,7 +6,7 @@ import axios from 'axios'
 import { alerts } from '../../utils/alerts'
 import { useCategoriesStore } from '../../store/categoriesStore'
 import { useProductsStore } from '../../store/productsStore'
-import { getPathByIndex, buildNestedArrays, formatNumber } from '../../utils'
+import { getPathByIndex } from '../../utils'
 
 import Loading from '../../components/loading'
 import PageTitle from "../../components/common/PageTitle";
@@ -63,8 +63,7 @@ const ProductCreate = () => {
             ))
         }
         console.log('dataFormSubmit: ', dataFormSubmit)
-        // editProduct(shopId, productId, dataFormSubmit, (res) => console.log(res), (err) => alerts.error(err))
-        createProduct()
+        createProduct(shopId, dataFormSubmit, (res) => console.log(res), (err) => alerts.error(err))
     };
     
     const onFinishFailed = (errorInfo) => {
@@ -85,6 +84,7 @@ const ProductCreate = () => {
     }, [productById?.product_id])
 
     const variationsDataTable = (data) => {
+        console.log('data variation: ', data)
         setSkusData(data)
     };
 
@@ -131,7 +131,7 @@ const ProductCreate = () => {
 
                 <div className='px-20 py-10'>
                     <Form.Item>
-                        <Button type="primary" htmlType="submit">Lưu thay đổi</Button>
+                        <Button type="primary" htmlType="submit">Lưu</Button>
                         <Button className='ml-3' onClick={() => navigate(-1)}>Huỷ</Button>
                     </Form.Item>
                 </div>

@@ -5,6 +5,7 @@ export const useProductsStore = create((set) => ({
   products: {},
   productById: {},
   infoTable: {},
+  newProduct: {},
   loading: false,
   getAllProducts: async (id, onSuccess = () => {}, onFail = () => {}) => {
     try {
@@ -53,8 +54,8 @@ export const useProductsStore = create((set) => ({
   createProduct: async(shopId, body, onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true })
-      const response = await RepositoryRemote.products.editProduct(shopId, body)
-      set({ products: response.data.data })
+      const response = await RepositoryRemote.products.createProduct(shopId, body)
+      set({ newProduct: response.data.data })
       onSuccess(response.data.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
