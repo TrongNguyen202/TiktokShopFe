@@ -146,10 +146,10 @@ def getWareHouseList(access_token):
 def callUploadImage(access_token, img_data):
     try:
         url = TIKTOK_API_URL['url_upload_image']
-        countbits = count_bits(img_data=img_data)
-        if countbits > 24:
-            print("countbits lon hon 24", countbits)
-            img_data = convert_to_rgb(img_data=img_data)
+        # countbits = count_bits(img_data=img_data)
+        # if countbits > 24:
+        #     print("countbits lon hon 24", countbits)
+        #     img_data = convert_to_rgb(img_data=img_data)
         query_params = {
             "app_key": app_key,
             "access_token": access_token,
@@ -231,7 +231,7 @@ def createProduct(access_token,title,images_ids,product_object):
     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
     query_params["sign"] = sign
 
-    query_params["sign"] = sign
+    
     response = requests.post(url, params=query_params, json=json.loads(body))
 
     # Process the response
@@ -262,15 +262,22 @@ def getBrands(access_token):
 
 
 
-def callEditProduct(access_token, product_object):
+def callEditProduct(access_token, product_object,imgBase64):
     url = TIKTOK_API_URL['url_edit_product']
+    images_list = [{"id": image["id"]} for image in product_object.images]
+    if imgBase64 != []:
+        for item in imgBase64:
+            img_id = callUploadImage(access_token=access_token, img_data=item)
+            images_list.append(img_id)
+    
+
     query_params = {
         "app_key": app_key,
         "access_token": access_token,
         "timestamp": SIGN.get_timestamp(),
     }
 
-    images_list = [{"id": image["id"]} for image in product_object.images]
+    
 
     skus_list = []
     for sku in product_object.skus:
@@ -314,9 +321,8 @@ def callEditProduct(access_token, product_object):
     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
     query_params["sign"] = sign
 
-  
-
-    response = requests.put(url, params=query_params, json=bodyjson)
+    
+    response = requests.put(url, params=query_params, json=json.loads(body))
 
     # Process the response
     print(response.status_code)
@@ -436,3 +442,18 @@ def callCreateOneProduct(access_token,product_object):
     print(response.status_code)
     print(response.text)
     return HttpResponse(response)
+
+def callGlobalCategories(access_token):
+    url = TIKTOK_API_URL['url_get_globle_categories']
+    query_params = {
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp()
+    }
+ 
+
+    sign = SIGNNOBODY.cal_sign(secret, urllib.parse.urlparse(url), query_params)
+    query_params["sign"] = sign
+    response = requests.get(url, params=query_params)
+    print(response)
+    return response

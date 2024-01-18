@@ -24,7 +24,7 @@ from .serializers import (
     ShopRequestSerializers
 )
 
-from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes,callCreateOneProduct
+from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes,callCreateOneProduct,callGlobalCategories
 from django.http import HttpResponse
 from .models import Shop, Image
 from api.utils.constant import app_key, secret, grant_type,ProductCreateObject,ProductCreateOneObject
@@ -840,15 +840,23 @@ class ProcessExcel(View):
 
 #         return JsonResponse({"status_code": response.status_code, "response_text": response.json})
 class EditProductAPIView(APIView):
-    def get(self, request, shop_id, product_id):
+    def put(self, request, shop_id, product_id):
         shop = get_object_or_404(Shop, id=shop_id)
         access_token = shop.access_token
         body_raw = request.body.decode('utf-8')
         product_data = json.loads(body_raw)
-        
-        product_object = ProductObject(**product_data)
 
-        callEditProduct(access_token, product_object)
+        # Tạo một bản sao của product_data để loại bỏ imgBase64
+        product_data_without_img = product_data.copy()
+        img_base64 = product_data_without_img.pop('imgBase64', [])
+        print(img_base64)
+
+        # Tạo một đối tượng ProductObject không chứa imgBase64
+        product_object_data = {key: value for key, value in product_data.items() if key != 'imgBase64'}
+       
+        product_object = ProductObject(**product_object_data)
+
+        callEditProduct(access_token, product_object, img_base64)
 
         return JsonResponse({'status': 'success'}, status=200)
 import base64
@@ -920,4 +928,12 @@ class CreateOneProduct(APIView):
 
         return JsonResponse({'status': 'success'}, status=201)
 
+class ListCategoriesGlobal(APIView):
+    # permission_classes = (IsAuthenticated,)
+
+    def get(self, request,shop):
+        response = callGlobalCategories(access_token=shop.access_token)
+        content = response.content
+        print("content", content)
+        return HttpResponse(content, content_type='application/json')
 
