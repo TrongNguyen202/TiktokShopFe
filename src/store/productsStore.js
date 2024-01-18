@@ -11,7 +11,6 @@ export const useProductsStore = create((set) => ({
       set({ loading: true })
       const response = await RepositoryRemote.products.getAllProducts(id)
       set({ products: response.data.data.products })
-      console.log('products: ', products)
       set({ infoTable: response.data.data })
       onSuccess(response.data.data)
     } catch (error) {

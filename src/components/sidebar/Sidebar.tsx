@@ -84,11 +84,11 @@ const Sidebar = ({ collapsed }) => {
       ),
     },
     {
-      key: "/identity-request",
+      key: "/templates",
       icon: <FileDoneOutlined style={{ color: "#9a10d0" }} />,
       label: (
-        <Link className="flex justify-between" to="identity-request">
-          Yêu cầu định danh{" "}
+        <Link className="flex justify-between" to="templates">
+          Quản lý template
           <div>
             {/* ( <span className='font-medium'>{total_identify_profile}</span> ) */}
           </div>
