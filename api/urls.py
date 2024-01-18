@@ -16,7 +16,8 @@ urlpatterns = [
     path("shops/<int:shop_id>", views.ShopDetail.as_view(), name="Shops_put_get_delete"),
     path("shops/<int:shop_id>/refreshtoken", views.RefreshToken.as_view(), name="refresh_token"),
     path("shops/<int:shop_id>/products/<int:product_id>", views.ProductDetail.as_view(), name="product_detail"),
-    path("shops/<int:shop_id>/categories", views.Categories.as_view(), name="categories"),
+    path("categories/global", views.GlobalCategory.as_view(), name="global_categories"),
+    path("shops/<int:shop_id>/categories", views.CategoriesByShopId.as_view(), name="categories"),
     path("shops/<int:shop_id>/warehouses", views.WareHouse.as_view(), name="WareHouse"),
     path("shops/search", views.ShopSearchViews.as_view(), name="Shop_search"),
     path("shops/<int:shop_id>/upload", views.UploadImage.as_view(), name="upload"),
@@ -25,5 +26,6 @@ urlpatterns = [
     path('shops/<int:shop_id>/products/create_product_excel2', views.MultithreadProcessExcel.as_view(), name='process_excel2'),
     path('shops/<int:shop_id>/products/create_product_excel1', views.ProcessExcelNo.as_view(), name='process_excel3'),
     path('shops/<int:shop_id>/products/create_product_excel3', views.ProcessExcel.as_view(), name='process_excel1'),
- 
+    path('templates', views.Templates.as_view(), name='template_list'),
+    path('templates/<int:template_id>', views.Templates.as_view(), name='template_detail'),    
 ]
