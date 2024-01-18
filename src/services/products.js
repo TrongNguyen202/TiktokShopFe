@@ -13,6 +13,10 @@ const changeStatusProduct = (id, params) => {
   return callApi(`/admin/v1/products/${id}`, 'put', params)
 }
 
+const createProductList = (shopId, params) => {
+  return callApi(`/shops/${shopId}/products/create_product_excel3`, 'post', params)
+}
+
 const editProduct = (shopId, productId, body) => {
   return callApi(`/shops/${shopId}/products/update_product/${productId}`, 'put', body)
 }
@@ -25,6 +29,7 @@ export const products = {
   getAllProducts,
   getProductsById,
   changeStatusProduct,
+  createProductList,
   editProduct,
   createProduct
 }

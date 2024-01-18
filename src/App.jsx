@@ -11,6 +11,7 @@ import Loading from './components/loading'
 import MainLayout from './layouts/mainLayout/MainLayout'
 import VoucherForm from './pages/vouchers/VoucherForm'
 import { useBadgesStore } from './store/badgesStore'
+import Template from './pages/templates/index.jsx'
 
 const Sellers = lazy(() => import('./pages/sellers/Index'))
 const Home = lazy(() => import('./pages/home/Index.jsx'))
@@ -74,10 +75,10 @@ const App = () => {
               />
               {/* Yêu cầu định danh */}
               <Route
-                path='/identity-request'
+                path='/templates'
                 element={
                   <Suspense fallback={<Loading />}>
-                    <IdentityRequest />
+                    <Template />
                   </Suspense>
                 }
               />

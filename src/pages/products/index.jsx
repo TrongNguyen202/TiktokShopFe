@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import { Table, Button, Tag, Divider } from 'antd'
-import { useNavigate } from 'react-router-dom'
+import { Button, Table, Tag } from "antd";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { alerts } from '../../utils/alerts'
 import { IntlNumberFormat, removeDuplicates } from '../../utils/index'
@@ -8,10 +8,9 @@ import { formatDate } from '../../utils/date'
 import { getPathByIndex } from '../../utils'
 import { statusProductTiktokShop } from '../../constants/index'
 
-import { useProductsStore } from '../../store/productsStore'
+import { useProductsStore } from "../../store/productsStore";
 
-import PageTitle from '../../components/common/PageTitle'
-
+import PageTitle from "../../components/common/PageTitle";
 
 const Products = () => {
     const navigate = useNavigate();
@@ -106,48 +105,52 @@ const Products = () => {
         }
     ]
 
-    const hanldeProductCreate = () => {
-        navigate(`/shops/${shopId}/products/create`)
-      }
-      
-    const handleProductEdit = (productId) => {
-        navigate(`/shops/${shopId}/products/${productId}/edit`)
-    }
+  const hanldeProductCreate = () => {
+    navigate(`/shops/${shopId}/products/create`);
+  };
 
-    const handleProductDetail = (productId) => {
-        navigate(`/shops/${shopId}/products/${productId}`)
-    }
+  const handleProductEdit = (productId) => {
+    navigate(`/shops/${shopId}/products/${productId}/edit`);
+  };
 
-    useEffect(() => {
-        const onSuccess = (res) => {
-          console.log(res)
-        }
-        const onFail = (err) => {
-          alerts.error(err)
-        }
-        
-        getAllProducts(shopId, onSuccess, onFail)
-      }, [shopId])
-    
-    return (
-        <div className='p-10'>
-            <PageTitle title='Danh sách sản phẩm' count={products?.length} showBack />
-            <Button type='primary' onClick={hanldeProductCreate} className='mt-5 mb-5 mr-3'>Thêm sản phẩm</Button>
-            <Button
-              type="primary"
-              onClick={() => navigate(`/shops/${shopId}/add-many-products`)}
-            >
-              Thêm hàng loạt
-            </Button>
-            <Table
-                columns={columnProduct}
-                scroll={{ x: 1700, y: 1000}}
-                size='middle'
-                bordered
-                dataSource={products&&products?.length > 0 ? products : []}
-            />
-        </div>
-    );
-}
- 
+  const handleProductDetail = (productId) => {
+    navigate(`/shops/${shopId}/products/${productId}`);
+  };
+
+  useEffect(() => {
+    const onSuccess = () => {};
+    const onFail = (err) => {
+      alerts.error(err);
+    };
+
+    getAllProducts(shopId, onSuccess, onFail);
+  }, [shopId]);
+
+  return (
+    <div className="p-10">
+      <PageTitle title="Danh sách sản phẩm" count={products?.length} showBack />
+      <Button
+        type="primary"
+        onClick={hanldeProductCreate}
+        className="mt-5 mb-5 mr-3"
+      >
+        Thêm sản phẩm
+      </Button>
+      <Button
+        type="primary"
+        onClick={() => navigate(`/shops/${shopId}/add-many-products`)}
+      >
+        Thêm hàng loạt
+      </Button>
+      <Table
+        columns={columnProduct}
+        scroll={{ x: 1700, y: 1000 }}
+        size="middle"
+        bordered
+        dataSource={products && products?.length > 0 ? products : []}
+      />
+    </div>
+  );
+};
+
 export default Products;

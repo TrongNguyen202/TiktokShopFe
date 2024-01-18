@@ -40,6 +40,16 @@ export const useProductsStore = create((set) => ({
     }
     set({ loading: false })
   },
+  createProductList: async (shopId, params, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.products.createProductList(shopId, params)
+      onSuccess()
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  },
   editProduct: async(shopId, productId, body, onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true })

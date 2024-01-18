@@ -4,7 +4,7 @@ import React, { useRef, useState } from "react";
 
 let indexOption = 0;
 
-export default function CustomSelect({ optionsSelect, type, onChange }) {
+export default function CustomSelect({ optionsSelect, type, onChange, selectedDefault }) {
   const [options, setOptions] = useState(optionsSelect);
   const [valueInput, setValueInput] = useState("");
   const inputRef = useRef(null);
@@ -38,6 +38,7 @@ export default function CustomSelect({ optionsSelect, type, onChange }) {
     <Select
       labelInValue
       filterOption={false}
+      defaultValue={selectedDefault}
       mode="multiple"
       className="w-[100%]"
       placeholder={`Chọn ${type}`}

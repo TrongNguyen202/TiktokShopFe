@@ -61,7 +61,7 @@ export default function EditPriceForm({
     {
       title: "Type",
       dataIndex: "type",
-      width: "12%",
+      width: "25%",
       render: (text, row, index) => {
         if (index % selectedSize.length === 0) {
           return {
@@ -82,7 +82,7 @@ export default function EditPriceForm({
     {
       title: "Quantity",
       dataIndex: "quantity",
-      width: "12%",
+      width: "25%",
       editable: true,
       render: (text, row, index) => {
         if (index % selectedSize.length === 0) {
@@ -104,38 +104,14 @@ export default function EditPriceForm({
     {
       title: "Size",
       dataIndex: "size",
-      width: "12%",
+      width: "25%",
     },
     {
       title: "Price",
       dataIndex: "price",
       editable: true,
-      width: "12%",
+      width: "25%",
     },
-    // {
-    //   title: "Weight",
-    //   dataIndex: "weight",
-    //   editable: true,
-    //   width: "12%",
-    // },
-    // {
-    //   title: "Length",
-    //   dataIndex: "length",
-    //   editable: true,
-    //   width: "12%",
-    // },
-    // {
-    //   title: "Width",
-    //   dataIndex: "width",
-    //   editable: true,
-    //   width: "12%",
-    // },
-    // {
-    //   title: "Height",
-    //   dataIndex: "height",
-    //   editable: true,
-    //   width: "12%",
-    // },
   ];
 
   const EditableCell = ({
@@ -191,7 +167,7 @@ export default function EditPriceForm({
         <Form.Item
           style={{
             margin: 0,
-            width: "105px",
+            width: "155px",
           }}
           name={dataIndex}
           rules={[
@@ -273,6 +249,7 @@ export default function EditPriceForm({
         columns={columns}
         pagination={false}
       />
+      
       <Button
         onClick={handleSaveDataSource}
         type="primary"

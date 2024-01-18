@@ -9,7 +9,7 @@ const getCategoriesById = (id) => {
 }
 
 const getAllCategoriesIsLeaf = (id) => {
-  return callApi(`/shops/${id}/categories/is_leaf`, 'get')
+  return callApi(`/categories/global`, 'get')
 }
 
 const getCustomerById = (id) => {
