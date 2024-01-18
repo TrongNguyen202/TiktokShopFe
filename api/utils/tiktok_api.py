@@ -262,15 +262,21 @@ def getBrands(access_token):
 
 
 
-def callEditProduct(access_token, product_object):
+def callEditProduct(access_token, product_object,imgBase64):
     url = TIKTOK_API_URL['url_edit_product']
+    images_list = [{"id": image["id"]} for image in product_object.images]
+    if imgBase64 != "":
+        img_id = callUploadImage(access_token=access_token, img_data=imgBase64)
+        images_list.append(img_id)
+    
+
     query_params = {
         "app_key": app_key,
         "access_token": access_token,
         "timestamp": SIGN.get_timestamp(),
     }
 
-    images_list = [{"id": image["id"]} for image in product_object.images]
+    
 
     skus_list = []
     for sku in product_object.skus:
@@ -436,3 +442,18 @@ def callCreateOneProduct(access_token,product_object):
     print(response.status_code)
     print(response.text)
     return HttpResponse(response)
+
+def callGlobalCategories(access_token):
+    url = TIKTOK_API_URL['url_get_globle_categories']
+    query_params = {
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp()
+    }
+ 
+
+    sign = SIGNNOBODY.cal_sign(secret, urllib.parse.urlparse(url), query_params)
+    query_params["sign"] = sign
+    response = requests.get(url, params=query_params)
+    print(response)
+    return response
