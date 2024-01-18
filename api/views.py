@@ -722,6 +722,14 @@ class ProcessExcel(View):
         images_ids = self.upload_images(base64_images, shop)
         self.create_product_fun(shop, item, category_id, warehouse_id, is_cod_open, package_height, package_length,
                                 package_weight, package_width, images_ids, description, skus)
+    def convert_to_png(self, input_path, output_path):
+        try:
+            # Mở ảnh sử dụng PIL
+            img = Image.open(input_path)
+            # Chuyển đổi và lưu ảnh dưới dạng PNG
+            img.save(output_path, format='PNG')
+        except Exception as e:
+            print(f"Lỗi khi chuyển đổi ảnh sang PNG: {e}")
 
     def download_image(self, image_url, key, shop):
         if image_url:
@@ -730,25 +738,26 @@ class ProcessExcel(View):
             random_string = str(uuid.uuid4())[:8]
             image_filename = os.path.join(download_dir, f"{key}_{random_string}.jpg")
             response = requests.get(image_url)
-
+    
             if response.status_code == 200:
                 with open(image_filename, 'wb') as f:
                     f.write(response.content)
-                return image_filename
+                
+                png_filename = image_filename.replace('.jpg', '.png')
+                self.convert_to_png(image_filename, png_filename)
+                return png_filename
             else:
                 print(f"Failed to download image: {image_url}, Status code: {response.status_code}")
                 return None
 
     def process_images(self, downloaded_image_paths):
         base64_images = []
-        mode_to_bpp = {'1': 1, 'L': 8, 'P': 8, 'RGB': 24, 'RGBA': 32, 'CMYK': 32, 'YCbCr': 24, 'I': 32, 'F': 32}
         for image_path in downloaded_image_paths:
             try:
                 img = Image.open(image_path)
                 if img is None:
                     continue
-                if mode_to_bpp[img.mode]>24:
-                    img.convert("RGB", palette=Image.ADAPTIVE, colors=24)
+                
 
                 with open(image_path, 'rb') as img_file:
                     base64_image = base64.b64encode(img_file.read()).decode('utf-8')

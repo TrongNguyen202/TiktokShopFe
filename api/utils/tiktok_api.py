@@ -167,6 +167,7 @@ def callUploadImage(access_token, img_data):
         response = requests.post(url, params=query_params, json=json.loads(body))
 
         data = json.loads(response.text)
+        print("loi image",data)
 
         if data and "data" in data and "img_id" in data["data"]:
             img_id = data["data"]["img_id"]
@@ -235,8 +236,8 @@ def createProduct(access_token,title,images_ids,product_object):
     response = requests.post(url, params=query_params, json=json.loads(body))
 
     # Process the response
-    print(response.status_code)
-    print(response.text)
+    # print(response.status_code)
+    # print(response.text)
     return HttpResponse(response)
 
 def getBrands(access_token):
