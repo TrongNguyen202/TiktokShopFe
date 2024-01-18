@@ -13,6 +13,7 @@ import { badges } from './badges'
 import { warehouses } from './warehouses'
 import { brand } from './brand'
 import { orders } from './orders'
+import { template } from './template'
 
 export const RepositoryRemote = {
   auth,
@@ -29,5 +30,6 @@ export const RepositoryRemote = {
   badges,
   warehouses,
   brand,
-  orders
+  orders,
+  template
 }

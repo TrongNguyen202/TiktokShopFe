@@ -1,5 +1,5 @@
 import { CloudUploadOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Col, Modal, Row, Select } from "antd";
+import { Button, Col, Modal, Row, Select, Spin } from "antd";
 import Dragger from "antd/es/upload/Dragger.js";
 import { useNavigate } from "react-router-dom";
 
@@ -8,22 +8,48 @@ import ContentHeader from "../../components/content-header/index.jsx";
 import { constants as c } from "../../constants";
 import { alerts } from "../../utils/alerts.js";
 import { getToken } from "../../utils/auth.js";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { message, Upload } from "antd";
 import TemplateForm from "./TemplateForm.jsx";
 import { useProductsStore } from "../../store/productsStore.js";
 import { getPathByIndex } from "../../utils/index.js";
+import { useTemplateStore } from "../../store/templateStore.js";
 
 const MultiAddProducts = () => {
-  const navigate = useNavigate;
+  const navigate = useNavigate();
   const customerTokenKey = getToken();
-  const shopId = getPathByIndex(2)
+  const shopId = getPathByIndex(2);
 
-  const { createProductList } = useProductsStore();
+  const { getAllTemplate, templates } = useTemplateStore();
+  const { createProductList, loading } = useProductsStore();
 
   const [productsJSON, setProductsJSON] = useState();
   const [templateJSON, setTemplateJSON] = useState();
+  console.log("templateJSON: ", templateJSON);
   const [isShowModalAddTemplate, setShowModalAddTemplate] = useState(false);
+
+  useEffect(() => {
+    getAllTemplate();
+  }, []);
+
+  const convertTemplateOption = () => {
+    const result = [];
+    if (!Array.isArray(templates)) return result;
+    templates.forEach((item) => {
+      const { name, id } = item;
+      result.push({
+        value: id,
+        label: name,
+      });
+    });
+    return result;
+  };
+
+  const onSelectTemplate = (value) => {
+    console.log("value: ", value);
+    const template = templates.find((item) => item.id === value);
+    setTemplateJSON(template);
+  };
 
   const readUploadFile = (files) => {
     console.log("files: ", files);
@@ -100,36 +126,58 @@ const MultiAddProducts = () => {
   const convertDataSku = () => {
     const { category_id, colors, sizes, types, type, warehouse_id } =
       templateJSON ?? {};
+    // const result = [];
+    // type.forEach((type) => {
+    //   // colors.forEach((color) => {
+    //   Object.keys(types[type]).forEach((size) => {
+    //     let obj = {
+    //       sales_attributes: [
+    //         {
+    //           attribute_id: "100000",
+    //           attribute_name: "Type",
+    //           custom_value: type,
+    //         },
+    //         {
+    //           attribute_id: "7322572932260136746",
+    //           attribute_name: "Size",
+    //           custom_value: size,
+    //         },
+    //       ],
+    //       original_price: types[type][size].price,
+    //       stock_infos: [
+    //         {
+    //           warehouse_id: warehouse_id,
+    //           available_stock: 100000,
+    //         },
+    //       ],
+    //     };
+    //     result.push(obj);
+    //     // });
+    //   });
+    // });
+    // return result;
+
     const result = [];
-    type.forEach((type) => {
-      // colors.forEach((color) => {
-      Object.keys(types[type]).forEach((size) => {
-        let obj = {
-          sales_attributes: [
-            {
-              attribute_id: "100000",
-              attribute_name: "Type",
-              custom_value: type,
-            },
-            {
-              attribute_id: "7322572932260136746",
-              attribute_name: "Size",
-              custom_value: size,
-            },
-          ],
-          original_price: types[type][size].price,
-          stock_infos: [
-            {
-              warehouse_id: warehouse_id,
-              available_stock: 100000,
-            },
-          ],
-        };
-        result.push(obj);
-        // });
-      });
+
+    types.forEach((item) => {
+      const obj = {};
+
+      obj.sales_attributes = [
+        { attribute_name: "Type", value_name: item.type },
+        { attribute_name: "Size", value_name: item.size },
+      ];
+
+      obj.original_price = item.price;
+
+      obj.stock_infos = [
+        { warehouse_id: "123", available_stock: item.quantity },
+      ];
+
+      result.push(obj);
     });
-    return result;
+
+    console.log(result);
+    return result
   };
 
   function handleValidateJsonForm() {
@@ -194,7 +242,8 @@ const MultiAddProducts = () => {
       package_length,
       package_weight,
       package_width,
-      description
+      description,
+      types,
     } = templateJSON ?? {};
     const dataSubmit = {
       excel: productsJSON,
@@ -206,11 +255,11 @@ const MultiAddProducts = () => {
       package_width,
       is_cod_open,
       skus: convertDataSku(),
-      description
+      description,
     };
     const onSuccess = () => {
       message.success("Thêm sản phẩm thành công");
-      navigate("/stores/products");
+      navigate(`/shops/${shopId}/products`);
     };
     const onFail = () => {
       message.error("Thêm sản phẩm thất bại");
@@ -245,96 +294,74 @@ const MultiAddProducts = () => {
 
   return (
     <div className="w-[90%] mx-auto">
-      <Row className="block">
-        <Row>
-          <Col>
-            <ContentHeader title="Thêm hàng loạt" />
-          </Col>
-        </Row>
+      <Spin spinning={loading}>
+        <Row className="block">
+          <Row>
+            <Col>
+              <ContentHeader title="Thêm hàng loạt" />
+            </Col>
+          </Row>
 
-        <Row className="mt-[15px]">
-          <Col span={24}>
-            <p className="pb-4">
-              Sau khi hoàn thành chỉnh sửa, vui lòng đăng tập tin Excel lên.
-            </p>
-            {/* drag and dropped area */}
-            <Dragger
-              {...props}
-              className="mt-[100px] mr-4 inset-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#f5f5f5] border w-full h-[180px]"
-            >
-              <p className="ant-upload-drag-icon ">
-                <CloudUploadOutlined />
+          <Row className="mt-[15px]">
+            <Col span={24}>
+              <p className="pb-4">
+                Sau khi hoàn thành chỉnh sửa, vui lòng đăng tập tin Excel lên.
               </p>
-              <p className="ant-upload-text">
-                Chọn hoặc kéo file excel vào đây{" "}
-              </p>
-              <p className="text-[#c4c4c4]">Kích thước file tối đa: 10MB</p>
-              <p className="text-[#e34e4e]">
-                Lưu ý file tải lên phải theo định dạng là file excel (xlsx) !
-              </p>
-            </Dragger>
-          </Col>
+              {/* drag and dropped area */}
+              <Dragger
+                {...props}
+                className="mt-[100px] mr-4 inset-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#f5f5f5] border w-full h-[180px]"
+              >
+                <p className="ant-upload-drag-icon ">
+                  <CloudUploadOutlined />
+                </p>
+                <p className="ant-upload-text">
+                  Chọn hoặc kéo file excel vào đây{" "}
+                </p>
+                <p className="text-[#c4c4c4]">Kích thước file tối đa: 10MB</p>
+                <p className="text-[#e34e4e]">
+                  Lưu ý file tải lên phải theo định dạng là file excel (xlsx) !
+                </p>
+              </Dragger>
+            </Col>
+          </Row>
         </Row>
-      </Row>
-      <div className="mt-20 flex gap-3 items-center">
-        <p className="font-semibold">Chọn template: </p>
-        <Select
-          showSearch
-          style={{
-            width: 200,
-          }}
-          placeholder="Chọn template"
-          optionFilterProp="children"
-          filterOption={(input, option) =>
-            (option?.label ?? "").includes(input)
-          }
-          filterSort={(optionA, optionB) =>
-            (optionA?.label ?? "")
-              .toLowerCase()
-              .localeCompare((optionB?.label ?? "").toLowerCase())
-          }
-          options={[
-            {
-              value: "1",
-              label: "Not Identified",
-            },
-            {
-              value: "2",
-              label: "Closed",
-            },
-            {
-              value: "3",
-              label: "Communicated",
-            },
-            {
-              value: "4",
-              label: "Identified",
-            },
-            {
-              value: "5",
-              label: "Resolved",
-            },
-            {
-              value: "6",
-              label: "Cancelled",
-            },
-          ]}
-        />
-        <Button
-          className=""
-          type="primary"
-          ghost
-          icon={<PlusOutlined />}
-          onClick={() => setShowModalAddTemplate(true)}
-        >
-          Thêm mới template
-        </Button>
-      </div>
-      <div className="text-end pr-20">
-        <Button type="primary" className="mt-20" onClick={onSubmit}>
-          Thêm sản phẩm
-        </Button>
-      </div>
+        <div className="mt-20 flex gap-3 items-center">
+          <p className="font-semibold">Chọn template: </p>
+          <Select
+            showSearch
+            style={{
+              width: 200,
+            }}
+            placeholder="Chọn template"
+            optionFilterProp="children"
+            filterOption={(input, option) =>
+              (option?.label ?? "").includes(input)
+            }
+            filterSort={(optionA, optionB) =>
+              (optionA?.label ?? "")
+                .toLowerCase()
+                .localeCompare((optionB?.label ?? "").toLowerCase())
+            }
+            options={convertTemplateOption()}
+            onChange={onSelectTemplate}
+          />
+          <Button
+            className=""
+            type="primary"
+            ghost
+            icon={<PlusOutlined />}
+            onClick={() => setShowModalAddTemplate(true)}
+          >
+            Thêm mới template
+          </Button>
+        </div>
+        <div className="text-end pr-20">
+          <Button type="primary" className="mt-20" onClick={onSubmit}>
+            Thêm sản phẩm
+          </Button>
+        </div>
+      </Spin>
 
       {isShowModalAddTemplate && (
         <Modal
