@@ -7,7 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
 from .helpers import check_token, GenerateSign
-from .models import Shop
+from .models import Shop, Template
 
 
 class SignUpSerializers(serializers.ModelSerializer):
@@ -97,3 +97,14 @@ class ShopRequestSerializers(serializers.ModelSerializer):
     class Meta:
         model = Shop
         fields = ["shop_name", "auth_code"]
+
+
+class TemplateSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Template
+    fields = '__all__'
+
+class TemplatePutSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Template
+    fields = ['name', 'category_id', 'warehouse_id', 'description', 'is_cod_open', 'package_height', 'package_length', 'package_weight', 'package_width', 'sizes', 'colors', 'type', 'types']
