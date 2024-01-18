@@ -6,19 +6,19 @@ import axios from 'axios'
 import { alerts } from '../../utils/alerts'
 import { useCategoriesStore } from '../../store/categoriesStore'
 import { useProductsStore } from '../../store/productsStore'
-import { getPathByIndex, buildNestedArrays, formatNumber } from '../../utils'
+import { getPathByIndex } from '../../utils'
 
 import Loading from '../../components/loading'
 import PageTitle from "../../components/common/PageTitle";
 import PrductCreateAttributes from '../../components/products/PrductCreateAttributes';
-import ProductCreateMedia from '../../components/products/PorductCreateMedia';
+import PrductCreateMedia from '../../components/products/PorductCreateMedia';
 import ProductCreateInformation from '../../components/products/ProductCreateInformation';
 import ProductCreateSale from '../../components/products/ProductCreateSale';
 import ProductCreateVariation from '../../components/products/ProductCreateVariation'
 import ProductCreateShipping from '../../components/products/ProductCreateShipping';
 
 
-const ProductEdit = () => {
+const ProductCreate = () => {
     const navigate = useNavigate()
     const shopId = getPathByIndex(2)
     const productId = getPathByIndex(4)
@@ -26,23 +26,16 @@ const ProductEdit = () => {
     const [ skusData, setSkusData ] = useState([])
     const [ imgBase64, setImgBase64 ] = useState([])
     const { getCategoriesById, categoriesById, loading } = useCategoriesStore((state) => state)
-    const { productById, getProductsById, editProduct } = useProductsStore((state) => state)
-    
-    const treeCategoryDefault = buildNestedArrays(productById?.category_list&&productById?.category_list, "0")
-    const priceDataForm = productById?.skus?.length === 1 ? formatNumber(productById?.skus[0].price.original_price) : ''
-    const availableDataForm = productById?.skus?.length === 1 ? formatNumber(productById?.skus[0].stock_infos[0].available_stock) : ''
-    const skuDataForm = productById?.skus?.length === 1 ? formatNumber(productById?.skus[0].seller_sku) : ''
-    const imgBase64List = imgBase64?.filter(item => item.thumbUrl)
+    const { productById, getProductsById, createProduct } = useProductsStore((state) => state)
 
     const onFinish = async(values) => {
-        console.log('values: ', values);
         const dataFormSubmit = {
             product_id: productId,
             product_name: values.product_name,
-            images: values?.images?.map((item) => ({
+            images: values.images.map((item) => ({
                 id: item.id
             })),
-            imgBase64: imgBase64List?.map(item => item.thumbUrl),
+            imgBase64: imgBase64,
             price: values.price,
             is_cod_open: values.is_cod_open,
             package_dimension_unit: values.package_dimension_unit,
@@ -70,20 +63,12 @@ const ProductEdit = () => {
             ))
         }
         console.log('dataFormSubmit: ', dataFormSubmit)
-        editProduct(shopId, productId, dataFormSubmit, (res) => console.log(res), (err) => alerts.error(err))
+        createProduct(shopId, dataFormSubmit, (res) => console.log(res), (err) => alerts.error(err))
     };
     
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);
     };
-
-    const formData = {
-        ...productById,
-        category_list: treeCategoryDefault,
-        price: priceDataForm,
-        available: availableDataForm,
-        seller_sku: skuDataForm
-    }
 
     useEffect(() => {
         const onSuccess = (res) => {
@@ -95,13 +80,11 @@ const ProductEdit = () => {
 
         getCategoriesById(shopId, onSuccess, onFail)
         getProductsById(shopId, productId, onSuccess, onFail)
-
-        form.setFieldsValue(formData);
-        setSkusData(productById?.skus)
         
     }, [productById?.product_id])
 
     const variationsDataTable = (data) => {
+        console.log('data variation: ', data)
         setSkusData(data)
     };
 
@@ -113,7 +96,7 @@ const ProductEdit = () => {
     return (
         <>
             <div className='p-10'>
-                <PageTitle title='Sửa sản phẩm' showBack />                
+                <PageTitle title='Thêm sản phẩm mới' showBack />                
             </div>
 
             <Form
@@ -126,14 +109,9 @@ const ProductEdit = () => {
                     <ProductCreateInformation categoriesById={categoriesById} />
                 </div>
 
-                {/* <div className='h-[10px] bg-[#f5f5f5]'/>
-                <div className='px-20 py-10'>
-                    <PrductCreateAttributes />
-                </div> */}
-
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
-                    <ProductCreateMedia productData={productById} imgBase64={handleImgBase64} />
+                    <PrductCreateMedia productData={productById} imgBase64={handleImgBase64} />
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
@@ -153,7 +131,7 @@ const ProductEdit = () => {
 
                 <div className='px-20 py-10'>
                     <Form.Item>
-                        <Button type="primary" htmlType="submit">Lưu thay đổi</Button>
+                        <Button type="primary" htmlType="submit">Lưu</Button>
                         <Button className='ml-3' onClick={() => navigate(-1)}>Huỷ</Button>
                     </Form.Item>
                 </div>
@@ -162,4 +140,4 @@ const ProductEdit = () => {
     );
 }
  
-export default ProductEdit;
+export default ProductCreate;

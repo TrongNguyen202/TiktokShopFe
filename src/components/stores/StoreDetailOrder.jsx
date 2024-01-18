@@ -23,7 +23,7 @@ const StoreDetailOrder = ({shopId}) => {
 
     return (
         <Card className='cursor-pointer hover:shadow-md'>
-            <StoreDetailSectionTitle title='Sản phẩm' count={brands?.length > 0 ? brands?.length : '0'} isShowButton />
+            <StoreDetailSectionTitle title='Đơn hàng' count={brands?.length > 0 ? brands?.length : '0'} isShowButton />
             <Link to={`/shops/${shopId}/orders`}>Xem thêm</Link>
         </Card>
     );

@@ -1,15 +1,15 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Button, Row, Col, Input, Card, Space } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 
-import { DeleteDuplicateElementsById, DeleteDuplicateElements } from '../../utils'
+import { removeDuplicates } from '../../utils'
 import ProductSectionTitle from './ProuctSectionTitle';
 import ProductCreateVariationTable from './ProductCreateVariationTable'
 
-const ProductCreateVariation = ({variation}) => {
-    const listAttributesData = variation?.map((item) => item.sales_attributes)
-    const variationData = variation?.map((item) => ({
+const ProductCreateVariation = ({variations, variationsDataTable}) => {
+    const listAttributesData = variations?.map((item) => item.sales_attributes)
+    const variationData = variations?.map((item) => ({
         variations: item.sales_attributes,
         price: item.price.original_price,
         stock_infos: {
@@ -19,13 +19,14 @@ const ProductCreateVariation = ({variation}) => {
         seller_sku: item.seller_sku,
         key: item.id
     }))
+
     const listAttributesConvert = listAttributesData&&[].concat(...listAttributesData)
-    const listVariation = listAttributesConvert&&DeleteDuplicateElementsById(listAttributesConvert)
+    const listVariation = listAttributesConvert&&removeDuplicates(listAttributesConvert, 'id')
 
     return (
         <>
             <ProductSectionTitle title='Biến thể sản phẩm' />
-            <ProductCreateVariationTable variationData={variationData} listVariation={listVariation} />
+            <ProductCreateVariationTable variationsData={variationData} listVariation={listVariation} variationsDataTable={variationsDataTable}/>
         </>
     );
 }

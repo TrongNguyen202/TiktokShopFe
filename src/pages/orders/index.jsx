@@ -37,9 +37,9 @@ const Orders = () => {
             key: 'tracking_number'
         },
         {
-            title: 'Thời gian vận chuyển',
-            dataIndex: 'shipping_due_time',
-            key: 'shipping_due_time',
+            title: 'Thời gian giao hàng',
+            dataIndex: 'delivery_time',
+            key: 'delivery_time',
             render: (text) => <span>{formatDate(text, 'DD/MM/YY hh:mm:ss')}</span>,
         },
         {

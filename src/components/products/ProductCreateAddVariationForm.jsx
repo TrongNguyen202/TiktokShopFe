@@ -1,27 +1,25 @@
-import React from 'react';
-import { Button, Form, Input, Row, Col, InputNumber } from 'antd';
+import React, { useState } from 'react';
+import { Button, Form, Input, Row, Col, InputNumber, Select } from 'antd';
 
-const ProductCreateAddVariationForm = ({dataInput, handleAdd, handleClose}) => {
+import { variationsOption } from '../../constants'
+
+const ProductCreateAddVariationForm = ({handleAdd, handleClose}) => {
   const [form] = Form.useForm();
 
   const onFinish = (values) => {
-    console.log('form: ', values)
-    const variationsForm = Object.keys(values.variations).map((key) => values.variations[key]);
+    console.log('values', values);
     const variationAddData = {
-        variations: variationsForm.map((item) => (
-            {
-                key: `${Math.floor(Math.random() * 1000000000000000000)}`,
-                id: item.dataIndex,
-                name: item.name,
-                value_id: `${Math.floor(Math.random() * 1000000000000000000)}`,
-                value_name: item.value_name
-            }
-        )),
-        price: values.price,
-        stock_infos: values.available,
-        seller_sku: values.seller_sku
+        id: values.variations.id,
+        name: variationsOption.find((attr) => attr.value === values.variations.id).label,
+        value_id: `${Math.floor(Math.random() * 1000000000000000000)}`,
+        value_name: values.variations.value_name,
+        seller_sku: values?.seller_sku ? values?.seller_sku : '',
+        price: values?.price,
+        stock_infos: {
+            available_stock: values?.stock_infos?.available_stock
+        }
     }
-
+    
     handleAdd(variationAddData)
   }
 
@@ -31,33 +29,28 @@ const ProductCreateAddVariationForm = ({dataInput, handleAdd, handleClose}) => {
       layout="vertical"
       onFinish={onFinish}
     >
-        {dataInput?.map((item, index) => (
-            <>
-                <Form.Item name={['variations', `${index}`, 'dataIndex']} initialValue={item.dataIndex} className='hidden'>
-                    <Input/>
-                </Form.Item>
-                <Form.Item name={['variations', `${index}`, 'name']} initialValue={item.name} className='hidden'>
-                    <Input/>
-                </Form.Item>
-                <Form.Item name={['variations', `${index}`, 'value_name']} label={item.name} required tooltip="This is a required field">
-                    <Input />
-                </Form.Item>
-            </>
-        ))}
-
-        <Row gutter={20}>
+        <Form.Item name={['variations', 'id']} label='Chọn thuộc tính' required tooltip="This is a required field">
+            <Select
+                className='w-full'
+                onChange={() => {}}
+                options={variationsOption}
+            />
+        </Form.Item>
+        <Form.Item name={['variations', 'value_name']} label='Giá trị thuộc tính' required tooltip="This is a required field">
+            <Input />
+        </Form.Item>
+        <Row gutter={30}>
             <Col span={12}>
                 <Form.Item name='price' label='Giá'>
-                    <InputNumber addonBefore='$' min={0} className='w-full'/>
+                    <InputNumber addonAfter='$' min={0} className='w-full' />
                 </Form.Item>
             </Col>
             <Col span={12}>
-                <Form.Item name='available' label='Số lượng'>
+                <Form.Item name={['stock_infos', 'available_stock']} label='Số lượng'>
                     <InputNumber min={0} className='w-full' />
-                </Form.Item>
+                </Form.Item>                
             </Col>
         </Row>
-
         <Form.Item name='seller_sku' label='SKU'>
             <Input />
         </Form.Item>

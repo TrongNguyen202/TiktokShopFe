@@ -1,6 +1,11 @@
-import { Row, Col } from 'antd'
+import { Row, Col, Card, List, Tag } from 'antd'
+
+import { statusOrder } from '../../constants'
+import { formatDate } from '../../utils/date'
+import { IntlNumberFormat } from '../../utils'
 
 import PageTitle from "../../components/common/PageTitle";
+import { Link } from 'react-router-dom';
 
 const OrderDetail = () => {
     const ordersData = {
@@ -126,17 +131,181 @@ const OrderDetail = () => {
         "warehouse_id": "6955005333819123123"
     }
 
+    const orderData = [
+        {
+            label: 'Mã đơn hàng:',
+            key: 'id',
+            value: ordersData.id
+        },
+        {
+            label: 'Thời gian đặt hàng:',
+            key: 'create_time',
+            value: ordersData.create_time
+        },
+        {
+            label: 'Trạng thái:',
+            key: 'status',
+            value: ordersData.status
+        }
+
+    ]
+
+    const customerData = [
+        {
+            label: 'Mã khách hàng:',
+            key: 'user_id',
+            value: ordersData.user_id
+        },
+        {
+            label: 'Địa chỉ email:',
+            key: 'buyer_email',
+            value: ordersData.buyer_email
+        },
+        {
+            label: 'Lời nhắn:',
+            key: 'buyer_message',
+            value: ordersData.buyer_message
+        }
+    ]
+
+    const shippingData = [
+        {
+            label: 'Mã vận đơn:',
+            key: 'delivery_option_id',
+            value: ordersData.delivery_option_id
+        },
+        {
+            label: 'Tên người nhận',
+            key: 'name',
+            value: ordersData.recipient_address.name
+        },
+        {
+            label: 'Số điện thoại người nhận',
+            key: 'phone_number',
+            value: ordersData.recipient_address.phone_number
+        },
+        {
+            label: 'Thời gian giao hàng',
+            key: 'delivery_due_time',
+            value: formatDate(ordersData.delivery_due_time, 'DD/MM/YY, hh:mm:ss')
+        },
+        {
+            label: 'Đơn vị vận chuyển:',
+            key: 'delivery_option_name',
+            value: ordersData.delivery_option_name
+        },
+        {
+            label: 'Địa chỉ nhận hàng',
+            key: 'recipient_address',
+            value: ordersData.recipient_address
+        },
+        {
+            label: 'Mã bưu điện',
+            key: 'postal_code',
+            value: ordersData.recipient_address.postal_code
+        },
+        {
+            label: 'Ghi chú',
+            key: 'postal_code',
+            value: ordersData.recipient_address.delivery_preferences?.drop_off_location
+        }           
+    ]
+
+    const paymentData = [
+        {
+            label: 'Phương thức thanh toán:',
+            key: 'payment_method_name',
+            value: ordersData.payment_method_name
+        },
+        {
+            label: 'Thời gian trả',
+            key: 'paid_time',
+            value: formatDate(ordersData.payment.paid_time, 'DD/MM/YY, hh:mm:ss')
+        },
+        {
+            label: 'Tổng đơn hàng: ',
+            key: 'total_amount',
+            value: IntlNumberFormat(ordersData.payment.currency, 'currency', 3, ordersData.payment.total_amount)
+        }
+    ]
+
     return (
         <div className='p-10'>
             <PageTitle title='Chi tiết đơn hàng' showBack/>
+            <Row gutter={[30, 30]}>
+                <Col span={12}>
+                    <Card title="Thông tin đơn hàng" className='cursor-pointer hover:shadow-md'>
+                        <List
+                            itemLayout="horizontal"
+                            dataSource={orderData}
+                            renderItem={(item, index) => (
+                                <List.Item key={index} className='hover:bg-[#e6f4ff]'>
+                                    <span>{item.label}</span>
+                                    {item.key !== 'status' && <span>{item.value}</span>}
+                                    {item.key === 'status' && statusOrder.map((statusItem, StatusIndex) => (
+                                        <>{statusItem.title === item.value && <Tag key={StatusIndex} color={statusItem.color}>{item.value}</Tag>}</>
+                                    ))}
+                                </List.Item>
+                            )}
+                        />
+                    </Card>
+                </Col>
 
-            <Row>
-                <Col span={2}>Mã đơn hàng</Col>
-                <Col className='text-[#214093]'>{ordersData.id}</Col>
-            </Row>
-            <Row>
-                <Col span={2}>Mã khách hàng</Col>
-                <Col className='text-[#214093]'>{ordersData.id}</Col>
+                <Col span={12}>
+                    <Card title="Thông tin khách hàng" className='cursor-pointer hover:shadow-md'>
+                        <List
+                            itemLayout="horizontal"
+                            dataSource={customerData}
+                            renderItem={(item, index) => (
+                                <List.Item key={index} className='hover:bg-[#e6f4ff]'>
+                                    <span>{item.label}</span>
+                                    {item.key === 'buyer_email' && <Link to={`mailto: ${item.value}`}>{item.value}</Link>}
+                                    {item.key !== 'buyer_email' && <span>{item.value}</span>}
+                                </List.Item>
+                            )}
+                        />
+                    </Card>
+                </Col>
+
+                <Col span={12}>
+                    <Card title="Thông tin vận chuyển" className='cursor-pointer hover:shadow-md'>
+                        <List
+                            itemLayout="horizontal"
+                            dataSource={shippingData}
+                            renderItem={(item, index) => (
+                                <List.Item key={index} className='hover:bg-[#e6f4ff]'>
+                                    <span>{item.label}</span>
+                                    {item.key !== 'recipient_address' && <span>{item.value}</span>}
+                                    {item.key === 'recipient_address' && 
+                                        <div>
+                                            {item.value.address_detail && <span>{item.value.address_detail}, &nbsp;</span>}
+                                            {item.value.address_line1 && <span>{item.value.address_line1}, &nbsp;</span>}
+                                            {item.value.address_line2 && <span>{item.value.address_line2}, &nbsp;</span>}
+                                            {item.value.address_line3 && <span>{item.value.address_line3}, &nbsp;</span>}
+                                            {item.value.address_line4 && <span>{item.value.address_line4}, &nbsp;</span>}
+                                            <span>{item.value?.district_info[0].address_name}</span>
+                                        </div>
+                                    }
+                                </List.Item>
+                            )}
+                        />
+                    </Card>
+                </Col>
+
+                <Col span={12}>
+                    <Card title="Thông tin thanh toán" className='cursor-pointer hover:shadow-md'>
+                        <List
+                            itemLayout="horizontal"
+                            dataSource={paymentData}
+                            renderItem={(item, index) => (
+                                <List.Item key={index} className='hover:bg-[#e6f4ff]'>
+                                    <span>{item.label}</span>
+                                    <span>{item.value}</span>
+                                </List.Item>
+                            )}
+                        />
+                    </Card>
+                </Col>
             </Row>
         </div>
     );

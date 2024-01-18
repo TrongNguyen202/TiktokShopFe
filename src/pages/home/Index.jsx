@@ -35,9 +35,9 @@ export default function Home() {
     total_sellers,
   } = badges ?? {}
 
-  useEffect(() => {
-    getAllBadges()
-  }, [])
+  // useEffect(() => {
+  //   getAllBadges()
+  // }, [])
 
   const data = {
     sales: [
