@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Form, Radio, InputNumber, Row, Col, Switch } from 'antd'
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 
 import ProductSectionTitle from "./ProuctSectionTitle";
 
@@ -9,13 +8,13 @@ const ProductCreateShipping = () => {
 
     return (
         <>
-            <ProductSectionTitle title='Thông tin bán hàng' />
+            <ProductSectionTitle title='Thông tin vận chuyển' />
             <Row gutter={30}>
                 <Col span={6}>
                     <Form.Item name='is_cod_open' label='Chấp nhận thanh toán khi nhận hàng: '>
-                        <Switch 
-                            checkedChildren={<CheckOutlined />}
-                            unCheckedChildren={<CloseOutlined />} 
+                        <Switch defaultChecked 
+                            checkedChildren='Bật'
+                            unCheckedChildren='Tắt' 
                         />
                     </Form.Item>
                 </Col>
@@ -33,42 +32,42 @@ const ProductCreateShipping = () => {
 
             <Row gutter={30}>
                 <Col span={6}>
-                    <Form.Item name='package_weight' label='Cân nặng:'>
+                    <Form.Item name='package_weight' label='Cân nặng:' rules={[{ required: true, message: 'Cân nặng không được để trống' }]}>
                         <InputNumber
                             min={0}
                             max={100}
                             onChange={() => {}}
-                            addonAfter='Kg'
+                            addonAfter='gr'
                             className="w-full"
                         />
                     </Form.Item>
                 </Col>
                 <Col span={6}>
-                    <Form.Item name='package_width' label='Chiều rộng:'>
+                    <Form.Item name='package_width' label='Chiều rộng:' rules={[{ required: true, message: 'Chiều rộng không được để trống' }]}>
                         <InputNumber
                             min={0}
                             onChange={() => {}}
-                            addonAfter='Cm'
+                            addonAfter='cm'
                             className="w-full"
                         />
                     </Form.Item>
                 </Col>
                 <Col span={6}>
-                    <Form.Item name='package_height' label='Chiều dài:'>
+                    <Form.Item name='package_height' label='Chiều dài:' rules={[{ required: true, message: 'Chiều dài không được để trống' }]}>
                         <InputNumber
                             min={0}
                             onChange={() => {}}
-                            addonAfter='Cm'
+                            addonAfter='cm'
                             className="w-full"
                         />
                     </Form.Item>
                 </Col>
                 <Col span={6}>
-                    <Form.Item name='package_length' label='Chiều cao:'>
+                    <Form.Item name='package_length' label='Chiều cao:' rules={[{ required: true, message: 'Chiều cao không được để trống' }]}>
                         <InputNumber
                             min={0}
                             onChange={() => {}}
-                            addonAfter='Cm'
+                            addonAfter='cm'
                             className="w-full"
                         />
                     </Form.Item>

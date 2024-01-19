@@ -8,7 +8,7 @@ export const useWareHousesStore = create((set) => ({
     try {
       set({ loadingWerehouses: true })
       const response = await RepositoryRemote.warehouses.getWarehousesByShopId(id)
-      set({ warehousesById: response.data.data.warehouse_list })
+      set({ warehousesById: response.data.data })
       onSuccess(response.data.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')

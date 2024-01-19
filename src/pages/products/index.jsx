@@ -1,6 +1,7 @@
-import { Button, Table, Tag } from "antd";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Button, Table, Tag } from "antd";
+import { EditOutlined, EyeOutlined } from '@ant-design/icons'
 
 import { alerts } from '../../utils/alerts'
 import { IntlNumberFormat, removeDuplicates } from '../../utils/index'
@@ -29,13 +30,13 @@ const Products = () => {
             dataIndex: 'name',
             key: 'name'
         },
-        {
-            title: 'Loại sản phẩm',
-            dataIndex: 'type',
-            key: 'type',
-            align: 'center',
-            render: (_, record) => record?.skus?.length > 1 ? <Tag color="volcano">Sản phẩm có thuộc tính</Tag> :  <Tag color="cyan">Sản phẩm đơn</Tag>
-        },
+        // {
+        //     title: 'Loại sản phẩm',
+        //     dataIndex: 'type',
+        //     key: 'type',
+        //     align: 'center',
+        //     render: (_, record) => record?.skus?.length > 1 ? <Tag color="volcano">Sản phẩm có thuộc tính</Tag> :  <Tag color="cyan">Sản phẩm đơn</Tag>
+        // },
         {
             title: 'Giá sản phẩm',
             dataIndex: ['skus', 'price'],
@@ -71,35 +72,28 @@ const Products = () => {
             )
         },
         {
-            title: 'Khu vực bán',
-            dataIndex: 'sale_regions',
-            key: 'sale_regions',
-            align: 'center',
-        },
-        {
             title: 'Thời gian tạo',
             dataIndex: 'create_time',
             key: 'create_time',
             sorter: (a, b) => a.create_time - b.create_time,
-            render: (create_time) => <span>{formatDate(create_time, 'DD/MM/YY, h:mm:ss a')}</span>,
+            render: (create_time) => <span>{formatDate(create_time, 'DD/MM/Y, h:mm:ss')}</span>,
         },
         {
             title: 'Thời gian cập nhật',
             dataIndex: 'update_time',
             key: 'update_time',
             sorter: (a, b) => a.update_time - b.update_time,
-            render: (update_time) => <span>{formatDate(update_time, 'DD/MM/YY, h:mm:ss a')}</span>
+            render: (update_time) => <span>{formatDate(update_time, 'DD/MM/Y, hh:mm:ss')}</span>
         },
         {
-            title: 'Hành động',
             dataIndex: 'actions',
             key: 'actions',
+            width: '100px',
             align: 'center',
-            fixed: 'right',
             render: (_, record) => (
                 <>
-                <Button type="primary" onClick={() => handleProductEdit(record.id)}>Sửa</Button>
-                <Button type="primary" onClick={() => handleProductDetail(record.id)} className='ml-3'>Xem</Button>
+                  <Button type="button" onClick={() => handleProductEdit(record.id)}><EditOutlined /></Button>
+                  <Button type="button" onClick={() => handleProductDetail(record.id)}><EyeOutlined /></Button>
                 </>
             )
         }
@@ -144,7 +138,6 @@ const Products = () => {
       </Button>
       <Table
         columns={columnProduct}
-        scroll={{ x: 1700, y: 1000 }}
         size="middle"
         bordered
         dataSource={products && products?.length > 0 ? products : []}
