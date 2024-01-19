@@ -1,65 +1,116 @@
 import React, { useState } from 'react';
-import { Button, Form, Input, Row, Col, InputNumber, Select } from 'antd';
+import { Button, Form, Input, Row, Col, InputNumber, Select, Modal } from 'antd';
+import { EditOutlined } from '@ant-design/icons'
 
 import { variationsOption } from '../../constants'
+import { flatMapArray } from '../../utils'
 
-const ProductCreateAddVariationForm = ({handleAdd, handleClose}) => {
-  const [form] = Form.useForm();
+import CustomSelect from '../../pages/stores/CustomSelect'
+import EditPriceForm from '../../pages/stores/EditPriceForm';
+import ProductVariationsPrice from './ProductVariationsPrice';
 
-  const onFinish = (values) => {
-    console.log('values', values);
-    const variationAddData = {
-        id: values.variations.id,
-        name: variationsOption.find((attr) => attr.value === values.variations.id).label,
-        value_id: `${Math.floor(Math.random() * 1000000000000000000)}`,
-        value_name: values.variations.value_name,
-        seller_sku: values?.seller_sku ? values?.seller_sku : '',
-        price: values?.price,
-        stock_infos: {
-            available_stock: values?.stock_infos?.available_stock
+const ProductCreateAddVariationForm = ({handleAdd, handleClose, warehouses}) => {
+    const [form] = Form.useForm()
+    const [showModalPrice, setShowModalPrice] = useState(false)
+    const [selectedColor, setSelectedColor] = useState([]);
+    const [selectedSize, setSelectedSize] = useState([]);
+    const [variationsData, setVariationsData] = useState([]);
+    const initColorOptions = [
+        {
+        label: "Black",
+        value: "Black",
+        },
+        {
+        label: "White",
+        value: "White",
         }
-    }
-    
-    handleAdd(variationAddData)
-  }
+    ];
+    const initSizeOptions = [
+        {
+            label: "S",
+            value: "S",
+        },
+        {
+            label: "M",
+            value: "M",
+        }
+    ]
 
-  return (
-    <Form
-      form={form}
-      layout="vertical"
-      onFinish={onFinish}
-    >
-        <Form.Item name={['variations', 'id']} label='Chọn thuộc tính' required tooltip="This is a required field">
-            <Select
-                className='w-full'
-                onChange={() => {}}
-                options={variationsOption}
-            />
-        </Form.Item>
-        <Form.Item name={['variations', 'value_name']} label='Giá trị thuộc tính' required tooltip="This is a required field">
-            <Input />
-        </Form.Item>
-        <Row gutter={30}>
-            <Col span={12}>
-                <Form.Item name='price' label='Giá'>
-                    <InputNumber addonAfter='$' min={0} className='w-full' />
-                </Form.Item>
-            </Col>
-            <Col span={12}>
-                <Form.Item name={['stock_infos', 'available_stock']} label='Số lượng'>
-                    <InputNumber min={0} className='w-full' />
-                </Form.Item>                
-            </Col>
-        </Row>
-        <Form.Item name='seller_sku' label='SKU'>
-            <Input />
-        </Form.Item>
-      
-        <Form.Item>
-            <Button type="primary" htmlType="button" onClick={handleClose} className='mr-3'>Huỷ</Button>
-            <Button type="primary" htmlType="submit">Thêm biến thể</Button>
-        </Form.Item>
-    </Form>
-  );
+    const warehouseOptions = warehouses?.warehouse_list?.map(item => (
+        {
+            value: item.warehouse_id,
+            label: item.warehouse_name
+        }
+    ))
+
+    const selectedSelector = flatMapArray(selectedColor, selectedSize)
+    
+
+    const handAddVariations = () => {
+        console.log('variationsData: ', variationsData)
+        handleAdd(variationsData)
+    }
+
+    const handleAddData = (data) => {
+        console.log('data: ', data);
+        const newData = data?.map((item) => ({
+            ...item,
+            variations: item.variations?.map((item, index) => ({
+                id: index === 0 ? variationsOption[0].value : variationsOption[1].value,
+                name: index === 0 ? variationsOption[0].label : variationsOption[1].label,
+                ...item,
+            }))
+        }))
+        console.log('newData: ', newData);
+        setVariationsData(newData)
+        setShowModalPrice(false)
+    }
+
+    return (
+        <Form
+            form={form}
+            layout="vertical"
+        >
+            <Form.Item name={['variations', 'Size']} label='Size' required tooltip="This is a required field">
+                <CustomSelect
+                    optionsSelect={initSizeOptions}
+                    type={"kích cỡ"}
+                    onChange={setSelectedSize}
+                />
+            </Form.Item>
+            <Form.Item name={['variations', 'Color']} label='Màu' required tooltip="This is a required field">
+                <CustomSelect
+                    optionsSelect={initColorOptions}
+                    type={"màu"}
+                    onChange={setSelectedColor}
+                />
+            </Form.Item>
+            {selectedSelector?.length > 0 && 
+                <Button type="primary" ghost onClick={() => setShowModalPrice(true)} icon={<EditOutlined />} className="block ml-auto mt-9" >
+                    Chỉnh sửa giá
+                </Button>
+            }
+
+            {showModalPrice && (
+                <Modal
+                    title="Chỉnh sửa giá"
+                    open={showModalPrice}
+                    onCancel={() => {setShowModalPrice(false)}}
+                    footer={null}
+                    okText="Đồng ý"
+                    cancelText="Hủy"
+                    width={1200}
+                    maskClosable={false}
+                >
+                    <ProductVariationsPrice selectedSelector={selectedSelector} warehouseOptions={warehouseOptions} handleAddData={handleAddData}/>
+                </Modal>
+            )}            
+        
+            <Form.Item>
+                <Button type="primary" htmlType="button" onClick={handleClose} className='mr-3'>Huỷ</Button>
+                <Button type="primary" htmlType="submit" onClick={handAddVariations}>Thêm biến thể</Button>
+            </Form.Item>
+        </Form>
+    );
 };
 export default ProductCreateAddVariationForm;

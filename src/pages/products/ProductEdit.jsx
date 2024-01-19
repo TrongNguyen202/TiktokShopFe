@@ -10,12 +10,12 @@ import { getPathByIndex, buildNestedArrays, formatNumber } from '../../utils'
 
 import Loading from '../../components/loading'
 import PageTitle from "../../components/common/PageTitle";
-import PrductCreateAttributes from '../../components/products/PrductCreateAttributes';
-import ProductCreateMedia from '../../components/products/PorductCreateMedia';
-import ProductCreateInformation from '../../components/products/ProductCreateInformation';
-import ProductCreateSale from '../../components/products/ProductCreateSale';
-import ProductCreateVariation from '../../components/products/ProductCreateVariation'
-import ProductCreateShipping from '../../components/products/ProductCreateShipping';
+// import PrductEditAttributes from '../../components/products/PrductEditAttributes';
+import ProductMedia from '../../components/products/ProductMedia';
+import ProductInformation from '../../components/products/ProductInformation';
+import ProductSale from '../../components/products/ProductSale';
+import ProductVariation from '../../components/products/ProductVariation'
+import ProductShipping from '../../components/products/ProductShipping';
 
 
 const ProductEdit = () => {
@@ -42,7 +42,7 @@ const ProductEdit = () => {
             images: values?.images?.map((item) => ({
                 id: item.id
             })),
-            imgBase64: imgBase64List?.map(item => item.thumbUrl),
+            imgBase64: imgBase64List?.map(item => item.thumbUrl.replace('data:image/png;base64,', '')),
             price: values.price,
             is_cod_open: values.is_cod_open,
             package_dimension_unit: values.package_dimension_unit,
@@ -50,7 +50,7 @@ const ProductEdit = () => {
             package_length: values.package_length,
             package_weight: values.package_weight,
             package_width: values.package_width,
-            category_id: values.category_list.map((item) => (
+            category_id: values.category_list?.map((item) => (
                 item.value
             )),
             description: values.description,
@@ -123,7 +123,7 @@ const ProductEdit = () => {
                 form={form}
             >
                 <div className='px-20 pb-5'>
-                    <ProductCreateInformation categoriesById={categoriesById} />
+                    <ProductInformation categoriesById={categoriesById} />
                 </div>
 
                 {/* <div className='h-[10px] bg-[#f5f5f5]'/>
@@ -133,22 +133,22 @@ const ProductEdit = () => {
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
-                    <ProductCreateMedia productData={productById} imgBase64={handleImgBase64} />
+                    <ProductMedia productData={productById} imgBase64={handleImgBase64} />
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
-                    <ProductCreateSale />
+                    <ProductSale />
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
-                    <ProductCreateVariation variations={productById?.skus} variationsDataTable={variationsDataTable}/>
+                    <ProductVariation variations={productById?.skus} variationsDataTable={variationsDataTable}/>
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
-                    <ProductCreateShipping />
+                    <ProductShipping />
                 </div>  
 
                 <div className='px-20 py-10'>

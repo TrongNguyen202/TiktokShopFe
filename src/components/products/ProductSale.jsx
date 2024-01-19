@@ -2,7 +2,7 @@ import { Form, Input, InputNumber, Row, Col } from 'antd'
 
 import ProductSectionTitle from "./ProuctSectionTitle";
 
-const ProductCreateSale = () => {
+const ProductSale = () => {
     return (
         <>
             <ProductSectionTitle title='Thông tin bán hàng' />
@@ -29,4 +29,4 @@ const ProductCreateSale = () => {
     );
 }
  
-export default ProductCreateSale;
+export default ProductSale;

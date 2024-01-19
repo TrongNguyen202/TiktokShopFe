@@ -21,7 +21,7 @@ const editProduct = (shopId, productId, body) => {
   return callApi(`/shops/${shopId}/products/update_product/${productId}`, 'put', body)
 }
 
-const createProduct = (shopId, body) => {
+const createOneProduct = (shopId, body) => {
   return callApi(`/shops/${shopId}/products/create_product`, 'post', body)
 }
 
@@ -31,5 +31,5 @@ export const products = {
   changeStatusProduct,
   createProductList,
   editProduct,
-  createProduct
+  createOneProduct
 }

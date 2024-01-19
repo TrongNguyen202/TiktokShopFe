@@ -10,12 +10,12 @@ import { getPathByIndex } from '../../utils'
 
 import Loading from '../../components/loading'
 import PageTitle from "../../components/common/PageTitle";
-import PrductCreateAttributes from '../../components/products/PrductCreateAttributes';
-import PrductCreateMedia from '../../components/products/PorductCreateMedia';
-import ProductCreateInformation from '../../components/products/ProductCreateInformation';
-import ProductCreateSale from '../../components/products/ProductCreateSale';
-import ProductCreateVariation from '../../components/products/ProductCreateVariation'
-import ProductCreateShipping from '../../components/products/ProductCreateShipping';
+import PrductCreateAttributes from '../../components/products/PrductEditAttributes';
+import ProductMedia from '../../components/products/ProductMedia';
+import ProductInformation from '../../components/products/ProductInformation';
+import ProductSale from '../../components/products/ProductSale';
+import ProductVariation from '../../components/products/ProductVariation'
+import ProductShipping from '../../components/products/ProductShipping';
 
 
 const ProductCreate = () => {
@@ -25,45 +25,39 @@ const ProductCreate = () => {
     const [form] = Form.useForm();
     const [ skusData, setSkusData ] = useState([])
     const [ imgBase64, setImgBase64 ] = useState([])
-    const { getCategoriesById, categoriesById, loading } = useCategoriesStore((state) => state)
-    const { productById, getProductsById, createProduct } = useProductsStore((state) => state)
+    const { categoriesIsLeafType2, getAllCategoriesIsLeafType2, loading } = useCategoriesStore((state) => state)
+    const { productById, getProductsById, createOneProduct } = useProductsStore((state) => state)
 
     const onFinish = async(values) => {
         const dataFormSubmit = {
-            product_id: productId,
             product_name: values.product_name,
-            images: values.images.map((item) => ({
-                id: item.id
-            })),
-            imgBase64: imgBase64,
-            price: values.price,
-            is_cod_open: values.is_cod_open,
-            package_dimension_unit: values.package_dimension_unit,
-            package_height: values.package_height,
-            package_length: values.package_length,
-            package_weight: values.package_weight,
-            package_width: values.package_width,
-            category_id: values.category_list.map((item) => (
-                item.value
-            )),
-            description: values.description,
+            description: values.description ? values.description : "",
+            category_id: values.category_id ? values.category_id : "",
+            images: imgBase64?.map(item => item.thumbUrl.replace('data:image/png;base64,', '')),
+            package_dimension_unit: values.package_dimension_unit ? values.package_dimension_unit : 'metric',
+            package_height: values.package_height ? values.package_height : "",
+            package_length: values.package_length ? values.package_length : "",
+            package_weight: values.package_weight ? values.package_weight : "",
+            package_width: values.package_width ? values.package_width : "",
+            is_cod_open: values.is_cod_open ? values.is_cod_open : false,
             skus: skusData?.map((item) => (
                 {
-                    original_price: item?.price?.original_price,
-                    sales_attributes: item?.sales_attributes?.map((attr) => (
+                    sales_attributes: item.variations?.map((attr) => (
                         {
-                            attribute_id: attr?.id,
-                            attribute_name: attr?.name,
-                            value_id: attr?.value_id,
-                            value_name: attr?.value_name
+                            attribute_id: attr.id,
+                            attribute_name: attr.name,
+                            custom_value: attr.value_name
                         }
                     )),
-                    stock_infos: item?.stock_infos
+                    original_price: item.price,
+                    stock_infos: [
+                        item.stock_infos
+                    ]
                 }
             ))
         }
         console.log('dataFormSubmit: ', dataFormSubmit)
-        createProduct(shopId, dataFormSubmit, (res) => console.log(res), (err) => alerts.error(err))
+        createOneProduct(shopId, dataFormSubmit, (res) => console.log(res), (err) => alerts.error(err))
     };
     
     const onFinishFailed = (errorInfo) => {
@@ -78,18 +72,18 @@ const ProductCreate = () => {
           alerts.error(err)
         }
 
-        getCategoriesById(shopId, onSuccess, onFail)
+        getAllCategoriesIsLeafType2(shopId, onSuccess, onFail)
         getProductsById(shopId, productId, onSuccess, onFail)
         
     }, [productById?.product_id])
 
     const variationsDataTable = (data) => {
-        console.log('data variation: ', data)
+        console.log('data: ', data);
         setSkusData(data)
     };
 
-    const handleImgBase64 = (img) => {
-        setImgBase64(img)
+    const handleImgBase64 = async(img) => {
+        await setImgBase64(img)
     }
 
     if (loading) return <Loading/>
@@ -106,27 +100,27 @@ const ProductCreate = () => {
                 form={form}
             >
                 <div className='px-20 pb-5'>
-                    <ProductCreateInformation categoriesById={categoriesById} />
+                    <ProductInformation categories={categoriesIsLeafType2} />
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
-                    <PrductCreateMedia productData={productById} imgBase64={handleImgBase64} />
+                    <ProductMedia shopId={shopId} productData={productById} imgBase64={handleImgBase64} />
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
-                    <ProductCreateSale />
+                    <ProductSale />
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
-                    <ProductCreateVariation variations={productById?.skus} variationsDataTable={variationsDataTable}/>
+                    <ProductVariation shopId={shopId} variationsDataTable={variationsDataTable} isProductCreate/>
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
-                    <ProductCreateShipping />
+                    <ProductShipping />
                 </div>  
 
                 <div className='px-20 py-10'>

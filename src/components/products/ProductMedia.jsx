@@ -12,8 +12,7 @@ const getBase64 = (file) =>
     reader.onload = () => resolve(reader.result);
     reader.onerror = (error) => reject(error);
   });
-const ProductCreateMedia = ({productData, imgBase64}) => {
-    // console.log('productData: ', productData);
+const ProductMedia = ({productData, imgBase64}) => {
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
@@ -34,17 +33,15 @@ const ProductCreateMedia = ({productData, imgBase64}) => {
     }, [productData])
     
     const handleCancel = () => setPreviewOpen(false);
+    
     const handlePreview = async (file) => {
         if (!file.url && !file.preview) file.preview = await getBase64(file.originFileObj);
         setPreviewImage(file.url || file.preview);
         setPreviewOpen(true);
         setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
     };
+
     const handleChange = ({ fileList: newFileList }) => {
-        const newImg = newFileList&&newFileList.filter(item => item?.originFileObj)
-        const newImgList = newImg&&newImg.map(item => item?.thumbUrl && item?.thumbUrl)
-        console.log('newFileList:', newFileList)
-        console.log('newImgList', newImgList)
         setFileList(newFileList)
         imgBase64(newFileList)
     }
@@ -60,16 +57,18 @@ const ProductCreateMedia = ({productData, imgBase64}) => {
                     onPreview={handlePreview}
                     onChange={handleChange}
                 >
-                    <button style={{ border: 0, background: 'none'}} type="button" >
-                        <PlusOutlined />
-                        <div style={{ marginTop: 8}} > Upload</div>
-                    </button>
+                    {fileList?.length >= 9 ? null : 
+                        (<button style={{ border: 0, background: 'none'}} type="button" >
+                            <PlusOutlined />
+                            <div style={{ marginTop: 8}} > Upload</div>
+                        </button>)
+                    }
                 </Upload>
                 <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
-                    <img alt="example"  style={{ width: '100%', }} src={previewImage} />
+                    <img alt={previewTitle}  style={{ width: '100%', }} src={previewImage} />
                 </Modal>
             </Form.Item>
         </>
     );
 };
-export default ProductCreateMedia;
+export default ProductMedia;
