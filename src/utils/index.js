@@ -170,8 +170,8 @@ export const flatMapArray = (array1, array2) => {
   return array1.flatMap(item1 => 
     array2.map(item2 => ({
         data: [
-            {value_name: item1 },
-            {value_name: item2 }
+          {value_name: item1},
+          {value_name: item2 }
         ]
     }))
   );

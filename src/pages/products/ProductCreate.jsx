@@ -10,7 +10,6 @@ import { getPathByIndex } from '../../utils'
 
 import Loading from '../../components/loading'
 import PageTitle from "../../components/common/PageTitle";
-import PrductCreateAttributes from '../../components/products/PrductEditAttributes';
 import ProductMedia from '../../components/products/ProductMedia';
 import ProductInformation from '../../components/products/ProductInformation';
 import ProductSale from '../../components/products/ProductSale';
@@ -120,7 +119,7 @@ const ProductCreate = () => {
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
-                    <ProductShipping />
+                    <ProductShipping isProductCreate/>
                 </div>  
 
                 <div className='px-20 py-10'>

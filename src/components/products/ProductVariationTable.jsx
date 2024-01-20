@@ -72,18 +72,15 @@ const EditableCell = ({title, editable, children, dataIndex, record, handleSave,
 const ProductCreateVariationTable = ({variationsData, variationsDataTable, isProductCreate, warehouses}) => {
     const [dataSource, setDataSource] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const warehouseData = dataSource?.map((item) => (
-        {
-            key: item?.key,
-            warehouse_id: item?.stock_infos?.warehouse_id
-        }
-    ))
+    
+    const variationsEdit = variationsData?.map(item => item.variations)
+    const variationsEditSelect = variationsEdit&&[].concat(...variationsEdit)
     
     useEffect(() => {
         if(variationsData && variationsData[0]?.variations[0]?.value_name !== "Default") {
             setDataSource(variationsData)
         }
-    }, [variationsData]);
+    }, []);
 
     const handleDelete = (key) => {
         const newData = dataSource.filter((item) => item.key !== key);
@@ -91,7 +88,8 @@ const ProductCreateVariationTable = ({variationsData, variationsDataTable, isPro
     };
 
     const handleAdd = (newData) => {
-        setDataSource(newData, ...dataSource)
+        console.log('newData from table: ', newData);
+        setDataSource(newData)
         variationsDataTable(newData, ...dataSource)
         setIsModalOpen(false)
     };
@@ -114,7 +112,7 @@ const ProductCreateVariationTable = ({variationsData, variationsDataTable, isPro
         },
     };
 
-    console.log('dataSource: ', dataSource);
+    // console.log('dataSource: ', dataSource);
     const extraColumns = [
         {
             title: 'Color',
@@ -193,7 +191,7 @@ const ProductCreateVariationTable = ({variationsData, variationsDataTable, isPro
                 {isProductCreate ? 
                     <ProductCreateAddVariationForm handleClose={() => setIsModalOpen(false)} handleAdd={handleAdd} warehouses={warehouses} />
                 :
-                    <ProductCreateAddVariationForm handleClose={() => setIsModalOpen(false)} handleAdd={handleAdd} />
+                    <ProductEditAddVariationForm handleClose={() => setIsModalOpen(false)} handleAdd={handleAdd} warehouses={warehouses} variationsSelect={variationsEditSelect} />
                 }
             </Modal>
         </div>
