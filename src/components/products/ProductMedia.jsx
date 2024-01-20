@@ -57,7 +57,7 @@ const ProductMedia = ({productData, imgBase64}) => {
                     onPreview={handlePreview}
                     onChange={handleChange}
                 >
-                    {fileList?.length >= 9 ? null : 
+                    {fileList?.length >= 8 ? null : 
                         (<button style={{ border: 0, background: 'none'}} type="button" >
                             <PlusOutlined />
                             <div style={{ marginTop: 8}} > Upload</div>

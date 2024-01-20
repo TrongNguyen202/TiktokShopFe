@@ -19,7 +19,7 @@ export default function SellerDetail({ id }) {
 
   const renderSellerDetail = () => {
     if (loadingById) return <Loading />
-    if (sellerById === {}) return <p>Không có dữ liệu</p>
+    if (!sellerById) return <p>Không có dữ liệu</p>
 
     const { created_at, name, phone_number, updated_at, last_visit_time, email } = sellerById
     return (

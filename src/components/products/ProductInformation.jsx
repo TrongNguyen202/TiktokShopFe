@@ -14,7 +14,6 @@ const ProductInformation = ({categories}) => {
             label: item.local_display_name
         }
     ))
-    console.log('categoriesList: ', options);
 
     return (
         <>
