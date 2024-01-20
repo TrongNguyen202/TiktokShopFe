@@ -5,20 +5,36 @@ const ProductVariationsPrice = ({selectedSelector, warehouseOptions, handleAddDa
         {
             title: 'Màu sắc',
             dataIndex: 'color',
-            render: (_, record, index) => (
-                <Form.Item name={[`${index}`, 'variations', 'Color']} initialValue={record.data[0]?.value_name}>
-                    <Input disabled className='!bg-transparent border-none !text-black'/>
-                </Form.Item>
-            )
+            render: (_, record, index) => {
+                const initalValueColor = record.data[0]?.value_id ? record.data[0]?.value_id : `${Math.floor(Math.random() * 10000000000000000000)}`
+                return (
+                    <>
+                        <Form.Item name={[`${index}`, 'variations', 'Color', 'value_id']} initialValue={initalValueColor} className='hidden'>
+                            <Input disabled className='!bg-transparent border-none !text-black'/>
+                        </Form.Item>
+                        <Form.Item name={[`${index}`, 'variations', 'Color', 'value_name']} initialValue={record.data[0]?.value_name}>
+                            <Input disabled className='!bg-transparent border-none !text-black'/>
+                        </Form.Item>
+                    </>
+                )
+            }
         }, 
         {
             title: 'Kích cỡ',
             dataIndex: 'size',
-            render: (_, record, index) => (
-                <Form.Item name={[`${index}`, 'variations', 'Size']} initialValue={record.data[1]?.value_name}>
-                    <Input disabled className='!bg-transparent border-none !text-black'/>
-                </Form.Item>
-            )
+            render: (_, record, index) => {
+                const initalValueSize = record.data[1]?.value_id ? record.data[1]?.value_id : `${Math.floor(Math.random() * 10000000000000000000)}`
+                return (
+                    <>
+                        <Form.Item name={[`${index}`, 'variations', 'Size', 'value_id']} initialValue={initalValueSize} className='hidden'>
+                            <Input disabled className='!bg-transparent border-none !text-black'/>
+                        </Form.Item>
+                        <Form.Item name={[`${index}`, 'variations', 'Size', 'value_name']} initialValue={record.data[1]?.value_name}>
+                            <Input disabled className='!bg-transparent border-none !text-black'/>
+                        </Form.Item>
+                    </>
+                )
+            }
         },
         {
             title: 'Giá',
@@ -65,19 +81,21 @@ const ProductVariationsPrice = ({selectedSelector, warehouseOptions, handleAddDa
 
     const onFinish = (values) => {
         const resultArray = Object.keys(values).map(key => values[key]);
-        const newData = resultArray?.map((item) => (
+        // console.log('resultArray: ', resultArray)
+        const newDataPrice = resultArray?.map((item) => (
             {
                 ...item,
                 key: `${Math.floor(Math.random() * 1000000000000000000)}`,
                 variations: Object.keys(item.variations).map(key => (
                     {
-                        value_name: item.variations[key],
-                        value_id: `${Math.floor(Math.random() * 1000000000000000000)}`
+                        ...item.variations[key],
+                        name: key
                     }
                 ))
             }
         ))
-        handleAddData(newData)
+        // console.log('newDataPrice: ', newDataPrice)
+        handleAddData(newDataPrice)
     }
 
     return (

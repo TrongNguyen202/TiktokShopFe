@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Table, Tag } from "antd";
+import { Button, Table, Tag, Input, Modal, Form, DatePicker, Slider } from "antd";
 import { EditOutlined, EyeOutlined } from '@ant-design/icons'
 
 import { alerts } from '../../utils/alerts'
@@ -13,9 +13,12 @@ import { useProductsStore } from "../../store/productsStore";
 
 import PageTitle from "../../components/common/PageTitle";
 
+const { RangePicker } = DatePicker;
 const Products = () => {
     const navigate = useNavigate();
+    const [form] = Form.useForm();
     const shopId = getPathByIndex(2)
+    const [showSearchModal, setShowSearchModal] = useState(false)
     const { products, getAllProducts } = useProductsStore((state) => state)
     
     const columnProduct = [
@@ -30,13 +33,6 @@ const Products = () => {
             dataIndex: 'name',
             key: 'name'
         },
-        // {
-        //     title: 'Loại sản phẩm',
-        //     dataIndex: 'type',
-        //     key: 'type',
-        //     align: 'center',
-        //     render: (_, record) => record?.skus?.length > 1 ? <Tag color="volcano">Sản phẩm có thuộc tính</Tag> :  <Tag color="cyan">Sản phẩm đơn</Tag>
-        // },
         {
             title: 'Giá sản phẩm',
             dataIndex: ['skus', 'price'],
@@ -111,6 +107,8 @@ const Products = () => {
     navigate(`/shops/${shopId}/products/${productId}`);
   };
 
+  const onSearch = (value, _e, info) => console.log(info?.source, value);
+
   useEffect(() => {
     const onSuccess = () => {};
     const onFail = (err) => {
@@ -123,25 +121,68 @@ const Products = () => {
   return (
     <div className="p-10">
       <PageTitle title="Danh sách sản phẩm" count={products?.length} showBack />
-      <Button
-        type="primary"
-        onClick={hanldeProductCreate}
-        className="mt-5 mb-5 mr-3"
-      >
-        Thêm sản phẩm
-      </Button>
-      <Button
-        type="primary"
-        onClick={() => navigate(`/shops/${shopId}/add-many-products`)}
-      >
-        Thêm hàng loạt
-      </Button>
+      <div className="flex flex-wrap items-center">
+        <Button type="primary" className="mr-3" onClick={() => setShowSearchModal(true)}>Tìm kiếm</Button>
+        <Button
+          type="primary"
+          onClick={hanldeProductCreate}
+          className="mt-5 mb-5 mr-3"
+        >
+          Thêm sản phẩm
+        </Button>
+        <Button
+          type="primary"
+          onClick={() => navigate(`/shops/${shopId}/add-many-products`)}
+        >
+          Thêm hàng loạt
+        </Button>
+      </div>
       <Table
         columns={columnProduct}
         size="middle"
         bordered
         dataSource={products && products?.length > 0 ? products : []}
       />
+
+      <Modal title="Tìm kiếm" open={showSearchModal} footer={null} onOk={() => {}} onCancel={() => setShowSearchModal(false)}>
+        <Form form={form}
+          layout="vertical"
+          onFinish={(value) => console.log(value)}
+          onFinishFailed={() => {}}
+        >
+          <Form.Item label="Mã sản phẩm" name="product_id">
+            <Input />
+          </Form.Item>
+
+          <Form.Item label="Tên sản phẩm" name="product_id">
+            <Input />
+          </Form.Item>
+
+          <Form.Item label="Giá" name="price">
+            <Slider
+              className="slider-main-div"
+              min={0}
+              max={1000}
+              onChange={() => {}}
+              range={true}
+              // defaultValue={[min, max]}
+              // value={[min, max]}
+            />
+          </Form.Item>
+
+          <Form.Item label="Thời gian tạo" name="create_time">
+            <RangePicker className="w-full" />
+          </Form.Item>
+
+          <Form.Item label="Thời gian cập nhạt" name="update_time">
+            <RangePicker className="w-full" />
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit">Tìm kiếm</Button>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

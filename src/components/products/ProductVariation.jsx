@@ -13,7 +13,6 @@ import ProductVariationTable from './ProductVariationTable'
 const ProductVariation = ({shopId, variations, variationsDataTable, isProductCreate}) => {
     const { getWarehousesByShopId, warehousesById } = useWareHousesStore((state) => state)
 
-    const listAttributesData = variations?.map((item) => item.sales_attributes)
     const variationsData = variations?.map((item) => ({
         variations: item.sales_attributes,
         price: item.price.original_price,
@@ -42,7 +41,7 @@ const ProductVariation = ({shopId, variations, variationsDataTable, isProductCre
             {isProductCreate ?
                 <ProductVariationTable variationsData={variationsData} variationsDataTable={variationsDataTable} warehouses={warehousesById} isProductCreate/>
             :
-                <ProductVariationTable variationsData={variationsData} variationsDataTable={variationsDataTable} />
+                <ProductVariationTable variationsData={variationsData} variationsDataTable={variationsDataTable} warehouses={warehousesById} />
             }
         </>
     );

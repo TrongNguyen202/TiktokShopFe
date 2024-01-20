@@ -45,7 +45,7 @@ const ProductCreateAddVariationForm = ({handleAdd, handleClose, warehouses}) => 
 
     const selectedSelector = flatMapArray(selectedColor, selectedSize)
     
-
+    console.log('selectedColor: ', selectedColor);
     const handAddVariations = () => {
         console.log('variationsData: ', variationsData)
         handleAdd(variationsData)

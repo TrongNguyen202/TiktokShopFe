@@ -3,7 +3,7 @@ import { Form, Radio, InputNumber, Row, Col, Switch } from 'antd'
 
 import ProductSectionTitle from "./ProuctSectionTitle";
 
-const ProductCreateShipping = () => {
+const ProductCreateShipping = ({isProductCreate}) => {
     const [valuePackage, setValuePackage] = useState('');
 
     return (
@@ -12,7 +12,7 @@ const ProductCreateShipping = () => {
             <Row gutter={30}>
                 <Col span={6}>
                     <Form.Item name='is_cod_open' label='Chấp nhận thanh toán khi nhận hàng: '>
-                        <Switch defaultChecked 
+                        <Switch {...(isProductCreate && { defaultChecked: true })}
                             checkedChildren='Bật'
                             unCheckedChildren='Tắt' 
                         />

@@ -18,7 +18,6 @@ import StoreDetailSectionTitle from '../../components/stores/StoreDetailSectionT
 export default function StoreDetail() {
   const shopId = getPathByIndex(2)
   const { loadingById, getStoreById, storeById } = useShopsStore((state) => state)
-  console.log("loadingById", loadingById)
 
   useEffect(() => {
     const onSuccess = (res) => {
