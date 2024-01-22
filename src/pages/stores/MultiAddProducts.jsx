@@ -49,6 +49,7 @@ const MultiAddProducts = () => {
   };
 
   const convertDataWarehouse = (data) => {
+    if(!data || !Array.isArray(data) || !data.length) return ([]);
     const result = [];
     data.forEach((item) => {
       result.push({
@@ -367,7 +368,7 @@ const MultiAddProducts = () => {
                   .toLowerCase()
                   .localeCompare((optionB?.label ?? "").toLowerCase())
               }
-              options={convertDataWarehouse(warehousesById)}
+              options={convertDataWarehouse(warehousesById.warehouse_list)}
               onChange={(e) => setWarehouseId(e)}
             />
           </div>
