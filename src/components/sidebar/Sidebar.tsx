@@ -15,6 +15,7 @@ import PropTypes from "prop-types";
 import {
   FinanceIcon,
   NewsIcon,
+  OrderIcon,
   ProductIcon,
   SellerIcon,
   SettingIcon,
@@ -58,6 +59,15 @@ const Sidebar = ({ collapsed }) => {
         </Link>
       ),
     },
+    // {
+    //   key: "/order",
+    //   icon: <OrderIcon style={{ color: "#4595ef" }} className="w-[16px]" />,
+    //   label: (
+    //     <Link className="flex justify-between" to="order">
+    //       Đơn hàng
+    //     </Link>
+    //   ),
+    // },
     {
       key: "/sellers",
       icon: <SellerIcon style={{ color: "#ff98aa" }} className="w-[16px]" />,

@@ -14,8 +14,10 @@ import StoreDetailCategories from '../../components/stores/StoreDetailCategories
 import StoreDetailProducts from '../../components/stores/StoreDetailProducts'
 import StoreDetailOrder from '../../components/stores/StoreDetailOrder';
 import StoreDetailSectionTitle from '../../components/stores/StoreDetailSectionTitle';
+import { useNavigate } from 'react-router-dom';
 
 export default function StoreDetail() {
+  const navigate = useNavigate()
   const shopId = getPathByIndex(2)
   const { loadingById, getStoreById, storeById } = useShopsStore((state) => state)
 
@@ -27,8 +29,7 @@ export default function StoreDetail() {
       alerts.error(err)
     }
     getStoreById(shopId, onSuccess, onFail)
-  }, [shopId])
-
+  }, [])
 
     return (
       <div className='p-10'>
