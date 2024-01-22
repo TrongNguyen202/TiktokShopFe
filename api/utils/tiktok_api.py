@@ -167,6 +167,7 @@ def callUploadImage(access_token, img_data):
         response = requests.post(url, params=query_params, json=json.loads(body))
 
         data = json.loads(response.text)
+       
 
         if data and "data" in data and "img_id" in data["data"]:
             img_id = data["data"]["img_id"]
@@ -235,8 +236,8 @@ def createProduct(access_token,title,images_ids,product_object):
     response = requests.post(url, params=query_params, json=json.loads(body))
 
     # Process the response
-    print(response.status_code)
-    print(response.text)
+    # print(response.status_code)
+    # print(response.text)
     return HttpResponse(response)
 
 def getBrands(access_token):
@@ -264,11 +265,12 @@ def getBrands(access_token):
 
 def callEditProduct(access_token, product_object,imgBase64):
     url = TIKTOK_API_URL['url_edit_product']
-    images_list = [{"id": image["id"]} for image in product_object.images]
+    images_list = [image for image in product_object.images]
     if imgBase64 != []:
         for item in imgBase64:
             img_id = callUploadImage(access_token=access_token, img_data=item)
-            images_list.append(img_id)
+            images_list.append({'id':img_id})
+    print(images_list)
     
 
     query_params = {

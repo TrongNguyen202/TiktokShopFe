@@ -784,6 +784,14 @@ class ProcessExcel(View):
         images_ids = self.upload_images(base64_images, shop)
         self.create_product_fun(shop, item, category_id, warehouse_id, is_cod_open, package_height, package_length,
                                 package_weight, package_width, images_ids, description, skus)
+    def convert_to_png(self, input_path, output_path):
+        try:
+            # Mở ảnh sử dụng PIL
+            img = Image.open(input_path)
+            # Chuyển đổi và lưu ảnh dưới dạng PNG
+            img.save(output_path, format='PNG')
+        except Exception as e:
+            print(f"Lỗi khi chuyển đổi ảnh sang PNG: {e}")
 
     def download_image(self, image_url, key, shop):
         if image_url:
@@ -792,25 +800,26 @@ class ProcessExcel(View):
             random_string = str(uuid.uuid4())[:8]
             image_filename = os.path.join(download_dir, f"{key}_{random_string}.jpg")
             response = requests.get(image_url)
-
+    
             if response.status_code == 200:
                 with open(image_filename, 'wb') as f:
                     f.write(response.content)
-                return image_filename
+                
+                png_filename = image_filename.replace('.jpg', '.png')
+                self.convert_to_png(image_filename, png_filename)
+                return png_filename
             else:
                 print(f"Failed to download image: {image_url}, Status code: {response.status_code}")
                 return None
 
     def process_images(self, downloaded_image_paths):
         base64_images = []
-        mode_to_bpp = {'1': 1, 'L': 8, 'P': 8, 'RGB': 24, 'RGBA': 32, 'CMYK': 32, 'YCbCr': 24, 'I': 32, 'F': 32}
         for image_path in downloaded_image_paths:
             try:
                 img = Image.open(image_path)
                 if img is None:
                     continue
-                if mode_to_bpp[img.mode]>24:
-                    img.convert("RGB", palette=Image.ADAPTIVE, colors=24)
+                
 
                 with open(image_path, 'rb') as img_file:
                     base64_image = base64.b64encode(img_file.read()).decode('utf-8')
@@ -911,7 +920,7 @@ class EditProductAPIView(APIView):
         # Tạo một bản sao của product_data để loại bỏ imgBase64
         product_data_without_img = product_data.copy()
         img_base64 = product_data_without_img.pop('imgBase64', [])
-        print(img_base64)
+       
 
         # Tạo một đối tượng ProductObject không chứa imgBase64
         product_object_data = {key: value for key, value in product_data.items() if key != 'imgBase64'}
@@ -961,7 +970,25 @@ class CreateOneProduct(APIView):
                if img_id !="":
                    images_ids.append(img_id)
        return images_ids
+    
+    def base64_to_image(base64_string, output_path):
+       image_data = base64.b64decode(base64_string)
+       image = Image.frombytes('I', (32, 32), image_data, 'raw', 'I;16')
+       image.save(output_path)
 
+    def image_to_base64(image_path):
+       with open(image_path, "rb") as image_file:
+           encoded_string = base64.b64encode(image_file.read())
+           return encoded_string.decode('utf-8')
+
+    def convert_to_png(self, input_path, output_path):
+        try:
+            # Mở ảnh sử dụng PIL
+            img = Image.open(input_path)
+            # Chuyển đổi và lưu ảnh dưới dạng PNG
+            img.save(output_path, format='PNG')
+        except Exception as e:
+            print(f"Lỗi khi chuyển đổi ảnh sang PNG: {e}")
 
     def post(self, request,shop_id):
         shop = get_object_or_404(Shop, id=shop_id)
@@ -969,6 +996,13 @@ class CreateOneProduct(APIView):
         body_raw = request.body.decode('utf-8')
         product_data = json.loads(body_raw)
         base64_images = product_data.get('images', [])
+        for i, base64_data in enumerate(base64_images):
+            output_path = f"C:/anhtiktok/output_{i + 1}.jpg"
+            output_path_png = f"C:/anhtiktok/outputpng_{i + 1}.png"
+            self.base64_to_image(base64_data, output_path)
+            self.convert_to_png(input_path=output_path, output_path=output_path_png)
+            base64_data = self.image_to_base64(image_path=output_path_png)
+
         images_ids = self.upload_images(base64_images=base64_images, access_token=access_token)
 
         product_object = ProductCreateOneObject(
