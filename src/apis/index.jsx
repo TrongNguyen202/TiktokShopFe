@@ -48,14 +48,26 @@ export const callApi = (endPoint, method, body) => {
       },
     )
   }
-  return axios({
-    method,
-    url: `${c.API_URL}${endPoint}`,
-    data: body,
-    headers: {
-      'Content-Type': 'application/json',
-      // "device-id": `${c.STORE_CODE}-${uuid}`,
-      // "device-id": `ikidemo-2750bc42-702e-4cbe-bae5-798f171389e1`,
-    },
-  })
+
+  try {
+    return axios({
+      method,
+      url: `${c.API_URL}${endPoint}`,
+      data: body,
+      headers: {
+        'Content-Type': 'application/json',
+        // "device-id": `${c.STORE_CODE}-${uuid}`,
+        // "device-id": `ikidemo-2750bc42-702e-4cbe-bae5-798f171389e1`,
+      },
+    })
+
+  } catch (error) {
+    if (error.response) {
+      console.error('Server Error:', error.response.status);
+    } else if (error.request) {
+      console.error('No response received from server');
+    } else {
+      console.error('Error setting up request:', error.message);
+    }
+  }
 }

@@ -103,10 +103,7 @@ const Stores = () => {
             <Button
               size="small"
               icon={<EyeOutlined />}
-              onClick={() => {
-                setOpenDrawer(true);
-                setSelectedId(store.id);
-              }}
+              onClick={() => {}}
             >
               Gia hạn
             </Button>
@@ -121,12 +118,14 @@ const Stores = () => {
       console.log("res: ", res);
     };
     const onFail = (err) => {
-      alerts.error(err);
-    };
-    getAllStores(onSuccess, onFail);
-    if (app_key && code) setShowModal(true);
-    else setShowModal(false);
-  }, [app_key, code]);
+      alerts.error(err)
+    }
+
+    getAllStores(onSuccess, onFail)
+    
+    if (app_key && code) setShowModal(true)
+    else setShowModal(false)
+  }, [app_key, code])
 
   return (
     <Layout.Content className="mt-4 px-5">
@@ -148,16 +147,6 @@ const Stores = () => {
         dataSource={stores && stores.length ? stores : []}
         loading={loading}
       />
-
-      <Drawer
-        title="Thông tin cửa hàng"
-        placement="right"
-        width="35vw"
-        onClose={() => setOpenDrawer(false)}
-        open={isOpenDrawer}
-      >
-        <StoresDetail id={selectedId} />
-      </Drawer>
 
       <Modal
         open={isShowModal}

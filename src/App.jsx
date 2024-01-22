@@ -176,6 +176,15 @@ const App = () => {
                 }
               />
 
+              <Route
+                path='/shops/:id/products/create'
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <ProductCreate />
+                  </Suspense>
+                }
+              />
+
               {/* brands */}
               <Route
                 path="/shops/:id/brands"

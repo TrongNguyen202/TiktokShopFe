@@ -3,51 +3,52 @@ import { Button, Form, Input, Row, Col, InputNumber, Select, Modal } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 
 import { variationsOption } from '../../constants'
-import { flatMapArray } from '../../utils'
+import { flatMapArray, removeDuplicates } from '../../utils'
 
-import CustomSelect from '../../pages/stores/CustomSelect'
-import EditPriceForm from '../../pages/stores/EditPriceForm';
+import ProductEditCustomSelect from './ProductEditCustomSelect'
 import ProductVariationsPrice from './ProductVariationsPrice';
 
-const ProductCreateAddVariationForm = ({handleAdd, handleClose, warehouses}) => {
+const ProductEditAddVariationForm = ({handleAdd, handleClose, warehouses, variationsSelect}) => {
     const [form] = Form.useForm()
     const [showModalPrice, setShowModalPrice] = useState(false)
-    const [selectedColor, setSelectedColor] = useState([]);
-    const [selectedSize, setSelectedSize] = useState([]);
     const [variationsData, setVariationsData] = useState([]);
-    const initColorOptions = [
-        {
-        label: "Black",
-        value: "Black",
-        },
-        {
-        label: "White",
-        value: "White",
-        }
-    ];
-    const initSizeOptions = [
-        {
-            label: "S",
-            value: "S",
-        },
-        {
-            label: "M",
-            value: "M",
-        }
-    ]
-
     const warehouseOptions = warehouses?.warehouse_list?.map(item => (
         {
             value: item.warehouse_id,
             label: item.warehouse_name
         }
     ))
+    console.log('warehouseOptions: ', warehouseOptions)
+    const variationsSelectColor = variationsSelect?.filter(item => item.name === 'Color')?.map((item) => (
+        {
+            label: item.value_name,
+            value: item.value_id
+        }
+    ))
+    const variationsSelectSize = variationsSelect?.filter(item => item.name === 'Size').map(item => (
+        {
+            label: item.value_name,
+            value: item.value_id
+        }
+    ))
+    const initColorOptions = removeDuplicates(variationsSelectColor, 'value')
+    const initSizeOptions = removeDuplicates(variationsSelectSize, 'value')
+    const [selectedColor, setSelectedColor] = useState(initColorOptions?.map(item => (
+        {label: item.label, value: item.value}
+    )));
+    const [selectedSize, setSelectedSize] = useState(initSizeOptions?.map(item => ({label: item.label, value: item.value})));
 
-    const selectedSelector = flatMapArray(selectedColor, selectedSize)
-    
-    console.log('selectedColor: ', selectedColor);
+    const selectedSelector = selectedColor.flatMap(item1 =>
+        selectedSize.map(item2 => ({
+            data: [
+              {value_name: item1.label, value_id: item1.value},
+              {value_name: item2.label, value_id: item2.value }
+            ]
+        }))
+    );  
+    // console.log('variationsData: ', variationsData)
+
     const handAddVariations = () => {
-        console.log('variationsData: ', variationsData)
         handleAdd(variationsData)
     }
 
@@ -56,8 +57,7 @@ const ProductCreateAddVariationForm = ({handleAdd, handleClose, warehouses}) => 
         const newData = data?.map((item) => ({
             ...item,
             variations: item.variations?.map((item, index) => ({
-                id: index === 0 ? variationsOption[0].value : variationsOption[1].value,
-                name: index === 0 ? variationsOption[0].label : variationsOption[1].label,
+                id: variationsOption.find(option => option.label === item.name).value,
                 ...item,
             }))
         }))
@@ -72,14 +72,16 @@ const ProductCreateAddVariationForm = ({handleAdd, handleClose, warehouses}) => 
             layout="vertical"
         >
             <Form.Item name={['variations', 'Size']} label='Size' required tooltip="This is a required field">
-                <CustomSelect
+                <ProductEditCustomSelect
+                    selectedDefault={selectedSize}
                     optionsSelect={initSizeOptions}
                     type={"kích cỡ"}
                     onChange={setSelectedSize}
                 />
             </Form.Item>
             <Form.Item name={['variations', 'Color']} label='Màu' required tooltip="This is a required field">
-                <CustomSelect
+                <ProductEditCustomSelect
+                    selectedDefault={selectedColor}
                     optionsSelect={initColorOptions}
                     type={"màu"}
                     onChange={setSelectedColor}
@@ -113,4 +115,4 @@ const ProductCreateAddVariationForm = ({handleAdd, handleClose, warehouses}) => 
         </Form>
     );
 };
-export default ProductCreateAddVariationForm;
+export default ProductEditAddVariationForm;

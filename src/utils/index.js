@@ -159,16 +159,20 @@ export const buildNestedArraysMenu = (items, parentId) => {
   });
 }
 
-export const DeleteDuplicateElementsById = (array) => {
+export const removeDuplicates = (array, keySelector) => {
   const cachedObject = {};
-  array.map((item) => (cachedObject[item.id] = item));
+  array.forEach((item) => (cachedObject[item[keySelector]] = item));
   array = Object.values(cachedObject);
-  return array
-}
+  return array;
+};
 
-export const DeleteDuplicateElements = (array) => {
-  const cachedObject = {};
-  array.map((item) => (cachedObject[item.id&&item.value_id] = item));
-  array = Object.values(cachedObject);
-  return array
+export const flatMapArray = (array1, array2) => {
+  return array1.flatMap(item1 => 
+    array2.map(item2 => ({
+        data: [
+          {value_name: item1},
+          {value_name: item2 }
+        ]
+    }))
+  );
 }

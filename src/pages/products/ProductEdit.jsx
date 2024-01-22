@@ -1,19 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom'
-import { Button, Form, Input, TreeSelect} from 'antd';
+import { Button, Form} from 'antd';
+import axios from 'axios'
 
+import { alerts } from '../../utils/alerts'
 import { useCategoriesStore } from '../../store/categoriesStore'
 import { useProductsStore } from '../../store/productsStore'
-import { getPathByIndex, buildNestedArrays, formatNumber } from '../../utils'
+import { useWareHousesStore } from '../../store/warehousesStore';
+import { getPathByIndex, formatNumber } from '../../utils'
 
 import Loading from '../../components/loading'
 import PageTitle from "../../components/common/PageTitle";
-import PrductCreateAttributes from '../../components/products/PrductCreateAttributes';
-import PrductCreateMedia from '../../components/products/PrductCreateMedia';
-import ProductCreateInformation from '../../components/products/ProductCreateInformation';
-import ProductCreateSale from '../../components/products/ProductCreateSale';
-import ProductCreateVariation from '../../components/products/ProductCreateVariation'
-import ProductCreateShipping from '../../components/products/ProductCreateShipping';
+// import PrductEditAttributes from '../../components/products/PrductEditAttributes';
+import ProductMedia from '../../components/products/ProductMedia';
+import ProductInformation from '../../components/products/ProductInformation';
+import ProductSale from '../../components/products/ProductSale';
+import ProductVariation from '../../components/products/ProductVariation'
+import ProductShipping from '../../components/products/ProductShipping';
 
 
 const ProductEdit = () => {
@@ -21,53 +24,24 @@ const ProductEdit = () => {
     const shopId = getPathByIndex(2)
     const productId = getPathByIndex(4)
     const [form] = Form.useForm();
-    const { getCategoriesById, categoriesById, loading } = useCategoriesStore((state) => state)
-    const { productById, getProductsById } = useProductsStore((state) => state)
+    const [ skusData, setSkusData ] = useState([])
+    const [ imgBase64, setImgBase64 ] = useState([])
+    const { categoriesIsLeafType2, getAllCategoriesIsLeafType2, loading } = useCategoriesStore((state) => state)
+    const { productById, getProductsById, editProduct } = useProductsStore((state) => state)
+    const { warehousesById, getWarehousesByShopId} = useWareHousesStore((state) => state)
     
-    const treeCategoryDefault = buildNestedArrays(productById.category_list&&productById.category_list, "0")
     const priceDataForm = productById?.skus?.length === 1 ? formatNumber(productById?.skus[0].price.original_price) : ''
     const availableDataForm = productById?.skus?.length === 1 ? formatNumber(productById?.skus[0].stock_infos[0].available_stock) : ''
     const skuDataForm = productById?.skus?.length === 1 ? formatNumber(productById?.skus[0].seller_sku) : ''
-
-    const onFinish = (values) => {
-        const dataFormSubmit = {
-            product_id: productId,
-            product_name: values.product_name,
-            images: values.images.map((item) => ({
-                id: item.id
-            })),
-            price: values.price,
-            is_cod_open: values.is_cod_open,
-            package_dimension_unit: values.package_dimension_unit,
-            package_height: values.package_height,
-            package_length: values.package_length,
-            package_weight: values.package_weight,
-            package_width: values.package_width,
-            category_id: values.category_list.map((item) => (
-                item.value
-            )),
-            description: values.description,
-            skus: values.variations
-        }
-
-        console.log('values: ', values)
-        console.log('dataFormSubmit: ', dataFormSubmit)
-    };
-    
-    const onFinishFailed = (errorInfo) => {
-        console.log('Failed:', errorInfo);
-    };
+    const imgBase64List = imgBase64?.filter(item => item.thumbUrl)
 
     const formData = {
         ...productById,
-        category_list: treeCategoryDefault,
+        category_id: productById?.category_list?.find(item => item.is_leaf === true).id,
         price: priceDataForm,
         available: availableDataForm,
-        seller_sku: skuDataForm,
-        // product_variation: 
+        seller_sku: skuDataForm
     }
-
-    // console.log('productById: ', productById)
 
     useEffect(() => {
         const onSuccess = (res) => {
@@ -77,12 +51,72 @@ const ProductEdit = () => {
           alerts.error(err)
         }
 
-        getCategoriesById(shopId, onSuccess, onFail)
+        getAllCategoriesIsLeafType2(shopId, onSuccess, onFail)
         getProductsById(shopId, productId, onSuccess, onFail)
+        getWarehousesByShopId(shopId, onSuccess, onFail)
 
         form.setFieldsValue(formData);
+        setSkusData(productById?.skus?.map((item) => (
+            {
+                key: item.id,
+                price: item.price.original_price,
+                variations: item.sales_attributes,
+                seller_sku: item.seller_sku,
+                stock_infos: item.stock_infos
+            }
+        )))
         
-    }, [productById.product_id])
+    }, [productById?.product_id])
+
+    const variationsDataTable = (data) => {
+        setSkusData([data])
+    };
+
+    const handleImgBase64 = (img) => {
+        setImgBase64(img)
+    }
+
+    const onFinish = async(values) => {
+        // console.log('values: ', values);
+        // console.log('skusData: ', skusData);
+        const dataFormSubmit = {
+            product_id: productId,
+            product_name: values.product_name,
+            images: values?.images?.map((item) => ({
+                id: item.id
+            })),
+            imgBase64: imgBase64List?.map(item => item.thumbUrl.replace('data:image/png;base64,', '')),
+            price: values.price,
+            is_cod_open: values.is_cod_open,
+            package_dimension_unit: values.package_dimension_unit,
+            package_height: values.package_height,
+            package_length: values.package_length,
+            package_weight: values.package_weight,
+            package_width: values.package_width,
+            category_id: values.category_id,
+            description: values.description,
+            skus: skusData?.map((item) => (
+                {
+                    sales_attributes: item.variations?.map((attr) => (
+                        {
+                            value_id: attr.value_id ? attr.value_id : item.key,
+                            attribute_id: attr.id,
+                            attribute_name: attr.name,
+                            value_name: attr.value_name
+                        }
+                    )),
+                    original_price: item.price,
+                    stock_infos: item.stock_infos
+                }
+            ))
+        }
+        console.log('dataFormSubmit: ', dataFormSubmit)
+        editProduct(shopId, productId, dataFormSubmit, (res) => console.log(res), (err) => alerts.error(err))
+    };
+    
+    const onFinishFailed = (errorInfo) => {
+        console.log('Failed:', errorInfo);
+    };
 
     if (loading) return <Loading/>
     return (
@@ -98,32 +132,27 @@ const ProductEdit = () => {
                 form={form}
             >
                 <div className='px-20 pb-5'>
-                    <ProductCreateInformation categoriesById={categoriesById} />
+                    <ProductInformation categories={categoriesIsLeafType2}/>
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
-                    <PrductCreateAttributes />
+                    <ProductMedia productData={productById} imgBase64={handleImgBase64} />
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
-                    <PrductCreateMedia productData={productById} />
+                    <ProductSale warehouses={warehousesById.warehouse_list}/>
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
-                    <ProductCreateSale />
+                    <ProductVariation shopId={shopId} variations={productById?.skus} variationsDataTable={variationsDataTable}/>
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
-                    <ProductCreateVariation variation={productById?.skus} />
-                </div>
-
-                <div className='h-[10px] bg-[#f5f5f5]'/>
-                <div className='px-20 py-10'>
-                    <ProductCreateShipping />
+                    <ProductShipping />
                 </div>  
 
                 <div className='px-20 py-10'>

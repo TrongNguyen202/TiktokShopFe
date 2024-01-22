@@ -63,3 +63,9 @@ export const statusOrder = [
   {color: 'default', title: 'UNPAID'},
   {color: 'success', title: 'PAID'}
 ]
+
+export const variationsOption = [
+  { value: '100000', label: 'Color' },
+  // { value: '100007', label: 'Size' },
+  { value: '7322572932260136746', label: 'Size' },
+]
