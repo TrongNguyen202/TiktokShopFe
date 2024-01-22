@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { constants as c } from '../constants'
 import { getToken, removeToken } from '../utils/auth'
+import { alerts } from '../utils/alerts'
 // import { DeviceUUID } from "device-uuid";
 // const uuid = new DeviceUUID().get();
 const exceptPrefix = ['/login', '/register']
@@ -30,9 +31,13 @@ export const callApi = (endPoint, method, body) => {
     )
     axios.interceptors.response.use(
       (response) => {
+        if(response?.data?.code === 12052700) {
+          Promise.reject(response)
+        }
         return response
       },
       (error) => {
+        console.log('error: ', error);
         if (error?.response?.data?.code === 404) {
           // window.location.replace("/khong-tim-thay-trang");
         } else if (error?.response?.data?.code === 401) {

@@ -129,7 +129,6 @@ export default function TemplateForm({
 
   useEffect(() => {
     getAllCategoriesIsLeaf(shopId);
-    getWarehousesByShopId(shopId);
   }, []);
 
   useEffect(() => {
@@ -419,6 +418,12 @@ export default function TemplateForm({
                         initialValue={
                           templateJson?.id ? templateJson.package_width : ""
                         }
+                        rules={[
+                          {
+                            required: true,
+                            message: "Vui lòng nhập chiều rộng!",
+                          },
+                        ]}
                       >
                         <Input
                           style={{ height: "30px", width: "150px" }}
@@ -437,6 +442,13 @@ export default function TemplateForm({
                         initialValue={
                           templateJson?.id ? templateJson.package_length : ""
                         }
+
+                        rules={[
+                          {
+                            required: true,
+                            message: "Vui lòng nhập chiều dài!",
+                          },
+                        ]}
                       >
                         <Input
                           style={{ height: "30px", width: "150px" }}
@@ -455,6 +467,12 @@ export default function TemplateForm({
                         initialValue={
                           templateJson?.id ? templateJson.package_height : ""
                         }
+                        rules={[
+                          {
+                            required: true,
+                            message: "Vui lòng nhập chiều cao!",
+                          },
+                        ]}
                       >
                         <Input
                           style={{ height: "30px", width: "150px" }}
@@ -475,19 +493,15 @@ export default function TemplateForm({
                 label="Bật COD"
                 name="is_cod_open"
                 labelAlign="left"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập mô tả!",
-                  },
-                ]}
                 sx={{
                   justifyContent: "space-between",
                   display: "flex",
                   flexDirection: "row",
                 }}
                 layout="horizontal"
-                initialValue={false}
+                initialValue={
+                  templateJson?.id ? templateJson.package_height : false
+                }
               >
                 <Switch
                   // checked={input}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Card, Col, Row } from 'antd';
+import { Button, Card, Col, Row } from 'antd';
 
 import { alerts } from '../../utils/alerts'
 import { getPathByIndex } from '../../utils'
@@ -15,8 +15,10 @@ import StoreDetailCategories from '../../components/stores/StoreDetailCategories
 import StoreDetailProducts from '../../components/stores/StoreDetailProducts'
 import StoreDetailOrder from '../../components/stores/StoreDetailOrder';
 import StoreDetailSectionTitle from '../../components/stores/StoreDetailSectionTitle';
+import { useNavigate } from 'react-router-dom';
 
 export default function StoreDetail() {
+  const navigate = useNavigate()
   const shopId = getPathByIndex(2)
   const { loadingById, getStoreById, storeById } = useShopsStore((state) => state)
   
@@ -28,10 +30,10 @@ export default function StoreDetail() {
       alerts.error(err)
     }
     getStoreById(shopId, onSuccess, onFail)
-  }, [shopId])
+  }, [])
 
   const renderStoreDetail = () => {
-    if (loadingById) return <Loading />
+    // if (loadingById) return <Loading />
     
     return (
         <div className='p-10'>
@@ -65,6 +67,8 @@ export default function StoreDetail() {
                     </Col>
                 </Row>
             </div>
+
+            <Button type='primary' onClick={() => navigate(`/shops/${shopId}/orders`)}>Đơn hàng</Button>
         </div>
     )
   }

@@ -1,208 +1,178 @@
-import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Space, Table, Tag } from 'antd';
+import { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Image, Popover, Space, Table, Tag, Tooltip } from "antd";
 
-import { getPathByIndex } from '../../utils';
-import { formatDate } from '../../utils/date'
-import { useShopsOrder } from '../../store/ordersStore'
-import { statusOrder } from '../../constants/index'
+import { getPathByIndex } from "../../utils";
+import { formatDate } from "../../utils/date";
+import { useShopsOrder } from "../../store/ordersStore";
+import { statusOrder } from "../../constants/index";
 
-import Loading from '../../components/loading';
+import Loading from "../../components/loading";
+import { alerts } from "../../utils/alerts";
+import { DownOutlined, MessageOutlined } from "@ant-design/icons";
 
 const Orders = () => {
-    const shopId = getPathByIndex(2)
-    const { orders, getAllOrders, loading } = useShopsOrder((state) => state)
+  const shopId = getPathByIndex(2);
+  const { orders, getAllOrders, loading } = useShopsOrder((state) => state);
 
-    const columns = [
-        {
-            title: 'Mã đơn hàng',
-            dataIndex: 'id',
-            key: 'id',
-            render: (text) => <Link to={`/shops/${shopId}/orders/${text}`}>{text}</Link>
-        },
-        {
-            title: 'Thời gian đặt hàng',
-            dataIndex: 'create_time',
-            key: 'create_time',
-            render: (text) => <span>{formatDate(text, 'DD/MM/YY hh:mm:ss')}</span>,
-        },
-        {
-            title: 'Đơn vị vận chuyển',
-            dataIndex: 'shipping_provider',
-            key: 'shipping_provider'
-        },
-        {
-            title: 'Mã vận chuyển',
-            dataIndex: 'tracking_number',
-            key: 'tracking_number'
-        },
-        {
-            title: 'Thời gian vận chuyển',
-            dataIndex: 'shipping_due_time',
-            key: 'shipping_due_time',
-            render: (text) => <span>{formatDate(text, 'DD/MM/YY hh:mm:ss')}</span>,
-        },
-        {
-            title: 'Phương thức thanh toán',
-            dataIndex: 'payment_method_name',
-            key: 'payment_method_name'
-        },
-        {
-            title: 'Trạng thái',
-            dataIndex: 'status',
-            key: 'status',
-            render: (text) => (
-                <>
-                    {statusOrder.map((item, index) => (
-                        <>{item.title === text && <Tag key={index} color={item.color}>{text}</Tag>}</>
-                    ))}
-                </>
-            )
-        }
-    ]
-
-    useEffect(() => {
-        const onSuccess = (res) => {
-            console.log(res)
-        }
-
-        const onFail = (res) => {
-            alerts.error(res)
-        }
-        getAllOrders(shopId, onSuccess, onFail)
-    }, [])
-
-    const ordersData = [
-        {
-          "buyer_email": "v2b2V5@chat.seller.tiktok.com",
-          "buyer_message": "Please ship asap!",
-          "cancel_order_sla_time": 1619621355,
-          "cancel_reason": "Pricing error",
-          "cancel_time": 1678389618,
-          "cancellation_initiator": "SELLER",
-          "collection_due_time": 1678389618,
-          "collection_time": 1678389618,
-          "cpf": "3213-31231412",
-          "create_time": 1619611561,
-          "delivery_due_time": 1678389618,
-          "delivery_option_id": "7091146663229654785",
-          "delivery_option_name": "Express shipping",
-          "delivery_option_required_delivery_time": 1678389618,
-          "delivery_sla_time": 1678389618,
-          "delivery_time": 1678389618,
-          "fulfillment_type": "FULFILLMENT_BY_SELLER",
-          "has_updated_recipient_address": false,
-          "id": "576461413038785752",
-          "is_buyer_request_cancel": false,
-          "is_cod": false,
-          "is_on_hold_order": false,
-          "is_sample_order": false,
-          "line_items": [
-            {
-              "cancel_reason": "Discount not as expected",
-              "cancel_user": "BUYER",
-              "currency": "IDR",
-              "display_status": "TO_SHIP",
-              "id": "577086512123755123",
-              "is_gift": false,
-              "item_tax": [
-                {
-                  "tax_amount": "21.2",
-                  "tax_rate": "0.35",
-                  "tax_type": "SALES_TAX"
-                }
-              ],
-              "original_price": "0.01",
-              "package_id": "1153132168123859123",
-              "package_status": "TO_FULFILL",
-              "platform_discount": "0",
-              "product_id": "1729582718312380123",
-              "product_name": "Women's Winter Crochet Clothes",
-              "retail_delivery_fee": "1.28",
-              "rts_time": 1678389618,
-              "sale_price": "0.01",
-              "seller_discount": "0",
-              "seller_sku": "red_iphone_256",
-              "shipping_provider_id": "6617675021119438849",
-              "shipping_provider_name": "TT Virtual express",
-              "sku_id": "2729382476852921560",
-              "sku_image": "https://p16-oec-va.itexeitg.com/tos-maliva-d-o5syd03w52-us/46123e87d14f40b69b839",
-              "sku_name": "Iphone",
-              "sku_type": "PRE_ORDER",
-              "small_order_fee": "5000",
-              "tracking_number": "JX12345"
-            }
-          ],
-          "need_upload_invoice": "NEED_INVOICE",
-          "packages": [
-            {
-              "id": "1152321127278713123"
-            }
-          ],
-          "paid_time": 1619611563,
-          "payment": {
-            "currency": "IDR",
-            "original_shipping_fee": "5000",
-            "original_total_product_price": "5000",
-            "platform_discount": "5000",
-            "product_tax": "21.3",
-            "retail_delivery_fee": "1.28",
-            "seller_discount": "5000",
-            "shipping_fee": "5000",
-            "shipping_fee_platform_discount": "5000",
-            "shipping_fee_seller_discount": "5000",
-            "shipping_fee_tax": "11",
-            "small_order_fee": "3000",
-            "sub_total": "5000",
-            "tax": "5000",
-            "total_amount": "5000"
-          },
-          "payment_method_name": "CCDC",
-          "recipient_address": {
-            "address_detail": "Unit one building 8",
-            "address_line1": "TikTok 5800 bristol Pkwy",
-            "address_line2": "Suite 100",
-            "address_line3": "\"\"",
-            "address_line4": "\"\"",
-            "delivery_preferences": {
-              "drop_off_location": "Front Door"
-            },
-            "district_info": [
-              {
-                "address_level_name": "Country",
-                "address_name": "United Kingdom"
-              }
-            ],
-            "full_address": "1199 Coleman Ave San Jose, CA 95110",
-            "name": "Zay",
-            "phone_number": "(+1)213-***-1234",
-            "postal_code": "95110",
-            "region_code": "US"
-          },
-          "request_cancel_time": 1678389618,
-          "rts_sla_time": 1619611688,
-          "rts_time": 1619611563,
-          "seller_note": "seller note",
-          "shipping_due_time": 1678389618,
-          "shipping_provider": "TT Virtual express",
-          "shipping_provider_id": "6617675021119438849",
-          "shipping_type": "TIKTOK",
-          "split_or_combine_tag": "COMBINED",
-          "status": "UNPAID",
-          "tracking_number": "JX12345",
-          "tts_sla_time": 1619611761,
-          "update_time": 1619621355,
-          "user_id": "7021436810468230477",
-          "warehouse_id": "6955005333819123123"
-        }
-    ]
-
-    if(loading) return <Loading/>
-    return (
-        <div className="p-10">
-            <Table columns={columns} dataSource={ordersData} />
+  const renderListItemProduct = (record) => {
+    const { item_list } = record;
+    return item_list.map((item, index) => {
+      return (
+        <div>
+          <div className="flex justify-between items-center gap-3 mt-3 w-[300px]">
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <Image
+                  src={item.sku_image}
+                  className="w-[26px] h-[26px] object-cover mt-1 flex-1"
+                  width={26}
+                  height={26}
+                />
+              </div>
+              <div>
+                <Tooltip title={item.product_name}>
+                  <p className="font-semibold line-clamp-1">
+                    {item.product_name}
+                  </p>
+                </Tooltip>
+                <p className="text-[12px] text-gray-500">{item.sku_name}</p>
+                <p className="text-[12px] text-gray-500">{item.seller_sku}</p>
+              </div>
+            </div>
+            <p className="font-semibold">x{item.quantity}</p>
+          </div>
         </div>
-    );
-}
- 
+      );
+    });
+  };
+
+  const columns = [
+    {
+      title: "STT",
+      dataIndex: "index",
+      key: "index",
+      render: (_, item, i) => <p>{i + 1}</p>,
+    },
+    {
+      title: "Mã đơn",
+      dataIndex: "order_code",
+      key: "order_code",
+      render: (_, record) => (
+        <Link
+          to={`/shops/${shopId}/order/${record?.order_id}`}
+          state={{ orderData: record }}
+          className="font-medium"
+        >
+          {record?.order_id}{" "}
+          <p style={{ fontSize: 11, color: "grey" }}>
+            {" "}
+            {formatDate(record?.update_time * 1000, "DD/MM/YY, h:mm:ss a")}{" "}
+          </p>
+        </Link>
+      ),
+    },
+    {
+      title: "Người mua",
+      dataIndex: "buyer_uid",
+      key: "buyer_uid",
+      render: (_, record) => (
+        <div className="flex items-center gap-1">
+          <p className="ml-2">{record?.buyer_uid}</p>
+          {record?.buyer_message && (
+            <Tooltip title={record?.buyer_message} className="cursor-pointer">
+              <MessageOutlined className="text-[12px]" />
+            </Tooltip>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: "Sản phẩm",
+      dataIndex: "item",
+      key: "item",
+      width: 200,
+      render: (_, record) => (
+        <Popover
+          content={renderListItemProduct(record)}
+          title={`${record.item_list.length} sản phẩm`}
+          trigger="click"
+          placement="bottom"
+        >
+          <div className="cursor-pointer hover:bg-gray-200 p-2">
+            <div className="flex justify-between">
+              <p className="text-[13px] font-semibold">
+                {record?.item_list?.length} sản phẩm
+              </p>
+              <p>
+                <DownOutlined className="text-[12px]" />
+              </p>
+            </div>
+            <div className="-my-[12px] flex gap-1">
+              {record?.item_list?.map((item, index) => (
+                <div
+                  key={index}
+                  className=" last:border-b-0 py-1 px-[8px] -mx-[8px] h-[53px] flex flex-wrap items-center"
+                >
+                  <img
+                    src={item?.sku_image}
+                    className="w-[26px] h-[26px] object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </Popover>
+      ),
+    },
+    // {
+    //   title: "Thời gian đặt hàng",
+    //   dataIndex: "create_time",
+    //   key: "create_time",
+    //   render: (text) => <span>{formatDate(text, "DD/MM/YY hh:mm:ss")}</span>,
+    // },
+    {
+      title: "Trạng thái đơn hàng",
+      dataIndex: "order_status",
+      key: "order_status",
+    },
+    {
+      title: "Giao hàng",
+      dataIndex: "shipping_provider",
+      key: "shipping_provider",
+    },
+    {
+      title: "Vận chuyển",
+      dataIndex: "delivery_option",
+      key: "delivery_option",
+    },
+    {
+      title: "Tổng",
+      dataIndex: "payment_info",
+      key: "payment_info",
+      render: (_, record) => (
+        // t muốn forrmat sang tiền Usd thì làm sao
+        <p>${record?.payment_info?.total_amount}</p>
+      ),
+    },
+  ];
+
+  useEffect(() => {
+    const onSuccess = (res) => {
+      console.log(res);
+    };
+
+    const onFail = (res) => {
+      alerts.error(res);
+    };
+    getAllOrders(shopId, onSuccess, onFail);
+  }, []);
+
+  return (
+    <div className="p-10">
+      <Table columns={columns} dataSource={orders} loading={loading} />
+    </div>
+  );
+};
+
 export default Orders;
