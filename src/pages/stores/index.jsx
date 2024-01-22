@@ -56,11 +56,11 @@ const Stores = () => {
         </p>
       ),
     },
-    {
-      title: 'Grant type',
-      dataIndex: 'grand_type',
-      key: 'grand_type',
-    },
+    // {
+    //   title: 'Grant type',
+    //   dataIndex: 'grand_type',
+    //   key: 'grand_type',
+    // },
     {
       title: 'access_token',
       dataIndex: 'access_token',
@@ -82,10 +82,7 @@ const Stores = () => {
             <Button
               size='small'
               icon={<EyeOutlined />}
-              onClick={() => {
-                setOpenDrawer(true)
-                setSelectedId(store.id)
-              }}
+              onClick={() => {}}
             >
               Gia hạn
             </Button>
@@ -129,16 +126,6 @@ const Stores = () => {
         dataSource={stores && stores.length ? stores : []}
         loading={loading}
       />
-
-      <Drawer
-        title='Thông tin cửa hàng'
-        placement='right'
-        width='35vw'
-        onClose={() => setOpenDrawer(false)}
-        open={isOpenDrawer}
-      >
-        <StoresDetail id={selectedId} />
-      </Drawer>
 
       <Modal
         open={isShowModal}
