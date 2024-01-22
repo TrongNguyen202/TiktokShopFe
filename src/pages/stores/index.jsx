@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { EyeOutlined } from '@ant-design/icons'
-import { Button, Input, Layout, Modal, Space, Table } from 'antd'
+import { CopyOutlined, EyeOutlined } from '@ant-design/icons'
+import { Button, Input, Layout, Modal, Space, Table, message } from 'antd'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useShopsStore } from '../../store/shopsStore'
@@ -17,6 +17,18 @@ const Stores = () => {
   const [searchParams] = useSearchParams()
   const app_key = searchParams.get('app_key')
   const code = searchParams.get('code')
+
+
+  const copyToClipboard = (token) => {
+    navigator.clipboard
+      .writeText(token)
+      .then(() => {
+        message.success("Đã sao chép");
+      })
+      .catch(() => {
+        message.error("Sao chép thất bại");
+      });
+  };
 
   const storesTable = [
     {
@@ -60,11 +72,23 @@ const Stores = () => {
       title: 'access_token',
       dataIndex: 'access_token',
       key: 'access_token',
+      width: 350,
+      render: (token) => (
+        <p className="w-[350px] flex justify-between items-center">
+          <p className="w-[300px]">{token}</p> <CopyOutlined className="cursor-pointer" onClick={() => copyToClipboard(token)}/>
+        </p>
+      ),
     },
     {
       title: 'refresh_token',
       dataIndex: 'refresh_token',
       key: 'refresh_token',
+      width: 350,
+      render: (token) => (
+        <p className="w-[300px]">
+          {token}
+        </p>
+      ),
     },
     {
       title: '',
