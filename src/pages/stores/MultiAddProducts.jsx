@@ -14,6 +14,7 @@ import TemplateForm from "./TemplateForm.jsx";
 import { useProductsStore } from "../../store/productsStore.js";
 import { getPathByIndex } from "../../utils/index.js";
 import { useTemplateStore } from "../../store/templateStore.js";
+import { useWareHousesStore } from "../../store/warehousesStore.js";
 
 const MultiAddProducts = () => {
   const navigate = useNavigate();
@@ -22,14 +23,16 @@ const MultiAddProducts = () => {
 
   const { getAllTemplate, templates } = useTemplateStore();
   const { createProductList, loading } = useProductsStore();
+  const { getWarehousesByShopId, warehousesById } = useWareHousesStore();
 
   const [productsJSON, setProductsJSON] = useState();
   const [templateJSON, setTemplateJSON] = useState();
-  console.log("templateJSON: ", templateJSON);
   const [isShowModalAddTemplate, setShowModalAddTemplate] = useState(false);
+  const [warehouseId, setWarehouseId] = useState();
 
   useEffect(() => {
     getAllTemplate();
+    getWarehousesByShopId(shopId);
   }, []);
 
   const convertTemplateOption = () => {
@@ -40,6 +43,17 @@ const MultiAddProducts = () => {
       result.push({
         value: id,
         label: name,
+      });
+    });
+    return result;
+  };
+
+  const convertDataWarehouse = (data) => {
+    const result = [];
+    data.forEach((item) => {
+      result.push({
+        label: item.warehouse_name,
+        value: item.warehouse_id,
       });
     });
     return result;
@@ -124,77 +138,47 @@ const MultiAddProducts = () => {
   };
 
   const convertDataSku = () => {
-    const { category_id, colors, sizes, types, type, warehouse_id } =
-      templateJSON ?? {};
-    // const result = [];
-    // type.forEach((type) => {
-    //   // colors.forEach((color) => {
-    //   Object.keys(types[type]).forEach((size) => {
-    //     let obj = {
-    //       sales_attributes: [
-    //         {
-    //           attribute_id: "100000",
-    //           attribute_name: "Type",
-    //           custom_value: type,
-    //         },
-    //         {
-    //           attribute_id: "7322572932260136746",
-    //           attribute_name: "Size",
-    //           custom_value: size,
-    //         },
-    //       ],
-    //       original_price: types[type][size].price,
-    //       stock_infos: [
-    //         {
-    //           warehouse_id: warehouse_id,
-    //           available_stock: 100000,
-    //         },
-    //       ],
-    //     };
-    //     result.push(obj);
-    //     // });
-    //   });
-    // });
-    // return result;
-
+    const { types } = templateJSON ?? {};
     const result = [];
-
     types.forEach((item) => {
       const obj = {};
-
       obj.sales_attributes = [
-        { attribute_name: "Type", value_name: item.type },
-        { attribute_name: "Size", value_name: item.size },
+        {
+          attribute_name: "Type",
+          custom_value: item.type,
+          attribute_id: "100000",
+        },
+        {
+          attribute_name: "Size",
+          custom_value: item.size,
+          attribute_id: "7322572932260136746",
+        },
       ];
-
       obj.original_price = item.price;
-
       obj.stock_infos = [
-        { warehouse_id: "123", available_stock: item.quantity },
+        { warehouse_id: warehouseId, available_stock: item.quantity },
       ];
-
       result.push(obj);
     });
 
-    console.log(result);
-    return result
+    return result;
   };
 
-  function handleValidateJsonForm() {
+  const handleValidateJsonForm = () => {
     const skus = [];
     const titles = [];
 
-    let errorMessages = [];
-
     if (!Array.isArray(productsJSON)) {
-      message.error("No products found!");
+      message.error("No products found. Please upload excel file.");
       return false;
     }
 
-    productsJSON.forEach((item) => {
+    for (let item of productsJSON) {
       const { sku, title, warehouse, images } = item;
       if (!sku || !title || !warehouse || !images) {
-        message.error("Missing required field sku, title, warehouse or images");
+        message.error(
+          "Excel file is not in the correct format: Missing required field sku, title, warehouse or images"
+        );
         return false;
       }
 
@@ -220,7 +204,7 @@ const MultiAddProducts = () => {
 
       skus.push(sku);
       titles.push(title);
-    });
+    }
 
     const duplicateTitles = titles.filter((title, index) => {
       return titles.indexOf(title) !== index;
@@ -230,10 +214,19 @@ const MultiAddProducts = () => {
       message.error("Duplicate titles found: " + duplicateTitles.join("; "));
       return false;
     }
-  }
+    return true;
+  };
 
   const onSubmit = () => {
-    // if (!handleValidateJsonForm()) return;
+    if (!handleValidateJsonForm()) return;
+    if (!templateJSON?.id) {
+      message.error("Please select template");
+      return;
+    }
+    if(!warehouseId) {
+      message.error("Please select warehouse");
+      return;
+    }
     const {
       category_id,
       is_cod_open,
@@ -326,35 +319,58 @@ const MultiAddProducts = () => {
             </Col>
           </Row>
         </Row>
-        <div className="mt-20 flex gap-3 items-center">
-          <p className="font-semibold">Chọn template: </p>
-          <Select
-            showSearch
-            style={{
-              width: 200,
-            }}
-            placeholder="Chọn template"
-            optionFilterProp="children"
-            filterOption={(input, option) =>
-              (option?.label ?? "").includes(input)
-            }
-            filterSort={(optionA, optionB) =>
-              (optionA?.label ?? "")
-                .toLowerCase()
-                .localeCompare((optionB?.label ?? "").toLowerCase())
-            }
-            options={convertTemplateOption()}
-            onChange={onSelectTemplate}
-          />
-          <Button
-            className=""
-            type="primary"
-            ghost
-            icon={<PlusOutlined />}
-            onClick={() => setShowModalAddTemplate(true)}
-          >
-            Thêm mới template
-          </Button>
+        <div className="flex justify-between mt-20">
+          <div className=" flex gap-3 items-center">
+            <p className="font-semibold">Chọn template: </p>
+            <Select
+              showSearch
+              style={{
+                width: 200,
+              }}
+              placeholder="Chọn template"
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                (option?.label ?? "").includes(input)
+              }
+              filterSort={(optionA, optionB) =>
+                (optionA?.label ?? "")
+                  .toLowerCase()
+                  .localeCompare((optionB?.label ?? "").toLowerCase())
+              }
+              options={convertTemplateOption()}
+              onChange={onSelectTemplate}
+            />
+            <Button
+              className=""
+              type="primary"
+              ghost
+              icon={<PlusOutlined />}
+              onClick={() => setShowModalAddTemplate(true)}
+            >
+              Thêm mới template
+            </Button>
+          </div>
+          <div className="flex gap-2 items-center">
+            <p className="font-semibold">Chọn warehouse:</p>
+            <Select
+              showSearch
+              style={{
+                width: 200,
+              }}
+              placeholder="Chọn warehouse"
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                (option?.label ?? "").includes(input)
+              }
+              filterSort={(optionA, optionB) =>
+                (optionA?.label ?? "")
+                  .toLowerCase()
+                  .localeCompare((optionB?.label ?? "").toLowerCase())
+              }
+              options={convertDataWarehouse(warehousesById)}
+              onChange={(e) => setWarehouseId(e)}
+            />
+          </div>
         </div>
         <div className="text-end pr-20">
           <Button type="primary" className="mt-20" onClick={onSubmit}>

@@ -5,6 +5,7 @@ import { Card } from 'antd'
 import { useCategoriesStore } from '../../store/categoriesStore'
 
 import StoreDetailSectionTitle from './StoreDetailSectionTitle';
+import { alerts } from '../../utils/alerts';
 
 const StoreDetailCategories = ({shopId}) => {
     const { getCategoriesById, categoriesById } = useCategoriesStore((state) => state)
