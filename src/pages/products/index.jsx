@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Table, Tag, Input, Modal, Form, DatePicker, Slider } from "antd";
-import { EditOutlined, EyeOutlined } from '@ant-design/icons'
+import { EditOutlined, EyeOutlined, CloseCircleFilled } from '@ant-design/icons'
 
 import { alerts } from '../../utils/alerts'
 import { IntlNumberFormat, removeDuplicates } from '../../utils/index'
@@ -18,6 +18,8 @@ const Products = () => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
     const shopId = getPathByIndex(2)
+    const [productDataTable, setProductDataTable] = useState([])
+    const [filterData, setFilterData] = useState([])
     const [showSearchModal, setShowSearchModal] = useState(false)
     const { products, getAllProducts } = useProductsStore((state) => state)
     
@@ -95,7 +97,7 @@ const Products = () => {
         }
     ]
 
-  const hanldeProductCreate = () => {
+  const handleProductCreate = () => {
     navigate(`/shops/${shopId}/products/create`);
   };
 
@@ -107,8 +109,6 @@ const Products = () => {
     navigate(`/shops/${shopId}/products/${productId}`);
   };
 
-  const onSearch = (value, _e, info) => console.log(info?.source, value);
-
   useEffect(() => {
     const onSuccess = () => {};
     const onFail = (err) => {
@@ -116,7 +116,25 @@ const Products = () => {
     };
 
     getAllProducts(shopId, onSuccess, onFail);
+    setProductDataTable(products)
   }, [shopId]);
+
+  const onFinish = (values) => {
+    setFilterData(values)
+    const productFilter = products?.filter((item) => {
+      return (
+        (!values.product_id || item.id.includes(values.product_id)) &&
+        (!values.product_name || item.name.includes(values.product_name))
+      )
+    })
+    setProductDataTable(productFilter)
+    setShowSearchModal(false)
+  }
+
+  const handleRemoveFilter = () => {  
+    setProductDataTable(products)
+    setFilterData([])
+  }
 
   return (
     <div className="p-10">
@@ -125,7 +143,7 @@ const Products = () => {
         <Button type="primary" className="mr-3" onClick={() => setShowSearchModal(true)}>Tìm kiếm</Button>
         <Button
           type="primary"
-          onClick={hanldeProductCreate}
+          onClick={handleProductCreate}
           className="mt-5 mb-5 mr-3"
         >
           Thêm sản phẩm
@@ -136,44 +154,32 @@ const Products = () => {
         >
           Thêm hàng loạt
         </Button>
+        <div className="flex-1 text-right">
+          {(filterData.product_name || filterData.product_id) && <span>Tìm kiếm theo: </span>}
+          {filterData.product_name && <Tag color="blue">Tên sản phẩm: {filterData.product_name}</Tag>}
+          {filterData.product_id && <Tag color="orange">Mã sản phẩm: {filterData.product_id}</Tag>}
+          {(filterData.product_name || filterData.product_id) && <Button type="primary" onClick={handleRemoveFilter}>Xoá tất cả</Button>}
+        </div>
       </div>
       <Table
         columns={columnProduct}
         size="middle"
         bordered
-        dataSource={products && products?.length > 0 ? products : []}
+        dataSource={productDataTable?.length ? productDataTable : []}
       />
 
       <Modal title="Tìm kiếm" open={showSearchModal} footer={null} onOk={() => {}} onCancel={() => setShowSearchModal(false)}>
         <Form form={form}
           layout="vertical"
-          onFinish={(value) => console.log(value)}
+          onFinish={onFinish}
           onFinishFailed={() => {}}
         >
           <Form.Item label="Mã sản phẩm" name="product_id">
             <Input />
           </Form.Item>
 
-          <Form.Item label="Tên sản phẩm" name="product_id">
+          <Form.Item label="Tên sản phẩm" name="product_name">
             <Input />
-          </Form.Item>
-
-          <Form.Item label="Giá" name="price">
-            <Slider
-              className="slider-main-div"
-              min={0}
-              max={1000}
-              onChange={() => {}}
-              range={true}
-            />
-          </Form.Item>
-
-          <Form.Item label="Thời gian tạo" name="create_time">
-            <RangePicker className="w-full" />
-          </Form.Item>
-
-          <Form.Item label="Thời gian cập nhạt" name="update_time">
-            <RangePicker className="w-full" />
           </Form.Item>
 
           <Form.Item>

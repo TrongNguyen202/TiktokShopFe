@@ -82,7 +82,6 @@ const ProductCreate = () => {
         }
 
         getAllCategoriesIsLeafType2(shopId, onSuccess, onFail)
-        getProductsById(shopId, productId, onSuccess, onFail)
         getWarehousesByShopId(shopId, onSuccess, onFail)
         
     }, [productById?.product_id])
