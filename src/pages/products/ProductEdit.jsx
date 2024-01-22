@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { Button, Form} from 'antd';
-import axios from 'axios'
+import { toast } from 'react-toastify'
 
 import { alerts } from '../../utils/alerts'
 import { useCategoriesStore } from '../../store/categoriesStore'
@@ -48,7 +48,7 @@ const ProductEdit = () => {
             console.log(res)
         }
         const onFail = (err) => {
-          alerts.error(err)
+            console.log(err);
         }
 
         getAllCategoriesIsLeafType2(shopId, onSuccess, onFail)
@@ -110,8 +110,14 @@ const ProductEdit = () => {
                 }
             ))
         }
-        console.log('dataFormSubmit: ', dataFormSubmit)
-        editProduct(shopId, productId, dataFormSubmit, (res) => console.log(res), (err) => alerts.error(err))
+
+        const UpdateSuccess = (res) => {
+            if (res.status === "success") {
+                alerts.success('Cập nhật sản phẩm thành công!')
+                navigate(`/shops/${shopId}/products`)
+            }
+        }
+        editProduct(shopId, productId, dataFormSubmit, UpdateSuccess, (err) => console.log(err))
     };
     
     const onFinishFailed = (errorInfo) => {
