@@ -347,7 +347,7 @@ def callOrderList(access_token):
     return response
 
 def callOrderDetail(access_token, orderIds):
-    url = TIKTOK_API_URL['url_get_orders']
+    url = TIKTOK_API_URL['url_get_order_detail']
     query_params = {
         "app_key": app_key,
         "access_token": access_token,
