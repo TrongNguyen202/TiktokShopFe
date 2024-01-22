@@ -1,9 +1,7 @@
-import { useState } from 'react';
+import {  useState } from 'react';
 import { Form, Input, Select } from 'antd'
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-
-import { buildNestedArrays } from '../../utils'
 
 const ProductInformation = ({categories}) => {
     const [valueDescription, setValueDescription] = useState('');
@@ -37,7 +35,7 @@ const ProductInformation = ({categories}) => {
                 />
             </Form.Item>
 
-            <Form.Item label="Mô tả:" name='description'>
+            <Form.Item label="Mô tả:" name='description' rules={[{ required: true, message: 'Mô tả sản phẩm không được để trống' }]}>
                 <ReactQuill theme="snow" row value={valueDescription} onChange={setValueDescription}/>
             </Form.Item>
         </>

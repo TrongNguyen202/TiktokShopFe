@@ -6,6 +6,7 @@ import axios from 'axios'
 import { alerts } from '../../utils/alerts'
 import { useCategoriesStore } from '../../store/categoriesStore'
 import { useProductsStore } from '../../store/productsStore'
+import { useWareHousesStore } from '../../store/warehousesStore';
 import { getPathByIndex } from '../../utils'
 
 import Loading from '../../components/loading'
@@ -26,20 +27,22 @@ const ProductCreate = () => {
     const [ imgBase64, setImgBase64 ] = useState([])
     const { categoriesIsLeafType2, getAllCategoriesIsLeafType2, loading } = useCategoriesStore((state) => state)
     const { productById, getProductsById, createOneProduct } = useProductsStore((state) => state)
+    const { warehousesById, getWarehousesByShopId} = useWareHousesStore((state) => state)
 
     const onFinish = async(values) => {
+        console.log('value: ', values);
         const dataFormSubmit = {
             product_name: values.product_name,
             description: values.description ? values.description : "",
             category_id: values.category_id ? values.category_id : "",
-            images: imgBase64?.map(item => item.thumbUrl.replace('data:image/png;base64,', '')),
+            images: imgBase64?.map(item => item.thumbUrl.replace('data:image/png;base64,', '').replace('data:image/jpg;base64,', '').replace('data:image/jpeg;base64,', '')),
             package_dimension_unit: values.package_dimension_unit ? values.package_dimension_unit : 'metric',
             package_height: values.package_height ? values.package_height : "",
             package_length: values.package_length ? values.package_length : "",
             package_weight: values.package_weight ? values.package_weight : "",
             package_width: values.package_width ? values.package_width : "",
             is_cod_open: values.is_cod_open ? values.is_cod_open : false,
-            skus: skusData?.map((item) => (
+            skus: skusData.length ? skusData?.map((item) => (
                 {
                     sales_attributes: item.variations?.map((attr) => (
                         {
@@ -48,12 +51,19 @@ const ProductCreate = () => {
                             custom_value: attr.value_name
                         }
                     )),
-                    original_price: item.price,
+                    original_price: values.price,
                     stock_infos: [
                         item.stock_infos
                     ]
                 }
             ))
+            :   [
+                {
+                    sales_attributes: [],
+                    original_price: values.price,
+                    stock_infos: [values.stock_infos]
+                }
+            ]
         }
         console.log('dataFormSubmit: ', dataFormSubmit)
         createOneProduct(shopId, dataFormSubmit, (res) => console.log(res), (err) => alerts.error(err))
@@ -73,6 +83,7 @@ const ProductCreate = () => {
 
         getAllCategoriesIsLeafType2(shopId, onSuccess, onFail)
         getProductsById(shopId, productId, onSuccess, onFail)
+        getWarehousesByShopId(shopId, onSuccess, onFail)
         
     }, [productById?.product_id])
 
@@ -109,7 +120,7 @@ const ProductCreate = () => {
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
-                    <ProductSale />
+                    <ProductSale warehouses={warehousesById.warehouse_list}/>
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>

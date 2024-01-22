@@ -6,7 +6,8 @@ import axios from 'axios'
 import { alerts } from '../../utils/alerts'
 import { useCategoriesStore } from '../../store/categoriesStore'
 import { useProductsStore } from '../../store/productsStore'
-import { getPathByIndex, buildNestedArrays, formatNumber } from '../../utils'
+import { useWareHousesStore } from '../../store/warehousesStore';
+import { getPathByIndex, formatNumber } from '../../utils'
 
 import Loading from '../../components/loading'
 import PageTitle from "../../components/common/PageTitle";
@@ -27,13 +28,12 @@ const ProductEdit = () => {
     const [ imgBase64, setImgBase64 ] = useState([])
     const { categoriesIsLeafType2, getAllCategoriesIsLeafType2, loading } = useCategoriesStore((state) => state)
     const { productById, getProductsById, editProduct } = useProductsStore((state) => state)
+    const { warehousesById, getWarehousesByShopId} = useWareHousesStore((state) => state)
     
     const priceDataForm = productById?.skus?.length === 1 ? formatNumber(productById?.skus[0].price.original_price) : ''
     const availableDataForm = productById?.skus?.length === 1 ? formatNumber(productById?.skus[0].stock_infos[0].available_stock) : ''
     const skuDataForm = productById?.skus?.length === 1 ? formatNumber(productById?.skus[0].seller_sku) : ''
     const imgBase64List = imgBase64?.filter(item => item.thumbUrl)
-
-    console.log('skusData: ', skusData);
 
     const formData = {
         ...productById,
@@ -53,6 +53,7 @@ const ProductEdit = () => {
 
         getAllCategoriesIsLeafType2(shopId, onSuccess, onFail)
         getProductsById(shopId, productId, onSuccess, onFail)
+        getWarehousesByShopId(shopId, onSuccess, onFail)
 
         form.setFieldsValue(formData);
         setSkusData(productById?.skus?.map((item) => (
@@ -68,7 +69,7 @@ const ProductEdit = () => {
     }, [productById?.product_id])
 
     const variationsDataTable = (data) => {
-        setSkusData(data)
+        setSkusData([data])
     };
 
     const handleImgBase64 = (img) => {
@@ -105,7 +106,7 @@ const ProductEdit = () => {
                         }
                     )),
                     original_price: item.price,
-                    stock_infos: [item.stock_infos]
+                    stock_infos: item.stock_infos
                 }
             ))
         }
@@ -131,7 +132,7 @@ const ProductEdit = () => {
                 form={form}
             >
                 <div className='px-20 pb-5'>
-                    <ProductInformation categories={categoriesIsLeafType2} />
+                    <ProductInformation categories={categoriesIsLeafType2}/>
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
@@ -141,7 +142,7 @@ const ProductEdit = () => {
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
-                    <ProductSale />
+                    <ProductSale warehouses={warehousesById.warehouse_list}/>
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>

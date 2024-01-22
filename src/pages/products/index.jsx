@@ -165,8 +165,6 @@ const Products = () => {
               max={1000}
               onChange={() => {}}
               range={true}
-              // defaultValue={[min, max]}
-              // value={[min, max]}
             />
           </Form.Item>
 
