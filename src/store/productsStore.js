@@ -54,8 +54,7 @@ export const useProductsStore = create((set) => ({
     try {
       set({ loading: true })
       const response = await RepositoryRemote.products.editProduct(shopId, productId, body)
-      set({ products: response.data.data })
-      onSuccess(response.data.data)
+      onSuccess(response.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }

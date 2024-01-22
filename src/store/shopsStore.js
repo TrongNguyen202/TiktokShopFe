@@ -13,7 +13,7 @@ export const useShopsStore = create((set) => ({
       const response = await RepositoryRemote.stores.getAllStores()
       set({ stores: response.data })
       set({ infoTable: response.data })
-      onSuccess(response.data.data)
+      onSuccess(response.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }
