@@ -42,6 +42,7 @@ const ProductMedia = ({productData, imgBase64}) => {
     };
 
     const handleChange = ({ fileList: newFileList }) => {
+        console.log('newFileList: ', newFileList);
         setFileList(newFileList)
         imgBase64(newFileList)
     }
@@ -51,11 +52,12 @@ const ProductMedia = ({productData, imgBase64}) => {
             <ProductSectionTitle title='Ảnh và video' />
             <Form.Item name="images">
                 <Upload
-                    action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
                     listType="picture-card"
                     fileList={fileList}
                     onPreview={handlePreview}
                     onChange={handleChange}
+                    beforeUpload={() => false}
+                    previewFile={getBase64}
                 >
                     {fileList?.length >= 8 ? null : 
                         (<button style={{ border: 0, background: 'none'}} type="button" >
@@ -64,6 +66,7 @@ const ProductMedia = ({productData, imgBase64}) => {
                         </button>)
                     }
                 </Upload>
+                {/* <input type='file'/> */}
                 <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
                     <img alt={previewTitle}  style={{ width: '100%', }} src={previewImage} />
                 </Modal>
