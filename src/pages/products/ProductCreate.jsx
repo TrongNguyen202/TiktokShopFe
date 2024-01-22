@@ -29,7 +29,6 @@ const ProductCreate = () => {
     const { warehousesById, getWarehousesByShopId} = useWareHousesStore((state) => state)
 
     const onFinish = async(values) => {
-        console.log('value: ', values);
         const dataFormSubmit = {
             product_name: values.product_name,
             description: values.description ? values.description : "",
@@ -64,8 +63,14 @@ const ProductCreate = () => {
                 }
             ]
         }
-        createOneProduct(shopId, dataFormSubmit, (res) => console.log(res), (err) => alerts.error(err))
-        form.resetFields();
+
+        const CreateSuccess = (res) => {
+            if (res.status === "success") {
+                alerts.success('Đã thêm sản phẩm thành công!')
+                form.resetFields();
+            }
+        }
+        createOneProduct(shopId, dataFormSubmit, CreateSuccess, (err) => alerts.error(err))
     };
     
     const onFinishFailed = (errorInfo) => {

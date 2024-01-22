@@ -65,7 +65,7 @@ export const useProductsStore = create((set) => ({
       set({ loading: true })
       const response = await RepositoryRemote.products.createOneProduct(shopId, body)
       set({ newProduct: response.data.data })
-      onSuccess(response.data.data)
+      onSuccess(response.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }
