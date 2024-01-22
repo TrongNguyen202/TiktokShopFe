@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Table, Tag, Input, Modal, Form, DatePicker, Slider } from "antd";
-import { EditOutlined, EyeOutlined, CloseCircleFilled } from '@ant-design/icons'
+import { Button, Table, Tag, Input, Modal, Form } from "antd";
+import { EditOutlined, EyeOutlined } from '@ant-design/icons'
 
-import { alerts } from '../../utils/alerts'
 import { IntlNumberFormat, removeDuplicates } from '../../utils/index'
 import { formatDate } from '../../utils/date'
 import { getPathByIndex } from '../../utils'
@@ -13,7 +12,6 @@ import { useProductsStore } from "../../store/productsStore";
 
 import PageTitle from "../../components/common/PageTitle";
 
-const { RangePicker } = DatePicker;
 const Products = () => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
@@ -109,16 +107,6 @@ const Products = () => {
     navigate(`/shops/${shopId}/products/${productId}`);
   };
 
-  useEffect(() => {
-    const onSuccess = () => {};
-    const onFail = (err) => {
-      alerts.error(err);
-    };
-
-    getAllProducts(shopId, onSuccess, onFail);
-    setProductDataTable(products)
-  }, [shopId]);
-
   const onFinish = (values) => {
     setFilterData(values)
     const productFilter = products?.filter((item) => {
@@ -135,6 +123,20 @@ const Products = () => {
     setProductDataTable(products)
     setFilterData([])
   }
+
+  useEffect(() => {
+    const onSuccess = (res) => {
+      if (res.products.length > 0) {
+        setProductDataTable(res.products)
+      }
+    };
+    const onFail = (err) => {
+      console.log(err);
+    };
+
+    getAllProducts(shopId, onSuccess, onFail);
+    
+  }, [shopId]);
 
   return (
     <div className="p-10">

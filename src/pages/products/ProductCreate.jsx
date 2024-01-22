@@ -87,7 +87,6 @@ const ProductCreate = () => {
     }, [productById?.product_id])
 
     const variationsDataTable = (data) => {
-        console.log('data: ', data);
         setSkusData(data)
     };
 
