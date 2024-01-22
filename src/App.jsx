@@ -1,70 +1,80 @@
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
-import React, { Suspense, lazy, useEffect, useState } from 'react'
-import { ToastContainer } from 'react-toastify'
-import Login from './pages/login'
-import { PATH } from './constants/paths'
-import { getToken } from './utils/auth'
-import 'react-toastify/dist/ReactToastify.css'
-import ForgotPassword from './pages/login/ForgotPassword'
-import IdentityDetail from './pages/identityRequest/IdentityDetail'
-import Loading from './components/loading'
-import MainLayout from './layouts/mainLayout/MainLayout'
-import VoucherForm from './pages/vouchers/VoucherForm'
-import { useBadgesStore } from './store/badgesStore'
-import Template from './pages/templates/index.jsx'
+import React, { Suspense, lazy, useEffect, useState } from "react";
+import {
+  BrowserRouter,
+  Navigate,
+  Outlet,
+  Route,
+  Routes,
+} from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Loading from "./components/loading/Index";
+import { PATH } from "./constants/paths";
+import MainLayout from "./layouts/mainLayout/MainLayout";
+import Login from "./pages/login";
+import ForgotPassword from "./pages/login/ForgotPassword";
+import Template from "./pages/templates/index.jsx";
+import VoucherForm from "./pages/vouchers/VoucherForm";
+import { useBadgesStore } from "./store/badgesStore";
+import { getToken } from "./utils/auth";
 
-const Sellers = lazy(() => import('./pages/sellers/Index'))
-const Home = lazy(() => import('./pages/home/Index.jsx'))
-const Stores = lazy(() => import('./pages/stores/index'))
-const Vouchers = lazy(() => import('./pages/vouchers'))
-const Products = lazy(() => import('./pages/products'))
-const ProductDetail = lazy(() => import('./pages/products/ProductDetail.jsx'))
-const ProductEdit = lazy(() => import('./pages/products/ProductEdit.jsx'))
+const Sellers = lazy(() => import("./pages/sellers/Index"));
+const Home = lazy(() => import("./pages/home/Index.jsx"));
+const Stores = lazy(() => import("./pages/stores/index"));
+const Vouchers = lazy(() => import("./pages/vouchers"));
+const Products = lazy(() => import("./pages/products"));
+const ProductDetail = lazy(() => import("./pages/products/ProductDetail.jsx"));
+const ProductEdit = lazy(() => import("./pages/products/ProductEdit.jsx"));
+const Brands = lazy(() => import("./pages/brands"));
+const Orders = lazy(() => import("./pages/orders"));
+const Customers = lazy(() => import("./pages/customers"));
+const Categories = lazy(() => import("./pages/categories"));
+const HomepageInterface = lazy(
+  () => import("./pages/settings/homepageInterface")
+);
+const IdentityRequest = lazy(() => import("./pages/identityRequest/Index"));
+const StoreDetail = lazy(() => import("./pages/stores/StoreDetail.jsx"));
+const MultiAddProducts = lazy(
+  () => import("./pages/stores/MultiAddProducts.jsx")
+);
+const Order = lazy(() => import("./pages/orders/index.jsx"));
+const OrderDetail = lazy(() => import("./pages/orders/OrderDetail.jsx"));
 const ProductCreate = lazy(() => import ('./pages/products/ProductCreate.jsx'))
-const Brands = lazy(() => import('./pages/brands'))
-const Orders = lazy(() => import('./pages/orders'))
-const OrderDetail = lazy(() => import('./pages/orders/OrderDetail.jsx'))
-const Customers = lazy(() => import('./pages/customers'))
-const Categories = lazy(() => import('./pages/categories'))
-const HomepageInterface = lazy(() => import('./pages/settings/homepageInterface'))
-const IdentityRequest = lazy(() => import('./pages/identityRequest/Index'))
-const StoreDetail = lazy(() => import('./pages/stores/StoreDetail.jsx'))
-const MultiAddProducts = lazy(() => import('./pages/stores/MultiAddProducts.jsx'))
 
 const PrivateRoute = () => {
-  const { getAllBadges } = useBadgesStore()
-  const [authenticated, setAuthenticated] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const { getAllBadges } = useBadgesStore();
+  const [authenticated, setAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkAuthentication = async () => {
-      const token = await getToken()
-      setAuthenticated(token !== null)
-      setLoading(false)
-    }
+      const token = await getToken();
+      setAuthenticated(token !== null);
+      setLoading(false);
+    };
 
-    checkAuthentication()
+    checkAuthentication();
     // getAllBadges()
-  }, [])
+  }, []);
 
   if (loading) {
-    return null
+    return null;
   }
 
   if (!authenticated) {
-    return <Navigate to='/login' />
+    return <Navigate to="/login" />;
   }
 
-  return <Outlet />
-}
+  return <Outlet />;
+};
 
 const App = () => {
   return (
     <>
       <BrowserRouter>
         <Routes>
-          <Route path='/' element={<PrivateRoute />}>
-            <Route path='/' element={<MainLayout />}>
+          <Route path="/" element={<PrivateRoute />}>
+            <Route path="/" element={<MainLayout />}>
               <Route
                 path={PATH.HOME}
                 element={
@@ -73,19 +83,33 @@ const App = () => {
                   </Suspense>
                 }
               />
-              {/* Yêu cầu định danh */}
               <Route
-                path='/templates'
+                path="/templates"
                 element={
                   <Suspense fallback={<Loading />}>
                     <Template />
                   </Suspense>
                 }
               />
-              <Route path='/identity-request/:identityId' element={<IdentityDetail />} />
+              <Route
+                path="shops/:shop_id/orders"
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <Order />
+                  </Suspense>
+                }
+              ></Route>
+              <Route
+                path="shops/:shop_id/order/:order_code"
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <OrderDetail />
+                  </Suspense>
+                }
+              ></Route>
               {/* Sellers */}
               <Route
-                path='/sellers'
+                path="/sellers"
                 element={
                   <Suspense fallback={<Loading />}>
                     <Sellers />
@@ -94,7 +118,7 @@ const App = () => {
               />
               {/* Stores */}
               <Route
-                path='/shops'
+                path="/shops"
                 element={
                   <Suspense fallback={<Loading />}>
                     <Stores />
@@ -102,7 +126,7 @@ const App = () => {
                 }
               />
               <Route
-                path='/shops/:id'
+                path="/shops/:id"
                 element={
                   <Suspense fallback={<Loading />}>
                     <StoreDetail />
@@ -110,7 +134,7 @@ const App = () => {
                 }
               />
               <Route
-                path='/shops/:id/add-many-products'
+                path="/shops/:id/add-many-products"
                 element={
                   <Suspense fallback={<Loading />}>
                     <MultiAddProducts />
@@ -119,7 +143,7 @@ const App = () => {
               />
               {/* Products */}
               <Route
-                path='/shops/:id/products'
+                path="/shops/:id/products"
                 element={
                   <Suspense fallback={<Loading />}>
                     <Products />
@@ -127,7 +151,7 @@ const App = () => {
                 }
               />
               <Route
-                path='/products/status/:productStatus'
+                path="/products/status/:productStatus"
                 element={
                   <Suspense fallback={<Loading />}>
                     <Products />
@@ -136,7 +160,7 @@ const App = () => {
               />
 
               <Route
-                path='/shops/:id/products/:id'
+                path="/shops/:id/products/:id"
                 element={
                   <Suspense fallback={<Loading />}>
                     <ProductDetail />
@@ -145,7 +169,7 @@ const App = () => {
               />
 
               <Route
-                path='/shops/:id/products/:id/edit'
+                path="/shops/:id/products/:id/edit"
                 element={
                   <Suspense fallback={<Loading />}>
                     <ProductEdit />
@@ -164,68 +188,68 @@ const App = () => {
 
               {/* brands */}
               <Route
-                path='/shops/:id/brands'
+                path="/shops/:id/brands"
                 element={
                   <Suspense fallback={<Loading />}>
-                    <Brands/>
+                    <Brands />
                   </Suspense>
                 }
               />
 
               {/* orders */}
               <Route
-                path='/shops/:id/orders'
+                path="/shops/:id/orders"
                 element={
                   <Suspense fallback={<Loading />}>
-                    <Orders/>
+                    <Orders />
                   </Suspense>
                 }
               />
 
               <Route
-                path='/shops/:id/orders/:id'
+                path="/shops/:id/orders/:id"
                 element={
                   <Suspense fallback={<Loading />}>
-                    <OrderDetail/>
+                    <OrderDetail />
                   </Suspense>
                 }
               />
 
               {/* Vouchers */}
               <Route
-                path='/vouchers'
+                path="/vouchers"
                 element={
                   <Suspense fallback={<Loading />}>
                     <Vouchers />
                   </Suspense>
                 }
               />
-              <Route path='/vouchers/create' element={<VoucherForm />} />
-              <Route path='/vouchers/:voucherId' element={<VoucherForm />} />
-              
+              <Route path="/vouchers/create" element={<VoucherForm />} />
+              <Route path="/vouchers/:voucherId" element={<VoucherForm />} />
+
               {/* Customers */}
               <Route
-                path='/customers'
+                path="/customers"
                 element={
                   <Suspense fallback={<Loading />}>
                     <Customers />
                   </Suspense>
                 }
               />
-              
+
               {/* Categories */}
               <Route
-                path='shops/:id/categories'
+                path="shops/:id/categories"
                 element={
                   <Suspense fallback={<Loading />}>
                     <Categories />
                   </Suspense>
                 }
               />
-              
+
               {/* Settings */}
               <Route
-                path='/theme'
+                path="/theme"
                 element={
                   <Suspense fallback={<Loading />}>
                     <HomepageInterface />
@@ -234,12 +258,12 @@ const App = () => {
               />
             </Route>
           </Route>
-          <Route path='/login' element={<Login />} />
-          <Route path='/forgot-password' element={<ForgotPassword />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
       </BrowserRouter>
       <ToastContainer />
     </>
-  )
-}
-export default App
+  );
+};
+export default App;

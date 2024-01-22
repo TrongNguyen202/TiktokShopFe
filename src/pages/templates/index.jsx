@@ -1,33 +1,31 @@
-import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Button, Layout, Modal, Popconfirm, Space, Table, Tooltip } from "antd";
 import Search from "antd/es/transfer/search";
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-import { useShopsStore } from "../../store/shopsStore";
 import { useTemplateStore } from "../../store/templateStore";
 import { alerts } from "../../utils/alerts";
 import TemplateForm from "../stores/TemplateForm";
 
 const Template = () => {
   const navigate = useNavigate();
-  const { getAllTemplate, templates, loading, deleteTemplate } = useTemplateStore();
+  const { getAllTemplate, templates, loading, deleteTemplate } =
+    useTemplateStore();
 
   const [templateSelected, setTemplateSelected] = useState(null);
-  console.log("templateSelected: ", templateSelected);
   const [isShowModal, setShowModal] = useState(false);
 
- const handleDeleteTemplate = (id) => {
+  const handleDeleteTemplate = (id) => {
     const onSuccess = (res) => {
-        alerts.success("Xoá template thành công");
-        getAllTemplate();
-        };
-        const onFail = (err) => {
-        alerts.error(err);
-        };
-        deleteTemplate(id, onSuccess, onFail);
+      alerts.success("Xoá template thành công");
+      getAllTemplate();
     };
-
+    const onFail = (err) => {
+      alerts.error(err);
+    };
+    deleteTemplate(id, onSuccess, onFail);
+  };
 
   const storesTable = [
     {
@@ -45,7 +43,8 @@ const Template = () => {
         <p
           className="text-[#0e2482] font-medium cursor-pointer"
           onClick={() => {
-            navigate(`/shops/${store.id}`, { state: { store } });
+            setShowModal(true);
+            setTemplateSelected(store);
           }}
         >
           {name}
@@ -56,13 +55,6 @@ const Template = () => {
       title: "Mô tả",
       dataIndex: "description",
       key: "description",
-      //   render: (code, seller) => (
-      //     <p
-      //       className='text-[#0e2482] font-medium cursor-pointer'
-      //     >
-      //       {code}
-      //     </p>
-      //   ),
     },
     {
       title: "Cân nặng",
@@ -99,7 +91,7 @@ const Template = () => {
                   size="small"
                   icon={<DeleteOutlined />}
                   danger
-                //   onClick={() => handleDeleteBanner(banner.id)}
+                  //   onClick={() => handleDeleteBanner(banner.id)}
                 />
               </Tooltip>
             </Popconfirm>
@@ -130,10 +122,13 @@ const Template = () => {
         <div className="w-[400px]">
           <Search placeholder="Tìm kiếm..." name="search" />
         </div>
-        <Button type="primary" onClick={() => {
-            setShowModal(true)
-            setTemplateSelected(null)
-        }}>
+        <Button
+          type="primary"
+          onClick={() => {
+            setShowModal(true);
+            setTemplateSelected(null);
+          }}
+        >
           Thêm template
         </Button>
       </div>

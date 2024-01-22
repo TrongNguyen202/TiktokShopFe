@@ -22,3 +22,4 @@ export { default as ArchivedIcon } from './ArchivedIcon'
 export { default as DollarIcon } from './DollarIcon'
 export { default as VoucherIcon } from './VoucherIcon'
 export { default as SellerIcon } from './SellerIcon'
+export { default as OrderIcon } from './OrderIcon';
