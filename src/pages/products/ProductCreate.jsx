@@ -117,7 +117,7 @@ const ProductCreate = () => {
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
-                    <ProductMedia shopId={shopId} productData={productById} imgBase64={handleImgBase64} />
+                    <ProductMedia productData={productById} imgBase64={handleImgBase64} />
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
