@@ -21,7 +21,6 @@ import ProductShipping from '../../components/products/ProductShipping';
 const ProductCreate = () => {
     const navigate = useNavigate()
     const shopId = getPathByIndex(2)
-    const productId = getPathByIndex(4)
     const [form] = Form.useForm();
     const [ skusData, setSkusData ] = useState([])
     const [ imgBase64, setImgBase64 ] = useState([])
@@ -65,8 +64,8 @@ const ProductCreate = () => {
                 }
             ]
         }
-        console.log('dataFormSubmit: ', dataFormSubmit)
         createOneProduct(shopId, dataFormSubmit, (res) => console.log(res), (err) => alerts.error(err))
+        form.resetFields();
     };
     
     const onFinishFailed = (errorInfo) => {
