@@ -158,13 +158,26 @@ class ListOrder(APIView):
 class OrderDetail(APIView):
 
     def get(self, request, shop_id):
-        orderIds = request.data.get('order_id_list', [])
-        print("orderIds", orderIds)
-
         shop = get_object_or_404(Shop, id=shop_id)
         access_token = shop.access_token
+        responseOrderList = callOrderList(access_token=access_token)
+        if(responseOrderList.json()['data']['total'] == 0): 
+            orderIds = []
+            content = {
+                'code': 200,
+                'data': {
+                    'order_list': []
+                }
+            }
+            return JsonResponse(content, content_type='application/json')
+        else: 
+            orders = responseOrderList.json()['data']['order_list']
+            orderIds = [order['order_id'] for order in orders]
         response = callOrderDetail(
             access_token=access_token, orderIds=orderIds)
+        
+        print("response", response)
+
         content = response.content
         return HttpResponse(content, content_type='application/json')
 

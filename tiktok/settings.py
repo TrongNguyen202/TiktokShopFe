@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "drf_spectacular",
     "widget_tweaks",
+    "corsheaders",
     
 ]
 
@@ -60,7 +61,9 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     'django.middleware.csrf.CsrfViewMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
 ]
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = "tiktok.urls"
 
@@ -83,10 +86,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "tiktok.wsgi.application"
 
-CORS_ORIGIN_ALLOW_ALL = False
+
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:8000',
-    'http://localhost:5173',
+    'http://localhost:5174',
+    'https://open-api.tiktokglobalshop.com'
 )
 
 
