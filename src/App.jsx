@@ -39,6 +39,7 @@ const MultiAddProducts = lazy(
 );
 const Order = lazy(() => import("./pages/orders/index.jsx"));
 const OrderDetail = lazy(() => import("./pages/orders/OrderDetail.jsx"));
+const ProductCreate = lazy(() => import ('./pages/products/ProductCreate.jsx'))
 
 const PrivateRoute = () => {
   const { getAllBadges } = useBadgesStore();
