@@ -28,7 +28,9 @@ const ProductCreate = () => {
     const { productById, getProductsById, createOneProduct } = useProductsStore((state) => state)
     const { warehousesById, getWarehousesByShopId} = useWareHousesStore((state) => state)
 
+    console.log('skusData: ', skusData);
     const onFinish = async(values) => {
+        console.log('values: ', values);
         const dataFormSubmit = {
             product_name: values.product_name,
             description: values.description ? values.description : "",
@@ -49,7 +51,7 @@ const ProductCreate = () => {
                             custom_value: attr.value_name
                         }
                     )),
-                    original_price: values.price,
+                    original_price: item.price,
                     stock_infos: [
                         item.stock_infos
                     ]
@@ -64,10 +66,12 @@ const ProductCreate = () => {
             ]
         }
 
+        console.log('dataFormSubmit: ', dataFormSubmit);
         const CreateSuccess = (res) => {
             if (res.status === "success") {
                 alerts.success('Đã thêm sản phẩm thành công!')
                 form.resetFields();
+                navigate(`/shops/${shopId}/products`)
             }
         }
         createOneProduct(shopId, dataFormSubmit, CreateSuccess, (err) => alerts.error(err))
