@@ -3,18 +3,17 @@ import { Button, Col, Modal, Row, Select, Spin } from "antd";
 import Dragger from "antd/es/upload/Dragger.js";
 import { useNavigate } from "react-router-dom";
 
+import { message } from "antd";
+import { useEffect, useState } from "react";
 import * as xlsx from "xlsx";
 import ContentHeader from "../../components/content-header/index.jsx";
-import { constants as c } from "../../constants";
-import { alerts } from "../../utils/alerts.js";
-import { getToken } from "../../utils/auth.js";
-import { useEffect, useState } from "react";
-import { message, Upload } from "antd";
-import TemplateForm from "./TemplateForm.jsx";
 import { useProductsStore } from "../../store/productsStore.js";
-import { getPathByIndex } from "../../utils/index.js";
 import { useTemplateStore } from "../../store/templateStore.js";
 import { useWareHousesStore } from "../../store/warehousesStore.js";
+import { alerts } from "../../utils/alerts.js";
+import { getToken } from "../../utils/auth.js";
+import { getPathByIndex } from "../../utils/index.js";
+import TemplateForm from "./TemplateForm.jsx";
 
 const MultiAddProducts = () => {
   const navigate = useNavigate();
@@ -49,7 +48,7 @@ const MultiAddProducts = () => {
   };
 
   const convertDataWarehouse = (data) => {
-    if(!data || !Array.isArray(data) || !data.length) return ([]);
+    if (!data || !Array.isArray(data) || !data.length) return [];
     const result = [];
     data.forEach((item) => {
       result.push({
@@ -218,13 +217,30 @@ const MultiAddProducts = () => {
     return true;
   };
 
+  const sanitizeTitles = (documents) => {
+    const { badWords, suffixTitle } = templateJSON ?? {};
+    return documents.map((doc) => {
+      const originalTitle = doc.title;
+      let title = originalTitle.toLowerCase();
+
+      badWords.forEach((word) => {
+        title = title.replace(word.toLowerCase(), "");
+      });
+      title += ` ${suffixTitle}`;
+      doc.title = originalTitle.replace(originalTitle, title);
+      // doc.title = title;
+
+      return doc;
+    });
+  };
+
   const onSubmit = () => {
     if (!handleValidateJsonForm()) return;
     if (!templateJSON?.id) {
       message.error("Please select template");
       return;
     }
-    if(!warehouseId) {
+    if (!warehouseId) {
       message.error("Please select warehouse");
       return;
     }
@@ -240,7 +256,7 @@ const MultiAddProducts = () => {
       types,
     } = templateJSON ?? {};
     const dataSubmit = {
-      excel: productsJSON,
+      excel: sanitizeTitles(productsJSON),
       category_id,
       warehouse_id,
       package_height,
@@ -265,7 +281,6 @@ const MultiAddProducts = () => {
     name: "excel",
     maxCount: 1,
     accept: ".xlsx, .xls",
-    // action: `${c.API_URL}/store/v1/products/import_excel`,
     action: `https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188`,
     headers: { "customer-token": customerTokenKey },
     method: "POST",
