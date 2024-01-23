@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Scrollbars } from "react-custom-scrollbars";
 import { Outlet } from "react-router-dom";
 import Header from "../../components/header";
-import Sidebar from "../../components/sidebar/SideBar";
+import Sidebar from "../../components/sidebar/Sidebar";
 import { StyledContent } from "./MainLayout.style";
 
 const MainLayout = () => {
