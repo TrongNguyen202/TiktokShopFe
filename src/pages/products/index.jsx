@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Table, Tag, Input, Modal, Form } from "antd";
+import { Button, Table, Tag, Input, Modal, Form, Tooltip, Space } from "antd";
 import { EditOutlined, EyeOutlined } from '@ant-design/icons'
 
 import { IntlNumberFormat, removeDuplicates } from '../../utils/index'
@@ -90,10 +90,14 @@ const Products = () => {
           width: '100px',
           align: 'center',
           render: (_, record) => (
-              <>
-                <Button type="button" onClick={() => handleProductEdit(record.id)}><EditOutlined /></Button>
-                <Button type="button" onClick={() => handleProductDetail(record.id)}><EyeOutlined /></Button>
-              </>
+            <Space size="middle">
+                <Tooltip title="Sửa" color="blue" placement="left">
+                  <Button size="middle" icon={<EditOutlined />} onClick={() => handleProductEdit(record.id)}/>
+                </Tooltip>
+                <Tooltip title="Xem" color="blue" placement="right">
+                  <Button size="middle" icon={<EyeOutlined />} onClick={() => handleProductDetail(record.id)}/>
+                </Tooltip>
+            </Space>
           )
       }
     ]

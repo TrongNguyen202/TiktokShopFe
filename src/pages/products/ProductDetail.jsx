@@ -40,14 +40,14 @@ export default function ProductDetail() {
       dataIndex: ['variations', 'Color'],
       key: 'Color',
       align: 'center',
-      render: (_, record) => record.sales_attributes.map(item => item.name === 'Color' && item.value_name)
+      render: (_, record) => record.sales_attributes.map(item => <span key={item.value_id}>{item.name === 'Color' && item.value_name}</span>)
     },
     {
       title: 'Size',
       dataIndex: ['variations', 'Size'],
       key: 'Size',
       align: 'center',
-      render: (_, record) => record.sales_attributes.map(item => item.name === 'Size' && item.value_name)
+      render: (_, record) => record.sales_attributes.map(item => <span key={item.value_id}>{item.name === 'Size' && item.value_name}</span>)
     },
     {
       title: 'Giá',
@@ -161,15 +161,14 @@ export default function ProductDetail() {
             <div className='flex gap-4 flex-wrap'>
               {images.map((item) => (
                 <>
-                  {item.url_list.map((image, index) =>(
+                  {item.url_list && 
                     <Image
-                      key={index}
                       width={120}
                       height={120}
                       className='object-cover border-[1px] border-solid border-[rgba(128,_128,_128,_0.42)]'
-                      src={image || ImageDefault}
+                      src={item.url_list[0] || item.url_list[1] || ImageDefault}
                     />
-                  ))}
+                  }
                 </>
               ))}
             </div>
