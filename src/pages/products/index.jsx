@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Table, Tag, Input, Modal, Form } from "antd";
+import { Button, Table, Tag, Input, Modal, Form, Tooltip, Space } from "antd";
 import { EditOutlined, EyeOutlined } from '@ant-design/icons'
 
 import { IntlNumberFormat, removeDuplicates } from '../../utils/index'
 import { formatDate } from '../../utils/date'
 import { getPathByIndex } from '../../utils'
-import { statusProductTiktokShop } from '../../constants/index'
+import { statusProductTikTokShop } from '../../constants/index'
 
 import { useProductsStore } from "../../store/productsStore";
 
@@ -16,83 +16,90 @@ const Products = () => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
     const shopId = getPathByIndex(2)
-    const [productDataTable, setProductDataTable] = useState([])
     const [filterData, setFilterData] = useState([])
+    const [productDataTable, setProductDataTable] = useState([])
     const [showSearchModal, setShowSearchModal] = useState(false)
-    const { products, getAllProducts } = useProductsStore((state) => state)
+    const { products, getAllProducts, loading } = useProductsStore((state) => state)
     
     const columnProduct = [
-        {
-            title: 'Mã sản phẩm',
-            dataIndex: 'id',
-            key: 'id',
-            align: 'center'
-        },
-        {
-            title: 'Tên sản phẩm',
-            dataIndex: 'name',
-            key: 'name'
-        },
-        {
-            title: 'Giá sản phẩm',
-            dataIndex: ['skus', 'price'],
-            key: 'price',
-            align: 'center',
-            render: (_, record) => {
-                const listPrice = record?.skus?.map((item) => item.price.original_price)
-                const current = removeDuplicates(record?.skus?.map((item) => item?.price?.currency), 'currency')
-                const minPrice = IntlNumberFormat(current, 'currency', 3, Math.min(...listPrice))
-                const maxPrice = IntlNumberFormat(current, 'currency', 3, Math.max(...listPrice))
-                return (
-                    <>
-                        {minPrice === maxPrice && <span>{minPrice}</span>}
-                        {minPrice !== maxPrice && <span>{minPrice} - {maxPrice}</span>}
-                    </>
+      {
+          title: 'Mã sản phẩm',
+          dataIndex: 'id',
+          key: 'id',
+          align: 'center'
+      },
+      {
+          title: 'Tên sản phẩm',
+          dataIndex: 'name',
+          key: 'name'
+      },
+      {
+          title: 'Giá sản phẩm',
+          dataIndex: ['skus', 'price'],
+          key: 'price',
+          align: 'center',
+          render: (_, record) => {
+              const listPrice = record?.skus?.map((item) => item.price.original_price)
+              const current = removeDuplicates(record?.skus?.map((item) => item?.price?.currency), 'currency')
+              const minPrice = IntlNumberFormat(current, 'currency', 3, Math.min(...listPrice))
+              const maxPrice = IntlNumberFormat(current, 'currency', 3, Math.max(...listPrice))
+              return (
+                  <>
+                      {minPrice === maxPrice && <span>{minPrice}</span>}
+                      {minPrice !== maxPrice && <span>{minPrice} - {maxPrice}</span>}
+                  </>
 
-                )
+              )
+          }
+      },
+      {
+          title: 'Trạng thái',
+          dataIndex: 'status',
+          key: 'status',
+          align: 'center',
+          render: (status) => (
+              <>
+                {statusProductTikTokShop.map((item, index) => status === index && <Tag key={index} color={item.color}>{item.title}</Tag>)}
+              </>
+          ),
+          filters: statusProductTikTokShop.map((item, index) => (
+            {
+              text: item.title,
+              value: index
             }
-        },
-        {
-            title: 'Trạng thái',
-            dataIndex: 'status',
-            key: 'status',
-            align: 'center',
-            render: (text) => (
-                <>
-                {statusProductTiktokShop.map((item, index) => (
-                    <>
-                    { text === index && <Tag key={index} color={item.color}>{item.title}</Tag>}
-                    </>
-                ))}
-                </>
-            )
-        },
-        {
-            title: 'Thời gian tạo',
-            dataIndex: 'create_time',
-            key: 'create_time',
-            sorter: (a, b) => a.create_time - b.create_time,
-            render: (create_time) => <span>{formatDate(create_time, 'DD/MM/Y, h:mm:ss')}</span>,
-        },
-        {
-            title: 'Thời gian cập nhật',
-            dataIndex: 'update_time',
-            key: 'update_time',
-            sorter: (a, b) => a.update_time - b.update_time,
-            render: (update_time) => <span>{formatDate(update_time, 'DD/MM/Y, hh:mm:ss')}</span>
-        },
-        {
-            dataIndex: 'actions',
-            key: 'actions',
-            width: '100px',
-            align: 'center',
-            render: (_, record) => (
-                <>
-                  <Button type="button" onClick={() => handleProductEdit(record.id)}><EditOutlined /></Button>
-                  <Button type="button" onClick={() => handleProductDetail(record.id)}><EyeOutlined /></Button>
-                </>
-            )
-        }
+          )),
+          onFilter: (value, record) => record.status === value
+      },
+      {
+          title: 'Thời gian tạo',
+          dataIndex: 'create_time',
+          key: 'create_time',
+          sorter: (a, b) => a.create_time - b.create_time,
+          render: (create_time) => <span>{formatDate(create_time, 'DD/MM/Y, h:mm:ss')}</span>,
+      },
+      {
+          title: 'Thời gian cập nhật',
+          dataIndex: 'update_time',
+          key: 'update_time',
+          sorter: (a, b) => a.update_time - b.update_time,
+          render: (update_time) => <span>{formatDate(update_time, 'DD/MM/Y, hh:mm:ss')}</span>
+      },
+      {
+          dataIndex: 'actions',
+          key: 'actions',
+          width: '100px',
+          align: 'center',
+          render: (_, record) => (
+            <Space size="middle">
+                <Tooltip title="Sửa" color="blue" placement="left">
+                  <Button size="middle" icon={<EditOutlined />} onClick={() => handleProductEdit(record.id)}/>
+                </Tooltip>
+                <Tooltip title="Xem" color="blue" placement="right">
+                  <Button size="middle" icon={<EyeOutlined />} onClick={() => handleProductDetail(record.id)}/>
+                </Tooltip>
+            </Space>
+          )
+      }
     ]
 
   const handleProductCreate = () => {
@@ -117,6 +124,7 @@ const Products = () => {
     })
     setProductDataTable(productFilter)
     setShowSearchModal(false)
+    form.resetFields()
   }
 
   const handleRemoveFilter = () => {  
@@ -168,6 +176,7 @@ const Products = () => {
         size="middle"
         bordered
         dataSource={productDataTable?.length ? productDataTable : []}
+        loading={loading}
       />
 
       <Modal title="Tìm kiếm" open={showSearchModal} footer={null} onOk={() => {}} onCancel={() => setShowSearchModal(false)}>

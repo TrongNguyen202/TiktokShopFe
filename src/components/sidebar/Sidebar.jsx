@@ -1,3 +1,4 @@
+import React from "react"
 import {
   CarOutlined,
   DashboardOutlined,
@@ -22,7 +23,8 @@ import {
   VoucherIcon,
 } from "../../assets/icons";
 import StartIcon from "../../assets/icons/StartIcon";
-import LOGO from "../../assets/images/logo.svg";
+import Logo from "../../assets/images/text_logo.png";
+import LogoCollapse from "../../assets/images/favicon.png"
 import { StyledLogo, StyledSidebar } from "./Sidebar.style";
 
 const Sidebar = ({ collapsed }) => {
@@ -68,18 +70,18 @@ const Sidebar = ({ collapsed }) => {
     //     </Link>
     //   ),
     // },
-    {
-      key: "/sellers",
-      icon: <SellerIcon style={{ color: "#ff98aa" }} className="w-[16px]" />,
-      label: (
-        <Link to="sellers" className="flex justify-between">
-          Seller{" "}
-          <div>
-            {/* ( <span className='font-medium'>{total_sellers}</span> ) */}
-          </div>
-        </Link>
-      ),
-    },
+    // {
+    //   key: "/sellers",
+    //   icon: <SellerIcon style={{ color: "#ff98aa" }} className="w-[16px]" />,
+    //   label: (
+    //     <Link to="sellers" className="flex justify-between">
+    //       Seller{" "}
+    //       <div>
+    //         {/* ( <span className='font-medium'>{total_sellers}</span> ) */}
+    //       </div>
+    //     </Link>
+    //   ),
+    // },
     {
       key: "/shops",
       // icon: <StoreIcon classNstyle={{color: "#ff98aa"}}ame="w-[16px]"/>,
@@ -105,133 +107,132 @@ const Sidebar = ({ collapsed }) => {
         </Link>
       ),
     },
-    {
-      key: "/customers",
-      icon: <UserOutlined style={{ color: "#52dc07" }} />,
-      label: (
-        <Link className="flex justify-between" to="/customers">
-          Khách mua hàng
-        </Link>
-      ),
-    },
-    {
-      key: "/products",
-      icon: <ProductIcon style={{ color: "#ff6900" }} className="w-[16px]" />,
-      label: (
-        <Link className="flex justify-between" to={path}>
-          Sản phẩm
-        </Link>
-      ),
-      children: [
-        {
-          key: "/products",
-          label: (
-            <Link className="flex justify-between" to="/products">
-              Tất cả{" "}
-              <div>
-                {/* ( <span className='font-medium'>{total_products}</span> ) */}
-              </div>
-            </Link>
-          ),
-        },
-        {
-          key: "/products/status/2",
-          label: (
-            <Link
-              className="flex justify-between text-[#27AE60]"
-              to="/products/status/2"
-              style={{ color: "#27AE60" }}
-            >
-              Đang hiển thị{" "}
-              <div>
-                {/* ( <span className='font-medium'>{product_approved}</span> ) */}
-              </div>
-            </Link>
-          ),
-        },
-        {
-          key: "/products/status/0",
-          label: (
-            <Link
-              className="flex justify-between"
-              to="/products/status/0"
-              style={{ color: "#218ECB" }}
-            >
-              Cần duyệt{" "}
-              <div>
-                {/* ( <span className='font-medium'>{product_progressing}</span> ) */}
-              </div>
-            </Link>
-          ),
-        },
-        {
-          key: "/products/status/1",
-          label: (
-            <Link
-              className="flex justify-between"
-              to="/products/status/1"
-              style={{ color: "#E83A2F" }}
-            >
-              Vi phạm{" "}
-              <div>
-                {/* ( <span className='font-medium'>{product_violation}</span> ) */}
-              </div>
-            </Link>
-          ),
-        },
-        {
-          key: "/products/status/3",
-          label: (
-            <Link
-              className="flex justify-between"
-              to="/products/status/3"
-              style={{ color: "#F0AD00" }}
-            >
-              Từ chối{" "}
-              <div>
-                {/* ( <span className='font-medium'>{product_unapproved}</span> ) */}
-              </div>
-            </Link>
-          ),
-        },
-        {
-          key: "/products/status/4",
-          label: (
-            <Link
-              className="flex justify-between"
-              to="/products/status/4"
-              style={{ color: "#FF833D" }}
-            >
-              Đã xóa{" "}
-              <div>
-                {/* ( <span className='font-medium'>{product_delete}</span> ) */}
-              </div>
-            </Link>
-          ),
-        },
-      ],
-    },
-    {
-      key: "/vouchers",
-      icon: <VoucherIcon style={{ color: "red" }} className="w-[16px]" />,
-      label: (
-        <Link className="flex justify-between" to="/vouchers">
-          Vouchers{" "}
-          <div>
-            {/* ( <span className='font-medium'>{total_voucher}</span> ) */}
-          </div>
-        </Link>
-      ),
-    },
-    {
-      key: "/categories",
-      icon: <ShoppingOutlined style={{ color: "#03aaff" }} />,
-      label: (
-        <Link className="flex justify-between" to="/categories">
-          Danh mục
-        </Link>
-      ),
-    },
+    // {
+    //   key: "/customers",
+    //   icon: <UserOutlined style={{ color: "#52dc07" }} />,
+    //   label: (
+    //     <Link className="flex justify-between" to="/customers">
+    //       Khách mua hàng
+    //     </Link>
+    //   ),
+    // },
+    // {
+    //   key: "/products",
+    //   icon: <ProductIcon style={{ color: "#ff6900" }} className="w-[16px]" />,
+    //   label: (
+    //     <Link className="flex justify-between" to={path}>
+    //       Sản phẩm
+    //     </Link>
+    //   ),
+    //   children: [
+    //     {
+    //       key: "/products",
+    //       label: (
+    //         <Link className="flex justify-between" to="/products">
+    //           Tất cả{" "}
+    //           <div>
+    //           </div>
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "/products/status/2",
+    //       label: (
+    //         <Link
+    //           className="flex justify-between text-[#27AE60]"
+    //           to="/products/status/2"
+    //           style={{ color: "#27AE60" }}
+    //         >
+    //           Đang hiển thị{" "}
+    //           <div>
+    //             {/* ( <span className='font-medium'>{product_approved}</span> ) */}
+    //           </div>
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "/products/status/0",
+    //       label: (
+    //         <Link
+    //           className="flex justify-between"
+    //           to="/products/status/0"
+    //           style={{ color: "#218ECB" }}
+    //         >
+    //           Cần duyệt{" "}
+    //           <div>
+    //             {/* ( <span className='font-medium'>{product_progressing}</span> ) */}
+    //           </div>
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "/products/status/1",
+    //       label: (
+    //         <Link
+    //           className="flex justify-between"
+    //           to="/products/status/1"
+    //           style={{ color: "#E83A2F" }}
+    //         >
+    //           Vi phạm{" "}
+    //           <div>
+    //             {/* ( <span className='font-medium'>{product_violation}</span> ) */}
+    //           </div>
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "/products/status/3",
+    //       label: (
+    //         <Link
+    //           className="flex justify-between"
+    //           to="/products/status/3"
+    //           style={{ color: "#F0AD00" }}
+    //         >
+    //           Từ chối{" "}
+    //           <div>
+    //             {/* ( <span className='font-medium'>{product_unapproved}</span> ) */}
+    //           </div>
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "/products/status/4",
+    //       label: (
+    //         <Link
+    //           className="flex justify-between"
+    //           to="/products/status/4"
+    //           style={{ color: "#FF833D" }}
+    //         >
+    //           Đã xóa{" "}
+    //           <div>
+    //             {/* ( <span className='font-medium'>{product_delete}</span> ) */}
+    //           </div>
+    //         </Link>
+    //       ),
+    //     },
+    //   ],
+    // },
+    // {
+    //   key: "/vouchers",
+    //   icon: <VoucherIcon style={{ color: "red" }} className="w-[16px]" />,
+    //   label: (
+    //     <Link className="flex justify-between" to="/vouchers">
+    //       Vouchers{" "}
+    //       <div>
+    //         {/* ( <span className='font-medium'>{total_voucher}</span> ) */}
+    //       </div>
+    //     </Link>
+    //   ),
+    // },
+    // {
+    //   key: "/categories",
+    //   icon: <ShoppingOutlined style={{ color: "#03aaff" }} />,
+    //   label: (
+    //     <Link className="flex justify-between" to="/categories">
+    //       Danh mục
+    //     </Link>
+    //   ),
+    // },
     {
       key: "/finance",
       icon: <FinanceIcon style={{ color: "#230fff" }} className="w-[16px]" />,
@@ -469,12 +470,20 @@ const Sidebar = ({ collapsed }) => {
       theme="light"
     >
       <StyledLogo>
-        <img
-          src={LOGO}
-          alt="logo cms"
-          width={!collapsed ? 35 : 100}
-          height={35}
-        />
+        {collapsed ?
+          <img 
+            src={Logo}
+            alt="logo cms"
+            width={200}
+          />
+        :
+          <img 
+            src={LogoCollapse}
+            alt="logo cms"
+            width={35}
+          />
+        }
+       
       </StyledLogo>
       <Scrollbars
         style={{ height: "calc(100vh - 64px)" }}

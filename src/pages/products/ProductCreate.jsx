@@ -28,8 +28,9 @@ const ProductCreate = () => {
     const { productById, getProductsById, createOneProduct } = useProductsStore((state) => state)
     const { warehousesById, getWarehousesByShopId} = useWareHousesStore((state) => state)
 
+    console.log('skusData: ', skusData);
     const onFinish = async(values) => {
-        console.log('value: ', values);
+        console.log('values: ', values);
         const dataFormSubmit = {
             product_name: values.product_name,
             description: values.description ? values.description : "",
@@ -50,7 +51,7 @@ const ProductCreate = () => {
                             custom_value: attr.value_name
                         }
                     )),
-                    original_price: values.price,
+                    original_price: item.price,
                     stock_infos: [
                         item.stock_infos
                     ]
@@ -64,8 +65,16 @@ const ProductCreate = () => {
                 }
             ]
         }
-        createOneProduct(shopId, dataFormSubmit, (res) => console.log(res), (err) => alerts.error(err))
-        form.resetFields();
+
+        console.log('dataFormSubmit: ', dataFormSubmit);
+        const CreateSuccess = (res) => {
+            if (res.status === "success") {
+                alerts.success('Đã thêm sản phẩm thành công!')
+                form.resetFields();
+                navigate(`/shops/${shopId}/products`)
+            }
+        }
+        createOneProduct(shopId, dataFormSubmit, CreateSuccess, (err) => alerts.error(err))
     };
     
     const onFinishFailed = (errorInfo) => {
@@ -112,7 +121,7 @@ const ProductCreate = () => {
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
-                    <ProductMedia shopId={shopId} productData={productById} imgBase64={handleImgBase64} />
+                    <ProductMedia productData={productById} imgBase64={handleImgBase64} />
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
