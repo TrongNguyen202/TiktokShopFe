@@ -47,12 +47,12 @@ export const statusProduct = {
 }
 
 
-export const statusProductTiktokShop = [
-  {color: 'default', title: 'all'},
-  {color: 'gray', title: 'draft'},
-  {color: 'processing', title: 'pending'},
-  {color: 'error', title: 'failed'},
-  {color: 'success', title: 'live'},
+export const statusProductTikTokShop = [
+  {color: 'default', title: 'All'},
+  {color: 'gray', title: 'Draft'},
+  {color: 'processing', title: 'Pending'},
+  {color: 'error', title: 'Failed'},
+  {color: 'success', title: 'Live'},
   {color: 'warning', title: 'Seller Deactivated'},
   {color: 'orange', title: 'Platform Deactivated'},
   {color: 'default', title: 'Freeze'},

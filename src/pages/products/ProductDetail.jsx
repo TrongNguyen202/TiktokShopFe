@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Col, Image, Row, Table, Tag } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeftOutlined } from '@ant-design/icons'
 import { useProductsStore } from '../../store/productsStore'
 import { IntlNumberFormat, getPathByIndex } from '../../utils'
-import { statusProductTiktokShop } from '../../constants/index'
+import { statusProductTikTokShop } from '../../constants/index'
 
 import PageTitle from '../../components/common/PageTitle'
 import ImageDefault from '../../assets/images/image-default.jpg'
@@ -14,7 +13,7 @@ export default function ProductDetail() {
   const shopId = getPathByIndex(2)
   const productId = getPathByIndex(4)
   const navigate = useNavigate()
-  const { productById, getProductsById, loading, changeStatusProduct } = useProductsStore(
+  const { productById, getProductsById, loading } = useProductsStore(
     (state) => state,
   )
 
@@ -37,31 +36,18 @@ export default function ProductDetail() {
 
   const columnsProductAttribute = [
     {
-      title: 'Ảnh',
-      dataIndex: ['sales_attributes', 'sku_img'],
-      key: 'sku_img',
-      render: (_, record) => record.sales_attributes[0]?.sku_img?.url_list?.map((item, index) => (
-        <Image key={index} src={item} width={100}/>
-      ))
-    },
-    {
-      title: 'SKU',
-      dataIndex: 'seller_sku',
-      key: 'seller_sku'
-    },
-    {
-      title: 'Thuộc tính',
-      dataIndex: ['sales_attributes','value_name'],
-      key: 'name',
+      title: 'Color',
+      dataIndex: ['variations', 'Color'],
+      key: 'Color',
       align: 'center',
-      render: (_, record) => record.sales_attributes[0].name
+      render: (_, record) => record.sales_attributes.map(item => item.name === 'Color' && item.value_name)
     },
     {
-      title: 'Giá trị thuộc tính',
-      dataIndex: ['sales_attributes','value_name'],
-      key: 'value_name',
+      title: 'Size',
+      dataIndex: ['variations', 'Size'],
+      key: 'Size',
       align: 'center',
-      render: (_, record) => record.sales_attributes[0].value_name
+      render: (_, record) => record.sales_attributes.map(item => item.name === 'Size' && item.value_name)
     },
     {
       title: 'Giá',
@@ -84,6 +70,12 @@ export default function ProductDetail() {
           }
         </span>
       )
+    },
+    {
+      title: 'SKU',
+      dataIndex: 'seller_sku',
+      key: 'seller_sku',
+      align: 'center'
     }
   ]
 
@@ -98,7 +90,7 @@ export default function ProductDetail() {
         <Row className='gap-[4px] justify-start mt-3 break-words flex-nowrap'>
           <Col span={4} className='font-medium'>Trạng thái:</Col>
           <Col className='text-[#0e2482] font-medium'>
-            {statusProductTiktokShop.map((item, index) => (
+            {statusProductTikTokShop.map((item, index) => (
               <>
                 { product_status === index && <Tag key={index} color={item.color}>{item.title}</Tag>}
               </>
@@ -226,7 +218,7 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        <div className='bg-[#F5F5F5] h-[10px]' />
+        {/* <div className='bg-[#F5F5F5] h-[10px]' />
         <div className='bg-white p-10'>
           <h2 className='text-[20px] font-semibold'>Tối ưu SEO</h2>
           <Row className='bg-white gap-[4px] justify-start mt-3 break-words flex-nowrap'>
@@ -245,7 +237,7 @@ export default function ProductDetail() {
               <div dangerouslySetInnerHTML={{ __html: seo_description }} />
             </Col>
           </Row>
-        </div>
+        </div> */}
       </div>
     </div>
   )
