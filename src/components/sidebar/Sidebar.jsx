@@ -23,7 +23,7 @@ import {
   VoucherIcon,
 } from "../../assets/icons";
 import StartIcon from "../../assets/icons/StartIcon";
-import Logo from "../../assets/images/text_logo.png";
+import Logo from "../../assets/images/text_logo_FLN.png";
 import LogoCollapse from "../../assets/images/favicon.png"
 import { StyledLogo, StyledSidebar } from "./Sidebar.style";
 

@@ -36,7 +36,7 @@ export const StyledLogo = styled.div`
   background-color: #fff;
   display: flex;
   align-items: center;
-  // justify-content: center;
+  justify-content: center;
   height: 64px;
   margin: 0;
   padding: 10px 24px;
