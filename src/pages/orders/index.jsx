@@ -1,19 +1,27 @@
-import { useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Image, Popover, Space, Table, Tag, Tooltip } from "antd";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Image, Popover, Table, Tag, Tooltip, Button } from "antd";
 
-import { getPathByIndex } from "../../utils";
+import { getPathByIndex, IntlNumberFormat } from "../../utils";
 import { formatDate } from "../../utils/date";
 import { useShopsOrder } from "../../store/ordersStore";
 import { statusOrder } from "../../constants/index";
 
-import Loading from "../../components/loading";
 import { alerts } from "../../utils/alerts";
 import { DownOutlined, MessageOutlined } from "@ant-design/icons";
+import PageTitle from "../../components/common/PageTitle";
 
 const Orders = () => {
-  const shopId = getPathByIndex(2);
-  const { orders, getAllOrders, loading } = useShopsOrder((state) => state);
+  const shopId = getPathByIndex(2)
+  const navigate = useNavigate()
+  const [orderSelected, setOrderSelected] = useState([])
+  const { orders, getAllOrders, loading } = useShopsOrder((state) => state)
+  const orderDataTable = orders.map(item => (
+    {
+      ...item,
+      key: item.order_id
+    }
+  ))
 
   const renderListItemProduct = (record) => {
     const { item_list } = record;
@@ -47,11 +55,18 @@ const Orders = () => {
     });
   };
 
+  const rowSelection = {
+    onChange: (selectedRowKeys, selectedRows) => {
+      setOrderSelected(selectedRows)
+    }
+  };
+
   const columns = [
     {
       title: "STT",
       dataIndex: "index",
       key: "index",
+      align: 'center',
       render: (_, item, i) => <p>{i + 1}</p>,
     },
     {
@@ -125,16 +140,11 @@ const Orders = () => {
         </Popover>
       ),
     },
-    // {
-    //   title: "Thời gian đặt hàng",
-    //   dataIndex: "create_time",
-    //   key: "create_time",
-    //   render: (text) => <span>{formatDate(text, "DD/MM/YY hh:mm:ss")}</span>,
-    // },
     {
       title: "Trạng thái đơn hàng",
       dataIndex: "order_status",
       key: "order_status",
+      render: (text) => statusOrder.map(item => item.value === text && <Tag color={item.color}>{item.title}</Tag>)
     },
     {
       title: "Giao hàng",
@@ -150,27 +160,41 @@ const Orders = () => {
       title: "Tổng",
       dataIndex: "payment_info",
       key: "payment_info",
-      render: (_, record) => (
-        // t muốn forrmat sang tiền Usd thì làm sao
-        <p>${record?.payment_info?.total_amount}</p>
-      ),
+      align: 'center',
+      render: (_, record) => IntlNumberFormat(record?.payment_info?.currency, 'currency', 5, record?.payment_info?.total_amount)
     },
   ];
+
+  const handleGetLabels = () => {
+    console.log(orderSelected);
+    navigate(`/shops/${shopId}/orders/check-design`)
+  }
 
   useEffect(() => {
     const onSuccess = (res) => {
       console.log(res);
     };
 
-    const onFail = (res) => {
-      alerts.error(res);
+    const onFail = (err) => {
+      console.log(err);
     };
     getAllOrders(shopId, onSuccess, onFail);
   }, []);
 
   return (
     <div className="p-10">
-      <Table columns={columns} dataSource={orders} loading={loading} />
+      <PageTitle title="Danh sách đơn hàng" showBack count={orders?.length ? orders?.length : '0'}/>
+      {orderSelected.length > 0 && <Button type="primary" className="mb-3" onClick={handleGetLabels}>Lấy Label &nbsp;<span>({orderSelected.length})</span></Button>}
+      <Table 
+        rowSelection={{
+          type: 'checkbox',
+          ...rowSelection,
+        }}
+        columns={columns} 
+        dataSource={orderDataTable} 
+        loading={loading} 
+        bordered
+      />
     </div>
   );
 };
