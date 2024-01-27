@@ -1,21 +1,22 @@
 import { Col, Row } from 'antd'
-import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  LineChart,
+  CartesianGrid,
+  Legend,
   Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
 } from 'recharts'
 import { ArchivedIcon, BillIcon, DollarIcon, NoteIcon, ProductIcon } from '../../assets/icons'
 import IdentityIcon from '../../assets/icons/IdentityIcon'
 import { useBadgesStore } from '../../store/badgesStore'
 
 export default function Home() {
+
+
   const { badges, getAllBadges } = useBadgesStore()
   const {
     orders_packing,
@@ -633,8 +634,11 @@ export default function Home() {
     },
   ]
 
+
+
   return (
     <div>
+
       <Row gutter={[15, 15]} className='bg-[#F5F5F5]'>
         {badgeData.map((item) => {
           const { name, value, icon, colorBgIcon, path } = item

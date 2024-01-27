@@ -22,7 +22,10 @@ export const constants = {
   STORE_CODE: 'chinhbv',
   LINK_STORE_CODE: 'https://services.tiktokshops.us/open/authorize?service_id=7310403104158238510',
   APP_SECRET: 'df329e59a6f78121409d77c33ee1decfbfa088a4',
-  GRANT_TYPE: 'authorized_code'
+  GRANT_TYPE: 'authorized_code',
+  API_GOOGLE_KEY: "AIzaSyAmrEEz3cGNtY0KbHXPJu-EBrwEWHZ3070",
+  API_GOOGLE_SHEETS: 'https://sheets.googleapis.com/v4/spreadsheets',
+  SHEET_ID: "1b6wjVXQ-02jxvPGCXauiQX6_x-1oyrWn_CONOHw_c10"
 }
 
 export const statusIdentity = {
