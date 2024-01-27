@@ -108,7 +108,6 @@ export default function TemplateForm({
   setShowModalAddTemplate,
   templateJson,
 }) {
-  console.log("templateJson: 12312312", templateJson);
   const { getAllCategoriesIsLeaf, categoriesIsLeaf } = useCategoriesStore();
   const { getWarehousesByShopId, warehousesById } = useWareHousesStore();
   const { createTemplate, templates, loading, getAllTemplate, updateTemplate } =
@@ -150,17 +149,6 @@ export default function TemplateForm({
     return result;
   };
 
-  const convertDataWarehouse = (data) => {
-    const result = [];
-    data.forEach((item) => {
-      result.push({
-        label: item.warehouse_name,
-        value: item.warehouse_id,
-      });
-    });
-    return result;
-  };
-
   const onSubmit = (value) => {
     const {
       template,
@@ -175,6 +163,8 @@ export default function TemplateForm({
       package_length,
       package_weight,
       package_width,
+      bad_word,
+      suffix_title,
     } = value;
     const dataSubmit = {
       name: template,
@@ -190,24 +180,9 @@ export default function TemplateForm({
       package_length,
       package_weight,
       package_width,
+      badWords: bad_word,
+      suffixTitle: suffix_title,
     };
-
-    // dataPrice.current.forEach((item) => {
-    //   const { type, size } = item;
-
-    //   if (!dataSubmit.types[type]) {
-    //     dataSubmit.types[type] = {};
-    //   }
-
-    //   dataSubmit.types[type][size] = {
-    //     price: item.price || 0,
-    //     quantity: item.quantity || 0,
-    //   };
-
-    //   if (item.quantity) {
-    //     dataSubmit.types[type].quantity = item.quantity;
-    //   }
-    // });
 
     const onSuccess = () => {
       message.success("Thêm template thành công");
@@ -442,7 +417,6 @@ export default function TemplateForm({
                         initialValue={
                           templateJson?.id ? templateJson.package_length : ""
                         }
-
                         rules={[
                           {
                             required: true,
@@ -500,7 +474,7 @@ export default function TemplateForm({
                 }}
                 layout="horizontal"
                 initialValue={
-                  templateJson?.id ? templateJson.package_height : false
+                  templateJson?.id ? templateJson.is_cod_open : false
                 }
               >
                 <Switch
@@ -578,11 +552,19 @@ export default function TemplateForm({
                 />
               </Form.Item>
 
-              <Form.Item label="Bad word" name="bad_word" labelAlign="left">
+              <Form.Item
+                label="Bad word"
+                name="bad_word"
+                labelAlign="left"
+                initialValue={templateJson?.id ? templateJson.badWords : []}
+              >
                 <CustomSelect
                   optionsSelect={initBadWordOptions}
                   type={"bad word"}
-                  onChange={setSelectedType}
+                  selectedDefault={
+                    templateJson?.id ? templateJson.badWords : []
+                  }
+                  // onChange={setSelectedType}
                 />
               </Form.Item>
 
@@ -590,6 +572,7 @@ export default function TemplateForm({
                 label="Suffix of product title"
                 name="suffix_title"
                 labelAlign="left"
+                initialValue={templateJson?.id ? templateJson.suffixTitle : ""}
               >
                 <Input placeholder="Thêm suffix" />
               </Form.Item>

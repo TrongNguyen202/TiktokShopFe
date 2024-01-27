@@ -14,6 +14,7 @@ import { warehouses } from './warehouses'
 import { brand } from './brand'
 import { orders } from './orders'
 import { template } from './template'
+import { google } from './google'
 
 export const RepositoryRemote = {
   auth,
@@ -31,5 +32,6 @@ export const RepositoryRemote = {
   warehouses,
   brand,
   orders,
-  template
+  template,
+  google
 }
