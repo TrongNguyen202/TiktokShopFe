@@ -26,7 +26,7 @@ from .serializers import (
     TemplatePutSerializer
 )
 
-from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes,callCreateOneProduct,callGlobalCategories
+from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes,callCreateOneProduct,callGlobalCategories,callGetShippingDocument
 from django.http import HttpResponse
 from .models import Shop, Image, Template, Categories
 from api.utils.constant import app_key, secret, grant_type,ProductCreateObject,ProductCreateOneObject
@@ -1032,4 +1032,28 @@ class ListCategoriesGlobal(APIView):
         content = response.content
         print("content", content)
         return HttpResponse(content, content_type='application/json')
+
+
+class ShippingLabel(APIView):
+
+    def get(self,request ,shop_id):
+        shop = get_object_or_404(Shop, id= shop_id)
+        access_token = shop.access_token
+        data = json.loads(request.body.decode('utf-8'))
+        doc_urls = []
+        order_ids = data.get('order_ids', [])
+        for order_id in order_ids:
+           doc_url =  callGetShippingDocument(order_id=order_id, access_token=access_token)
+           doc_urls.append(doc_url)
+           print(doc_url)
+        respond = {
+                'code': 0,
+                'data': {
+                    'doc_urls': doc_urls
+                }
+            }
+
+        return JsonResponse(respond)
+        
+
 

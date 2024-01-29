@@ -459,3 +459,37 @@ def callGlobalCategories(access_token):
     response = requests.get(url, params=query_params)
     print(response)
     return response
+
+
+
+def callGetShippingDocument(access_token,  order_id):
+    url = TIKTOK_API_URL['url_get_shipping_document']
+    
+    query_params = {
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp(),
+        "order_id": order_id,
+        "document_type": "SHIPPING_LABEL",
+        "document_size": "A6"
+    }
+
+    sign = SIGNNOBODY.cal_sign(secret, urllib.parse.urlparse(url), query_params)
+    query_params["sign"] = sign
+
+    response = requests.get(url, params=query_params)
+    
+    try:
+        response_data = response.json()
+        doc_url = response_data["data"]["doc_url"]
+        print("Data trả về:", response_data)
+        
+        if doc_url:
+            return doc_url
+        else:
+            print("Không có doc_url trong phản hồi.")
+            return None
+    except Exception as e:
+        print("Lỗi khi xử lý phản hồi JSON:", e)
+        return None
+

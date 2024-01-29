@@ -33,4 +33,5 @@ urlpatterns = [
     path('shops/<int:shop_id>/orders/list', views.ListOrder.as_view(), name='order_list'),
     path('shops/<int:shop_id>/orders/detail', views.OrderDetail.as_view(), name='order_detail'),
     path('shops/<int:shop_id>/products/create_product', views.CreateOneProduct.as_view(), name='create_one_product'),
+    path('shops/<int:shop_id>/buy_lebal', views.ShippingLabel.as_view(), name='buy_shipping_label'),
 ]
