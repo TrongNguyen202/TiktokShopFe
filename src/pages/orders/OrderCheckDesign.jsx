@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Modal } from 'antd'
+import { Table, Button } from 'antd'
 
 import { useGoogleStore } from '../../store/googleSheets'
 
@@ -17,69 +17,61 @@ const OrderCheckDesign = () => {
 
     const data = [
         {
-          key: '1',
-          name: 'John Brown',
-          age: 32,
-          address: 'New York No. 1 Lake Park',
-          tags: ['nice', 'developer'],
+          "Order ID": "576553431390327649",
+          "Order Substatus": 'Awaiting Collection',
+          "SKU ID": "1729416642180846434",
+          "Product Name": "Vintage 90s Columbus Blue Jacket Shirt Crewneck Columbus Blue Jacket Sweatshirt Jersey Hockey Gift For Christmas 3110 Ltrp Shirt, T-shirt, Sweatshirt, Hoodie, Free Shipping",
+          "Variation": "Red, Crewneck Sweatshirt S",
+          "Quantity": "1",
+          "Tracking ID": "1729416642180846434"
         },
         {
-          key: '2',
-          name: 'Jim Green',
-          age: 42,
-          address: 'London No. 1 Lake Park',
-          tags: ['loser'],
-        },
-        {
-          key: '3',
-          name: 'Joe Black',
-          age: 32,
-          address: 'Sydney No. 1 Lake Park',
-          tags: ['cool', 'teacher'],
-        },
-    ];
-
-    const data2 = [
-        {
-          key: '1',
-          name: 'John Brown 2',
-          age: 32,
-          address: 'New York No. 1 Lake Park',
-          tags: ['nice', 'developer'],
-        },
-        {
-          key: '2',
-          name: 'Jim Green',
-          age: 42,
-          address: 'London No. 1 Lake Park',
-          tags: ['loser'],
-        },
-        {
-          key: '3',
-          name: 'Joe Black',
-          age: 32,
-          address: 'Sydney No. 1 Lake Park',
-          tags: ['cool', 'teacher'],
-        },
+            "Order ID": "576553431390327650",
+            "Order Substatus": 'Awaiting Collection',
+            "SKU ID": "1729416642180846435",
+            "Product Name": "Miami Basketball Vintage Shirt Heat 90s Basketball Graphic Tee Retro For Women And Men Basketball Fan Ptp0910 Shirt, T-shirt, Sweatshirt, Hoodie, Free Shipping",
+            "Variation": "Sport Grey, Crewneck Sweatshirt L",
+            "Quantity": "1",
+            "Tracking ID": "1729416638789161826"
+        }
     ];
     
     const columns = [
         {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
-            render: (text) => <a>{text}</a>,
+            title: 'Order ID',
+            dataIndex: 'Order ID',
+            key: 'Order ID'
         },
         {
-            title: 'Age',
-            dataIndex: 'age',
-            key: 'age',
-          },
-          {
-            title: 'Address',
-            dataIndex: 'address',
-            key: 'address',
-          }
+            title: 'Order Substatus',
+            dataIndex: 'Order Substatus',
+            key: 'Order Substatus',
+        },
+        {
+            title: 'SKU ID',
+            dataIndex: 'SKU ID',
+            key: 'SKU ID',
+        },
+        {
+            title: 'Product Name',
+            dataIndex: 'Product Name',
+            key: 'Product Name',
+        },
+        {
+            title: 'Variation',
+            dataIndex: 'Variation',
+            key: 'Variation',
+        },
+        {
+            title: 'Quantity',
+            dataIndex: 'Quantity',
+            key: 'Quantity',
+        },
+        {
+            title: 'Tracking ID',
+            dataIndex: 'Tracking ID',
+            key: 'Tracking ID',
+        }
     ]
 
     const arrayTest = [
@@ -123,7 +115,6 @@ const OrderCheckDesign = () => {
     }
 
     const handleAddDesign = () => {
-        setIsModalOpen(true)
         // setHasNewDesignData(true)
     }
 
@@ -138,7 +129,6 @@ const OrderCheckDesign = () => {
         getAllSheetInfo('Team Dang!A:F', onSuccess, onFail)
     }, [])
 
-    console.log('isModalOpen: ', isModalOpen);
     const dataTableNewDesign = newDesignData.map(item => {
         const object = {}
         sheets?.values&&sheets?.values[0].map((key, index) => (
@@ -155,11 +145,7 @@ const OrderCheckDesign = () => {
                 {!hasAddDesign && <Button type="primary" className='mb-3' onClick={handleCheckOrderWithExcel}>Kiếm tra mẫu trên Design sku files</Button>}
                 {(!hasNewDesignData && hasAddDesign) && <Button type="primary" className='mb-3' onClick={handleAddDesign}>Thêm mẫu trực tiếp trên Design sku files</Button>}
             </div>
-            {hasNewDesignData &&
-                <Modal title="Thêm ảnh mặt trước và ảnh mặt sau cho mẫu" open={isModalOpen} footer={null} onCancel={setIsModalOpen(false)}>
-                    <OrdersAddImageDesignByExcel/>
-                </Modal>
-            }
+            {hasNewDesignData && <OrdersAddImageDesignByExcel/>}
             {!hasAddDesign && <Table columns={columns} dataSource={data} bordered /> }
             {hasAddDesign &&
                 <OrdersAddNewDesignData 

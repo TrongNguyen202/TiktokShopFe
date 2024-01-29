@@ -15,7 +15,7 @@ const Orders = () => {
   const shopId = getPathByIndex(2)
   const navigate = useNavigate()
   const [orderSelected, setOrderSelected] = useState([])
-  const { orders, getAllOrders, loading } = useShopsOrder((state) => state)
+  const { orders, buyLabels, getAllOrders, loading } = useShopsOrder((state) => state)
   const orderDataTable = orders.map(item => (
     {
       ...item,
@@ -58,7 +58,10 @@ const Orders = () => {
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
       setOrderSelected(selectedRows)
-    }
+    },
+    getCheckboxProps: (record) => ({
+      disabled: record.order_status === 140
+  })
   };
 
   const columns = [
@@ -166,8 +169,17 @@ const Orders = () => {
   ];
 
   const handleGetLabels = () => {
-    console.log(orderSelected);
-    navigate(`/shops/${shopId}/orders/check-design`)
+    const ordersId = {
+      order_ids: orderSelected.map(item => item.order_id)
+    }
+
+    const onSuccess = (res) => {
+      if (res.doc_urls) {
+        navigate(`/shops/${shopId}/orders/labels`, { state: { labels:  res.doc_urls, orders: ordersId} })
+      }
+    }
+    buyLabels(shopId, ordersId, onSuccess, (err) => console.log(err))
+    // navigate(`/shops/${shopId}/orders/check-design`)
   }
 
   useEffect(() => {

@@ -151,7 +151,7 @@ const OrderDetail = () => {
       <div className="bg-white rounded-md p-5 w-[720px] flex flex-col gap-5">
         <div className="flex gap-1">
           <p className="text-gray-500">SKU ID:</p>
-          <p>{orderData.package_list[0].package_id}</p>
+          <p>{orderData.package_list[0]?.package_id}</p>
         </div>
         <div>{renderListItemProduct(orderData)}</div>
       </div>

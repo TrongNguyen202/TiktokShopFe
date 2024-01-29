@@ -68,8 +68,15 @@ export const statusProductTikTokShop = [
 ]
 
 export const statusOrder = [
-  {color: 'default', title: 'UNPAID'},
-  {color: 'success', title: 'PAID'}
+  {color: 'default', value: 100, title: 'UNPAID'},
+  {color: 'magenta', value: 105, title: 'ON HOLD'},
+  {color: 'orange', value: 111, title: 'AWAITING SHIPMENT'},
+  {color: 'cyan', value: 112, title: 'AWAITING COLLECTION'},
+  {color: 'blue', value: 114, title: 'PARTIALLY SHIPPING'},
+  {color: 'purple', value: 121, title: 'IN TRANSIT'},
+  {color: 'gold', value: 122, title: 'DELIVERED'},
+  {color: 'green', value: 130, title: 'COMPLETED'},
+  {color: 'red', value: 140, title: 'CANCELLED'}
 ]
 
 export const variationsOption = [
