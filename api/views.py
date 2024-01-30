@@ -1036,7 +1036,7 @@ class ListCategoriesGlobal(APIView):
 
 class ShippingLabel(APIView):
 
-    def get(self,request ,shop_id):
+    def post(self,request ,shop_id):
         shop = get_object_or_404(Shop, id= shop_id)
         access_token = shop.access_token
         data = json.loads(request.body.decode('utf-8'))
@@ -1054,6 +1054,53 @@ class ShippingLabel(APIView):
             }
 
         return JsonResponse(respond)
+    
+from  api.utils.google.googleapi import upload_pdf
+from  api.utils.google.googleapi import search_file
+class UploadDriver(APIView):
+
+    def post(self, request):
+        try:
+            data_post = json.loads(request.body.decode('utf-8'))
+            order_documents = data_post.get('order_documents', [])
+
+            for order_document in order_documents:
+                order_id = order_document.get('order_id')
+                doc_url = order_document.get('doc_url')
+
+                if order_id and doc_url:
+                    # Download the file from doc_url
+                    response = requests.get(doc_url)
+                    if response.status_code == 200:
+                        # Save the file with order_id as the name
+                        file_name = f"{order_id}.pdf"
+                        file_path = os.path.join("C:\pdflabel", file_name)
+
+                        with open(file_path, 'wb') as file:
+                            file.write(response.content)
+
+                        # Upload the file to Google Drive
+                        upload_pdf(file_path, order_id)
+
+            return JsonResponse({'status': 'success'}, status=201)
+
+        except Exception as e:
+            # Log the error
+            print(f"Error in UploadDriver: {str(e)}")
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
         
 
 
+    
+
+class SearchPDF(APIView):
+
+    def get(self,request,order_id):
+        file_name = str(order_id)
+        try:
+            result = search_file(file_name)
+
+            return JsonResponse(result,safe=False, status=200)
+        except Exception as e:
+            print(f"Error in find PDF: {str(e)}")
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

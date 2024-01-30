@@ -34,4 +34,6 @@ urlpatterns = [
     path('shops/<int:shop_id>/orders/detail', views.OrderDetail.as_view(), name='order_detail'),
     path('shops/<int:shop_id>/products/create_product', views.CreateOneProduct.as_view(), name='create_one_product'),
     path('shops/<int:shop_id>/buy_lebal', views.ShippingLabel.as_view(), name='buy_shipping_label'),
+    path('shops/upload_driver', views.UploadDriver.as_view(), name='upload_driver'),
+    path('shops/orders/<str:order_id>/search_file', views.SearchPDF.as_view(), name='search_file'),
 ]

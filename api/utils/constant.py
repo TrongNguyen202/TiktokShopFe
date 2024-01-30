@@ -5,7 +5,7 @@ grant_type="authorized_code"
 TIKTOK_API_URL = {
   'url_product_list' : "https://open-api.tiktokglobalshop.com/api/products/search",
   'url_get_access_token':'https://auth.tiktok-shops.com/api/token/getAccessToken',
-  'url_refresh_token':'https://auth.tiktok-shops.com/api/v2/token/refresh',
+  'url_refresh_token':'https://auth.tiktok-shops.com/api/token/refreshToken',
   'url_detail_product':'https://open-api.tiktokglobalshop.com/api/products/details',
   'url_get_active_shop':'https://open-api.tiktokglobalshop.com/api/seller/global/active_shops',
   'url_create_product': 'https://open-api.tiktokglobalshop.com/api/products',
