@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Col, Row } from 'antd'
 import { useSellersStore } from '../../store/sellersStore'
-import Loading from '../../components/loading/Index'
+import Loading from '../../components/loading'
 import { formatDate } from '../../utils/date'
 
 export default function SellerDetail({ id }) {

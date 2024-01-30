@@ -2,9 +2,9 @@ import { Button, Drawer, Layout, Space, Table } from 'antd'
 import { useEffect, useState } from 'react'
 import { EyeOutlined } from '@ant-design/icons'
 import { useSellersStore } from '../../store/sellersStore'
-import SellerDetail from './sellerDetail'
 import { formatDate } from '../../utils/date'
-import TableHeader from '../../components/table-header/Index'
+import TableHeader from '../../components/table-header'
+import SellerDetail from './SellerDetail'
 
 export default function Sellers() {
   const { sellers, loading, getAllSellers, searchSeller } = useSellersStore((state) => state)
