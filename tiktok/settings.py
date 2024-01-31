@@ -63,7 +63,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     "corsheaders.middleware.CorsMiddleware",
 ]
-CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = "tiktok.urls"
 
@@ -90,8 +90,12 @@ WSGI_APPLICATION = "tiktok.wsgi.application"
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:8000',
     'http://localhost:5174',
-    'https://open-api.tiktokglobalshop.com'
+    'https://open-api.tiktokglobalshop.com',
+    'http://localhost:9999',
+    'http://app.folinas.com',
+
 )
+ALLOWED_HOSTS = ['14.162.144.15', '14.162.144.15:9999','app.folinas.com']
 
 
 # Database

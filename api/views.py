@@ -493,7 +493,7 @@ class ProcessExcelNo(APIView):
                     downloaded_image_paths = []
                     for col, image_url in row_data.items():
                         if col.startswith('image') and not pd.isna(image_url):
-                            download_dir = 'C:/anhtiktok'
+                            download_dir = 'E:/anhtiktok'
                             os.makedirs(download_dir, exist_ok=True)
                             random_string = str(uuid.uuid4())[:8]
                             image_filename = os.path.join(download_dir, f"{col}_{index}_{random_string}.jpg")
@@ -805,9 +805,9 @@ class ProcessExcel(View):
                 with open(image_filename, 'wb') as f:
                     f.write(response.content)
                 
-                png_filename = image_filename.replace('.jpg', '.png')
-                self.convert_to_png(image_filename, png_filename)
-                return png_filename
+                # png_filename = image_filename.replace('.jpg', '.png')
+                # self.convert_to_png(image_filename, png_filename)
+                return image_filename
             else:
                 print(f"Failed to download image: {image_url}, Status code: {response.status_code}")
                 return None
@@ -1104,3 +1104,75 @@ class SearchPDF(APIView):
         except Exception as e:
             print(f"Error in find PDF: {str(e)}")
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+        
+
+from api.utils.pdf.ocr_pdf import process_pdf
+class ToShipOrderAPI(APIView):
+
+    def ocr_infor(self, pdf_path):
+        result_json_user = process_pdf(pdf_path=pdf_path)
+        return result_json_user
+
+    def get(self, request, shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        data_post = json.loads(request.body.decode('utf-8'))
+        order_documents = data_post.get('order_documents', [])
+
+        for order_document in order_documents:
+            order_id = order_document.get('order_id')
+            doc_url = order_document.get('doc_url')
+
+            if order_id and doc_url:
+                # Download the file from doc_url
+                orderIds = [order_id]
+                response = requests.get(doc_url)
+
+                if response.status_code == 200:
+                    # Save the file with order_id as the name
+                    file_name = f"{order_id}.pdf"
+                    file_path = os.path.join("C:\pdflabel", file_name)
+
+                    with open(file_path, 'wb') as file:
+                        file.write(response.content)
+
+                    # Upload the file to Google Drive
+                    order_detail = callOrderDetail(access_token=access_token, orderIds=orderIds)
+                    infor_user = process_pdf(file_path)
+
+                    # Gộp thông tin từ infor_user vào order_detail
+                    if 'tracking_id' in infor_user:
+                        order_detail['tracking_id'] = infor_user['tracking_id']
+                    if 'name_buyer' in infor_user:
+                        order_detail['name_buyer'] = infor_user['name_buyer']
+                    if 'real_street' in infor_user:
+                        order_detail['street'] = infor_user['real_street']
+                    if 'city' in infor_user:
+                        order_detail['city'] = infor_user['city']
+                    if 'state' in infor_user:
+                        order_detail['state'] = infor_user['state']
+                    if 'zip_code' in infor_user:
+                        order_detail['zip_code'] = infor_user['zip_code']
+
+                    # Trả về kết quả
+                    return JsonResponse(order_detail, status=200)
+
+        return JsonResponse({'status': 'error', 'message': 'No valid order documents provided.'}, status=400)
+
+
+
+
+
+
+
+            
+
+
+
+
+
+
+
+
+
+    

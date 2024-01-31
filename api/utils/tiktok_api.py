@@ -78,9 +78,7 @@ def callProductDetail(access_token,product_id):
     
     response = requests.get(url, params=query_params)
   
-    # Process the response
-    print(response.status_code)
-    print(response.text)
+    
     return response
 
 
@@ -236,8 +234,7 @@ def createProduct(access_token,title,images_ids,product_object):
     response = requests.post(url, params=query_params, json=json.loads(body))
 
     # Process the response
-    # print(response.status_code)
-    # print(response.text)
+   
     return HttpResponse(response)
 
 def getBrands(access_token):
@@ -255,8 +252,6 @@ def getBrands(access_token):
     
     response = requests.get(url, params=query_params)
   
-    print(response.status_code)
-    print(response.text)
     return response
 
 
@@ -270,7 +265,7 @@ def callEditProduct(access_token, product_object,imgBase64):
         for item in imgBase64:
             img_id = callUploadImage(access_token=access_token, img_data=item)
             images_list.append({'id':img_id})
-    print(images_list)
+    
     
 
     query_params = {
@@ -482,14 +477,14 @@ def callGetShippingDocument(access_token,  order_id):
     try:
         response_data = response.json()
         doc_url = response_data["data"]["doc_url"]
-        print("Data trả về:", response_data)
+        
         
         if doc_url:
             return doc_url
         else:
-            print("Không có doc_url trong phản hồi.")
+            print("no docoment")
             return None
     except Exception as e:
-        print("Lỗi khi xử lý phản hồi JSON:", e)
+        print("error when prosessing shpping dociument", e)
         return None
 

@@ -10,11 +10,10 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 
 path_to_poppler_exe = Path(r"C:\Users\Dell\Downloads\TikTokShop AIO version 3.4.3\TikTokShop AIO version 3.4.3\dependencies\poppler\Library\bin")
 out_directory = Path(r"C:\output").expanduser()
-PDF_file = Path(r"C:\Users\Dell\Downloads\maintestpdf.pdf")
 text_file = out_directory / Path("out_text.txt")
 
-def process_pdf(pdf_path, out_directory):
-    result_data = {"entries": []}
+def process_pdf(pdf_path):
+    
     
     with TemporaryDirectory() as tempdir:
         if platform.system() == "Windows":
@@ -64,9 +63,11 @@ def process_pdf(pdf_path, out_directory):
                         entry_data["state"] = state
                         entry_data["zip_code"] = zip_code
 
-            result_data["entries"].append(entry_data)
+           
 
-    return json.dumps(result_data, indent=2)
+    return json.dumps(entry_data, indent=2)
 
-result_json = process_pdf(PDF_file, text_file)
-print(result_json)
+
+
+
+

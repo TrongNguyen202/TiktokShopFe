@@ -36,4 +36,5 @@ urlpatterns = [
     path('shops/<int:shop_id>/buy_lebal', views.ShippingLabel.as_view(), name='buy_shipping_label'),
     path('shops/upload_driver', views.UploadDriver.as_view(), name='upload_driver'),
     path('shops/orders/<str:order_id>/search_file', views.SearchPDF.as_view(), name='search_file'),
+    path('shops/<int:shop_id>/orders/toship_infor', views.ToShipOrderAPI.as_view(), name='to_ship_order'),
 ]
