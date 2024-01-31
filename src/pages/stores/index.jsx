@@ -13,7 +13,7 @@ const Stores = () => {
   const navigate = useNavigate()
   const [isShowModal, setShowModal] = useState(false)
   const [shopData, setShopData] = useState([])
-  const { stores, loading, getAllStores } = useShopsStore((state) => state)
+  const { stores, loading, getAllStores, refreshToken } = useShopsStore((state) => state)
   const [searchParams] = useSearchParams()
   const app_key = searchParams.get('app_key')
   const code = searchParams.get('code')
@@ -30,12 +30,17 @@ const Stores = () => {
       });
   };
 
+  const handleRefreshToken = (shopId) => {
+    refreshToken(shopId, (res) => console.log(res), (err) => console.log(err))
+  }
+
   const storesTable = [
     {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
       fixed: 'left',
+      align: 'center',
       sorter: (store1, store2) => +store1.id - +store2.id,
     },
     {
@@ -95,19 +100,7 @@ const Stores = () => {
       key: 'action',
       fixed: 'right',
       align: 'center',
-      render: (_, store) => {
-        return (
-          <Space size='middle'>
-            <Button
-              size='small'
-              icon={<EyeOutlined />}
-              onClick={() => {}}
-            >
-              Gia hạn
-            </Button>
-          </Space>
-        )
-      },
+      render: (_, store) => <Button size='small' icon={<EyeOutlined />} onClick={() => handleRefreshToken(store.id)}>Gia hạn</Button>,
     },
   ]
 

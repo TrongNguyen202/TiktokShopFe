@@ -16,9 +16,14 @@ const searchStores = (query) => {
   return callApi(`/shops?${query}`, 'get')
 }
 
+const refreshToken = (ShopId) => {
+  return callApi(`/shops/${ShopId}/refreshtoken`, 'post')
+}
+
 export const stores = {
   getAllStores,
   getStoreById,
   searchStores,
-  createStore
+  createStore,
+  refreshToken
 }
