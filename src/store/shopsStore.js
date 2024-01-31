@@ -53,4 +53,14 @@ export const useShopsStore = create((set) => ({
     }
     set({ loading: false })
   },
+  refreshToken: async (ShopId, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.stores.refreshToken(ShopId)
+      onSuccess(response.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  },
 }))
