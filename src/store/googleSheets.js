@@ -18,8 +18,8 @@ export const useGoogleStore = create((set) => ({
     try {
       set({ loading: true })
       const response = await RepositoryRemote.google.AddRowToSheet(range, query, oauthAccessToken)
-      set({ sheets: response.data.data })
-      onSuccess(response.data.data)
+      set({ sheets: response.data })
+      onSuccess(response.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }

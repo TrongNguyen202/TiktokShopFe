@@ -4,6 +4,8 @@ import { RepositoryRemote } from '../services'
 export const useShopsOrder = create((set) => ({
   orders: [],
   labels: [],
+  labelsById: [],
+  toShipInfo: [],
   loading: false,
   getAllOrders: async (id, onSuccess = () => {}, onFail = () => {}) => {
     try {
@@ -26,5 +28,37 @@ export const useShopsOrder = create((set) => ({
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }
     set({ loading: false })
-  }
+  },
+  getLabelsById: async (orderId, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.orders.getLabelsById(orderId)
+      set({ labelsById: response.data })
+      onSuccess(response.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  },
+  uploadLabelToDriver: async (data, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.orders.uploadLabelToDriver(data)
+      onSuccess(response.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  },
+  getToShipInfo: async (shopId, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.orders.getToShipInfo(shopId)
+      set({ toShipInfo: response.data })
+      onSuccess(response.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  },
 }))

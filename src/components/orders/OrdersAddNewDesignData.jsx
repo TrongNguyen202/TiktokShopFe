@@ -1,6 +1,11 @@
-import { Table, Button, Form, Input, Divider } from 'antd'
+import { Table, Button, Form, Input, Divider, message } from 'antd'
+
+import { useGoogleStore } from '../../store/googleSheets'
+import { signInWithGoogle } from '../../Firebase'
 
 const OrdersAddNewDesignData = ({dataColumns}) => {
+    const { AddRowToSheet } = useGoogleStore()
+    const [messageApi, contextHolder] = message.useMessage();
     const columns = [
         {
             title: 'SKU',
@@ -8,8 +13,8 @@ const OrdersAddNewDesignData = ({dataColumns}) => {
             key: 'SKU',
             width: '210px',
             align: 'center',
-            render: (text, _, index) => (
-                <Form.Item name={[index, "SKU"]} initialValue={text}>
+            render: (_, record, index) => (
+                <Form.Item name={[index, "SKU"]} initialValue={record[0]}>
                     <Input disabled className='border-none hover:border-none !bg-transparent !text-[#000000E0]'/>
                 </Form.Item>
             )
@@ -17,12 +22,14 @@ const OrdersAddNewDesignData = ({dataColumns}) => {
         {
             title: 'Product Name',
             dataIndex: 'Product Name',
-            key: 'Product Name'
+            key: 'Product Name',
+            render: (_, record) => record[1]
         },
         {
             title: 'Variation',
             dataIndex: 'Variation',
-            key: 'Variation'
+            key: 'Variation',
+            render: (_, record) => record[2]
         },
         {
             title: 'Image 1 (front)',
@@ -46,16 +53,58 @@ const OrdersAddNewDesignData = ({dataColumns}) => {
         },
     ]
 
-    const onFinish = (values) => {
-        console.log('values: ', values);
+    const onFinish = async(values) => {
+        const valuesSubmit = Object.keys(values).map(key => values[key]);
+        const newDesignData = dataColumns.map(item => {
+            const matchingItem = valuesSubmit.find(value => item[0] === value["SKU"])
+            if (matchingItem) {
+                return [
+                    item[0],
+                    item[1],
+                    item[2],
+                    matchingItem["Image 1 (front)"], 
+                    matchingItem["Image 2 (back)"],
+                    item[5]
+                ]
+            }
+        })
+
+        let oauthAccessToken = localStorage.getItem('oauthAccessToken')
+        if (!oauthAccessToken) {
+          const response = await signInWithGoogle();
+          localStorage.setItem('oauthAccessToken', response._tokenResponse.oauthAccessToken)
+          oauthAccessToken = response._tokenResponse.oauthAccessToken
+        }
+        const dataAddRowToSheet = {
+            values: newDesignData
+        }
+
+        if (oauthAccessToken) {
+            const onSuccess = (res) => {
+                if (res) {
+                    messageApi.open({
+                        type: 'success',
+                        content: 'Đã thêm mẫu mới vào Google Sheet',
+                    });
+                }
+            }
+            const onFail = (err) => {
+                messageApi.open({
+                    type: 'success',
+                    content: 'Thêm mẫu mới vào Google Sheet thất bại',
+                });
+            }
+            AddRowToSheet('Team Dang!A:F', dataAddRowToSheet, oauthAccessToken, onSuccess, onFail)            
+        }
     }
 
     return (
         <>
+            {contextHolder}
             <Divider>Hoặc </Divider>
             <Form onFinish={onFinish}>
-                <Table columns={columns} dataSource={dataColumns} bordered />
-                <Form.Item>
+                <Table columns={columns} dataSource={dataColumns} bordered pagination={{ position: ['none'] }}/>
+                <Form.Item className='mt-3 text-center'>
                     <Button type="primary" htmlType="submit">Thêm mẫu</Button>
                 </Form.Item>
             </Form>

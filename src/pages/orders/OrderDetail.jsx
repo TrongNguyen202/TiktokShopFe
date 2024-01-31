@@ -222,7 +222,7 @@ const OrderDetail = () => {
     <div className="p-10 bg-[#F4F4F5] min-h-[calc(100vh-100px)]">
       <div className="max-w-[1100px] mx-auto">
         <PageTitle title="Chi tiết đơn hàng" showBack />
-        <span className="text-[20px] font-semibold">#{orderData.order_id}</span>
+        <span className="text-[20px] font-semibold">#{orderData?.order_id}</span>
 
         <div className="mt-4 flex gap-3">
           <div className="flex gap-3 flex-col">
