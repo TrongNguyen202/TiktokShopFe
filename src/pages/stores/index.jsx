@@ -106,7 +106,7 @@ const Stores = () => {
 
   const onSearch = (e) => {
     const storesFilter = stores?.filter((item) => {
-      return item.shop_name.includes(e.target.value)
+      return item.shop_name.toLowerCase().includes(e.target.value.toLowerCase())
     })
     setShopData(storesFilter)
   }
