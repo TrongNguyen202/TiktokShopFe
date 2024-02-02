@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Image, Popover, Table, Tag, Tooltip, Button, Input, Space } from "antd";
-import { DownOutlined, MessageOutlined, SearchOutlined  } from "@ant-design/icons";
+import { Image, Popover, Table, Tag, Tooltip, Button, Input, Space, Spin } from "antd";
+import { DownOutlined, MessageOutlined, SearchOutlined, LoadingOutlined } from "@ant-design/icons";
 
 import { getPathByIndex, IntlNumberFormat } from "../../utils";
 import { formatDate } from "../../utils/date";
@@ -231,7 +231,7 @@ const Orders = () => {
 
     const onSuccess = (res) => {
       if (res.doc_urls) {
-        navigate(`/shops/${shopId}/orders/labels`, { state: { labels:  res.doc_urls, orders: orderSelected} })
+        navigate(`/shops/${shopId}/orders/fulfillment`, { state: { labels:  res.doc_urls, orders: orderSelected} })
       }
     }
     buyLabels(shopId, ordersId, onSuccess, (err) => console.log(err))
@@ -251,7 +251,10 @@ const Orders = () => {
   return (
     <div className="p-10">
       <PageTitle title="Danh sách đơn hàng" showBack count={orders?.length ? orders?.length : '0'}/>
-      {orderSelected.length > 0 && <Button type="primary" className="mb-3" onClick={handleGetLabels}>Lấy Label &nbsp;<span>({orderSelected.length})</span></Button>}
+      {orderSelected.length > 0 && <Button type="primary" className="mb-3" onClick={handleGetLabels}>
+        Lấy Label &nbsp;<span>({orderSelected.length})</span>
+        {loading && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
+      </Button>}
       <Table 
         rowSelection={{
           type: 'checkbox',

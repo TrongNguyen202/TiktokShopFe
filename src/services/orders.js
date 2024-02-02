@@ -17,8 +17,8 @@ const uploadLabelToDriver = (body) => {
   return callApi(`/shops/upload_driver`, 'post', body)
 }
 
-const getToShipInfo = (shopId) => {
-  return callApi(`/shops/${shopId}/orders/toship_infor`, 'get')
+const getToShipInfo = (shopId, body) => {
+  return callApi(`/shops/${shopId}/orders/toship_infor`, 'post', body)
 }
 
 export const orders = {
