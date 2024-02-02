@@ -4,6 +4,7 @@ import { useGoogleStore } from '../../store/googleSheets'
 import { signInWithGoogle } from '../../Firebase'
 
 const OrdersAddNewDesignData = ({dataColumns}) => {
+    console.log('dataColumns: ', dataColumns);
     const { AddRowToSheet } = useGoogleStore()
     const [messageApi, contextHolder] = message.useMessage();
     const columns = [

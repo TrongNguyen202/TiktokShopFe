@@ -252,7 +252,7 @@ const Orders = () => {
     <div className="p-10">
       <PageTitle title="Danh sách đơn hàng" showBack count={orders?.length ? orders?.length : '0'}/>
       {orderSelected.length > 0 && <Button type="primary" className="mb-3" onClick={handleGetLabels}>
-        Lấy Label &nbsp;<span>({orderSelected.length})</span>
+        Bắt đầu Fulfillment &nbsp;<span>({orderSelected.length})</span>
         {loading && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
       </Button>}
       <Table 
