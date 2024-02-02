@@ -3,12 +3,12 @@ import { RepositoryRemote } from '../services'
 
 export const useGoogleStore = create((set) => ({
   sheets: {},
-  getAllSheetInfo: async (range, query, onSuccess = () => { }, onFail = () => { }) => {
+  getAllSheetInfo: async (range, onSuccess = () => { }, onFail = () => { }) => {
     try {
       set({ loading: true })
-      const response = await RepositoryRemote.google.getAllSheetInfo(range, query)
-      set({ sheets: response.data.data })
-      onSuccess(response.data.data)
+      const response = await RepositoryRemote.google.getAllSheetInfo(range)
+      set({ sheets: response.data })
+      onSuccess(response.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }
@@ -18,8 +18,8 @@ export const useGoogleStore = create((set) => ({
     try {
       set({ loading: true })
       const response = await RepositoryRemote.google.AddRowToSheet(range, query, oauthAccessToken)
-      set({ sheets: response.data.data })
-      onSuccess(response.data.data)
+      set({ sheets: response.data })
+      onSuccess(response.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }

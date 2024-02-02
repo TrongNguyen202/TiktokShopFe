@@ -15,6 +15,7 @@ import { brand } from './brand'
 import { orders } from './orders'
 import { template } from './template'
 import { google } from './google'
+import { flashship } from './flashship'
 
 export const RepositoryRemote = {
   auth,
@@ -33,5 +34,6 @@ export const RepositoryRemote = {
   brand,
   orders,
   template,
-  google
+  google,
+  flashship
 }

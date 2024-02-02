@@ -27,6 +27,9 @@ const ProductDetail = lazy(() => import("./pages/products/ProductDetail.jsx"));
 const ProductEdit = lazy(() => import("./pages/products/ProductEdit.jsx"));
 const Brands = lazy(() => import("./pages/brands"));
 const Orders = lazy(() => import("./pages/orders"));
+const Fulfillment = lazy(() => import("./pages/orders/Fulfillment.jsx"));
+const OrderCheckDesign= lazy(() => import("./pages/orders/OrderCheckDesign.jsx"));
+const OrderFlashShip= lazy(() => import("./pages/orders/OrderFlashShip.jsx"));
 const Customers = lazy(() => import("./pages/customers"));
 const Categories = lazy(() => import("./pages/categories"));
 const HomepageInterface = lazy(
@@ -202,6 +205,33 @@ const App = () => {
                 element={
                   <Suspense fallback={<Loading />}>
                     <Orders />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                path="/shops/:id/orders/fulfillment"
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <Fulfillment />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                path="/shops/:id/orders/check-design"
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <OrderCheckDesign />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                path="/shops/:id/orders/order-flash-ship"
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <OrderFlashShip />
                   </Suspense>
                 }
               />

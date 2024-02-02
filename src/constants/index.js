@@ -25,7 +25,12 @@ export const constants = {
   GRANT_TYPE: 'authorized_code',
   API_GOOGLE_KEY: "AIzaSyAmrEEz3cGNtY0KbHXPJu-EBrwEWHZ3070",
   API_GOOGLE_SHEETS: 'https://sheets.googleapis.com/v4/spreadsheets',
-  SHEET_ID: "1b6wjVXQ-02jxvPGCXauiQX6_x-1oyrWn_CONOHw_c10"
+  // SHEET_ID: "1b6wjVXQ-02jxvPGCXauiQX6_x-1oyrWn_CONOHw_c10",
+  SHEET_ID: "1zo6it9m4wMeLJHg0JMIHuDMoHMiY2nFLbF6IlZo3qE8",
+  // DESIGN_SKU_FILES_GOOGLE_SHEET: 'https://docs.google.com/spreadsheets/d/1b6wjVXQ-02jxvPGCXauiQX6_x-1oyrWn_CONOHw_c10/edit#gid=380793677',
+  DESIGN_SKU_FILES_GOOGLE_SHEET: 'https://docs.google.com/spreadsheets/d/1zo6it9m4wMeLJHg0JMIHuDMoHMiY2nFLbF6IlZo3qE8/edit#gid=0',
+
+  API_FLASH_SHIP: 'https://seller.flashship.net/seller-api/orders',
 }
 
 export const statusIdentity = {
@@ -63,8 +68,15 @@ export const statusProductTikTokShop = [
 ]
 
 export const statusOrder = [
-  {color: 'default', title: 'UNPAID'},
-  {color: 'success', title: 'PAID'}
+  {color: 'default', value: 100, title: 'UNPAID'},
+  {color: 'magenta', value: 105, title: 'ON HOLD'},
+  {color: 'orange', value: 111, title: 'AWAITING SHIPMENT'},
+  {color: 'cyan', value: 112, title: 'AWAITING COLLECTION'},
+  {color: 'blue', value: 114, title: 'PARTIALLY SHIPPING'},
+  {color: 'purple', value: 121, title: 'IN TRANSIT'},
+  {color: 'gold', value: 122, title: 'DELIVERED'},
+  {color: 'green', value: 130, title: 'COMPLETED'},
+  {color: 'red', value: 140, title: 'CANCELLED'}
 ]
 
 export const variationsOption = [

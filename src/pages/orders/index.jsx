@@ -1,19 +1,30 @@
-import { useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Image, Popover, Space, Table, Tag, Tooltip } from "antd";
+import { useEffect, useState, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Image, Popover, Table, Tag, Tooltip, Button, Input, Space, Spin } from "antd";
+import { DownOutlined, MessageOutlined, SearchOutlined, LoadingOutlined } from "@ant-design/icons";
 
-import { getPathByIndex } from "../../utils";
+import { getPathByIndex, IntlNumberFormat } from "../../utils";
 import { formatDate } from "../../utils/date";
 import { useShopsOrder } from "../../store/ordersStore";
 import { statusOrder } from "../../constants/index";
 
-import Loading from "../../components/loading";
 import { alerts } from "../../utils/alerts";
-import { DownOutlined, MessageOutlined } from "@ant-design/icons";
+import PageTitle from "../../components/common/PageTitle";
 
 const Orders = () => {
-  const shopId = getPathByIndex(2);
-  const { orders, getAllOrders, loading } = useShopsOrder((state) => state);
+  const shopId = getPathByIndex(2)
+  const navigate = useNavigate()
+  const searchInput = useRef(null);
+  const [searchText, setSearchText] = useState('');
+  const [searchedColumn, setSearchedColumn] = useState('');
+  const [orderSelected, setOrderSelected] = useState([])
+  const { orders, buyLabels, getAllOrders, loading } = useShopsOrder((state) => state)
+  const orderDataTable = orders.map(item => (
+    {
+      ...item,
+      key: item.order_id
+    }
+  ))
 
   const renderListItemProduct = (record) => {
     const { item_list } = record;
@@ -47,11 +58,68 @@ const Orders = () => {
     });
   };
 
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm()
+    setSearchText(selectedKeys[0])
+    setSearchedColumn(dataIndex)
+  };
+
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+      <div onKeyDown={(e) => e.stopPropagation()} className="px-5 py-3">
+        <Input ref={searchInput} placeholder={`Hãy tìm theo định dạng DD/MM/YY`} value={selectedKeys[0]}
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+        />
+        <Space className="mt-3">
+          <Button type="primary" size="small"
+            onClick={() => {
+              confirm({
+                closeDropdown: false,
+              });
+              setSearchText(selectedKeys[0]);
+              setSearchedColumn(dataIndex);
+              close();
+            }}
+          >Tìm kiếm</Button>
+
+          <Button size="small"
+            onClick={() => {
+              clearFilters()
+              setSearchText('')
+              confirm({
+                closeDropdown: false,
+              });
+              close();
+            }}
+          >Xoá</Button>
+        </Space>
+      </div>
+    ),
+
+    filterIcon: (filtered) => (
+      <SearchOutlined className={filtered ? '#1677ff' : undefined}/>
+    ),
+
+    onFilter: (value, record) => value ? formatDate(Number(record[dataIndex]), 'DD/MM/YY').includes(value) : '', 
+    render: (text) => formatDate(Number(text), "DD/MM/YY, hh:mm:ss a")
+  });
+
+  const rowSelection = {
+    onChange: (_, selectedRows) => {
+      setOrderSelected(selectedRows)
+    },
+    getCheckboxProps: (record) => ({
+      disabled: [140, 130, 122, 121].includes(record.order_status)
+  })
+  };
+
   const columns = [
     {
       title: "STT",
       dataIndex: "index",
       key: "index",
+      align: 'center',
       render: (_, item, i) => <p>{i + 1}</p>,
     },
     {
@@ -125,21 +193,22 @@ const Orders = () => {
         </Popover>
       ),
     },
-    // {
-    //   title: "Thời gian đặt hàng",
-    //   dataIndex: "create_time",
-    //   key: "create_time",
-    //   render: (text) => <span>{formatDate(text, "DD/MM/YY hh:mm:ss")}</span>,
-    // },
     {
       title: "Trạng thái đơn hàng",
       dataIndex: "order_status",
       key: "order_status",
+      onFilter: (value, record) => record.order_status === value,
+      filters: statusOrder?.map(item => ({ 
+        text:  item.title, 
+        value: item.value
+      })),
+      render: (text) => statusOrder.map(item => item.value === text && <Tag color={item.color}>{item.title}</Tag>),
     },
     {
-      title: "Giao hàng",
-      dataIndex: "shipping_provider",
-      key: "shipping_provider",
+      title: "Thời gian tạo đơn",
+      dataIndex: "create_time",
+      key: "create_time",
+      ...getColumnSearchProps('create_time')
     },
     {
       title: "Vận chuyển",
@@ -150,27 +219,52 @@ const Orders = () => {
       title: "Tổng",
       dataIndex: "payment_info",
       key: "payment_info",
-      render: (_, record) => (
-        // t muốn forrmat sang tiền Usd thì làm sao
-        <p>${record?.payment_info?.total_amount}</p>
-      ),
+      align: 'center',
+      render: (_, record) => IntlNumberFormat(record?.payment_info?.currency, 'currency', 5, record?.payment_info?.total_amount)
     },
   ];
+
+  const handleGetLabels = () => {
+    const ordersId = {
+      order_ids: orderSelected.map(item => item.order_id)
+    }
+
+    const onSuccess = (res) => {
+      if (res.doc_urls) {
+        navigate(`/shops/${shopId}/orders/fulfillment`, { state: { labels:  res.doc_urls, orders: orderSelected} })
+      }
+    }
+    buyLabels(shopId, ordersId, onSuccess, (err) => console.log(err))
+  }
 
   useEffect(() => {
     const onSuccess = (res) => {
       console.log(res);
     };
 
-    const onFail = (res) => {
-      alerts.error(res);
+    const onFail = (err) => {
+      console.log(err);
     };
     getAllOrders(shopId, onSuccess, onFail);
   }, []);
 
   return (
     <div className="p-10">
-      <Table columns={columns} dataSource={orders} loading={loading} />
+      <PageTitle title="Danh sách đơn hàng" showBack count={orders?.length ? orders?.length : '0'}/>
+      {orderSelected.length > 0 && <Button type="primary" className="mb-3" onClick={handleGetLabels}>
+        Lấy Label &nbsp;<span>({orderSelected.length})</span>
+        {loading && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
+      </Button>}
+      <Table 
+        rowSelection={{
+          type: 'checkbox',
+          ...rowSelection,
+        }}
+        columns={columns} 
+        dataSource={orderDataTable} 
+        loading={loading} 
+        bordered
+      />
     </div>
   );
 };
