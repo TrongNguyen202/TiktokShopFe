@@ -11,10 +11,13 @@ WORKDIR /apptiktok
 # COPY ./src .
 COPY . .
 
-RUN npm install pm2 -g
 RUN npm install --legacy-peer-deps
 RUN npm run build
 
 EXPOSE 5173
 
-CMD ["pm2-runtime", "start", "npm", "--", "start"]
+CMD [ "npm", "run", "dev" ]
+
+
+# docker run -p 5173:5173 -d tiktokshop-folinas-frontend
+# docker build -t tiktokshop-folinas-frontend .
