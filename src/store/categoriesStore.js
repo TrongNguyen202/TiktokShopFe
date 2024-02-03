@@ -7,6 +7,7 @@ export const useCategoriesStore = create((set) => ({
   categoriesIsLeafType2: [],
   categoriesById: {},
   infoTable: {},
+  attributes: [],
   loading: false,
   loadingById: false,
   getAllCategories: async (onSuccess = () => {}, onFail = () => {}) => {
@@ -55,5 +56,16 @@ export const useCategoriesStore = create((set) => ({
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }
     set({ loadingById: false })
+  },
+  getAttributeByCategory: async (shopId, categoryId, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.categories.getAttributeByCategory(shopId, categoryId)
+      set({attributes: response.data.data})
+      onSuccess(response.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi khi lấy thuộc tính sản phẩm')
+    }
+    set({ loading: false })
   },
 }))

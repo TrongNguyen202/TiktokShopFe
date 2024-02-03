@@ -20,10 +20,15 @@ const getCustomerById = (id) => {
   return callApi(`/admin/v1/categories/${id}`, 'get')
 }
 
+const getAttributeByCategory = (shopId, categoryId) => {
+  return callApi(`/shops/${shopId}/categories/${categoryId}/products/get_attribute`, 'get')
+}
+
 export const categories = {
   getAllCategories,
   getCategoriesById,
   getCustomerById,
   getAllCategoriesIsLeaf,
-  getAllCategoriesIsLeafType2
+  getAllCategoriesIsLeafType2,
+  getAttributeByCategory
 }
