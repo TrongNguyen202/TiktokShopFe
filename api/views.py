@@ -26,7 +26,7 @@ from .serializers import (
     TemplatePutSerializer
 )
 
-from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes,callCreateOneProduct,callGlobalCategories,callGetShippingDocument
+from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes,callCreateOneProduct,callGlobalCategories,callGetShippingDocument,callGetAttribute
 from django.http import HttpResponse
 from .models import Shop, Image, Template, Categories
 from api.utils.constant import app_key, secret, grant_type,ProductCreateObject,ProductCreateOneObject
@@ -1113,7 +1113,7 @@ class ToShipOrderAPI(APIView):
         result_json_user = process_pdf(pdf_path=pdf_path)
         return result_json_user
 
-    def get(self, request, shop_id):
+    def post(self, request, shop_id):
         shop = get_object_or_404(Shop, id=shop_id)
         access_token = shop.access_token
         data_post = json.loads(request.body.decode('utf-8'))
@@ -1159,6 +1159,13 @@ class ToShipOrderAPI(APIView):
 
         return JsonResponse({'status': 'error', 'message': 'No valid order documents provided.'}, status=400)
 
+class GetProductAttribute(APIView):
+
+    def get(self, request,shop_id,category_id):
+       shop = get_object_or_404(Shop, id=shop_id)
+       access_token = shop.access_token
+       data = callGetAttribute(access_token=access_token, category_id=category_id)
+       return JsonResponse(data, status=200)
 
 
 

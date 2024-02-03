@@ -37,4 +37,12 @@ urlpatterns = [
     path('shops/upload_driver', views.UploadDriver.as_view(), name='upload_driver'),
     path('shops/orders/<str:order_id>/search_file', views.SearchPDF.as_view(), name='search_file'),
     path('shops/<int:shop_id>/orders/toship_infor', views.ToShipOrderAPI.as_view(), name='to_ship_order'),
+    path(
+    'shops/<int:shop_id>/categories/<int:category_id>/products/get_attribute',
+    views.GetProductAttribute.as_view(),
+    name='get_product_att'
+)
+
+
+    
 ]

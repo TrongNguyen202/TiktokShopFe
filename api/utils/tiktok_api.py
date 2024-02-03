@@ -488,3 +488,26 @@ def callGetShippingDocument(access_token,  order_id):
         print("error when prosessing shpping dociument", e)
         return None
 
+
+def callGetAttribute(access_token, category_id):
+    url = TIKTOK_API_URL['url_get_product_attritrute']
+    query_params = {
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp(),
+        "category_id": category_id,
+        
+    }
+
+    sign = SIGNNOBODY.cal_sign(secret, urllib.parse.urlparse(url), query_params)
+    query_params["sign"] = sign
+
+    response = requests.get(url, params=query_params)
+    try:
+        response_data = response.json()
+        return response_data
+    except Exception as e:
+        print("error when get product attribute", e)
+        return None
+
+

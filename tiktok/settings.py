@@ -95,7 +95,7 @@ CORS_ORIGIN_WHITELIST = (
     'http://app.folinas.com',
 
 )
-ALLOWED_HOSTS = ['14.162.144.15', '14.162.144.15:9999','app.folinas.com']
+ALLOWED_HOSTS = ['14.162.144.15', '14.162.144.15:9999','app.folinas.com','http://localhost:8000','localhost']
 
 
 # Database
