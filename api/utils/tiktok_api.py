@@ -221,6 +221,7 @@ def createProduct(access_token,title,images_ids,product_object):
         "package_weight": product_object.package_weight,
         "package_width": product_object.package_width,
         "category_id": product_object.category_id,
+        "brand_id": product_object.brand_id,
         "description": product_object.description or "",
         "skus": skus_list
     }
@@ -411,6 +412,19 @@ def callCreateOneProduct(access_token,product_object):
             "stock_infos": stock_infos_list
         })
 
+        product_attributes_list = []
+        for attribute in product_object.product_attributes:
+            attribute_values_list = [
+                {
+                    "value_id": value.value_id,
+                    "value_name": value.value_name
+                } for value in attribute.attribute_values
+            ]
+            product_attributes_list.append({
+                "attribute_id": attribute.attribute_id,
+                "attribute_values": attribute_values_list
+            })
+
     bodyjson = {
         "product_name": product_object.product_name,
         "images": [{"id": image_id} for image_id in product_object.images],
@@ -421,8 +435,10 @@ def callCreateOneProduct(access_token,product_object):
         "package_weight": product_object.package_weight,
         "package_width": product_object.package_width,
         "category_id": product_object.category_id,
+        "brand_id": product_object.brand_id,
         "description": product_object.description or "",
-        "skus": skus_list
+        "skus": skus_list,
+        "product_attributes": product_attributes_list
     }
 
     body = json.dumps(bodyjson)
@@ -435,9 +451,7 @@ def callCreateOneProduct(access_token,product_object):
     query_params["sign"] = sign
     response = requests.post(url, params=query_params, json=json.loads(body))
 
-    # Process the response
-    print(response.status_code)
-    print(response.text)
+    
     return HttpResponse(response)
 
 def callGlobalCategories(access_token):
@@ -511,3 +525,76 @@ def callGetAttribute(access_token, category_id):
         return None
 
 
+
+
+def callCreateOneProductDraf(access_token,product_object):
+    url = TIKTOK_API_URL['url_create_draf_product']
+    query_params = {
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp(),
+
+    }
+    
+    skus_list = []
+    for sku in product_object.skus:
+        sales_attributes_list = [
+            {
+                "attribute_id": attr.attribute_id,
+                "attribute_name": attr.attribute_name,
+                "custom_value": attr.custom_value,
+            } for attr in sku.sales_attributes
+        ]
+        stock_infos_list = [
+            {
+                "warehouse_id": info.warehouse_id,
+                "available_stock": info.available_stock
+            } for info in sku.stock_infos
+        ]
+        skus_list.append({
+            "sales_attributes": sales_attributes_list,
+            "original_price": sku.original_price,
+            "stock_infos": stock_infos_list
+        })
+
+        product_attributes_list = []
+        for attribute in product_object.product_attributes:
+            attribute_values_list = [
+                {
+                    "value_id": value.value_id,
+                    "value_name": value.value_name
+                } for value in attribute.attribute_values
+            ]
+            product_attributes_list.append({
+                "attribute_id": attribute.attribute_id,
+                "attribute_values": attribute_values_list
+            })
+
+    bodyjson = {
+        "product_name": product_object.product_name,
+        "images": [{"id": image_id} for image_id in product_object.images],
+        "is_cod_open": product_object.is_cod_open,
+        "package_dimension_unit": product_object.package_dimension_unit,
+        "package_height": product_object.package_height,
+        "package_length": product_object.package_length,
+        "package_weight": product_object.package_weight,
+        "package_width": product_object.package_width,
+        "category_id": product_object.category_id,
+        "brand_id": product_object.brand_id,
+        "description": product_object.description or "",
+        "skus": skus_list,
+        "product_attributes": product_attributes_list
+    }
+
+    body = json.dumps(bodyjson)
+    
+
+
+    sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
+    query_params["sign"] = sign
+
+   
+    response = requests.post(url, params=query_params, json=json.loads(body))
+
+    
+    return HttpResponse(response)

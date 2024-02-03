@@ -26,7 +26,7 @@ from .serializers import (
     TemplatePutSerializer
 )
 
-from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes,callCreateOneProduct,callGlobalCategories,callGetShippingDocument,callGetAttribute
+from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes,callCreateOneProduct,callGlobalCategories,callGetShippingDocument,callGetAttribute,callCreateOneProductDraf
 from django.http import HttpResponse
 from .models import Shop, Image, Template, Categories
 from api.utils.constant import app_key, secret, grant_type,ProductCreateObject,ProductCreateOneObject
@@ -730,6 +730,7 @@ class ProcessExcel(View):
 
             excel_data = data.get('excel', [])
             category_id = data.get('category_id', '')
+            brand_id = data.get('brand_id','')
             warehouse_id = data.get('warehouse_id', '')
             is_cod_open = data.get('is_cod_open', '')
             package_height = data.get('package_height', 1)
@@ -748,7 +749,7 @@ class ProcessExcel(View):
                         'title': item.get('title', ''),
                         'images': item.get('images', {}),
                     }
-                    futures.append(executor.submit(self.process_item, item, shop, category_id, warehouse_id, is_cod_open,
+                    futures.append(executor.submit(self.process_item, item, shop, category_id,brand_id, warehouse_id, is_cod_open,
                                                    package_height, package_length, package_weight, package_width, description, skus))
 
                 for future in futures:
@@ -762,7 +763,7 @@ class ProcessExcel(View):
             print(traceback.format_exc())
             return HttpResponse({'error': str(e)}, status=400)
 
-    def process_item(self, item, shop, category_id, warehouse_id, is_cod_open, package_height, package_length,
+    def process_item(self, item, shop, category_id,brand_id, warehouse_id, is_cod_open, package_height, package_length,
                      package_weight, package_width, description, skus):
         title = item.get('title', '')
         images = item.get('images', [])
@@ -782,7 +783,7 @@ class ProcessExcel(View):
 
         base64_images = self.process_images(downloaded_image_paths)
         images_ids = self.upload_images(base64_images, shop)
-        self.create_product_fun(shop, item, category_id, warehouse_id, is_cod_open, package_height, package_length,
+        self.create_product_fun(shop, item, category_id,brand_id, warehouse_id, is_cod_open, package_height, package_length,
                                 package_weight, package_width, images_ids, description, skus)
     def convert_to_png(self, input_path, output_path):
         try:
@@ -793,20 +794,20 @@ class ProcessExcel(View):
         except Exception as e:
             print(f"Lỗi khi chuyển đổi ảnh sang PNG: {e}")
 
-    def download_image(self, image_url, key, shop):
+    def download_image(self, image_url, col):
         if image_url:
             download_dir = 'C:/anhtiktok'  # Update with your desired directory
             os.makedirs(download_dir, exist_ok=True)
             random_string = str(uuid.uuid4())[:8]
-            image_filename = os.path.join(download_dir, f"{key}_{random_string}.jpg")
+            image_filename = os.path.join(download_dir, f"_{col}_{random_string}.jpg")
             response = requests.get(image_url)
-    
+
             if response.status_code == 200:
                 with open(image_filename, 'wb') as f:
                     f.write(response.content)
-                
-                # png_filename = image_filename.replace('.jpg', '.png')
-                # self.convert_to_png(image_filename, png_filename)
+
+
+
                 return image_filename
             else:
                 print(f"Failed to download image: {image_url}, Status code: {response.status_code}")
@@ -839,7 +840,7 @@ class ProcessExcel(View):
        return images_ids
 
 
-    def create_product_fun(self, shop, item, category_id, warehouse_id, is_cod_open, package_height, package_length,
+    def create_product_fun(self, shop, item, category_id, brand_id, warehouse_id, is_cod_open, package_height, package_length,
                             package_weight, package_width, images_ids, description, skus):
         title = item.get('title', '')
         product_object = ProductCreateObject(
@@ -850,6 +851,7 @@ class ProcessExcel(View):
             package_weight=package_weight,
             package_width=package_width,
             category_id=category_id,
+            brand_id =brand_id,
             warehouse_id=warehouse_id,
             description=description,
             skus=skus
@@ -1015,8 +1017,10 @@ class CreateOneProduct(APIView):
             package_weight=product_data.get("package_weight"),
             package_width=product_data.get("package_width"),
             category_id=product_data.get("category_id"),
+            brand_id=product_data.get("brand_id"),
             description=product_data.get("description"),
-            skus= product_data.get("skus")
+            skus= product_data.get("skus"),
+            product_attributes = product_data.get("product_attributes")
         )
         
 
@@ -1168,7 +1172,98 @@ class GetProductAttribute(APIView):
        return JsonResponse(data, status=200)
 
 
+class CreateOneProductDraf(APIView):
+    # permission_classes = (IsAuthenticated,)
 
+    def count_bits(self, img_data):
+       try:
+           image = Image.open(io.BytesIO(base64.b64decode(img_data)))
+           mode_to_bpp = {'1': 1, 'L': 8, 'P': 8, 'RGB': 24, 'RGBA': 32, 'CMYK': 32, 'YCbCr': 24, 'I': 32, 'F': 32}
+           data = mode_to_bpp[image.mode]
+           return data
+       except PIL.UnidentifiedImageError:
+           print("UnidentifiedImageError: Cannot identify image file")
+           return None  # or another appropriate default value
+
+      
+
+       
+    def convert_to_rgb(self, img_data):
+        try:
+            image = Image.open(io.BytesIO(base64.b64decode(img_data)))
+            rgb_image = Image.new("RGB", image.size)
+            rgb_image.paste(image)
+            buffered = io.BytesIO()
+            rgb_image.save(buffered, format="JPEG")
+            return base64.b64encode(buffered.getvalue()).decode('utf-8')
+        except Exception as e:
+            return None
+    def upload_images(self, base64_images, access_token):
+       images_ids = []
+       for img_data in base64_images:
+           bits = self.count_bits(img_data)
+           if bits is not None and bits > 24:
+               img_data = self.convert_to_rgb(img_data)
+           if img_data is not None:
+               img_id = callUploadImage(access_token, img_data=img_data)
+               if img_id !="":
+                   images_ids.append(img_id)
+       return images_ids
+    
+    def base64_to_image(base64_string, output_path):
+       image_data = base64.b64decode(base64_string)
+       image = Image.frombytes('I', (32, 32), image_data, 'raw', 'I;16')
+       image.save(output_path)
+
+    def image_to_base64(image_path):
+       with open(image_path, "rb") as image_file:
+           encoded_string = base64.b64encode(image_file.read())
+           return encoded_string.decode('utf-8')
+
+    def convert_to_png(self, input_path, output_path):
+        try:
+            # Mở ảnh sử dụng PIL
+            img = Image.open(input_path)
+            # Chuyển đổi và lưu ảnh dưới dạng PNG
+            img.save(output_path, format='PNG')
+        except Exception as e:
+            print(f"Lỗi khi chuyển đổi ảnh sang PNG: {e}")
+
+    def post(self, request,shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        body_raw = request.body.decode('utf-8')
+        product_data = json.loads(body_raw)
+        base64_images = product_data.get('images', [])
+        for i, base64_data in enumerate(base64_images):
+            output_path = f"C:/anhtiktok/output_{i + 1}.jpg"
+            output_path_png = f"C:/anhtiktok/outputpng_{i + 1}.png"
+            self.base64_to_image(base64_data, output_path)
+            self.convert_to_png(input_path=output_path, output_path=output_path_png)
+            base64_data = self.image_to_base64(image_path=output_path_png)
+
+        images_ids = self.upload_images(base64_images=base64_images, access_token=access_token)
+
+        product_object = ProductCreateOneObject(
+            product_name=product_data.get("product_name"),
+            images=images_ids,
+            is_cod_open=product_data.get("is_cod_open"),
+            package_dimension_unit=product_data.get("package_dimension_unit"),
+            package_height=product_data.get("package_height"),
+            package_length=product_data.get("package_length"),
+            package_weight=product_data.get("package_weight"),
+            package_width=product_data.get("package_width"),
+            category_id=product_data.get("category_id"),
+            brand_id=product_data.get("brand_id"),
+            description=product_data.get("description"),
+            skus= product_data.get("skus"),
+            product_attributes = product_data.get("product_attributes")
+        )
+        
+
+        callCreateOneProductDraf(access_token, product_object)
+
+        return JsonResponse({'status': 'success'}, status=201)
 
 
 

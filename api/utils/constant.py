@@ -20,6 +20,8 @@ TIKTOK_API_URL = {
   'url_get_globle_categories':'https://open-api.tiktokglobalshop.com/api/product/global_products/categories',
   'url_get_shipping_document':'https://open-api.tiktokglobalshop.com/api/logistics/shipping_document',
   'url_get_product_attritrute':'https://open-api.tiktokglobalshop.com/api/products/attributes',
+  'url_create_draf_product':'https://open-api.tiktokglobalshop.com/api/products/save_draft',
+ 
   
 }
 
@@ -28,7 +30,7 @@ TIKTOK_API_URL = {
 class ProductCreateObject:
     def __init__(self, is_cod_open, 
                  package_dimension_unit, package_height, package_length, package_weight, package_width,
-                 category_id, warehouse_id,description, skus):
+                 category_id, brand_id, warehouse_id,description, skus):
         
     
         self.is_cod_open = is_cod_open
@@ -38,6 +40,7 @@ class ProductCreateObject:
         self.package_weight = package_weight
         self.package_width = package_width
         self.category_id = category_id
+        self.brand_id = brand_id
         self.warehouse_id = warehouse_id
         self.description = description
         self.skus = [SKU(**sku_data) for sku_data in skus]
@@ -52,6 +55,7 @@ class ProductCreateObject:
             "package_weight": self.package_weight,
             "package_width": self.package_width,
             "category_id": self.category_id,
+            "brand_id":self.brand_id,
             "warehouse_id":self.warehouse_id,
             "description": self.description,
             "skus": skus_json
@@ -71,6 +75,33 @@ class SKU:
             "original_price": self.original_price,
             "stock_infos": stock_infos_json
         }
+
+class AttributeValue:
+    def __init__(self, value_id, value_name):
+        self.value_id = value_id
+        self.value_name = value_name
+
+    def to_json(self):
+        return {
+            "value_id": self.value_id,
+            "value_name": self.value_name
+        }
+
+class ProductAttribute:
+    def __init__(self, attribute_id, attribute_values):
+        self.attribute_id = attribute_id
+        self.attribute_values = [AttributeValue(**value) for value in attribute_values]
+
+    def to_json(self):
+        values_json = [value.to_json() for value in self.attribute_values]
+        return {
+            "attribute_id": self.attribute_id,
+            "attribute_values": values_json
+        }
+
+
+    
+
 
 class SalesAttribute:
     def __init__(self, attribute_id, attribute_name, custom_value):
@@ -98,10 +129,9 @@ class StockInfo:
 
 
 class ProductCreateOneObject:
-    def __init__(self, product_name,images,is_cod_open, 
+    def __init__(self, product_name, images, is_cod_open, 
                  package_dimension_unit, package_height, package_length, package_weight, package_width,
-                 category_id,description, skus):
-        
+                 category_id, brand_id, description, skus, product_attributes):
         self.product_name = product_name
         self.images = images
         self.is_cod_open = is_cod_open
@@ -111,14 +141,17 @@ class ProductCreateOneObject:
         self.package_weight = package_weight
         self.package_width = package_width
         self.category_id = category_id
+        self.brand_id = brand_id
         self.description = description
         self.skus = [SKU(**sku_data) for sku_data in skus]
+        self.product_attributes = [ProductAttribute(**attr) for attr in product_attributes]
 
     def to_json(self):
         skus_json = [sku.to_json() for sku in self.skus]
+        attributes_json = [attr.to_json() for attr in self.product_attributes]
         return {
             "product_name": self.product_name,
-            "images":self.images,
+            "images": self.images,
             "is_cod_open": self.is_cod_open,
             "package_dimension_unit": self.package_dimension_unit,
             "package_height": self.package_height,
@@ -126,9 +159,10 @@ class ProductCreateOneObject:
             "package_weight": self.package_weight,
             "package_width": self.package_width,
             "category_id": self.category_id,
+            "brand_id": self.brand_id,
             "description": self.description,
-            "skus": skus_json
+            "skus": skus_json,
+            "product_attributes": attributes_json
         }
-
 
         
