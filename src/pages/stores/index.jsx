@@ -77,27 +77,32 @@ const Stores = () => {
       ),
     },
     {
-      title: 'access_token',
-      dataIndex: 'access_token',
-      key: 'access_token',
-      width: 350,
-      render: (token) => (
-        <p className="w-[350px] flex justify-between items-center">
-          <p className="w-[300px]">{token}</p> <CopyOutlined className="cursor-pointer" onClick={() => copyToClipboard(token, 'access_token')}/>
-        </p>
-      ),
+      title: 'Mô tả',
+      dataIndex: 'description',
+      key: 'description'
     },
-    {
-      title: 'refresh_token',
-      dataIndex: 'refresh_token',
-      key: 'refresh_token',
-      width: 350,
-      render: (token) => (
-        <p className="w-[300px]">
-          {token}
-        </p>
-      ),
-    },
+    // {
+    //   title: 'access_token',
+    //   dataIndex: 'access_token',
+    //   key: 'access_token',
+    //   width: 350,
+    //   render: (token) => (
+    //     <p className="w-[350px] flex justify-between items-center">
+    //       <p className="w-[300px]">{token}</p> <CopyOutlined className="cursor-pointer" onClick={() => copyToClipboard(token, 'access_token')}/>
+    //     </p>
+    //   ),
+    // },
+    // {
+    //   title: 'refresh_token',
+    //   dataIndex: 'refresh_token',
+    //   key: 'refresh_token',
+    //   width: 350,
+    //   render: (token) => (
+    //     <p className="w-[300px]">
+    //       {token}
+    //     </p>
+    //   ),
+    // },
     {
       title: '',
       key: 'action',

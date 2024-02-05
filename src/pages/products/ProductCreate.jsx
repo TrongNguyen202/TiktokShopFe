@@ -30,8 +30,35 @@ const ProductCreate = () => {
     const { getAllBrand, brands} = useShopsBrand((state) => state)
 
     const onFinish = async(values) => {
-        console.log('values: ', values);
         const category_id = values?.category_id[values?.category_id.length - 1]
+        const newAttributes = Object.entries(values.product_attributes).map(([id, values]) => ({
+            id,
+            values
+        }))
+    
+        const convertAttributeData = newAttributes?.map(item => {
+            const attributeFilter = attributeValues?.find(attr => attr.id === item.id)
+
+            console.log('item: ', item);
+            
+            // if (attributeFilter) {
+            //     const attribute_id = item.id
+            //     const attribute_values = item?.values?.map(attr => {
+            //         const valuesAttr = attributeFilter?.values?.find(value => value.id === attr)
+            //         return {
+            //             value_id: valuesAttr?.id,
+            //             value_name: valuesAttr?.name
+            //         }
+            //     })
+            //     return {
+            //         attribute_id: attribute_id,
+            //         attribute_values: attribute_values
+            //     }
+            // }
+        })
+    
+        console.log('convertAttributeData: ', convertAttributeData);
+
         const dataFormSubmit = {
             product_name: values.product_name,
             description: values.description ? values.description : "",
@@ -66,7 +93,7 @@ const ProductCreate = () => {
                     stock_infos: [values.stock_infos]
                 }
             ],
-            // product_attributes: 
+            product_attributes: convertAttributeData ? convertAttributeData : []
         }
 
         console.log('dataFormSubmit: ', dataFormSubmit);
@@ -124,41 +151,25 @@ const ProductCreate = () => {
         setAttributeValues(data)
     }
 
-    const testAttr = [
-        {
-            "100347": [
-                "1005409",
-                "1000909",
-                "1005408"
-            ]
-        },
-        {
-            "100850": [
-                "1000041",
-                "1004371"
-            ]
-        }
-    ]
+    // const convertedArray = testAttr.map(item => {
+    //     const [attribute_id] = Object.keys(item);
+    //     const attribute_values = item[attribute_id].map(value => ({
+    //         value_id: value
+    //     }));
 
-    const convertedArray = testAttr.map(item => {
-        const [attribute_id] = Object.keys(item);
-        const attribute_values = item[attribute_id].map(value => ({
-            value_id: value
-        }));
+        
 
-        console.log('attribute_id: ', attribute_id);
+    //     const attributeValueName = attributeValues?.filter(attr => (
+    //         attr.id === attribute_id
+    //     ))
 
-        const attributeValueName = attributeValues?.filter(attr => (
-            attr.id === attribute_id
-        ))
-
-        // console.log('attributeValueName: ', attributeValueName)
+    //     // console.log('attributeValueName: ', attributeValueName)
     
-        return {
-            attribute_id: attribute_id,
-            attribute_values: attribute_values
-        };
-    });
+    //     return {
+    //         attribute_id: attribute_id,
+    //         attribute_values: attribute_values
+    //     };
+    // });
 
     // console.log('convertedArray: ', convertedArray);
 

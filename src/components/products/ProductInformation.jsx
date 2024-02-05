@@ -1,5 +1,5 @@
 import {  useState } from 'react';
-import { Form, Input, Select, Row, Col, Cascader, message } from 'antd'
+import { Form, Input, Select, Row, Col, Cascader, message, Spin } from 'antd'
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -12,19 +12,27 @@ import CustomSelect from '../../pages/stores/CustomSelect';
 const ProductInformation = ({shopId, categories, brands, getAttributeValues}) => {
     const [valueDescription, setValueDescription] = useState('');
     const [messageApi, contextHolder] = message.useMessage()
-    const {getAttributeByCategory, attributes} = useCategoriesStore((state) => state)
+    const {getAttributeByCategory, attributes, attributeLoading} = useCategoriesStore((state) => state)
     const categoriesData = buildNestedArraysMenu(categories?.category_list, '0')
-    const optionsBranch = brands?.brand_list?.map((item) => (
+
+    const convertBrand = brands?.brand_list?.map((item) => (
         {
             value: item.id,
-            label: <p dangerouslySetInnerHTML={{ __html: item.name }} />
+            label: item.name
         }
     ))
+
+    const optionsBranch = convertBrand&&[
+        {
+            value: "",
+            label: 'No brand'
+        },
+        ...convertBrand
+    ]
 
     const handleChangeCategories = (e) => {
         const categoryId = e[e.length - 1]
         const onSuccess = (res) => {
-            console.log('res: ', res);
             getAttributeValues(res.data.attributes)
         }
 
@@ -36,8 +44,6 @@ const ProductInformation = ({shopId, categories, brands, getAttributeValues}) =>
         }
         getAttributeByCategory(shopId, categoryId, onSuccess, onFail)
     }
-
-    // console.log('attributes?.attributes: ', attributes?.attributes)
     
     return (
         <>
@@ -47,7 +53,18 @@ const ProductInformation = ({shopId, categories, brands, getAttributeValues}) =>
             </Form.Item>
 
             <Form.Item label="Danh mục:" name='category_id' rules={[{ required: true, message: 'Danh mục không được để trống' }]}>
-                <Cascader options={categoriesData} onChange={handleChangeCategories} placeholder="Please select" />
+                <Cascader 
+                    options={categoriesData} 
+                    onChange={handleChangeCategories} 
+                    placeholder="Please select"
+                    showSearch={(input, options) => {
+                        return (
+                            options.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
+                            options.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                        );
+                    }}
+                    onSearch={(value) => console.log(value)}
+                />
             </Form.Item>
 
             <Form.Item label="Thương hiệu:" name='brand_id'>
@@ -58,6 +75,7 @@ const ProductInformation = ({shopId, categories, brands, getAttributeValues}) =>
                     onChange={() => {}}
                     options={optionsBranch}
                     filterOption={(input, options) => {
+                        console.log('option: ', options);
                         return (
                             options.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
                             options.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -73,38 +91,41 @@ const ProductInformation = ({shopId, categories, brands, getAttributeValues}) =>
             {attributes?.attributes?.length && 
                 <>
                     <div className='w-full mt-10'><ProductSectionTitle title='Thuộc tính:'/></div>
-                    <Row gutter={['30', '20']}>
-                        
-                        {attributes?.attributes?.map((item, index) => {
-                            const optionAttribute = item?.values?.map (attr => (
-                                {
-                                    value: attr.id,
-                                    label: attr.name
-                                }
-                            ))
+                    {attributeLoading && <Spin/>}
+                    {!attributeLoading && 
+                        <Row gutter={['30', '20']}>
+                            
+                            {attributes?.attributes?.map(item => {
+                                const optionAttribute = item?.values?.map (attr => (
+                                    {
+                                        value: attr.id,
+                                        label: attr.name
+                                    }
+                                ))
 
-                            const itemAttributeSelect = ["101395", "101400"]
-                            return (
-                                <Col span={8}>
-                                    <Form.Item label={item.name} name={['product_attributes', index, item.id ]}>
-                                        {itemAttributeSelect.includes(item.id) ?
-                                            <Select
-                                                style={{ width: '100%' }}
-                                                options={optionAttribute}
-                                            />
-                                        :
-                                            
-                                            <CustomSelect
-                                                optionsSelect={optionAttribute}
-                                                type={item.name}
-                                                // onChange={setSelectedSize}
-                                            />
-                                        }                           
-                                    </Form.Item>
-                                </Col>
-                            )
-                        })}
-                    </Row>
+                                const itemAttributeSelect = ["101395", "101400"]
+                                return (
+                                    <Col span={8}>
+                                        <Form.Item label={item.name} name={['product_attributes', item.id ]}>
+                                            {itemAttributeSelect.includes(item.id) ?
+                                                <Select
+                                                    style={{ width: '100%' }}
+                                                    options={optionAttribute}
+                                                />
+                                            :
+                                                
+                                                <CustomSelect
+                                                    optionsSelect={optionAttribute}
+                                                    type={item.name}
+                                                    // onChange={setSelectedSize}
+                                                />
+                                            }                           
+                                        </Form.Item>
+                                    </Col>
+                                )
+                            })}
+                        </Row>
+                    }
                 </>
             }            
         </>
