@@ -53,7 +53,7 @@ export const useCategoriesStore = create((set) => ({
       set({ categoriesById: response.data.data })
       onSuccess(response.data.data)
     } catch (error) {
-      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra khi lấy dữ liệu category!')
     }
     set({ loadingById: false })
   },

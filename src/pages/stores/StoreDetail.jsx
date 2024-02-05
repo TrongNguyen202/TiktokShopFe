@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Card, Col, Row, Spin } from 'antd';
+import { useEffect } from 'react'
+import { Col, Row } from 'antd';
 
 import { alerts } from '../../utils/alerts'
 import { getPathByIndex } from '../../utils'
@@ -19,7 +19,7 @@ import { useNavigate } from 'react-router-dom';
 export default function StoreDetail() {
   const navigate = useNavigate()
   const shopId = getPathByIndex(2)
-  const { loadingById, getStoreById, storeById } = useShopsStore((state) => state)
+  const { loading, getStoreById, storeById } = useShopsStore((state) => state)
 
   useEffect(() => {
     const onSuccess = (res) => {

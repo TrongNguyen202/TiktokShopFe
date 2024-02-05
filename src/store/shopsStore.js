@@ -6,7 +6,6 @@ export const useShopsStore = create((set) => ({
   storeById: {},
   infoTable: {},
   loading: false,
-  loadingById: false,
   getAllStores: async (onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true })
@@ -32,14 +31,14 @@ export const useShopsStore = create((set) => ({
   },
   getStoreById: async (id, onSuccess = () => {}, onFail = () => {}) => {
     try {
-      set({ loadingById: true })
+      set({ loading: true })
       const response = await RepositoryRemote.stores.getStoreById(id)
       set({ storeById: response.data })
       onSuccess(response.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }
-    set({ loadingById: false })
+    set({ loading: false })
   },
   searchStores: async (query, onSuccess = () => {}, onFail = () => {}) => {
     try {

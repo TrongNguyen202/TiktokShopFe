@@ -1,5 +1,5 @@
 import {  useState } from 'react';
-import { Form, Input, Select, Row, Col, Cascader } from 'antd'
+import { Form, Input, Select, Row, Col, Cascader, message } from 'antd'
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -9,8 +9,9 @@ import { useCategoriesStore } from '../../store/categoriesStore'
 import ProductSectionTitle from './ProuctSectionTitle';
 import CustomSelect from '../../pages/stores/CustomSelect';
 
-const ProductInformation = ({shopId, categories, brands}) => {
+const ProductInformation = ({shopId, categories, brands, getAttributeValues}) => {
     const [valueDescription, setValueDescription] = useState('');
+    const [messageApi, contextHolder] = message.useMessage()
     const {getAttributeByCategory, attributes} = useCategoriesStore((state) => state)
     const categoriesData = buildNestedArraysMenu(categories?.category_list, '0')
     const optionsBranch = brands?.brand_list?.map((item) => (
@@ -24,18 +25,23 @@ const ProductInformation = ({shopId, categories, brands}) => {
         const categoryId = e[e.length - 1]
         const onSuccess = (res) => {
             console.log('res: ', res);
+            getAttributeValues(res.data.attributes)
         }
 
         const onFail = (err) => {
-            console.log('err: ', err)
+            messageApi.open({
+                type: 'error',
+                content: err,
+            });
         }
         getAttributeByCategory(shopId, categoryId, onSuccess, onFail)
     }
 
-    console.log('attributes?.attributes: ', attributes?.attributes)
+    // console.log('attributes?.attributes: ', attributes?.attributes)
     
     return (
         <>
+            {contextHolder}
             <Form.Item label="Tên sản phẩm:" name='product_name' rules={[{ required: true, message: 'Tên sản phẩm không được để trống' }]}>
                 <Input />
             </Form.Item>
@@ -44,7 +50,7 @@ const ProductInformation = ({shopId, categories, brands}) => {
                 <Cascader options={categoriesData} onChange={handleChangeCategories} placeholder="Please select" />
             </Form.Item>
 
-            <Form.Item label="Thương hiệu:" name='brand_id' rules={[{ required: true, message: 'Thương hiệu không được để trống' }]}>
+            <Form.Item label="Thương hiệu:" name='brand_id'>
                 <Select
                     showSearch
                     style={{ width: '100%' }}
@@ -69,7 +75,7 @@ const ProductInformation = ({shopId, categories, brands}) => {
                     <div className='w-full mt-10'><ProductSectionTitle title='Thuộc tính:'/></div>
                     <Row gutter={['30', '20']}>
                         
-                        {attributes?.attributes?.map(item => {
+                        {attributes?.attributes?.map((item, index) => {
                             const optionAttribute = item?.values?.map (attr => (
                                 {
                                     value: attr.id,
@@ -80,7 +86,7 @@ const ProductInformation = ({shopId, categories, brands}) => {
                             const itemAttributeSelect = ["101395", "101400"]
                             return (
                                 <Col span={8}>
-                                    <Form.Item label={item.name} name={['attribute', `${item.id}`]}>
+                                    <Form.Item label={item.name} name={['product_attributes', index, item.id ]}>
                                         {itemAttributeSelect.includes(item.id) ?
                                             <Select
                                                 style={{ width: '100%' }}

@@ -1,23 +1,20 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, Form} from 'antd';
-import axios from 'axios'
+import { Button, Form, message } from 'antd'
 
-import { alerts } from '../../utils/alerts'
 import { useCategoriesStore } from '../../store/categoriesStore'
 import { useProductsStore } from '../../store/productsStore'
-import { useWareHousesStore } from '../../store/warehousesStore';
-import { useShopsBrand } from '../../store/brandStore';
+import { useWareHousesStore } from '../../store/warehousesStore'
+import { useShopsBrand } from '../../store/brandStore'
 import { getPathByIndex } from '../../utils'
 
 import Loading from '../../components/loading'
-import PageTitle from "../../components/common/PageTitle";
-import ProductMedia from '../../components/products/ProductMedia';
-import ProductInformation from '../../components/products/ProductInformation';
-import ProductSale from '../../components/products/ProductSale';
+import PageTitle from "../../components/common/PageTitle"
+import ProductMedia from '../../components/products/ProductMedia'
+import ProductInformation from '../../components/products/ProductInformation'
+import ProductSale from '../../components/products/ProductSale'
 import ProductVariation from '../../components/products/ProductVariation'
-import ProductShipping from '../../components/products/ProductShipping';
-
+import ProductShipping from '../../components/products/ProductShipping'
 
 const ProductCreate = () => {
     const navigate = useNavigate()
@@ -25,12 +22,13 @@ const ProductCreate = () => {
     const [form] = Form.useForm();
     const [ skusData, setSkusData ] = useState([])
     const [ imgBase64, setImgBase64 ] = useState([])
+    const [ attributeValues, setAttributeValues ] = useState([])
+    const [messageApi, contextHolder] = message.useMessage()
     const { getCategoriesById, categoriesById, loading } = useCategoriesStore((state) => state)
-    const { productById, getProductsById, createOneProduct } = useProductsStore((state) => state)
+    const { productById, createOneProduct } = useProductsStore((state) => state)
     const { warehousesById, getWarehousesByShopId} = useWareHousesStore((state) => state)
     const { getAllBrand, brands} = useShopsBrand((state) => state)
 
-    console.log('skusData: ', skusData);
     const onFinish = async(values) => {
         console.log('values: ', values);
         const category_id = values?.category_id[values?.category_id.length - 1]
@@ -67,18 +65,30 @@ const ProductCreate = () => {
                     original_price: values.price,
                     stock_infos: [values.stock_infos]
                 }
-            ]
+            ],
+            // product_attributes: 
         }
 
         console.log('dataFormSubmit: ', dataFormSubmit);
         const CreateSuccess = (res) => {
             if (res.status === "success") {
-                alerts.success('Đã thêm sản phẩm thành công!')
+                messageApi.open({
+                    type: 'success',
+                    content: 'Đã thêm sản phẩm thành công!',
+                })
                 form.resetFields();
                 navigate(`/shops/${shopId}/products`)
             }
         }
-        createOneProduct(shopId, dataFormSubmit, CreateSuccess, (err) => alerts.error(err))
+
+        const CreateFail = (err) => {
+            messageApi.open({
+                type: 'error',
+                content: err,
+            });
+        }
+
+        createOneProduct(shopId, dataFormSubmit, CreateSuccess, CreateFail)
     };
     
     const onFinishFailed = (errorInfo) => {
@@ -90,7 +100,10 @@ const ProductCreate = () => {
             console.log(res)
         }
         const onFail = (err) => {
-          alerts.error(err)
+            messageApi.open({
+                type: 'error',
+                content: err,
+            });
         }
 
         getCategoriesById(shopId, onSuccess, onFail)
@@ -107,9 +120,52 @@ const ProductCreate = () => {
         await setImgBase64(img)
     }
 
+    const getAttributesByCategory = (data) => {
+        setAttributeValues(data)
+    }
+
+    const testAttr = [
+        {
+            "100347": [
+                "1005409",
+                "1000909",
+                "1005408"
+            ]
+        },
+        {
+            "100850": [
+                "1000041",
+                "1004371"
+            ]
+        }
+    ]
+
+    const convertedArray = testAttr.map(item => {
+        const [attribute_id] = Object.keys(item);
+        const attribute_values = item[attribute_id].map(value => ({
+            value_id: value
+        }));
+
+        console.log('attribute_id: ', attribute_id);
+
+        const attributeValueName = attributeValues?.filter(attr => (
+            attr.id === attribute_id
+        ))
+
+        // console.log('attributeValueName: ', attributeValueName)
+    
+        return {
+            attribute_id: attribute_id,
+            attribute_values: attribute_values
+        };
+    });
+
+    // console.log('convertedArray: ', convertedArray);
+
     if (loading) return <Loading/>
     return (
         <>
+            {contextHolder}
             <div className='p-10'>
                 <PageTitle title='Thêm sản phẩm mới' showBack />                
             </div>
@@ -121,9 +177,9 @@ const ProductCreate = () => {
                 form={form}
             >
                 <div className='px-20 pb-5'>
-                    <ProductInformation shopId={shopId} categories={categoriesById} brands={brands} />
+                    <ProductInformation shopId={shopId} categories={categoriesById} brands={brands} getAttributeValues={getAttributesByCategory} />
                 </div>
-
+     
                 <div className='h-[10px] bg-[#f5f5f5]'/>
                 <div className='px-20 py-10'>
                     <ProductMedia productData={productById} imgBase64={handleImgBase64} />
