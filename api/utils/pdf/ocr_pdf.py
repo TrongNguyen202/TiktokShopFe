@@ -6,9 +6,9 @@ from pdf2image import convert_from_path
 from PIL import Image
 import json
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'C:\Tesseract-OCR\tesseract.exe'
 
-path_to_poppler_exe = Path(r"C:\Users\Dell\Downloads\TikTokShop AIO version 3.4.3\TikTokShop AIO version 3.4.3\dependencies\poppler\Library\bin")
+path_to_poppler_exe = Path(r"C:\Library\bin")
 out_directory = Path(r"C:\output").expanduser()
 text_file = out_directory / Path("out_text.txt")
 
