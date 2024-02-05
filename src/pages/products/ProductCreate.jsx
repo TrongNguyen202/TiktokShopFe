@@ -35,29 +35,43 @@ const ProductCreate = () => {
             id,
             values
         }))
-    
         const convertAttributeData = newAttributes?.map(item => {
             const attributeFilter = attributeValues?.find(attr => attr.id === item.id)
-
-            console.log('item: ', item);
             
-            // if (attributeFilter) {
-            //     const attribute_id = item.id
-            //     const attribute_values = item?.values?.map(attr => {
-            //         const valuesAttr = attributeFilter?.values?.find(value => value.id === attr)
-            //         return {
-            //             value_id: valuesAttr?.id,
-            //             value_name: valuesAttr?.name
-            //         }
-            //     })
-            //     return {
-            //         attribute_id: attribute_id,
-            //         attribute_values: attribute_values
-            //     }
-            // }
+            if (attributeFilter) {
+                const attribute_id = item.id
+                let valuesAttr =  []
+                let attribute_values = []
+                if (typeof item?.values === 'string') {
+                    attribute_values = [
+                        {
+                            value_id: valuesAttr?.id,
+                            value_name: valuesAttr?.name
+                        }
+                    ]
+                } else {
+                    valuesAttr = item?.values?.map(value => (
+                        attributeFilter?.values?.find(attrValue => attrValue.id === value)
+                    ))
+
+                    attribute_values = valuesAttr?.map(attr => (
+                        {
+                            value_id: attr?.id,
+                            value_name: attr?.name
+                        }
+                    ))
+                }
+
+                if (!attribute_values) return null
+                
+                return {
+                    attribute_id: attribute_id,
+                    attribute_values: attribute_values
+                }
+            }
         })
-    
-        console.log('convertAttributeData: ', convertAttributeData);
+
+        const productAttribute = convertAttributeData.filter(item => item?.value?.length > 0)
 
         const dataFormSubmit = {
             product_name: values.product_name,
@@ -93,7 +107,7 @@ const ProductCreate = () => {
                     stock_infos: [values.stock_infos]
                 }
             ],
-            product_attributes: convertAttributeData ? convertAttributeData : []
+            product_attributes: productAttribute ? productAttribute : []
         }
 
         console.log('dataFormSubmit: ', dataFormSubmit);
