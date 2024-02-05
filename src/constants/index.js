@@ -15,8 +15,7 @@ export const constants = {
   DEFAULT_COLOR: '#e62e04',
   LOADING_WHEN_SUBMIT_REGISTER: 'LOADING_WHEN_SUBMIT_REGISTER',
   // STATUS
-  // API_URL: getMeta("domain_api") + "/api",
-  API_URL: 'http://app.folinas.com:9999' + '/api',
+  API_URL: 'http://app.folinas.com:9999' + "/api",
   // API_URL: 'http://127.0.0.1:8000' + '/api',
   API_TIKTOK_SHOP: 'https://auth.tiktok-shops.com/api',
   // STORE_CODE: store_code,
@@ -57,27 +56,27 @@ export const statusProduct = {
 
 
 export const statusProductTikTokShop = [
-  {color: 'default', title: 'All'},
-  {color: 'gray', title: 'Draft'},
-  {color: 'processing', title: 'Pending'},
-  {color: 'error', title: 'Failed'},
-  {color: 'success', title: 'Live'},
-  {color: 'warning', title: 'Seller Deactivated'},
-  {color: 'orange', title: 'Platform Deactivated'},
-  {color: 'default', title: 'Freeze'},
-  {color: 'red', title: 'Delete'}
+  { color: 'default', title: 'All' },
+  { color: 'gray', title: 'Draft' },
+  { color: 'processing', title: 'Pending' },
+  { color: 'error', title: 'Failed' },
+  { color: 'success', title: 'Live' },
+  { color: 'warning', title: 'Seller Deactivated' },
+  { color: 'orange', title: 'Platform Deactivated' },
+  { color: 'default', title: 'Freeze' },
+  { color: 'red', title: 'Delete' }
 ]
 
 export const statusOrder = [
-  {color: 'default', value: 100, title: 'UNPAID'},
-  {color: 'magenta', value: 105, title: 'ON HOLD'},
-  {color: 'orange', value: 111, title: 'AWAITING SHIPMENT'},
-  {color: 'cyan', value: 112, title: 'AWAITING COLLECTION'},
-  {color: 'blue', value: 114, title: 'PARTIALLY SHIPPING'},
-  {color: 'purple', value: 121, title: 'IN TRANSIT'},
-  {color: 'gold', value: 122, title: 'DELIVERED'},
-  {color: 'green', value: 130, title: 'COMPLETED'},
-  {color: 'red', value: 140, title: 'CANCELLED'}
+  { color: 'default', value: 100, title: 'UNPAID' },
+  { color: 'magenta', value: 105, title: 'ON HOLD' },
+  { color: 'orange', value: 111, title: 'AWAITING SHIPMENT' },
+  { color: 'cyan', value: 112, title: 'AWAITING COLLECTION' },
+  { color: 'blue', value: 114, title: 'PARTIALLY SHIPPING' },
+  { color: 'purple', value: 121, title: 'IN TRANSIT' },
+  { color: 'gold', value: 122, title: 'DELIVERED' },
+  { color: 'green', value: 130, title: 'COMPLETED' },
+  { color: 'red', value: 140, title: 'CANCELLED' }
 ]
 
 export const variationsOption = [

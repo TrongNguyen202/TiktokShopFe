@@ -16,7 +16,7 @@ export const useShopsBrand = create((set) => ({
       set({ brands: response.data.data })
       onSuccess(response.data.data)
     } catch (error) {
-      onFail(error?.data?.message || 'Có lỗi xảy ra!')
+      onFail(error?.data?.message || 'Có lỗi xảy ra khi lấy dữ liệu brand!')
     }
     set({ loading: false })
   },

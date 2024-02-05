@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, message, Steps, theme } from 'antd';
+
+import { useGoogleStore } from '../../store/googleSheets'
 
 import OrdersProcessLabel from '../../components/orders/OrdersProcessLabel'
 import OrderCheckDesign from '../../components/orders/OrderCheckDesign'
@@ -10,6 +12,7 @@ const Fulfillment = () => {
     const [current, setCurrent] = useState(0);
     const [enableNextStep, setEnableNextStep] = useState(false);
     const [toShipInfoData, setToShipInfoData] = useState([]);
+    const { getAllSheetInfo, sheets } = useGoogleStore()
     const changeNextStep = (value) => {
         setEnableNextStep(value)
     }
@@ -19,6 +22,8 @@ const Fulfillment = () => {
         setToShipInfoData(data)
     }
 
+    console.log('toShipInfoData: ', toShipInfoData);
+
     const steps = [
         {
             title: 'Xửa lý label',
@@ -26,7 +31,7 @@ const Fulfillment = () => {
         },
         {
             title: 'Xử lý mẫu',
-            content: <OrderCheckDesign changeNextStep={changeNextStep} toShipInfoData={toShipInfoData}/>,
+            content: <OrderCheckDesign changeNextStep={changeNextStep} toShipInfoData={toShipInfoData} sheetData={sheets}/>,
         },
         {
             title: 'Tạo đơn hàng bên FlashShip',
@@ -50,6 +55,18 @@ const Fulfillment = () => {
     }));
 
     console.log('toShipInfoData: ', toShipInfoData);
+
+    useEffect(() => {
+        const onSuccess = (res) => {
+            console.log(res)
+        }
+
+        const onFail = (err) => {
+            console.log(err);
+        }
+        
+        getAllSheetInfo('Team Dang!A:F', onSuccess, onFail)
+    }, [])
 
     return (
       <div className='p-10'>

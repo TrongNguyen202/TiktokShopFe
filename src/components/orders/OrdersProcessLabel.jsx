@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom"
-import { Table, Tag, Button, Space, Input, Form, message, Card } from 'antd';
+import { Table, Tag, Button, Space, Input, Form, message, Card, Spin, Alert } from 'antd';
 
 import { getPathByIndex } from '../../utils'
 import { useShopsOrder } from "../../store/ordersStore";
@@ -13,9 +13,10 @@ const OrdersProcessLabel = ({changeNextStep, toShipInfoData}) => {
     const shopId = getPathByIndex(2)
     const location = useLocation()
     const { labels, orders } = location.state
-    const [labelsById, setLabelsById] = useState([])
+    const [stepProcessLabel, setStepProcessLabel] = useState(1)
     const [labelSelected, setLabelSelected] = useState([])
-    const [hasPushDriver, setHasPushDriver] = useState(false)
+    const [labelSearch, setLabelSearch] = useState([])
+    const [dataGetToShipInfo, setDataGetToShipInfo] = useState([])
     const [messageApi, contextHolder] = message.useMessage();
     const { getLabelsById, getToShipInfo, toShipInfo, uploadLabelToDriver, loading, loadingGetInfo } = useShopsOrder((state) => state)
 
@@ -43,7 +44,7 @@ const OrdersProcessLabel = ({changeNextStep, toShipInfoData}) => {
           dataIndex: 'label',
           render: (text) => text ? <Link to={text} target="_blank">{text}</Link> : <Tag color="error">Không lấy được label</Tag>
         }
-    ];
+    ]
 
     const rowSelection = {
         onChange: (_, selectedRows) => {
@@ -52,12 +53,45 @@ const OrdersProcessLabel = ({changeNextStep, toShipInfoData}) => {
         getCheckboxProps: (record) => ({
             disabled: record.label === null
         })
-    };
+    }
+
+    const handlePushToDriver = () => {
+        const dataLabelProcess = {
+            order_documents: labelSelected?.map(item => (
+                {
+                    order_id: item.order_id,
+                    doc_url: item.label
+                }
+            ))
+        }
+
+        const onSuccess = (res) => {
+            if (res) {
+                messageApi.open({
+                    type: 'success',
+                    content: 'Đã đẩy label lên Driver thành công',
+                })
+
+                setStepProcessLabel(2)
+                const onSuccess = (res) => {
+                    if (res) {
+                        changeNextStep(true)
+                        setDataGetToShipInfo(toShipInfo)
+                    }
+                }
+        
+                getToShipInfo(shopId, dataLabelProcessTest, onSuccess, (err) => console.log(err))   
+            }
+        }
+
+        const onFail = (err) => messageApi.error(err)
+        uploadLabelToDriver(dataLabelProcess, onSuccess, onFail)  
+    }
 
     const onSearch = (values) => {
         const onSuccess = (res) => {
             if (res) {
-                setLabelsById(res)
+                setLabelSearch(res)
             }
         }
         getLabelsById(values.order_id, onSuccess, () => {})
@@ -77,135 +111,81 @@ const OrdersProcessLabel = ({changeNextStep, toShipInfoData}) => {
         ]
     }
 
-    const handleLabelProcessing = () => {
-        const dataLabelProcess = {
-            order_documents: labelSelected?.map(item => (
-                {
-                    order_id: item.order_id,
-                    doc_url: item.label
-                }
-            ))
-        }
-
-        const onSuccess = (res) => {
-            if (res) {
-                messageApi.open({
-                    type: 'success',
-                    content: 'Đã đẩy label lên Driver thành công',
-                })
-                setHasPushDriver(true)
-            }
-        }
-
-        const onFail = (err) => messageApi.error(err)
-
-        uploadLabelToDriver(dataLabelProcess, onSuccess, onFail)        
-    }
-    
     const handleBack = () => {
-        setHasPushDriver(false)
+        setStepProcessLabel(1)
+        setLabelSelected([])
     }
 
-    const handleToShipOrders = () => {
-        const onSuccess = (res) => {
-            console.log(res);
-            setCheckDesign(true)
-        }
-        getToShipInfo(shopId, onSuccess, () => {})
-
-        // const dataSend = labelSelected.map(item => orders.filter(order => order.order_id === item.order_id)).flat()
-        // const dataMatching = dataSend.map(item => (
-        //     {
-        //         ...item,
-        //         linkLabel: labelSelected.find(label => label.order_id === item.order_id).label
-        //     }
-        // ))
-        // if (dataMatching) {
-        //     console.log('dataSend: ', dataMatching);
-        //     navigate(`/shops/${shopId}/orders/check-design`, {state: { orders: dataMatching }})
-        // }
-    }
-
-    const handleGetToShipInfo = () => {
-        const onSuccess = (res) => {
-            if (res) {
-                changeNextStep(true)
-                toShipInfoData(toShipInfo)
-            }
-        }
-
-        getToShipInfo(shopId, dataLabelProcessTest, onSuccess, () => {})    
-    }
-
-    console.log('toShipInfo: ', toShipInfo);
+    useEffect(() => {
+        toShipInfoData(toShipInfo)
+    }, [toShipInfo])
 
     return (
         <div className="p-10">
             {contextHolder}
-            {!hasPushDriver &&
-                <div className="mb-3 text-start">
-                    <SectionTitle title='Danh sách label' count={labels.length}/>
-                    <i>(Vui lòng tick vào ô để chọn label cần xử lý)</i>
-                </div>
-            }        
-            {labelSelected.length > 0 &&
-                <Space className="mb-3 w-full">
-                    {!hasPushDriver ? 
-                        <Button type="primary" onClick={handleLabelProcessing}>
-                            Đẩy Label lên Google Drive &nbsp;
-                            <span>({labelSelected.length})</span>
-                            <LoadingButton loading={loading}/>
-                        </Button>
-
-                    :
-                        <>
-                            <Form onFinish={onSearch} onFinishFailed={() => {}} className='w-[400px] relative border-[1px] border-solid border-[#d9d9d9] rounded-[6px] pr-[90px]'>
-                                <Form.Item name="order_id" className="mb-0">
-                                    <Input placeholder='Tìm kiếm theo Order ID...' className="!border-none"/>
-                                </Form.Item>
-                                <Form.Item className="absolute top-[-1px] right-[-1px] bottom-[-1px] mb-0">
-                                    <Button type="primary" htmlType="submit" className="h-[34px]">
-                                        Tìm kiếm
-                                        <LoadingButton loading={loading}/>
-                                    </Button>
-                                </Form.Item>
-                            </Form>
-                            <Button type="primary" onClick={handleGetToShipInfo}>
-                                Lấy thông tin đơn hàng và Label
-                                <LoadingButton loading={loadingGetInfo}/>
+            {stepProcessLabel === 1 &&
+                <>
+                    <div className="mb-3 text-start">
+                        <SectionTitle title='Danh sách label' count={labels.length}/>
+                        <p><i>(Vui lòng tick vào ô để chọn label cần xử lý)</i></p>
+                        {labelSelected.length > 0 && 
+                            <Button type="primary" onClick={handlePushToDriver} className="mt-3">
+                                Đẩy Label lên Google Drive &nbsp;
+                                <span>({labelSelected.length})</span>
+                                <LoadingButton loading={loading}/>
                             </Button>
-                            <Button type="primary" onClick={handleBack}>Quay lại</Button>
+                        }
+                    </div>
+                    <Table
+                        rowSelection={{
+                            type: 'checkbox',
+                            ...rowSelection,
+                        }}                    
+                        columns={columns}
+                        dataSource={data}
+                        bordered
+                        pagination={{ position: ['none'] }}
+                        loading={loading}
+                    />
+                </>
+            }
+
+            {stepProcessLabel === 2 &&
+                <>
+                    {loadingGetInfo && <Spin tip="Đang lấy thông tin đơn hàng..." className="mb-3 block" />}
+                    {!loadingGetInfo &&
+                        <>
+                            <Space className="mb-3">
+                                <Form onFinish={onSearch} onFinishFailed={() => {}} className='w-[400px] relative border-[1px] border-solid border-[#d9d9d9] rounded-[6px] pr-[90px]'>
+                                        <Form.Item name="order_id" className="mb-0">
+                                            <Input placeholder='Tìm kiếm theo Order ID...' className="!border-none"/>
+                                        </Form.Item>
+                                        <Form.Item className="absolute top-[-1px] right-[-1px] bottom-[-1px] mb-0">
+                                            <Button type="primary" htmlType="submit" className="h-[34px]">
+                                                Tìm kiếm
+                                                <LoadingButton loading={loading}/>
+                                            </Button>
+                                        </Form.Item>
+                                </Form>
+                                <Button type="primary" onClick={handleBack}>Quay lại</Button>
+                            </Space>
+
+                            {labelSearch.length > 0 &&
+                                <Card title={`Thông tin tìm kiếm  cho [${labelSearch[0].name}]`} className="mb-3">
+                                    <p><span className="min-w-[70px] inline-block font-semibold">Order ID:</span> {labelSearch[0].name}</p>
+                                    <p><span className="min-w-[70px] inline-block font-semibold">Label URL:</span> <Link to={labelSearch[0].link} target="_blank">{labelSearch[0].link}</Link></p>
+                                </Card>
+                            }
+
+                            {dataGetToShipInfo.length > 0 &&
+                                <OrderGetToShipInfo data={dataGetToShipInfo} loading={loadingGetInfo}/>
+                            }
                         </>
                     }
-                </Space>
-            }
-
-            {labelsById.length > 0 && 
-                <Card title={`Thông tin tìm kiếm  cho [${labelsById[0].name}]`} className="mb-3">
-                    <p><span className="min-w-[70px] inline-block font-semibold">Order ID:</span> {labelsById[0].name}</p>
-                    <p><span className="min-w-[70px] inline-block font-semibold">Label URL:</span> <Link to={labelsById[0].link} target="_blank">{labelsById[0].link}</Link></p>
-                </Card>
-            }
-
-            {!hasPushDriver &&
-                <Table
-                    rowSelection={{
-                        type: 'checkbox',
-                        ...rowSelection,
-                    }}                    
-                    columns={columns}
-                    dataSource={data}
-                    bordered
-                    pagination={{ position: ['none'] }}
-                    loading={loading}
-                />
-            }
-
-            {toShipInfo.length > 0 &&
-                <OrderGetToShipInfo data={toShipInfo} loading={loadingGetInfo}/>
+                </>
             }
         </div>
-    );
+    )
 }
  
 export default OrdersProcessLabel;

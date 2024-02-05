@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useLocation, Link } from "react-router-dom"
 import { Table, Button, message, Tooltip, Tag } from 'antd'
 
 import { useGoogleStore } from '../../store/googleSheets'
@@ -11,28 +10,35 @@ import PageTitle from "../../components/common/PageTitle";
 import OrdersAddNewDesignData from '../../components/orders/OrdersAddNewDesignData';
 import OrdersAddImageDesignByExcel from '../../components/orders/OrdersAddImageDesignByExcel';
 import SectionTitle from '../common/SectionTitle';
+import OrderProductProver from './OrderProductProver';
 
-const OrderCheckDesign = ({toShipInfoData}) => {
-    const location = useLocation()
-    // const { orders } = location.state
+const OrderCheckDesign = ({toShipInfoData, sheetData}) => {
+    console.log('toShipInfoData: ', toShipInfoData);
+    console.log('sheetData: ', sheetData);
     const [messageApi, contextHolder] = message.useMessage();
+    const [stepCheckDesign, setStepCheckDesign] = useState(1)
     const [newDesignData, setNewDesignData] = useState([])
     const [hasAddDesign, setHasAddDesign] = useState(false)
     const [hasNewDesignData, setHasNewDesignData] = useState(false)
-    const { getAllSheetInfo, sheets, AddRowToSheet } = useGoogleStore()
+    const { AddRowToSheet } = useGoogleStore()
 
-    // const dataSource = toShipInfoData.reduce((acc, item) => {
-    //     const rows = item.d?.map((subItem, index) => ({
-    //       ...subItem,
-    //       order_id: index === 0 ? item.order_id : null,
-    //       linkLabel: index === 0 ? item.linkLabel : null,
-    //       rowSpan: index === 0 ? item.item_list.length : 0,
-    //     }));
-    //     return [...acc, ...rows];
-    // }, []);
-
-    // console.log('dataSource: ', dataSource);
-    // console.log('sheets: ', sheets);
+    const toShipInfoDataConvert = toShipInfoData.reduce((acc, item) => {
+            const rows = item.data?.order_list[0].item_list?.map((subItem, index) => ({
+              ...subItem,
+              order_id: item.data.order_list[0].order_id,
+              linkLabel: item.linkLabel,
+              city: item.city,
+              name_buyer: item.name_buyer,
+              state: item.state,
+              street: item.street.replace(' - ', ''),
+              tracking_id: item.tracking_id,
+              zip_code: item.zip_code,
+              payment_info: item.data.order_list[0].payment_info
+            }));
+            return [...acc, ...rows];
+        }, []);
+    
+        console.log('toShipInfoDataConvert: ', toShipInfoDataConvert);
 
     const columns = [
         {
@@ -49,6 +55,14 @@ const OrderCheckDesign = ({toShipInfoData}) => {
         {
             title: 'Tracking ID',
             dataIndex: 'tracking_id'
+        },
+        {
+            title: 'Sản phẩm',
+            dataIndex: 'product_item',
+            width: 200,
+            render: (_, record) => (
+                <OrderProductProver data={record} />
+            ),
         },
         {
             title: 'Người mua',
@@ -72,23 +86,29 @@ const OrderCheckDesign = ({toShipInfoData}) => {
         }
     ]
 
-    const handleCheckOrderWithExcel = () => {
-        const designData = sheets?.values?.slice(2)
+    const handleCheckDesign = async() => {
+        const designData = sheetData?.values?.slice(2)
         const designDataAppend = []
         const designSkuIdObject = {}
+
         designData?.forEach((item, index) => {
             designSkuIdObject[index] = item[0];
-        });
+        })
 
-        const designNewId = dataSource?.map(item => item.sku_id)
+        const designNewId = toShipInfoData.map(item => (
+            item.data?.order_list[0].item_list.map(sku => sku.sku_id)
+        )).flat()
+        
         designNewId.forEach(item => {
+            console.log('item: ', item);
             if (!Object.values(designSkuIdObject).includes(item)) {
                 messageApi.open({
                     type: 'success',
-                    content: 'Có mẫu mới hãy thêm mẫu mới vào Google Sheet',
+                    content: `${item} là mẫu mới. Hãy thêm mẫu mới vào Google Sheet`,
                 });
                 const newIndex = Object.keys(designDataAppend).length.toString()
-                const newItem = dataSource?.find(itemFind => itemFind.sku_id === item)
+                const newItem = toShipInfoDataConvert?.find(itemFind => itemFind.sku_id === item)
+                
                 designDataAppend[newIndex] = [
                     newItem.sku_id, newItem.product_name, newItem.sku_name, "", "", newItem.quantity
                 ]
@@ -97,12 +117,11 @@ const OrderCheckDesign = ({toShipInfoData}) => {
             } else {
                 messageApi.open({
                     type: 'error',
-                    content: 'Mẫu này đã tồn tại',
+                    content: `Mẫu ${item} này đã tồn tại`,
                 });
             }
         });
     }
-    console.log('newDesignData: ', newDesignData);
 
     const handleAddDesign = async () => {
         let oauthAccessToken = localStorage.getItem('oauthAccessToken')
@@ -118,32 +137,25 @@ const OrderCheckDesign = ({toShipInfoData}) => {
         if (oauthAccessToken) {
             const onSuccess = (res) => {
                 if (res) {
+                    messageApi.open({
+                        type: 'success',
+                        content: `Đã thêm mẫu mới vào Google Sheet. Vui lòng kiểm tra lại`,
+                    });
                     setHasNewDesignData(true)
                 }
             }
             const onFail = () => { }
             AddRowToSheet('Team Dang!A:F', dataAddRowToSheet, oauthAccessToken, onSuccess, onFail)            
         }
-      }
-
-    useEffect(() => {
-        const onSuccess = (res) => {
-            // console.log('res: ', res);
-        }
-
-        const onFail = (err) => {
-            console.log(err);
-        }
-        getAllSheetInfo('Team Dang!A:F', onSuccess, onFail)
-    }, [])
+    }
 
     return (
         <div className="p-10">
             <SectionTitle title='Kiểm tra và thêm mẫu' />
             <div>
-                {!hasAddDesign && <Button type="primary" className='mb-3' onClick={handleCheckOrderWithExcel}>Kiếm tra mẫu trên Google Sheet</Button>}
+                {stepCheckDesign === 1 && <Button type="primary" className='mb-3' onClick={handleCheckDesign}>Kiểm tra mẫu trên Google Sheet</Button>}
                 {hasAddDesign && 
-                    <Tooltip placement="top" title='Dữ liệu không có Image 1 (front) và Image 2 (back)'>
+                    <Tooltip placement="top" title='Dữ liệu không có Image 1 (front) và Image 2 (back)' className='ml-3'>
                         <Button type="primary" className='mb-3' onClick={handleAddDesign}>Thêm mẫu trực tiếp trên Google Sheet</Button>
                     </Tooltip>
                 }

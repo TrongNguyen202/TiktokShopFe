@@ -7,6 +7,7 @@ import { alerts } from '../../utils/alerts'
 import { useCategoriesStore } from '../../store/categoriesStore'
 import { useProductsStore } from '../../store/productsStore'
 import { useWareHousesStore } from '../../store/warehousesStore';
+import { useShopsBrand } from '../../store/brandStore';
 import { getPathByIndex, formatNumber } from '../../utils'
 
 import Loading from '../../components/loading'
@@ -26,9 +27,10 @@ const ProductEdit = () => {
     const [form] = Form.useForm();
     const [ skusData, setSkusData ] = useState([])
     const [ imgBase64, setImgBase64 ] = useState([])
-    const { categoriesIsLeafType2, getAllCategoriesIsLeafType2, loading } = useCategoriesStore((state) => state)
+    const { getCategoriesById, categoriesById, loading } = useCategoriesStore((state) => state)
     const { productById, getProductsById, editProduct } = useProductsStore((state) => state)
     const { warehousesById, getWarehousesByShopId} = useWareHousesStore((state) => state)
+    const { getAllBrand, brands} = useShopsBrand((state) => state)
     
     const priceDataForm = productById?.skus?.length === 1 ? formatNumber(productById?.skus[0].price.original_price) : ''
     const availableDataForm = productById?.skus?.length === 1 ? formatNumber(productById?.skus[0].stock_infos[0].available_stock) : ''
@@ -37,11 +39,13 @@ const ProductEdit = () => {
 
     const formData = {
         ...productById,
-        category_id: productById?.category_list?.find(item => item.is_leaf === true).id,
+        category_id: productById?.category_list?.map(item => item.id),
         price: priceDataForm,
         available: availableDataForm,
         seller_sku: skuDataForm
     }
+
+    console.log('productById: ', productById);
 
     useEffect(() => {
         const onSuccess = (res) => {
@@ -51,9 +55,10 @@ const ProductEdit = () => {
             console.log(err);
         }
 
-        getAllCategoriesIsLeafType2(shopId, onSuccess, onFail)
+        getCategoriesById(shopId, onSuccess, onFail)
         getProductsById(shopId, productId, onSuccess, onFail)
         getWarehousesByShopId(shopId, onSuccess, onFail)
+        getAllBrand(shopId, onSuccess, onFail)
 
         form.setFieldsValue(formData);
         setSkusData(productById?.skus?.map((item) => (
@@ -138,7 +143,7 @@ const ProductEdit = () => {
                 form={form}
             >
                 <div className='px-20 pb-5'>
-                    <ProductInformation categories={categoriesIsLeafType2}/>
+                    <ProductInformation shopId={shopId} categories={categoriesById} brands={brands} />
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>

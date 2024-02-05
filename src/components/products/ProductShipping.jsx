@@ -18,15 +18,6 @@ const ProductCreateShipping = ({isProductCreate}) => {
                         />
                     </Form.Item>
                 </Col>
-
-                <Col span={6}>
-                    <Form.Item name='package_dimension_unit' label='Chọn loại kích thước gói sản phẩm:'>
-                        <Radio.Group onChange={(e) => setValuePackage(e.target.value)} value={valuePackage}>
-                            <Radio value='metric'>Số liệu</Radio>
-                            <Radio value='imperial'>Hệ đo lường Anh</Radio>
-                        </Radio.Group>
-                    </Form.Item>
-                </Col>
             </Row>
 
 
@@ -35,9 +26,9 @@ const ProductCreateShipping = ({isProductCreate}) => {
                     <Form.Item name='package_weight' label='Cân nặng:' rules={[{ required: true, message: 'Cân nặng không được để trống' }]}>
                         <InputNumber
                             min={0}
-                            max={100}
+                            max={220}
                             onChange={() => {}}
-                            addonAfter='gr'
+                            addonAfter='pound'
                             className="w-full"
                         />
                     </Form.Item>
@@ -46,8 +37,9 @@ const ProductCreateShipping = ({isProductCreate}) => {
                     <Form.Item name='package_width' label='Chiều rộng:' rules={[{ required: true, message: 'Chiều rộng không được để trống' }]}>
                         <InputNumber
                             min={0}
+                            max={393}
                             onChange={() => {}}
-                            addonAfter='cm'
+                            addonAfter='inch'
                             className="w-full"
                         />
                     </Form.Item>
@@ -56,8 +48,9 @@ const ProductCreateShipping = ({isProductCreate}) => {
                     <Form.Item name='package_height' label='Chiều dài:' rules={[{ required: true, message: 'Chiều dài không được để trống' }]}>
                         <InputNumber
                             min={0}
+                            max={393}
                             onChange={() => {}}
-                            addonAfter='cm'
+                            addonAfter='inch'
                             className="w-full"
                         />
                     </Form.Item>
@@ -66,8 +59,9 @@ const ProductCreateShipping = ({isProductCreate}) => {
                     <Form.Item name='package_length' label='Chiều cao:' rules={[{ required: true, message: 'Chiều cao không được để trống' }]}>
                         <InputNumber
                             min={0}
+                            max={393}
                             onChange={() => {}}
-                            addonAfter='cm'
+                            addonAfter='inch'
                             className="w-full"
                         />
                     </Form.Item>

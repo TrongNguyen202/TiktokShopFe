@@ -175,7 +175,9 @@ const ProductCreateVariationTable = ({variationsData, variationsDataTable, isPro
 
     return (
         <div>
-            <Button onClick={() => setIsModalOpen(true)} type="primary" className='mb-3'>Thêm biến thể</Button>
+            {isProductCreate && 
+                <Button onClick={() => setIsModalOpen(true)} type="primary" className='mb-3'>Thêm biến thể</Button>
+            }
             <Table
                 components={components}
                 rowClassName={() => 'editable-row'}

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { CopyOutlined, EyeOutlined } from '@ant-design/icons'
-import { Button, Input, Layout, Modal, Space, Table, message } from 'antd'
+import { Button, Input, Layout, Modal, Table, message } from 'antd'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useShopsStore } from '../../store/shopsStore'
+import { constants as c } from '../../constants'
 
 import StoreAuthorization from './StoreAuthorization'
 import StoreForm from './StoreForm'
@@ -18,16 +19,18 @@ const Stores = () => {
   const app_key = searchParams.get('app_key')
   const code = searchParams.get('code')
 
-
-  const copyToClipboard = (token) => {
-    navigator.clipboard
-      .writeText(token)
+  const copyToClipboard = async(content, key) => {
+    try {
+      await navigator.clipboard.writeText(content)
       .then(() => {
-        message.success("Đã sao chép");
+        message.success(`Đã sao chép ${key}`);
       })
       .catch(() => {
-        message.error("Sao chép thất bại");
+        message.error(`Sao chép ${key} thất bại!`);
       });
+    } catch (err) {
+      message.error(`${err}. Không thể sao chép ${key}!`);
+    }
   };
 
   const handleRefreshToken = (shopId) => {
@@ -80,7 +83,7 @@ const Stores = () => {
       width: 350,
       render: (token) => (
         <p className="w-[350px] flex justify-between items-center">
-          <p className="w-[300px]">{token}</p> <CopyOutlined className="cursor-pointer" onClick={() => copyToClipboard(token)}/>
+          <p className="w-[300px]">{token}</p> <CopyOutlined className="cursor-pointer" onClick={() => copyToClipboard(token, 'access_token')}/>
         </p>
       ),
     },
@@ -111,6 +114,11 @@ const Stores = () => {
     setShopData(storesFilter)
   }
 
+  const handleAddStore = () => {
+    setShowModal(true)
+    copyToClipboard(c.LINK_STORE_CODE, 'link')
+  }
+
   useEffect(() => {
     const onSuccess = (res) => {
       if (res.length > 0) {
@@ -134,7 +142,7 @@ const Stores = () => {
         <div className='w-[400px]'>
           <Search placeholder='Tìm kiếm theo tên...' onChange={onSearch}/>
         </div>
-        <Button type='primary' onClick={() => setShowModal(true)}>Thêm cửa hàng</Button>
+        <Button type='primary' onClick={() => handleAddStore()}>Thêm cửa hàng</Button>
       </div>
 
       <Table
@@ -155,7 +163,7 @@ const Stores = () => {
         footer={null}
         width={600}
       >
-        {!app_key && !code ? <StoreAuthorization /> : <StoreForm app_key={app_key} code={code} />}
+        {!app_key && !code ? <StoreAuthorization/> : <StoreForm app_key={app_key} code={code} />}
         
       </Modal>
     </Layout.Content>
