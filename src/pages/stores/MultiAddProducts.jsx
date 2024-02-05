@@ -223,10 +223,14 @@ const MultiAddProducts = () => {
       const originalTitle = doc.title;
       let title = originalTitle.toLowerCase();
 
-      badWords.forEach((word) => {
-        title = title.replace(word.toLowerCase(), "");
-      });
-      title += ` ${suffixTitle}`;
+      if (badWords && badWords.length === 0) {
+        badWords.forEach((word) => {
+          title = title.replace(word.toLowerCase(), "");
+        });
+      }
+      if (suffixTitle) {
+        title += ` ${suffixTitle}`;
+      }
       doc.title = originalTitle.replace(originalTitle, title);
       // doc.title = title;
 
