@@ -466,7 +466,7 @@ def callGlobalCategories(access_token):
     sign = SIGNNOBODY.cal_sign(secret, urllib.parse.urlparse(url), query_params)
     query_params["sign"] = sign
     response = requests.get(url, params=query_params)
-    print(response)
+    print("dddd",response.text)
     return response
 
 

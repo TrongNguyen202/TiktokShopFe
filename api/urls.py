@@ -41,7 +41,9 @@ urlpatterns = [
     'shops/<int:shop_id>/categories/<int:category_id>/products/get_attribute',
     views.GetProductAttribute.as_view(),
     name='get_product_att'
-)
+),
+    path("brands/global", views.GlobalBrand.as_view(), name="globals_brands"),
+
 
 
     

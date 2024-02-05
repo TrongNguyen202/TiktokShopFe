@@ -53,3 +53,7 @@ class Template(models.Model):
 class Categories(models.Model):
     data = JSONField()
     objects = models.Manager()
+    
+class Brand(models.Model):
+    data = JSONField()
+    objects = models.Manager()

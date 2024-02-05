@@ -6,7 +6,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 from tiktok.settings import EMAIL_HOST_USER
-from .models import CustomUser
+from api.models import CustomUser
 import hmac
 import hashlib
 from datetime import datetime
