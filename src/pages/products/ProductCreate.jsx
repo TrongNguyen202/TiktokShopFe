@@ -24,7 +24,7 @@ const ProductCreate = () => {
     const [ imgBase64, setImgBase64 ] = useState([])
     const [ attributeValues, setAttributeValues ] = useState([])
     const [messageApi, contextHolder] = message.useMessage()
-    const { getCategoriesById, categoriesById, loading } = useCategoriesStore((state) => state)
+    const { getAllCategoriesIsLeaf, categoriesIsLeaf, loading } = useCategoriesStore((state) => state)
     const { productById, createOneProduct } = useProductsStore((state) => state)
     const { warehousesById, getWarehousesByShopId} = useWareHousesStore((state) => state)
     const { getAllBrand, brands} = useShopsBrand((state) => state)
@@ -147,7 +147,7 @@ const ProductCreate = () => {
             });
         }
 
-        getCategoriesById(shopId, onSuccess, onFail)
+        getAllCategoriesIsLeaf(onSuccess, onFail)
         getWarehousesByShopId(shopId, onSuccess, onFail)
         getAllBrand(shopId, onSuccess, onFail)
         
@@ -165,28 +165,6 @@ const ProductCreate = () => {
         setAttributeValues(data)
     }
 
-    // const convertedArray = testAttr.map(item => {
-    //     const [attribute_id] = Object.keys(item);
-    //     const attribute_values = item[attribute_id].map(value => ({
-    //         value_id: value
-    //     }));
-
-        
-
-    //     const attributeValueName = attributeValues?.filter(attr => (
-    //         attr.id === attribute_id
-    //     ))
-
-    //     // console.log('attributeValueName: ', attributeValueName)
-    
-    //     return {
-    //         attribute_id: attribute_id,
-    //         attribute_values: attribute_values
-    //     };
-    // });
-
-    // console.log('convertedArray: ', convertedArray);
-
     if (loading) return <Loading/>
     return (
         <>
@@ -202,7 +180,7 @@ const ProductCreate = () => {
                 form={form}
             >
                 <div className='px-20 pb-5'>
-                    <ProductInformation shopId={shopId} categories={categoriesById} brands={brands} getAttributeValues={getAttributesByCategory} />
+                    <ProductInformation shopId={shopId} categories={categoriesIsLeaf} brands={brands} getAttributeValues={getAttributesByCategory} />
                 </div>
      
                 <div className='h-[10px] bg-[#f5f5f5]'/>

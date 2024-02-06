@@ -10,10 +10,12 @@ import ProductSectionTitle from './ProuctSectionTitle';
 import CustomSelect from '../../pages/stores/CustomSelect';
 
 const ProductInformation = ({shopId, categories, brands, getAttributeValues}) => {
+    console.log("categories", categories)
     const [valueDescription, setValueDescription] = useState('');
     const [messageApi, contextHolder] = message.useMessage()
     const {getAttributeByCategory, attributes, attributeLoading} = useCategoriesStore((state) => state)
-    const categoriesData = buildNestedArraysMenu(categories?.category_list, '0')
+    const categoriesData = buildNestedArraysMenu(categories, '0')
+
 
     const convertBrand = brands?.brand_list?.map((item) => (
         {

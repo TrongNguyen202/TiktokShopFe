@@ -23,12 +23,11 @@ export const useCategoriesStore = create((set) => ({
     }
     set({ loading: false })
   },
-  getAllCategoriesIsLeaf: async (id, onSuccess = () => {}, onFail = () => {}) => {
+  getAllCategoriesIsLeaf: async (onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true })
-      const response = await RepositoryRemote.categories.getAllCategoriesIsLeaf(id)
+      const response = await RepositoryRemote.categories.getAllCategoriesIsLeaf()
       set({ categoriesIsLeaf: response.data.data.category_list })
-      set({ infoTable: response.data.category_list })
       onSuccess(response.data.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')

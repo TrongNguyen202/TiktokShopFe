@@ -27,7 +27,7 @@ const ProductEdit = () => {
     const [form] = Form.useForm();
     const [ skusData, setSkusData ] = useState([])
     const [ imgBase64, setImgBase64 ] = useState([])
-    const { getCategoriesById, categoriesById, loading } = useCategoriesStore((state) => state)
+    const { getAllCategoriesIsLeaf, categoriesIsLeaf, loading } = useCategoriesStore((state) => state)
     const { productById, getProductsById, editProduct } = useProductsStore((state) => state)
     const { warehousesById, getWarehousesByShopId} = useWareHousesStore((state) => state)
     const { getAllBrand, brands} = useShopsBrand((state) => state)
@@ -39,7 +39,7 @@ const ProductEdit = () => {
 
     const formData = {
         ...productById,
-        category_id: productById?.category_list?.map(item => item.id),
+        category_id: categoriesIsLeaf?.map(item => item.id),
         price: priceDataForm,
         available: availableDataForm,
         seller_sku: skuDataForm
@@ -55,7 +55,7 @@ const ProductEdit = () => {
             console.log(err);
         }
 
-        getCategoriesById(shopId, onSuccess, onFail)
+        getAllCategoriesIsLeaf(shopId, onSuccess, onFail)
         getProductsById(shopId, productId, onSuccess, onFail)
         getWarehousesByShopId(shopId, onSuccess, onFail)
         getAllBrand(shopId, onSuccess, onFail)
@@ -143,7 +143,7 @@ const ProductEdit = () => {
                 form={form}
             >
                 <div className='px-20 pb-5'>
-                    <ProductInformation shopId={shopId} categories={categoriesById} brands={brands} />
+                    <ProductInformation shopId={shopId} categories={categoriesIsLeaf} brands={brands} />
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>
