@@ -11,7 +11,7 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Tesseract-OCR\tesseract.exe'
 path_to_poppler_exe = Path(r"C:\Library\bin")
 out_directory = Path(r"C:\output").expanduser()
 text_file = out_directory / Path("out_text.txt")
-path_test = Path(r"C:\pdflabel\576574955557261378.pdf")
+
 def remove_special_characters(text):
     # Thay thế các kí tự đặc biệt bằng chuỗi trống
     special_characters = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '+', '=', '[', ']', '{', '}', ';', ':', ',', '.', '<', '>', '/', '?', '\\', '|']

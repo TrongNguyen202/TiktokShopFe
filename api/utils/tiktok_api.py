@@ -298,6 +298,21 @@ def callEditProduct(access_token, product_object,imgBase64):
             "original_price": sku.original_price,
             "stock_infos": stock_infos_list
         })
+        product_attributes_list = []
+        for attribute in product_object.product_attributes:
+            attribute_values_list = [
+                {
+                    "value_id": value.value_id,
+                    "value_name": value.value_name
+                } for value in attribute.attribute_values
+            ]
+            product_attributes_list.append({
+                "attribute_id": attribute.attribute_id,
+                "attribute_values": attribute_values_list
+            })
+  
+    
+
 
     bodyjson = {
         "product_id": product_object.product_id,
@@ -312,9 +327,13 @@ def callEditProduct(access_token, product_object,imgBase64):
         "package_width": product_object.package_width,
         "category_id": product_object.category_id,
         "description": product_object.description,
-        "skus": skus_list
+        "skus": skus_list,
+        "product_attributes":product_attributes_list
     }
+    if product_object.brand_id != "":
+        bodyjson["brand_id"] = product_object.brand_id
     body = json.dumps(bodyjson)
+    
 
     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
     query_params["sign"] = sign
@@ -435,11 +454,12 @@ def callCreateOneProduct(access_token,product_object):
         "package_weight": product_object.package_weight,
         "package_width": product_object.package_width,
         "category_id": product_object.category_id,
-        "brand_id": product_object.brand_id,
         "description": product_object.description or "",
         "skus": skus_list,
         "product_attributes": product_attributes_list
     }
+    if product_object.brand_id != "":
+        bodyjson["brand_id"] = product_object.brand_id
 
     body = json.dumps(bodyjson)
     print("Images:", product_object.images)
@@ -580,11 +600,12 @@ def callCreateOneProductDraf(access_token,product_object):
         "package_weight": product_object.package_weight,
         "package_width": product_object.package_width,
         "category_id": product_object.category_id,
-        "brand_id": product_object.brand_id,
         "description": product_object.description or "",
         "skus": skus_list,
         "product_attributes": product_attributes_list
     }
+    if product_object.brand_id != "":
+        bodyjson["brand_id"] = product_object.brand_id
 
     body = json.dumps(bodyjson)
     
@@ -595,6 +616,7 @@ def callCreateOneProductDraf(access_token,product_object):
 
    
     response = requests.post(url, params=query_params, json=json.loads(body))
+    print(response.text)
 
     
     return HttpResponse(response)

@@ -166,3 +166,10 @@ class ProductCreateOneObject:
         }
 
         
+ROLE_USERGROUP_CHOICES = (
+    (0, "Admin"),
+    (1, "Manager"),
+    (2, "Seller"),
+)
+ROLE_USERGROUP_DEFAULT = 2
+MAX_WORKER =3

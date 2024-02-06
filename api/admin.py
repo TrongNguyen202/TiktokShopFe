@@ -1,7 +1,7 @@
 # yourapp/admin.py
 
 from django.contrib import admin
-from .models import Shop, CustomUser, Image, Template 
+from .models import Shop, CustomUser, Image, Template, GroupCustom,UserGroup,Brand,UserShop
 
 
 @admin.register(Shop)
@@ -31,3 +31,8 @@ class TemplateAdmin(admin.ModelAdmin):
 
 from api.models import Categories
 admin.site.register(Categories)
+admin.site.register(UserGroup)
+admin.site.register(GroupCustom)
+
+admin.site.register(Brand)
+admin.site.register(UserShop)

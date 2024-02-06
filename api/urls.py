@@ -12,6 +12,7 @@ urlpatterns = [
     path("signup", views.SignUp.as_view(), name="signup"),
     path("verify/<str:uidb64>/<str:token>", views.Verify.as_view(), name="verify"),
     path("shops/<int:shop_id>/products/list", views.ListProduct.as_view(), name="product_list"),
+    path("shops/list", views.ShopList.as_view(), name="product_listss"),
     path("shops", views.Shops.as_view(), name="Shops_create_list"),
     path("shops/<int:shop_id>", views.ShopDetail.as_view(), name="Shops_put_get_delete"),
     path("shops/<int:shop_id>/refreshtoken", views.RefreshToken.as_view(), name="refresh_token"),
@@ -43,6 +44,12 @@ urlpatterns = [
     name='get_product_att'
 ),
     path("brands/global", views.GlobalBrand.as_view(), name="globals_brands"),
+    path("brands/global", views.GlobalBrand.as_view(), name="globals_brands"),
+    path('shops/<int:shop_id>/products/create_product_draf', views.CreateOneProductDraf.as_view(), name='create_one_product_draf'),
+    path("groups/<int:group_custom_id>/permission", views.PermissionRole.as_view(), name="divide_role"),
+    path('user-shops/groups/<int:group_custom_id>', views.UserShopList.as_view(), name='user_shops_list')
+
+
 
 
 

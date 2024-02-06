@@ -92,11 +92,32 @@ def is_webp_image_without_bits(img):
         except AttributeError:
             return True
     return False
+class AttributeValue:
+    def __init__(self, value_id, value_name):
+        self.value_id = value_id
+        self.value_name = value_name
 
+    def to_json(self):
+        return {
+            "value_id": self.value_id,
+            "value_name": self.value_name
+        }
+
+class ProductAttribute:
+    def __init__(self, attribute_id, attribute_values):
+        self.attribute_id = attribute_id
+        self.attribute_values = [AttributeValue(**value) for value in attribute_values]
+
+    def to_json(self):
+        values_json = [value.to_json() for value in self.attribute_values]
+        return {
+            "attribute_id": self.attribute_id,
+            "attribute_values": values_json
+        }
 class ProductObject:
     def __init__(self, product_id, product_name, images, price, is_cod_open, 
                  package_dimension_unit, package_height, package_length, package_weight, package_width,
-                 category_id, description, skus):
+                 category_id,brand_id, description, skus,product_attributes):
         self.product_id = product_id
         self.product_name = product_name
         self.images = images
@@ -108,11 +129,14 @@ class ProductObject:
         self.package_weight = package_weight
         self.package_width = package_width
         self.category_id = category_id
+        self.brand_id = brand_id
         self.description = description
         self.skus = [SKU(**sku_data) for sku_data in skus]
+        self.product_attributes = [ProductAttribute(**attr) for attr in product_attributes]
 
     def to_json(self):
         skus_json = [sku.to_json() for sku in self.skus]
+        attributes_json = [attr.to_json() for attr in self.product_attributes]
         return {
             "product_id": self.product_id,
             "product_name": self.product_name,
@@ -125,8 +149,10 @@ class ProductObject:
             "package_weight": self.package_weight,
             "package_width": self.package_width,
             "category_id": self.category_id,
+            "brand_id": self.brand_id,
             "description": self.description,
-            "skus": skus_json
+            "skus": skus_json,
+            "product_attributes": attributes_json
         }
 
 class SKU:

@@ -28,8 +28,8 @@ from .serializers import (
 
 from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes,callCreateOneProduct,callGlobalCategories,callGetShippingDocument,callGetAttribute,callCreateOneProductDraf
 from django.http import HttpResponse
-from .models import Shop, Image, Template, Categories
-from api.utils.constant import app_key, secret, grant_type,ProductCreateObject,ProductCreateOneObject
+from .models import Shop, Image, Template, Categories,UserShop,UserGroup,GroupCustom
+from api.utils.constant import app_key, secret, grant_type,ProductCreateObject,ProductCreateOneObject,MAX_WORKER
 from django.http import HttpResponse
 from django.http import JsonResponse
 import base64
@@ -181,11 +181,18 @@ class OrderDetail(APIView):
         content = response.content
         return HttpResponse(content, content_type='application/json')
 
-
+from .models import UserGroup
 class Shops(APIView):
-    # permission_classes =  (IsAuthenticated,)
-    def get_shop_list(self):
-        shops = Shop.objects.filter()
+    permission_classes =  (IsAuthenticated,)
+    def get_user_group(self, user):
+        try:
+            user_group = UserGroup.objects.get(user=user)
+            return user_group.group_custom
+        except UserGroup.DoesNotExist:
+            return None
+    def get_shop_list(self, group):
+        # Lấy danh sách cửa hàng thuộc nhóm
+        shops = Shop.objects.filter(group_custom_id=group)
         return shops
 
     @extend_schema(
@@ -263,11 +270,27 @@ class Shops(APIView):
     #    else:
     #        return Response(shop_serializer.errors, status=400)
     def get(self, request):
-        shops = self.get_shop_list()
+        user = request.user
+
+        # Lấy thông tin nhóm của người dùng
+        user_group = self.get_user_group(user)
+
+        # Nếu không có thông tin nhóm, trả về một Response phù hợp
+        if user_group is None:
+            return Response({'error': 'User does not belong to any group'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Lấy danh sách cửa hàng thuộc nhóm của người dùng
+        shops = self.get_shop_list(user_group)
         serializer = ShopSerializers(shops, many=True)
+
         return Response(serializer.data)
 
-
+class ShopList(APIView):
+    def get(self, request):
+        shops = Shop.objects.all()
+        serializer = ShopSerializers(shops, many=True)
+        return Response(serializer.data)
+    
 class ShopDetail(APIView):
     # permission_classes = (IsAuthenticated,)
 
@@ -725,6 +748,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views import View
 import requests
 
+
 @method_decorator(csrf_exempt, name='dispatch')
 class ProcessExcel(View):
 
@@ -774,7 +798,7 @@ class ProcessExcel(View):
 
         downloaded_image_paths = []
 
-        with ThreadPoolExecutor() as executor:
+        with ThreadPoolExecutor(max_workers=MAX_WORKER) as executor:
             image_futures = []
 
             for key, image_url in images.items():
@@ -929,9 +953,11 @@ class EditProductAPIView(APIView):
        
 
         # Tạo một đối tượng ProductObject không chứa imgBase64
-        product_object_data = {key: value for key, value in product_data.items() if key != 'imgBase64'}
+        product_object_data = {key: value for key, value in product_data.items() if key != 'imgBase64' }
        
         product_object = ProductObject(**product_object_data)
+
+
 
         callEditProduct(access_token, product_object, img_base64)
 
@@ -1229,6 +1255,51 @@ class CreateOneProductDraf(APIView):
         callCreateOneProductDraf(access_token, product_object)
 
         return JsonResponse({'status': 'success'}, status=201)
+
+class PermissionRole(APIView):
+    def post(self, request, group_custom_id):
+        data = request.data.get('data', [])
+        response_data = []
+
+        for item in data:
+            user_id = item["user_id"]
+            shop_ids = item.get("shop_id", [])
+            
+            for shop_id in shop_ids:
+                user_shop, created = UserShop.objects.get_or_create(user_id=user_id, shop_id=shop_id)
+                if created:
+                    response_data.append({
+                        "user_id": user_id,
+                        "shop_id": shop_id,
+                        "message": "User assigned to shop successfully."
+                    })
+                else:
+                    response_data.append({
+                        "user_id": user_id,
+                        "shop_id": shop_id,
+                        "message": "User is already assigned to this shop."
+                    })
+
+        return Response({"data": response_data})
+
+class UserShopList(APIView):
+    def get(self, request, group_custom_id):
+        group_custom = get_object_or_404(GroupCustom, id=group_custom_id)
+        user_shops_data = {"group_id": group_custom.id, "group_name": group_custom.group_name, "users": []}
+        
+        # Lấy tất cả các người dùng trong nhóm hiện tại
+        for user_group in group_custom.usergroup_set.all():
+            user_data = {"user_id": user_group.user.id, "shops": []}
+           
+            
+            # Lấy tất cả các cửa hàng của người dùng trong nhóm hiện tại
+            for user_shop in UserShop.objects.filter(user=user_group.user, shop__group_custom_id=group_custom.id):
+                user_data["shops"].append(user_shop.shop.id)
+            
+            user_shops_data["users"].append(user_data)
+        
+        return Response({"data": user_shops_data})
+        
 
 
 
