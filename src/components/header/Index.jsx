@@ -22,8 +22,8 @@ const Header = ({ collapsed, changeCollapsed }) => {
 
   return (
     <StyledHeader>
-      <Row justify='space-between'>
-        <Col>
+      <Row className='justify-end md:justify-between'>
+        <Col className='hidden md:block'>
           {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
             onClick: () => changeCollapsed(),
           })}

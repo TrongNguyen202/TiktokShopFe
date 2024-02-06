@@ -17,6 +17,7 @@ const Login = () => {
 
   const onSubmit = (value) => {
     const onSuccess = (token) => {
+      console.log('token: ', token)
       setToken(token)
       navigate(PATH.HOME)
       alerts.success('Thành công')

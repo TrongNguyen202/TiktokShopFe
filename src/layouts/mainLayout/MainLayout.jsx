@@ -10,8 +10,8 @@ const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(true);
 
   return (
-    <Layout>
-      <Sidebar collapsed={collapsed} />
+    <Layout className="block md:flex">
+      <Sidebar collapsed={collapsed}/>
       <Scrollbars
         style={{ height: "100vh" }}
         autoHide
