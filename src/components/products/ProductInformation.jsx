@@ -10,12 +10,10 @@ import ProductSectionTitle from './ProuctSectionTitle';
 import CustomSelect from '../../pages/stores/CustomSelect';
 
 const ProductInformation = ({shopId, categories, brands, getAttributeValues}) => {
-    console.log("categories", categories)
     const [valueDescription, setValueDescription] = useState('');
     const [messageApi, contextHolder] = message.useMessage()
     const {getAttributeByCategory, attributes, attributeLoading} = useCategoriesStore((state) => state)
-    const categoriesData = buildNestedArraysMenu(categories, '0')
-
+    const categoriesData = buildNestedArraysMenu(categories, 0)
 
     const convertBrand = brands?.brand_list?.map((item) => (
         {
@@ -46,6 +44,8 @@ const ProductInformation = ({shopId, categories, brands, getAttributeValues}) =>
         }
         getAttributeByCategory(shopId, categoryId, onSuccess, onFail)
     }
+
+    console.log('categoriesData: ', categoriesData);
     
     return (
         <>
@@ -56,16 +56,15 @@ const ProductInformation = ({shopId, categories, brands, getAttributeValues}) =>
 
             <Form.Item label="Danh mục:" name='category_id' rules={[{ required: true, message: 'Danh mục không được để trống' }]}>
                 <Cascader 
-                    options={categoriesData} 
+                    options={categoriesData}
                     onChange={handleChangeCategories} 
                     placeholder="Please select"
-                    showSearch={(input, options) => {
-                        return (
-                            options.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
-                            options.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                        );
-                    }}
-                    onSearch={(value) => console.log(value)}
+                    // showSearch={(input, options) => {
+                    //     return (
+                    //         options.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
+                    //         options.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    //     )
+                    // }}
                 />
             </Form.Item>
 
@@ -77,7 +76,6 @@ const ProductInformation = ({shopId, categories, brands, getAttributeValues}) =>
                     onChange={() => {}}
                     options={optionsBranch}
                     filterOption={(input, options) => {
-                        console.log('option: ', options);
                         return (
                             options.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
                             options.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -105,7 +103,7 @@ const ProductInformation = ({shopId, categories, brands, getAttributeValues}) =>
                                     }
                                 ))
 
-                                const itemAttributeSelect = ["101395", "101400"]
+                                const itemAttributeSelect = ["101395", "101400", "100110", "100108"]
                                 return (
                                     <Col span={8}>
                                         <Form.Item label={item.name} name={['product_attributes', item.id ]}>

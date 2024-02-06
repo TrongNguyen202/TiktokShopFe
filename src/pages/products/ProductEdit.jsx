@@ -1,18 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'
-import { Button, Form} from 'antd';
-import { toast } from 'react-toastify'
+import { Button, Form, message} from 'antd';
 
 import { alerts } from '../../utils/alerts'
 import { useCategoriesStore } from '../../store/categoriesStore'
 import { useProductsStore } from '../../store/productsStore'
 import { useWareHousesStore } from '../../store/warehousesStore';
 import { useShopsBrand } from '../../store/brandStore';
-import { getPathByIndex, formatNumber } from '../../utils'
+import { getPathByIndex, formatNumber, ConvertProductAttribute } from '../../utils'
 
 import Loading from '../../components/loading'
 import PageTitle from "../../components/common/PageTitle";
-// import PrductEditAttributes from '../../components/products/PrductEditAttributes';
 import ProductMedia from '../../components/products/ProductMedia';
 import ProductInformation from '../../components/products/ProductInformation';
 import ProductSale from '../../components/products/ProductSale';
@@ -25,8 +23,10 @@ const ProductEdit = () => {
     const shopId = getPathByIndex(2)
     const productId = getPathByIndex(4)
     const [form] = Form.useForm();
+    const [messageApi, contextHolder] = message.useMessage();
     const [ skusData, setSkusData ] = useState([])
     const [ imgBase64, setImgBase64 ] = useState([])
+    const [ attributeValues, setAttributeValues ] = useState([])
     const { getAllCategoriesIsLeaf, categoriesIsLeaf, loading } = useCategoriesStore((state) => state)
     const { productById, getProductsById, editProduct } = useProductsStore((state) => state)
     const { warehousesById, getWarehousesByShopId} = useWareHousesStore((state) => state)
@@ -36,29 +36,21 @@ const ProductEdit = () => {
     const availableDataForm = productById?.skus?.length === 1 ? formatNumber(productById?.skus[0].stock_infos[0].available_stock) : ''
     const skuDataForm = productById?.skus?.length === 1 ? formatNumber(productById?.skus[0].seller_sku) : ''
     const imgBase64List = imgBase64?.filter(item => item.thumbUrl)
+    const imgBase64Data = imgBase64List?.map(item => item.thumbUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, ''))
 
     const formData = {
         ...productById,
-        category_id: categoriesIsLeaf?.map(item => item.id),
+        category_id: productById?.category_list?.map(item => parseInt(item.id)),
         price: priceDataForm,
         available: availableDataForm,
         seller_sku: skuDataForm
     }
 
-    console.log('productById: ', productById);
-
     useEffect(() => {
-        const onSuccess = (res) => {
-            console.log(res)
-        }
-        const onFail = (err) => {
-            console.log(err);
-        }
-
-        getAllCategoriesIsLeaf(shopId, onSuccess, onFail)
-        getProductsById(shopId, productId, onSuccess, onFail)
-        getWarehousesByShopId(shopId, onSuccess, onFail)
-        getAllBrand(shopId, onSuccess, onFail)
+        getAllCategoriesIsLeaf()
+        getProductsById(shopId, productId)
+        getWarehousesByShopId(shopId)
+        getAllBrand(shopId)
 
         form.setFieldsValue(formData);
         setSkusData(productById?.skus?.map((item) => (
@@ -82,23 +74,24 @@ const ProductEdit = () => {
     }
 
     const onFinish = async(values) => {
-        // console.log('values: ', values);
-        // console.log('skusData: ', skusData);
+        const category_id = values?.category_id[values?.category_id.length - 1]
+        const product_attributes = ConvertProductAttribute(values.product_attributes, attributeValues)
+
         const dataFormSubmit = {
             product_id: productId,
             product_name: values.product_name,
             images: values?.images?.map((item) => ({
                 id: item.id
             })),
-            imgBase64: imgBase64List?.map(item => item.thumbUrl.replace('data:image/png;base64,', '')),
+            imgBase64: imgBase64Data,
             price: values.price,
             is_cod_open: values.is_cod_open,
-            package_dimension_unit: values.package_dimension_unit,
+            package_dimension_unit: 'metric',
             package_height: values.package_height,
             package_length: values.package_length,
             package_weight: values.package_weight,
             package_width: values.package_width,
-            category_id: values.category_id,
+            category_id: category_id ? category_id : "",
             description: values.description,
             skus: skusData?.map((item) => (
                 {
@@ -113,25 +106,40 @@ const ProductEdit = () => {
                     original_price: item.price,
                     stock_infos: item.stock_infos
                 }
-            ))
+            )),
+            brand_id: values.brand_id ? values.brand_id : "",
+            product_attributes: product_attributes ? product_attributes : [],
         }
+
+        // console.log('dataFormSubmit: ', dataFormSubmit);
 
         const UpdateSuccess = (res) => {
             if (res.status === "success") {
-                alerts.success('Cập nhật sản phẩm thành công!')
+                messageApi.open({
+                    type: 'success',
+                    content: 'Cập nhật sản phẩm thành công!',
+                });
                 navigate(`/shops/${shopId}/products`)
             }
         }
-        editProduct(shopId, productId, dataFormSubmit, UpdateSuccess, (err) => console.log(err))
-    };
-    
-    const onFinishFailed = (errorInfo) => {
-        console.log('Failed:', errorInfo);
-    };
+
+        const UpdateFail = (err) => {
+            messageApi.open({
+                type: 'error',
+                content: err,
+            });
+        }
+        editProduct(shopId, productId, dataFormSubmit, UpdateSuccess, UpdateFail)
+    }
+
+    const getAttributesByCategory = (data) => {
+        setAttributeValues(data)
+    }
 
     if (loading) return <Loading/>
     return (
         <>
+            {contextHolder}
             <div className='p-10'>
                 <PageTitle title='Sửa sản phẩm' showBack />                
             </div>
@@ -139,11 +147,10 @@ const ProductEdit = () => {
             <Form
                 layout="vertical"
                 onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
                 form={form}
             >
                 <div className='px-20 pb-5'>
-                    <ProductInformation shopId={shopId} categories={categoriesIsLeaf} brands={brands} />
+                    <ProductInformation shopId={shopId} categories={categoriesIsLeaf} brands={brands} getAttributeValues={getAttributesByCategory}/>
                 </div>
 
                 <div className='h-[10px] bg-[#f5f5f5]'/>

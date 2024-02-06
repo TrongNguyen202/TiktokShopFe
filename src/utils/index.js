@@ -155,7 +155,7 @@ export const buildNestedArraysMenu = (items, parentId) => {
 
   return filteredItems?.map(item => {
     const children = buildNestedArraysMenu(items, item.id);
-    return children ? { label: item.local_display_name, key: item.id , children, value: item.id } : { label: item.local_display_name, key: item.id, value: item.id };
+    return children ? { label: item.category_name, key: item.id , children, value: item.id } : { label: item.category_name, key: item.id, value: item.id };
   });
 }
 
@@ -175,4 +175,52 @@ export const flatMapArray = (array1, array2) => {
         ]
     }))
   );
+}
+
+export const ConvertProductAttribute = (product_attributes, attributeValues) => {
+
+  const newAttributes = product_attributes && Object.entries(product_attributes).map(([id, values]) => ({
+    id,
+    values
+  }))
+  const newAttributeConvert = newAttributes?.filter(item => item.values !== undefined)
+
+  const convertAttributeData = newAttributeConvert?.map(item => {
+      const attributeFilter = attributeValues?.find(attr => attr.id === item.id)
+      
+      if (attributeFilter) {
+          const attribute_id = item.id
+          let valuesAttr =  []
+          let attribute_values = []
+          if (typeof item?.values === 'string') {
+              const valuesAttr = attributeFilter?.values?.find(value => value.id === item.values)
+              attribute_values = [
+                  {
+                      value_id: valuesAttr?.id,
+                      value_name: valuesAttr?.name
+                  }
+              ]
+          } else {
+              valuesAttr = item?.values?.map(value => (
+                  attributeFilter?.values?.find(attrValue => attrValue.id === value)
+              ))
+
+              attribute_values = valuesAttr?.map(attr => (
+                  {
+                      value_id: attr?.id,
+                      value_name: attr?.name
+                  }
+              ))
+          }
+
+          if (!attribute_values) return null
+          
+          return {
+            attribute_id: attribute_id,
+            attribute_values: attribute_values
+          }
+      }
+  })
+  const productAttribute = convertAttributeData?.filter(item => item !== null)
+  return productAttribute
 }

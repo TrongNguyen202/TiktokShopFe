@@ -127,7 +127,7 @@ export default function TemplateForm({
   const dataPrice = useRef(templateJson?.id ? templateJson.types : null);
 
   useEffect(() => {
-    getAllCategoriesIsLeaf(shopId);
+    getAllCategoriesIsLeaf();
   }, []);
 
   useEffect(() => {
