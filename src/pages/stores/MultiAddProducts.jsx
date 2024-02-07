@@ -261,7 +261,7 @@ const MultiAddProducts = () => {
     } = templateJSON ?? {};
     const dataSubmit = {
       excel: sanitizeTitles(productsJSON),
-      category_id,
+      category_id: String(category_id[category_id.length - 1]),
       warehouse_id,
       package_height,
       package_length,
