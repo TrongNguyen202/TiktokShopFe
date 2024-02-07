@@ -78,7 +78,7 @@ def callProductDetail(access_token,product_id):
     
     response = requests.get(url, params=query_params)
   
-    
+    print(response.text)
     return response
 
 
@@ -221,7 +221,7 @@ def createProduct(access_token,title,images_ids,product_object):
         "package_weight": product_object.package_weight,
         "package_width": product_object.package_width,
         "category_id": product_object.category_id,
-        "brand_id": product_object.brand_id,
+       
         "description": product_object.description or "",
         "skus": skus_list
     }
@@ -235,6 +235,7 @@ def createProduct(access_token,title,images_ids,product_object):
     response = requests.post(url, params=query_params, json=json.loads(body))
 
     # Process the response
+    print(response.text)
    
     return HttpResponse(response)
 

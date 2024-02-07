@@ -30,7 +30,7 @@ TIKTOK_API_URL = {
 class ProductCreateObject:
     def __init__(self, is_cod_open, 
                  package_dimension_unit, package_height, package_length, package_weight, package_width,
-                 category_id, brand_id, warehouse_id,description, skus):
+                 category_id, warehouse_id,description, skus):
         
     
         self.is_cod_open = is_cod_open
@@ -40,7 +40,7 @@ class ProductCreateObject:
         self.package_weight = package_weight
         self.package_width = package_width
         self.category_id = category_id
-        self.brand_id = brand_id
+       
         self.warehouse_id = warehouse_id
         self.description = description
         self.skus = [SKU(**sku_data) for sku_data in skus]
@@ -55,7 +55,7 @@ class ProductCreateObject:
             "package_weight": self.package_weight,
             "package_width": self.package_width,
             "category_id": self.category_id,
-            "brand_id":self.brand_id,
+           
             "warehouse_id":self.warehouse_id,
             "description": self.description,
             "skus": skus_json

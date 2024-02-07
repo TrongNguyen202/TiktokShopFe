@@ -28,7 +28,7 @@ from .serializers import (
 
 from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes,callCreateOneProduct,callGlobalCategories,callGetShippingDocument,callGetAttribute,callCreateOneProductDraf
 from django.http import HttpResponse
-from .models import Shop, Image, Template, Categories,UserShop,UserGroup,GroupCustom
+from .models import Shop, Image, Templates, Categories,UserShop,UserGroup,GroupCustom
 from api.utils.constant import app_key, secret, grant_type,ProductCreateObject,ProductCreateOneObject,MAX_WORKER
 from django.http import HttpResponse
 from django.http import JsonResponse
@@ -427,17 +427,18 @@ class ShopSearchViews(generics.ListAPIView):
             queryset = queryset.filter(shop_code__icontains=shop_code)
 
         return queryset
+from .models import Templates  # import model
 
-class Templates(APIView):
+class TemplateList(APIView):  # đổi tên thành TemplateList
     permission_classes = (IsAuthenticated,)
-    print("permission_classes", permission_classes)
+    
     def get(self, request):
         user = self.request.user
-        templates = Template.objects.filter(user=user)
+        templates = Templates.objects.filter(user=user)
         serializer = TemplateSerializer(templates, many=True)
         return Response(serializer.data)
     def post(self, request):
-        template = Template.objects.create(
+        template = Templates.objects.create(
             name = request.data.get('name'),
             category_id = request.data.get('category_id'),
             description = request.data.get('description'),
@@ -455,7 +456,7 @@ class Templates(APIView):
         template.save()
         return Response({'message': 'Template created successfully'}, status=status.HTTP_201_CREATED)
     def put(self, request, template_id):
-        template = get_object_or_404(Template, id=template_id)
+        template = get_object_or_404(Templates, id=template_id)
        
         template_serializer = TemplatePutSerializer(template, data=request.data)
         if template_serializer.is_valid():
@@ -464,12 +465,13 @@ class Templates(APIView):
         else:
             return Response(template_serializer.errors, status=400)
     def delete(self, request, template_id):
-        template = get_object_or_404(Template, id=template_id)
+        template = get_object_or_404(Templates, id=template_id)
         try:
             template.delete()
             return Response({'message': 'Template deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response({'error': f'Failed to delete template: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class UploadImage(APIView):
 
@@ -758,7 +760,7 @@ class ProcessExcel(View):
 
             excel_data = data.get('excel', [])
             category_id = data.get('category_id', '')
-            brand_id = data.get('brand_id','')
+          
             warehouse_id = data.get('warehouse_id', '')
             is_cod_open = data.get('is_cod_open', '')
             package_height = data.get('package_height', 1)
@@ -777,7 +779,7 @@ class ProcessExcel(View):
                         'title': item.get('title', ''),
                         'images': item.get('images', {}),
                     }
-                    futures.append(executor.submit(self.process_item, item, shop, category_id,brand_id, warehouse_id, is_cod_open,
+                    futures.append(executor.submit(self.process_item, item, shop, category_id, warehouse_id, is_cod_open,
                                                    package_height, package_length, package_weight, package_width, description, skus))
 
                 for future in futures:
@@ -791,7 +793,7 @@ class ProcessExcel(View):
             print(traceback.format_exc())
             return HttpResponse({'error': str(e)}, status=400)
 
-    def process_item(self, item, shop, category_id,brand_id, warehouse_id, is_cod_open, package_height, package_length,
+    def process_item(self, item, shop, category_id, warehouse_id, is_cod_open, package_height, package_length,
                      package_weight, package_width, description, skus):
         title = item.get('title', '')
         images = item.get('images', [])
@@ -802,7 +804,7 @@ class ProcessExcel(View):
             image_futures = []
 
             for key, image_url in images.items():
-                image_futures.append(executor.submit(self.download_image, image_url, key, shop))
+                image_futures.append(executor.submit(self.download_image, image_url, key))
 
             for future in image_futures:
                 result = future.result()
@@ -811,7 +813,7 @@ class ProcessExcel(View):
 
         base64_images = self.process_images(downloaded_image_paths)
         images_ids = self.upload_images(base64_images, shop)
-        self.create_product_fun(shop, item, category_id,brand_id, warehouse_id, is_cod_open, package_height, package_length,
+        self.create_product_fun(shop, item, category_id, warehouse_id, is_cod_open, package_height, package_length,
                                 package_weight, package_width, images_ids, description, skus)
     def convert_to_png(self, input_path, output_path):
         try:
@@ -868,7 +870,7 @@ class ProcessExcel(View):
        return images_ids
 
 
-    def create_product_fun(self, shop, item, category_id, brand_id, warehouse_id, is_cod_open, package_height, package_length,
+    def create_product_fun(self, shop, item, category_id, warehouse_id, is_cod_open, package_height, package_length,
                             package_weight, package_width, images_ids, description, skus):
         title = item.get('title', '')
         product_object = ProductCreateObject(
@@ -879,7 +881,6 @@ class ProcessExcel(View):
             package_weight=package_weight,
             package_width=package_width,
             category_id=category_id,
-            brand_id =brand_id,
             warehouse_id=warehouse_id,
             description=description,
             skus=skus
@@ -1281,25 +1282,31 @@ class PermissionRole(APIView):
                     })
 
         return Response({"data": response_data})
+    
+    def isManagerOrAdmin(self,user):
+        user_group = get_object_or_404(UserGroup, user=user)
+
 
 class UserShopList(APIView):
-    def get(self, request, group_custom_id):
-        group_custom = get_object_or_404(GroupCustom, id=group_custom_id)
+    permission_classes = (IsAuthenticated,)
+    
+    def get(self, request):
+        user = request.user
+        users_groups = get_object_or_404(UserGroup, user=user)
+        group_custom = users_groups.group_custom  
+        
         user_shops_data = {"group_id": group_custom.id, "group_name": group_custom.group_name, "users": []}
         
-        # Lấy tất cả các người dùng trong nhóm hiện tại
         for user_group in group_custom.usergroup_set.all():
             user_data = {"user_id": user_group.user.id, "shops": []}
            
-            
-            # Lấy tất cả các cửa hàng của người dùng trong nhóm hiện tại
-            for user_shop in UserShop.objects.filter(user=user_group.user, shop__group_custom_id=group_custom.id):
+            for user_shop in user_group.user.user_shop_set.filter(shop__group_custom_id=group_custom.id):
                 user_data["shops"].append(user_shop.shop.id)
             
             user_shops_data["users"].append(user_data)
         
         return Response({"data": user_shops_data})
-        
+    
 
 
 

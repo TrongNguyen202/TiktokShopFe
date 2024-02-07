@@ -28,8 +28,8 @@ urlpatterns = [
     path('shops/<int:shop_id>/products/create_product_excel2', views.MultithreadProcessExcel.as_view(), name='process_excel2'),
     path('shops/<int:shop_id>/products/create_product_excel1', views.ProcessExcelNo.as_view(), name='process_excel3'),
     path('shops/<int:shop_id>/products/create_product_excel3', views.ProcessExcel.as_view(), name='process_excel1'),
-    path('templates', views.Templates.as_view(), name='template_list'),
-    path('templates/<int:template_id>', views.Templates.as_view(), name='template_detail'),    
+    path('templates', views.TemplateList.as_view(), name='template_list'),
+    path('templates/<int:template_id>', views.TemplateList.as_view(), name='template_detail'),    
     path('shops/<int:shop_id>/products/update_product/<int:product_id>', views.EditProductAPIView.as_view(), name='edit_product'),
     path('shops/<int:shop_id>/orders/list', views.ListOrder.as_view(), name='order_list'),
     path('shops/<int:shop_id>/orders/detail', views.OrderDetail.as_view(), name='order_detail'),
@@ -47,7 +47,7 @@ urlpatterns = [
     path("brands/global", views.GlobalBrand.as_view(), name="globals_brands"),
     path('shops/<int:shop_id>/products/create_product_draf', views.CreateOneProductDraf.as_view(), name='create_one_product_draf'),
     path("groups/<int:group_custom_id>/permission", views.PermissionRole.as_view(), name="divide_role"),
-    path('user-shops/groups/<int:group_custom_id>', views.UserShopList.as_view(), name='user_shops_list')
+    path('user-shops/groups', views.UserShopList.as_view(), name='user_shops_list')
 
 
 

@@ -54,10 +54,24 @@ class AppKey(models.Model):
     secret = models.CharField(null=False, help_text='app secret lấy từ tiktok app for developer',
                               max_length=500, default='')
 
-class Template(models.Model):
+
+
+class Categories(models.Model):
+    data = JSONField()
+    objects = models.Manager()
+    
+class Brand(models.Model):
+    data = JSONField()
+    objects = models.Manager()
+
+class UserShop(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
+
+class Templates(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(null=False, max_length=500,default='' )
-    category_id = models.CharField(null=False, max_length=500,default='')
+    category_id = JSONField()
     warehouse_id = models.CharField(null=False, max_length=500,default='')
     description = models.TextField(null=False, max_length=500,default='')
     is_cod_open = models.BooleanField(default=False)
@@ -71,16 +85,3 @@ class Template(models.Model):
     types = JSONField()
 
     objects = models.Manager()
-
-class Categories(models.Model):
-    data = JSONField()
-    objects = models.Manager()
-    
-class Brand(models.Model):
-    data = JSONField()
-    objects = models.Manager()
-
-class UserShop(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
-    
