@@ -31,6 +31,7 @@ const Fulfillment = lazy(() => import("./pages/orders/Fulfillment.jsx"));
 const OrderCheckDesign= lazy(() => import("./pages/orders/OrderCheckDesign.jsx"));
 const OrderFlashShip= lazy(() => import("./pages/orders/OrderFlashShip.jsx"));
 const Users = lazy(() => import("./pages/users"));
+const UserEdit = lazy(() => import("./pages/users/UserEdit.jsx"));
 const Account = lazy(() => import("./pages/account"));
 const Categories = lazy(() => import("./pages/categories"));
 const HomepageInterface = lazy(
@@ -262,6 +263,15 @@ const App = () => {
                 element={
                   <Suspense fallback={<Loading />}>
                     <Users />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                path="/users/edit/:id"
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <UserEdit />
                   </Suspense>
                 }
               />
