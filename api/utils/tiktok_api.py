@@ -342,8 +342,7 @@ def callEditProduct(access_token, product_object,imgBase64):
     
     response = requests.put(url, params=query_params, json=json.loads(body))
 
-    # Process the response
-    print(response.status_code)
+   
     print(response.text)
     return HttpResponse(response)
 

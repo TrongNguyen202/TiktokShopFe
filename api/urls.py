@@ -13,6 +13,7 @@ urlpatterns = [
     path("verify/<str:uidb64>/<str:token>", views.Verify.as_view(), name="verify"),
     path("shops/<int:shop_id>/products/list", views.ListProduct.as_view(), name="product_list"),
     path("shops/list", views.ShopList.as_view(), name="product_listss"),
+    path("shops/lists", views.ShopListAPI.as_view(), name="product_lists"),
     path("shops", views.Shops.as_view(), name="Shops_create_list"),
     path("shops/<int:shop_id>", views.ShopDetail.as_view(), name="Shops_put_get_delete"),
     path("shops/<int:shop_id>/refreshtoken", views.RefreshToken.as_view(), name="refresh_token"),

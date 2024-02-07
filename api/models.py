@@ -35,7 +35,7 @@ class Shop(models.Model):
     auth_code = models.CharField(null=False, max_length=500)
     grant_type = models.CharField(default="authorized_code", max_length=500)
     shop_name = models.CharField(max_length=500)
-    group_custom_id = models.ForeignKey(GroupCustom, on_delete=models.CASCADE, default=1)
+    group_custom_id = models.ForeignKey(GroupCustom, on_delete=models.SET_NULL,  null=True)
     objects = models.Manager()
 
 

@@ -291,6 +291,14 @@ class ShopList(APIView):
         shops = Shop.objects.filter(id= user_shop.shop.id)
         serializer = ShopSerializers(shops, many=True)
         return Response(serializer.data)
+
+
+class ShopListAPI(APIView):
+    def get(self, request):
+        
+        shops = Shop.objects.filter()
+        serializer = ShopSerializers(shops, many=True)
+        return Response(serializer.data)
     
 class ShopDetail(APIView):
     # permission_classes = (IsAuthenticated,)
@@ -970,18 +978,37 @@ import io
 class CreateOneProduct(APIView):
     # permission_classes = (IsAuthenticated,)
 
-   
 
     def upload_images(self, base64_images, access_token):
        images_ids = []
        for img_data in base64_images:
-           
+           bits = self.count_bits(img_data)
+           if bits is not None and bits > 24:
+               img_data = self.convert_to_rgb(img_data)
            if img_data is not None:
                img_id = callUploadImage(access_token, img_data=img_data)
                if img_id !="":
                    images_ids.append(img_id)
        return images_ids
     
+    def base64_to_image(base64_string, output_path):
+       image_data = base64.b64decode(base64_string)
+       image = Image.frombytes('I', (32, 32), image_data, 'raw', 'I;16')
+       image.save(output_path)
+
+    def image_to_base64(image_path):
+       with open(image_path, "rb") as image_file:
+           encoded_string = base64.b64encode(image_file.read())
+           return encoded_string.decode('utf-8')
+
+    def convert_to_png(self, input_path, output_path):
+        try:
+            # Mở ảnh sử dụng PIL
+            img = Image.open(input_path)
+            # Chuyển đổi và lưu ảnh dưới dạng PNG
+            img.save(output_path, format='PNG')
+        except Exception as e:
+            print(f"Lỗi khi chuyển đổi ảnh sang PNG: {e}")
 
     def post(self, request,shop_id):
         shop = get_object_or_404(Shop, id=shop_id)
@@ -989,7 +1016,11 @@ class CreateOneProduct(APIView):
         body_raw = request.body.decode('utf-8')
         product_data = json.loads(body_raw)
         base64_images = product_data.get('images', [])
-        
+        for i, base64_data in enumerate(base64_images):
+            output_path = f"C:/anhtiktok/output_{i + 1}.jpg"
+            
+            self.base64_to_image(base64_data, output_path)
+            base64_data = self.image_to_base64(image_path=output_path)
 
         images_ids = self.upload_images(base64_images=base64_images, access_token=access_token)
 
@@ -1005,8 +1036,7 @@ class CreateOneProduct(APIView):
             category_id=product_data.get("category_id"),
             brand_id=product_data.get("brand_id"),
             description=product_data.get("description"),
-            skus= product_data.get("skus"),
-            product_attributes = product_data.get("product_attributes")
+            skus= product_data.get("skus")
         )
         
 
