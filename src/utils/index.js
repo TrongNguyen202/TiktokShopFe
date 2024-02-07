@@ -116,11 +116,11 @@ export const format = (number) => {
 }
 
 // style: currency, percent
-export const IntlNumberFormat = (currency, style, maximumSignificantDigits, number ) => {
-  return new Intl.NumberFormat(currency, {style: `${style}`, currency: `${currency}`, maximumSignificantDigits: `${maximumSignificantDigits}` }).format(number);
+export const IntlNumberFormat = (currency, style, maximumSignificantDigits, number) => {
+  return new Intl.NumberFormat(currency, { style: `${style}`, currency: `${currency}`, maximumSignificantDigits: `${maximumSignificantDigits}` }).format(number);
 }
 
-export function getCurrencySymbol (locale, currency) {
+export function getCurrencySymbol(locale, currency) {
   return (0).toLocaleString(
     locale,
     {
@@ -134,7 +134,7 @@ export function getCurrencySymbol (locale, currency) {
 
 export const buildNestedArrays = (items, parentId) => {
   let nestedItems = [];
-  if(items){
+  if (items) {
     nestedItems = items.filter((item) => item.parent_id === parentId);
   }
 
@@ -190,12 +190,60 @@ export const removeDuplicates = (array, keySelector) => {
 };
 
 export const flatMapArray = (array1, array2) => {
-  return array1.flatMap(item1 => 
+  return array1.flatMap(item1 =>
     array2.map(item2 => ({
-        data: [
-          {value_name: item1},
-          {value_name: item2 }
-        ]
+      data: [
+        { value_name: item1 },
+        { value_name: item2 }
+      ]
     }))
   );
+}
+
+export const ConvertProductAttribute = (product_attributes, attributeValues) => {
+
+  const newAttributes = product_attributes && Object.entries(product_attributes).map(([id, values]) => ({
+    id,
+    values
+  }))
+  const newAttributeConvert = newAttributes?.filter(item => item.values !== undefined)
+
+  const convertAttributeData = newAttributeConvert?.map(item => {
+    const attributeFilter = attributeValues?.find(attr => attr.id === item.id)
+
+    if (attributeFilter) {
+      const attribute_id = item.id
+      let valuesAttr = []
+      let attribute_values = []
+      if (typeof item?.values === 'string') {
+        const valuesAttr = attributeFilter?.values?.find(value => value.id === item.values)
+        attribute_values = [
+          {
+            value_id: valuesAttr?.id,
+            value_name: valuesAttr?.name
+          }
+        ]
+      } else {
+        valuesAttr = item?.values?.map(value => (
+          attributeFilter?.values?.find(attrValue => attrValue.id === value)
+        ))
+
+        attribute_values = valuesAttr?.map(attr => (
+          {
+            value_id: attr?.id,
+            value_name: attr?.name
+          }
+        ))
+      }
+
+      if (!attribute_values) return null
+
+      return {
+        attribute_id: attribute_id,
+        attribute_values: attribute_values
+      }
+    }
+  })
+  const productAttribute = convertAttributeData?.filter(item => item !== null)
+  return productAttribute
 }

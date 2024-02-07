@@ -25,11 +25,17 @@ const createOneProduct = (shopId, body) => {
   return callApi(`/shops/${shopId}/products/create_product`, 'post', body)
 }
 
+
+const createOneProductDraff = (shopId, body) => {
+  return callApi(`/shops/${shopId}/products/create_product_draf`, 'post', body)
+}
+
 export const products = {
   getAllProducts,
   getProductsById,
   changeStatusProduct,
   createProductList,
   editProduct,
-  createOneProduct
+  createOneProduct,
+  createOneProductDraff
 }

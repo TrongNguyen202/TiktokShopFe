@@ -6,7 +6,7 @@ import { useCategoriesStore } from '../../store/categoriesStore'
 import { useProductsStore } from '../../store/productsStore'
 import { useWareHousesStore } from '../../store/warehousesStore'
 import { useShopsBrand } from '../../store/brandStore'
-import { getPathByIndex } from '../../utils'
+import { getPathByIndex, ConvertProductAttribute } from '../../utils'
 
 import Loading from '../../components/loading'
 import PageTitle from "../../components/common/PageTitle"
@@ -24,19 +24,20 @@ const ProductCreate = () => {
     const [ imgBase64, setImgBase64 ] = useState([])
     const [ attributeValues, setAttributeValues ] = useState([])
     const [messageApi, contextHolder] = message.useMessage()
-    const { getCategoriesById, categoriesById, loading } = useCategoriesStore((state) => state)
-    const { productById, createOneProduct } = useProductsStore((state) => state)
+    const { getAllCategoriesIsLeaf, categoriesIsLeaf, loading } = useCategoriesStore((state) => state)
+    const { productById, createOneProduct, createOneProductDraff } = useProductsStore((state) => state)
     const { warehousesById, getWarehousesByShopId} = useWareHousesStore((state) => state)
     const { getAllBrand, brands} = useShopsBrand((state) => state)
 
     const onFinish = async(values) => {
-        console.log('values: ', values);
         const category_id = values?.category_id[values?.category_id.length - 1]
+        const product_attributes = ConvertProductAttribute(values.product_attributes, attributeValues)
+
         const dataFormSubmit = {
             product_name: values.product_name,
             description: values.description ? values.description : "",
             category_id: category_id ? category_id : "",
-            images: imgBase64?.map(item => item.thumbUrl.replace('data:image/png;base64,', '').replace('data:image/jpg;base64,', '').replace('data:image/jpeg;base64,', '')),
+            images: imgBase64?.map(item => item.thumbUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, '')),
             package_dimension_unit: 'metric',
             package_height: values.package_height ? values.package_height : "",
             package_length: values.package_length ? values.package_length : "",
@@ -66,7 +67,7 @@ const ProductCreate = () => {
                     stock_infos: [values.stock_infos]
                 }
             ],
-            // product_attributes: 
+            product_attributes: product_attributes ? product_attributes : []
         }
 
         console.log('dataFormSubmit: ', dataFormSubmit);
@@ -106,7 +107,7 @@ const ProductCreate = () => {
             });
         }
 
-        getCategoriesById(shopId, onSuccess, onFail)
+        getAllCategoriesIsLeaf()
         getWarehousesByShopId(shopId, onSuccess, onFail)
         getAllBrand(shopId, onSuccess, onFail)
         
@@ -124,45 +125,7 @@ const ProductCreate = () => {
         setAttributeValues(data)
     }
 
-    const testAttr = [
-        {
-            "100347": [
-                "1005409",
-                "1000909",
-                "1005408"
-            ]
-        },
-        {
-            "100850": [
-                "1000041",
-                "1004371"
-            ]
-        }
-    ]
-
-    const convertedArray = testAttr.map(item => {
-        const [attribute_id] = Object.keys(item);
-        const attribute_values = item[attribute_id].map(value => ({
-            value_id: value
-        }));
-
-        console.log('attribute_id: ', attribute_id);
-
-        const attributeValueName = attributeValues?.filter(attr => (
-            attr.id === attribute_id
-        ))
-
-        // console.log('attributeValueName: ', attributeValueName)
-    
-        return {
-            attribute_id: attribute_id,
-            attribute_values: attribute_values
-        };
-    });
-
-    // console.log('convertedArray: ', convertedArray);
-
-    if (loading) return <Loading/>
+    // if (loading) return <Loading/>
     return (
         <>
             {contextHolder}
@@ -177,7 +140,7 @@ const ProductCreate = () => {
                 form={form}
             >
                 <div className='px-20 pb-5'>
-                    <ProductInformation shopId={shopId} categories={categoriesById} brands={brands} getAttributeValues={getAttributesByCategory} />
+                    <ProductInformation shopId={shopId} categories={categoriesIsLeaf} brands={brands} getAttributeValues={getAttributesByCategory} />
                 </div>
      
                 <div className='h-[10px] bg-[#f5f5f5]'/>
@@ -203,6 +166,59 @@ const ProductCreate = () => {
                 <div className='px-20 py-10'>
                     <Form.Item>
                         <Button type="primary" htmlType="submit">Lưu</Button>
+                        <Button type="primary" className='ml-3'
+                            onClick={() => {
+                                form.validateFields()
+                                .then((values) => {
+                                    console.log('value: ', values);
+                                    const product_attributes = ConvertProductAttribute(values.product_attributes, attributeValues)
+                                    const categoryId = values?.category_id[values?.category_id?.length - 1]
+                                    const dataSend = {
+                                        ...values,
+                                        category_id: String(categoryId),
+                                        images: values?.images ? values?.images : [],
+                                        product_attributes: product_attributes,
+                                        is_cod_open: values?.is_cod_open ? values?.is_cod_open : 'false',
+                                        skus: skusData.length ? skusData?.map((item) => (
+                                            {
+                                                sales_attributes: item.variations?.map((attr) => (
+                                                    {
+                                                        attribute_id: attr.id,
+                                                        attribute_name: attr.name,
+                                                        custom_value: attr.value_name
+                                                    }
+                                                )),
+                                                original_price: item.price,
+                                                stock_infos: [
+                                                    item.stock_infos
+                                                ]
+                                            }
+                                        ))
+                                        :[
+                                            {
+                                                sales_attributes: [],
+                                                original_price: values.price,
+                                                stock_infos: [values.stock_infos]
+                                            }
+                                        ],
+                                    }
+
+                                    const CreateProductDraffSuccess = (res) => {
+                                        if (res) {
+                                            messageApi.open({
+                                                type: 'success',
+                                                content: 'Đã thêm sản phẩm nháp!',
+                                            });
+                                            navigate(`/shops/${shopId}/products`)
+                                        }
+                                    }
+                                    createOneProductDraff(shopId, dataSend, CreateProductDraffSuccess, (err) => console.log(err))
+                                })
+                                .catch((info) => {
+                                    console.log(info);
+                                })
+                            }}
+                        >Lưu bản nháp</Button>
                         <Button className='ml-3' onClick={() => navigate(-1)}>Huỷ</Button>
                     </Form.Item>
                 </div>

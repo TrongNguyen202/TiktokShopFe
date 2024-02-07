@@ -77,27 +77,32 @@ const Stores = () => {
       ),
     },
     {
-      title: 'access_token',
-      dataIndex: 'access_token',
-      key: 'access_token',
-      width: 350,
-      render: (token) => (
-        <p className="w-[350px] flex justify-between items-center">
-          <p className="w-[300px]">{token}</p> <CopyOutlined className="cursor-pointer" onClick={() => copyToClipboard(token, 'access_token')}/>
-        </p>
-      ),
+      title: 'Mô tả',
+      dataIndex: 'description',
+      key: 'description'
     },
-    {
-      title: 'refresh_token',
-      dataIndex: 'refresh_token',
-      key: 'refresh_token',
-      width: 350,
-      render: (token) => (
-        <p className="w-[300px]">
-          {token}
-        </p>
-      ),
-    },
+    // {
+    //   title: 'access_token',
+    //   dataIndex: 'access_token',
+    //   key: 'access_token',
+    //   width: 350,
+    //   render: (token) => (
+    //     <p className="w-[350px] flex justify-between items-center">
+    //       <p className="w-[300px]">{token}</p> <CopyOutlined className="cursor-pointer" onClick={() => copyToClipboard(token, 'access_token')}/>
+    //     </p>
+    //   ),
+    // },
+    // {
+    //   title: 'refresh_token',
+    //   dataIndex: 'refresh_token',
+    //   key: 'refresh_token',
+    //   width: 350,
+    //   render: (token) => (
+    //     <p className="w-[300px]">
+    //       {token}
+    //     </p>
+    //   ),
+    // },
     {
       title: '',
       key: 'action',
@@ -139,7 +144,7 @@ const Stores = () => {
     <Layout.Content className='mt-4 px-5'>
       <p className='my-5 font-semibold text-[20px]'>Danh sách cửa hàng</p>
       <div className='mb-4 flex justify-between'>
-        <div className='w-[400px]'>
+        <div className='w-[400px] mr-3'>
           <Search placeholder='Tìm kiếm theo tên...' onChange={onSearch}/>
         </div>
         <Button type='primary' onClick={() => handleAddStore()}>Thêm cửa hàng</Button>

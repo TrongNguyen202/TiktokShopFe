@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import {
   CarOutlined,
   DashboardOutlined,
@@ -7,6 +7,9 @@ import {
   ShopOutlined,
   ShoppingOutlined,
   UserOutlined,
+  UsergroupAddOutlined,
+  MenuOutlined,
+  CloseOutlined
 } from "@ant-design/icons";
 import { Menu } from "antd";
 import { useEffect } from "react";
@@ -31,6 +34,7 @@ const Sidebar = ({ collapsed }) => {
   // const badges = JSON.parse(localStorage.getItem('badges'))
   const path = window.location.pathname;
   const navigate = useNavigate();
+  const [showMenuMobile, setShowMenuMobile] = useState(false)
 
   useEffect(() => {
     window.addEventListener("beforeunload", () => {});
@@ -107,15 +111,13 @@ const Sidebar = ({ collapsed }) => {
         </Link>
       ),
     },
-    // {
-    //   key: "/customers",
-    //   icon: <UserOutlined style={{ color: "#52dc07" }} />,
-    //   label: (
-    //     <Link className="flex justify-between" to="/customers">
-    //       Khách mua hàng
-    //     </Link>
-    //   ),
-    // },
+    {
+      key: "/users",
+      icon: <UsergroupAddOutlined style={{ color: "#52dc07" }} />,
+      label: (
+        <Link className="flex justify-between" to="users">Quản lý user</Link>
+      ),
+    },
     // {
     //   key: "/products",
     //   icon: <ProductIcon style={{ color: "#ff6900" }} className="w-[16px]" />,
@@ -461,49 +463,57 @@ const Sidebar = ({ collapsed }) => {
     },
   ];
 
+  const handleShowMenu = () => {}
+
   return (
     <StyledSidebar
       trigger={null}
       collapsible
       collapsed={!collapsed}
-      width={300}
       theme="light"
+      width={300}
+      className="!w-full !max-w-full md:w-[300px] !static"
     >
-      <StyledLogo>
-        {collapsed ?
-          <img 
-            src={Logo}
-            alt="logo cms"
-            width={200}
+      <span className="inline-block w-[30px] h-[30px] leading-[28px] border-[1px] border-[#d9d9d9] border-solid text-center text-lg md:hidden absolute top-[19px] left-[15px] z-20" onClick={() => setShowMenuMobile(!showMenuMobile)}>
+        {showMenuMobile ?  <CloseOutlined /> : <MenuOutlined/>}
+      </span>
+      <div class={`${showMenuMobile ? 'block absolute top-[60px] left-[0] right-[0] z-20 bg-white pb-10 md:pb-0 md:static' : 'hidden'} md:block`}>
+        <StyledLogo className="!hidden md:!flex">
+          {collapsed ?
+            <img 
+              src={Logo}
+              alt="logo cms"
+              width={200}
+            />
+          :
+            <img 
+              src={LogoCollapse}
+              alt="logo cms"
+              width={35}
+            />
+          }
+        
+        </StyledLogo>
+        <Scrollbars
+          style={{ height: "calc(100vh - 64px)" }}
+          autoHide
+          autoHideTimeout={1000}
+          autoHideDuration={200}
+        >
+          <Menu
+            items={menuSidebar}
+            theme="light"
+            mode="inline"
+            defaultSelectedKeys={[path]}
+            selectedKeys={[path]}
+            style={{
+              margin: "16px 0",
+              minHeight: "100vh - 80px",
+              background: "#fff",
+            }}
           />
-        :
-          <img 
-            src={LogoCollapse}
-            alt="logo cms"
-            width={35}
-          />
-        }
-       
-      </StyledLogo>
-      <Scrollbars
-        style={{ height: "calc(100vh - 64px)" }}
-        autoHide
-        autoHideTimeout={1000}
-        autoHideDuration={200}
-      >
-        <Menu
-          items={menuSidebar}
-          theme="light"
-          mode="inline"
-          defaultSelectedKeys={[path]}
-          selectedKeys={[path]}
-          style={{
-            margin: "16px 0",
-            minHeight: "100vh - 80px",
-            background: "#fff",
-          }}
-        />
-      </Scrollbars>
+        </Scrollbars>
+      </div>
     </StyledSidebar>
   );
 };

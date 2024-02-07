@@ -135,8 +135,7 @@ export default function TemplateForm({
   const categoriesData = buildNestedArraysMenu(categoriesIsLeaf, '0')
 
   useEffect(() => {
-    getAllCategoriesIsLeaf(shopId);
-    getAllBrand(shopId);
+    getAllCategoriesIsLeaf();
   }, []);
 
   useEffect(() => {
@@ -337,7 +336,7 @@ export default function TemplateForm({
                   { required: true, message: "Danh mục không được để trống" },
                 ]}
                 initialValue={templateJson?.id ? templateJson.category_id : ""}
-                // initialValue={["824328", "839944", "601226"]}
+              // initialValue={["824328", "839944", "601226"]}
               >
                 <Cascader
                   options={categoriesData}
@@ -527,9 +526,9 @@ export default function TemplateForm({
                   // checked={input}
                   checkedChildren="Bật"
                   unCheckedChildren="Tắt"
-                  // onChange={() => {
-                  //   setInput(!input);
-                  // }}
+                // onChange={() => {
+                //   setInput(!input);
+                // }}
                 />
               </Form.Item>
             </div>
@@ -610,7 +609,7 @@ export default function TemplateForm({
                   selectedDefault={
                     templateJson?.id ? templateJson.badWords : []
                   }
-                  // onChange={setSelectedType}
+                // onChange={setSelectedType}
                 />
               </Form.Item>
 

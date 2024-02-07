@@ -10,6 +10,7 @@ export const useCategoriesStore = create((set) => ({
   attributes: [],
   loading: false,
   loadingById: false,
+  attributeLoading: false,
   getAllCategories: async (onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true })
@@ -22,12 +23,11 @@ export const useCategoriesStore = create((set) => ({
     }
     set({ loading: false })
   },
-  getAllCategoriesIsLeaf: async (id, onSuccess = () => {}, onFail = () => {}) => {
+  getAllCategoriesIsLeaf: async (onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true })
-      const response = await RepositoryRemote.categories.getAllCategoriesIsLeaf(id)
+      const response = await RepositoryRemote.categories.getAllCategoriesIsLeaf()
       set({ categoriesIsLeaf: response.data.data.category_list })
-      set({ infoTable: response.data.category_list })
       onSuccess(response.data.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
@@ -59,13 +59,13 @@ export const useCategoriesStore = create((set) => ({
   },
   getAttributeByCategory: async (shopId, categoryId, onSuccess = () => {}, onFail = () => {}) => {
     try {
-      set({ loading: true })
+      set({ attributeLoading: true })
       const response = await RepositoryRemote.categories.getAttributeByCategory(shopId, categoryId)
       set({attributes: response.data.data})
       onSuccess(response.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi khi lấy thuộc tính sản phẩm')
     }
-    set({ loading: false })
+    set({ attributeLoading: false })
   },
 }))

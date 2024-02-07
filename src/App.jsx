@@ -30,7 +30,8 @@ const Orders = lazy(() => import("./pages/orders"));
 const Fulfillment = lazy(() => import("./pages/orders/Fulfillment.jsx"));
 const OrderCheckDesign= lazy(() => import("./pages/orders/OrderCheckDesign.jsx"));
 const OrderFlashShip= lazy(() => import("./pages/orders/OrderFlashShip.jsx"));
-const Customers = lazy(() => import("./pages/customers"));
+const Users = lazy(() => import("./pages/users"));
+const Account = lazy(() => import("./pages/account"));
 const Categories = lazy(() => import("./pages/categories"));
 const HomepageInterface = lazy(
   () => import("./pages/settings/homepageInterface")
@@ -45,7 +46,6 @@ const OrderDetail = lazy(() => import("./pages/orders/OrderDetail.jsx"));
 const ProductCreate = lazy(() => import ('./pages/products/ProductCreate.jsx'))
 
 const PrivateRoute = () => {
-  const { getAllBadges } = useBadgesStore();
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -57,7 +57,6 @@ const PrivateRoute = () => {
     };
 
     checkAuthentication();
-    // getAllBadges()
   }, []);
 
   if (loading) {
@@ -257,12 +256,20 @@ const App = () => {
               <Route path="/vouchers/create" element={<VoucherForm />} />
               <Route path="/vouchers/:voucherId" element={<VoucherForm />} />
 
-              {/* Customers */}
+              {/* Users */}
               <Route
-                path="/customers"
+                path="/users"
                 element={
                   <Suspense fallback={<Loading />}>
-                    <Customers />
+                    <Users />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/account"
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <Account />
                   </Suspense>
                 }
               />

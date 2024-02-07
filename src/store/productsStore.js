@@ -70,5 +70,16 @@ export const useProductsStore = create((set) => ({
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra khi tạo sản phẩm!')
     }
     set({ loading: false })
-  }
+  },
+  createOneProductDraff: async(shopId, body, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.products.createOneProductDraff(shopId, body)
+      set({ newProduct: response.data })
+      onSuccess(response.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra khi tạo sản phẩm nháp!')
+    }
+    set({ loading: false })
+  },
 }))
