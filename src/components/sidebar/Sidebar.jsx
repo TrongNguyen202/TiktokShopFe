@@ -477,7 +477,7 @@ const Sidebar = ({ collapsed }) => {
       <span className="inline-block w-[30px] h-[30px] leading-[28px] border-[1px] border-[#d9d9d9] border-solid text-center text-lg md:hidden absolute top-[19px] left-[15px] z-20" onClick={() => setShowMenuMobile(!showMenuMobile)}>
         {showMenuMobile ?  <CloseOutlined /> : <MenuOutlined/>}
       </span>
-      <div class={`${showMenuMobile ? 'block absolute top-[60px] left-[0] right-[0] z-20 bg-white pb-10 md:pb-0 md:static' : 'hidden'} md:block`}>
+      <div className={`${showMenuMobile ? 'block absolute top-[60px] left-[0] right-[0] z-20 bg-white pb-10 md:pb-0 md:static' : 'hidden'} md:block`}>
         <StyledLogo className="!hidden md:!flex">
           {collapsed ?
             <img 
