@@ -960,7 +960,7 @@ class EditProductAPIView(APIView):
         # Tạo một bản sao của product_data để loại bỏ imgBase64
         product_data_without_img = product_data.copy()
         img_base64 = product_data_without_img.pop('imgBase64', [])
-       
+        
 
         # Tạo một đối tượng ProductObject không chứa imgBase64
         product_object_data = {key: value for key, value in product_data.items() if key != 'imgBase64' }
