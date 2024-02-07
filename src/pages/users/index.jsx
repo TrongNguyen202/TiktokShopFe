@@ -92,7 +92,11 @@ const Users = () => {
     
     return (
         <div className="p-10">
-            <Input.Search placeholder='Tìm kiếm theo tên...' onChange={onSearch} className='mb-3 max-w-[500px]'/>
+            <div className='mb-3 flex justify-between'>
+                <Input.Search placeholder='Tìm kiếm theo tên...' onChange={onSearch} className='max-w-[700px]'/>
+                <Button type='primary' onClick={() => console.log('click')}>Thêm user</Button>
+
+            </div>
             <Table columns={columns} dataSource={userData} bordered />
         </div>
     )

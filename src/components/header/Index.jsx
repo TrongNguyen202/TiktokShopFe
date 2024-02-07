@@ -9,7 +9,7 @@ import { StyledHeader } from './Index.style'
 const Header = ({ collapsed, changeCollapsed }) => {
   const { logOut } = useAuthStore((state) => state)
   const items = [
-    { key: 'link-to-profile', label: <Link to='/#'>Tài khoản</Link> },
+    { key: 'link-to-profile', label: <Link to='/account'>Tài khoản</Link> },
     {
       key: 'Đăng xuất',
       label: (
