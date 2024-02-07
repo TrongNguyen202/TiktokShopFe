@@ -7,7 +7,7 @@ import { statusProductTikTokShop } from '../../constants/index'
 
 import PageTitle from '../../components/common/PageTitle'
 import ImageDefault from '../../assets/images/image-default.jpg'
-import Loading from '../../components/loading/Index'
+import Loading from '../../components/loading'
 
 export default function ProductDetail() {
   const shopId = getPathByIndex(2)

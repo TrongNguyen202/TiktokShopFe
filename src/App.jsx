@@ -8,18 +8,18 @@ import {
 } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Loading from "./components/loading/Index";
+import Loading from "./components/loading/index.jsx";
 import { PATH } from "./constants/paths";
 import MainLayout from "./layouts/mainLayout/MainLayout";
-import Login from "./pages/login";
+import Login from "./pages/login/index.jsx";
 import ForgotPassword from "./pages/login/ForgotPassword";
 import Template from "./pages/templates/index.jsx";
 import VoucherForm from "./pages/vouchers/VoucherForm";
 import { useBadgesStore } from "./store/badgesStore";
 import { getToken } from "./utils/auth";
 
-const Sellers = lazy(() => import("./pages/sellers/Index"));
-const Home = lazy(() => import("./pages/home/Index.jsx"));
+const Sellers = lazy(() => import("./pages/sellers/index.jsx"));
+const Home = lazy(() => import("./pages/home/index.jsx"));
 const Stores = lazy(() => import("./pages/stores/index"));
 const Vouchers = lazy(() => import("./pages/vouchers"));
 const Products = lazy(() => import("./pages/products"));
@@ -36,7 +36,7 @@ const Categories = lazy(() => import("./pages/categories"));
 const HomepageInterface = lazy(
   () => import("./pages/settings/homepageInterface")
 );
-const IdentityRequest = lazy(() => import("./pages/identityRequest/Index"));
+const IdentityRequest = lazy(() => import("./pages/identityRequest/index.jsx"));
 const StoreDetail = lazy(() => import("./pages/stores/StoreDetail.jsx"));
 const MultiAddProducts = lazy(
   () => import("./pages/stores/MultiAddProducts.jsx")

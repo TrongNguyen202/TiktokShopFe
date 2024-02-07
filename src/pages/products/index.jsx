@@ -75,14 +75,14 @@ const Products = () => {
           dataIndex: 'create_time',
           key: 'create_time',
           sorter: (a, b) => a.create_time - b.create_time,
-          render: (create_time) => <span>{formatDate(create_time, 'DD/MM/Y, h:mm:ss')}</span>,
+        render: (create_time) => <span>{formatDate(create_time * 1000, 'DD/MM/Y, h:mm:ss')}</span>,
       },
       {
           title: 'Thời gian cập nhật',
           dataIndex: 'update_time',
           key: 'update_time',
           sorter: (a, b) => a.update_time - b.update_time,
-          render: (update_time) => <span>{formatDate(update_time, 'DD/MM/Y, hh:mm:ss')}</span>
+        render: (update_time) => <span>{formatDate(update_time * 1000, 'DD/MM/Y, hh:mm:ss')}</span>
       },
       {
           dataIndex: 'actions',
