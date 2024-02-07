@@ -19,19 +19,23 @@ const Stores = () => {
   const app_key = searchParams.get('app_key')
   const code = searchParams.get('code')
 
-  const copyToClipboard = async(content, key) => {
+  const copyToClipboard = (content, key) => {
+    var tempInput = document.createElement("input")
+    tempInput.value = content
+    document.body.appendChild(tempInput)
+    
+    tempInput.select()
+    tempInput.setSelectionRange(0, 99999)
+
     try {
-      await navigator.clipboard.writeText(content)
-      .then(() => {
-        message.success(`Đã sao chép ${key}`);
-      })
-      .catch(() => {
-        message.error(`Sao chép ${key} thất bại!`);
-      });
+      document.execCommand("copy");
+      message.success(`Đã sao chép ${key}`)
     } catch (err) {
-      message.error(`${err}. Không thể sao chép ${key}!`);
+      message.error(`${err} Sao chép ${key} thất bại!`)
     }
-  };
+
+    document.body.removeChild(tempInput)
+  }
 
   const handleRefreshToken = (shopId) => {
     refreshToken(shopId, (res) => console.log(res), (err) => console.log(err))
@@ -121,7 +125,7 @@ const Stores = () => {
 
   const handleAddStore = () => {
     setShowModal(true)
-    copyToClipboard(c.LINK_STORE_CODE, 'link')
+    copyToClipboard(c.LINK_STORE_CODE, 'link uỷ quyền')
   }
 
   useEffect(() => {
