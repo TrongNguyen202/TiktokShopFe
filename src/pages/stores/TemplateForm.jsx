@@ -1,6 +1,7 @@
 import { EditOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   Button,
+  Cascader,
   Col,
   Divider,
   Form,
@@ -18,9 +19,10 @@ import CustomSelect from "./CustomSelect";
 import EditPriceForm from "./EditPriceForm";
 import TextArea from "antd/es/input/TextArea";
 import { useCategoriesStore } from "../../store/categoriesStore";
-import { getPathByIndex } from "../../utils";
+import { buildNestedArraysMenu, getPathByIndex } from "../../utils";
 import { useWareHousesStore } from "../../store/warehousesStore";
 import { useTemplateStore } from "../../store/templateStore";
+import { useShopsBrand } from "../../store/brandStore";
 
 const initColorOptions = [
   {
@@ -108,8 +110,8 @@ export default function TemplateForm({
   setShowModalAddTemplate,
   templateJson,
 }) {
+  const { getAllBrand, brands } = useShopsBrand();
   const { getAllCategoriesIsLeaf, categoriesIsLeaf } = useCategoriesStore();
-  const { getWarehousesByShopId, warehousesById } = useWareHousesStore();
   const { createTemplate, templates, loading, getAllTemplate, updateTemplate } =
     useTemplateStore();
   const shopId = getPathByIndex(2);
@@ -126,8 +128,15 @@ export default function TemplateForm({
   const [isShowModalPrice, setShowModalPrice] = useState(false);
   const dataPrice = useRef(templateJson?.id ? templateJson.types : null);
 
+  const optionsBranch = brands?.brand_list?.map((item) => ({
+    value: item.id,
+    label: item.name,
+  }));
+  const categoriesData = buildNestedArraysMenu(categoriesIsLeaf, '0')
+
   useEffect(() => {
     getAllCategoriesIsLeaf(shopId);
+    getAllBrand(shopId);
   }, []);
 
   useEffect(() => {
@@ -164,6 +173,7 @@ export default function TemplateForm({
       package_weight,
       package_width,
       bad_word,
+      brand_id,
       suffix_title,
     } = value;
     const dataSubmit = {
@@ -182,6 +192,7 @@ export default function TemplateForm({
       package_width,
       badWords: bad_word,
       suffixTitle: suffix_title,
+      // brand_id: brand_id,
     };
 
     const onSuccess = () => {
@@ -196,7 +207,6 @@ export default function TemplateForm({
       : createTemplate(dataSubmit, onSuccess, onFail);
     onSaveTemplate(dataSubmit);
     setShowModalAddTemplate(false);
-    console.log("dataSubmit: ", dataSubmit);
   };
 
   function sortByType(arr) {
@@ -236,6 +246,21 @@ export default function TemplateForm({
     dataPrice.current = value;
   };
 
+  const handleChangeCategories = (e) => {
+    const categoryId = e[e.length - 1]
+    // const onSuccess = (res) => {
+    //     getAttributeValues(res.data.attributes)
+    // }
+
+    // const onFail = (err) => {
+    //     messageApi.open({
+    //         type: 'error',
+    //         content: err,
+    //     });
+    // }
+    // getAttributeByCategory(shopId, categoryId, onSuccess, onFail)
+  }
+
   return (
     <div>
       <Form
@@ -273,7 +298,7 @@ export default function TemplateForm({
               <p className="font-semibold text-[#0e2482] text-[16px]">
                 1. Các thông số chung
               </p>
-              <Form.Item
+              {/* <Form.Item
                 label="Category"
                 name="category"
                 labelAlign="left"
@@ -303,38 +328,52 @@ export default function TemplateForm({
                   }
                   options={convertDataCategory(categoriesIsLeaf)}
                 />
+              </Form.Item> */}
+
+              <Form.Item
+                label="Danh mục:"
+                name="category"
+                rules={[
+                  { required: true, message: "Danh mục không được để trống" },
+                ]}
+                initialValue={templateJson?.id ? templateJson.category_id : ""}
+                // initialValue={["824328", "839944", "601226"]}
+              >
+                <Cascader
+                  options={categoriesData}
+                  onChange={handleChangeCategories}
+                  placeholder="Chọn danh mục"
+                  showSearch={(input, options) => {
+                    return (
+                      options.label
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0 ||
+                      options.value
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    );
+                  }}
+                  onSearch={(value) => console.log(value)}
+                />
               </Form.Item>
 
-              {/* <Form.Item
-                label="Warehouse"
-                name="warehouse"
-                labelAlign="left"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn warehouse!",
-                  },
-                ]}
-                sx={{ justifyContent: "space-between" }}
-                className="w-full"
-                initialValue={templateJson?.id ? templateJson.warehouse_id : ""}
-              >
+              {/* <Form.Item label="Thương hiệu:" name="brand_id">
                 <Select
                   showSearch
-                  style={{
-                    width: "100%",
+                  style={{ width: "100%" }}
+                  placeholder="Chọn 1 thương hiệu"
+                  onChange={() => { }}
+                  options={optionsBranch}
+                  filterOption={(input, options) => {
+                    return (
+                      options.label
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0 ||
+                      options.value
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    );
                   }}
-                  placeholder="Chọn warehouse"
-                  optionFilterProp="children"
-                  filterOption={(input, option) =>
-                    (option?.label ?? "").includes(input)
-                  }
-                  filterSort={(optionA, optionB) =>
-                    (optionA?.label ?? "")
-                      .toLowerCase()
-                      .localeCompare((optionB?.label ?? "").toLowerCase())
-                  }
-                  options={convertDataWarehouse(warehousesById)}
                 />
               </Form.Item> */}
 
@@ -370,12 +409,13 @@ export default function TemplateForm({
                   }
                 >
                   <Input
-                    placeholder="nhập vào(gram)"
+                    placeholder="nhập vào(pound)"
                     type="number"
                     className="w-[300px] "
+                    max={220}
                     suffix={
                       <span className="text-[#ccc] border-l-[1px] border-solid border-t-0 border-r-0 border-b-0 pl-2 my-1">
-                        gr
+                        pound
                       </span>
                     }
                   />
@@ -405,9 +445,11 @@ export default function TemplateForm({
                           placeholder="Width"
                           suffix={
                             <span className="text-[#ccc] border-l-[1px] border-solid border-t-0 border-r-0 border-b-0 pl-1">
-                              cm
+                              inch
                             </span>
                           }
+                          max={393}
+                          type="number"
                         />
                       </Form.Item>
                       <p className="mx-2 text-[#ccc]">X</p>
@@ -429,9 +471,11 @@ export default function TemplateForm({
                           placeholder="Length"
                           suffix={
                             <span className="text-[#ccc] border-l-[1px] border-solid border-t-0 border-r-0 border-b-0 pl-1">
-                              cm
+                              inch
                             </span>
                           }
+                          max={393}
+                          type="number"
                         />
                       </Form.Item>
                       <p className="mx-2 text-[#ccc]">X</p>
@@ -453,9 +497,11 @@ export default function TemplateForm({
                           placeholder=""
                           suffix={
                             <span className="text-[#ccc] border-l-[1px] border-solid border-t-0 border-r-0 border-b-0 pl-1">
-                              cm
+                              inch
                             </span>
                           }
+                          max={393}
+                          type="number"
                         />
                       </Form.Item>
                     </div>

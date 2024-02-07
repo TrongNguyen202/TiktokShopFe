@@ -146,18 +146,41 @@ export const buildNestedArrays = (items, parentId) => {
   }));
 };
 
-export const buildNestedArraysMenu = (items, parentId) => {
-  const filteredItems = items?.filter(item => item.parent_id === parentId);
+// export const buildNestedArraysMenu = (items, parentId) => {
+//   const filteredItems = items?.filter(item => item.parent_id === parentId);
 
-  if (filteredItems?.length === 0) {
-    return null;
-  }
+//   if (filteredItems?.length === 0) {
+//     return null;
+//   }
 
-  return filteredItems?.map(item => {
-    const children = buildNestedArraysMenu(items, item.id);
-    return children ? { label: item.local_display_name, key: item.id , children, value: item.id } : { label: item.local_display_name, key: item.id, value: item.id };
-  });
-}
+//   return filteredItems?.map(item => {
+//     const children = buildNestedArraysMenu(items, item.id);
+//     return children ? { label: item.local_display_name, key: item.id , children, value: item.id } : { label: item.local_display_name, key: item.id, value: item.id };
+//   });
+// }
+
+export const buildNestedArraysMenu = (items) => {
+  const itemsByParentId = items.reduce((acc, item) => {
+    if (!acc[item.parent_id]) {
+      acc[item.parent_id] = [];
+    }
+    acc[item.parent_id].push(item);
+    return acc;
+  }, {});
+
+  const buildTree = (parentId) => {
+    const children = itemsByParentId[parentId];
+    if (!children) {
+      return null;
+    }
+    return children.map(item => {
+      const grandChildren = buildTree(item.id);
+      return grandChildren ? { label: item.category_name, key: item.id, children: grandChildren, value: item.id } : { label: item.category_name, key: item.id, value: item.id };
+    });
+  };
+
+  return buildTree(0);
+};
 
 export const removeDuplicates = (array, keySelector) => {
   const cachedObject = {};
