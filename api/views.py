@@ -287,7 +287,8 @@ class Shops(APIView):
 
 class ShopList(APIView):
     def get(self, request):
-        shops = Shop.objects.all()
+        user_shop = UserShop.objects.filter(user = request.user)
+        shops = Shop.objects.filter(id= user_shop.shop.id)
         serializer = ShopSerializers(shops, many=True)
         return Response(serializer.data)
     
@@ -1257,34 +1258,31 @@ class CreateOneProductDraf(APIView):
 
         return JsonResponse({'status': 'success'}, status=201)
 
+
 class PermissionRole(APIView):
-    def post(self, request, group_custom_id):
-        data = request.data.get('data', [])
-        response_data = []
+    permission_classes = (IsAuthenticated,)
 
-        for item in data:
-            user_id = item["user_id"]
-            shop_ids = item.get("shop_id", [])
-            
-            for shop_id in shop_ids:
-                user_shop, created = UserShop.objects.get_or_create(user_id=user_id, shop_id=shop_id)
-                if created:
-                    response_data.append({
-                        "user_id": user_id,
-                        "shop_id": shop_id,
-                        "message": "User assigned to shop successfully."
-                    })
-                else:
-                    response_data.append({
-                        "user_id": user_id,
-                        "shop_id": shop_id,
-                        "message": "User is already assigned to this shop."
-                    })
+    def post(self, request):
+        data = request.data
+        user_id = data.get('user_id')
+        user = get_object_or_404(User, id=user_id)
 
-        return Response({"data": response_data})
-    
-    def isManagerOrAdmin(self,user):
+        user.first_name = data.get('first_name', user.first_name)
+        user.last_name = data.get('last_name', user.last_name)
+        user.username = data.get('username', user.username)
+        user.email = data.get('email', user.email)
+        user.save()
+
+        stores = data.get('stores', [])
+        # Do something with the stores list, for example, assign the user to the provided stores
+        for store_id in stores:
+            UserShop.objects.get_or_create(user=user, shop_id=store_id)
+
+        return Response({"message": "User information updated successfully."})
+
+    def isManagerOrAdmin(self, user):
         user_group = get_object_or_404(UserGroup, user=user)
+        return user_group.role
 
 
 class UserShopList(APIView):
@@ -1296,28 +1294,33 @@ class UserShopList(APIView):
         group_custom = users_groups.group_custom  
         
         user_shops_data = {"group_id": group_custom.id, "group_name": group_custom.group_name, "users": []}
-        
-        for user_group in group_custom.usergroup_set.all():
-            user_data = {"user_id": user_group.user.id, "shops": []}
+         
+
+        users_filter = []
+        for user_group in group_custom.usergroup_set.filter(role=2):  
+            user_data = {"user_id": user_group.user.id, "user_name":user_group.user.username, "shops": []}
            
-            for user_shop in user_group.user.user_shop_set.filter(shop__group_custom_id=group_custom.id):
-                user_data["shops"].append(user_shop.shop.id)
+            for user_shop in user_group.user.usershop_set.filter(shop__group_custom_id=group_custom.id):
+                user_data["shops"].append({"id":user_shop.shop.id,"name":user_shop.shop.shop_name})
             
             user_shops_data["users"].append(user_data)
         
         return Response({"data": user_shops_data})
-    
+class UserInfor(APIView):
+    permission_classes = (IsAuthenticated,)
 
+    def get(self, request, user_id):
+        user = get_object_or_404(User, id=user_id)
 
+        user_info = {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,  # Lấy first_name từ đối tượng User
+            'last_name': user.last_name,    # Lấy last_name từ đối tượng User
+        }
+     
+        return Response(user_info)
 
-            
-
-
-
-
-
-
-
-
-
-    
+               
+ 
