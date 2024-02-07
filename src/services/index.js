@@ -16,6 +16,7 @@ import { orders } from './orders'
 import { template } from './template'
 import { google } from './google'
 import { flashship } from './flashship'
+import { users } from './users'
 
 export const RepositoryRemote = {
   auth,
@@ -35,5 +36,6 @@ export const RepositoryRemote = {
   orders,
   template,
   google,
-  flashship
+  flashship,
+  users
 }
