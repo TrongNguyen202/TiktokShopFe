@@ -951,6 +951,7 @@ class ProcessExcel(View):
 
 #         return JsonResponse({"status_code": response.status_code, "response_text": response.json})
 class EditProductAPIView(APIView):
+    
     def put(self, request, shop_id, product_id):
         shop = get_object_or_404(Shop, id=shop_id)
         access_token = shop.access_token
@@ -978,37 +979,18 @@ import io
 class CreateOneProduct(APIView):
     # permission_classes = (IsAuthenticated,)
 
+   
 
     def upload_images(self, base64_images, access_token):
        images_ids = []
        for img_data in base64_images:
-           bits = self.count_bits(img_data)
-           if bits is not None and bits > 24:
-               img_data = self.convert_to_rgb(img_data)
+           
            if img_data is not None:
                img_id = callUploadImage(access_token, img_data=img_data)
                if img_id !="":
                    images_ids.append(img_id)
        return images_ids
     
-    def base64_to_image(base64_string, output_path):
-       image_data = base64.b64decode(base64_string)
-       image = Image.frombytes('I', (32, 32), image_data, 'raw', 'I;16')
-       image.save(output_path)
-
-    def image_to_base64(image_path):
-       with open(image_path, "rb") as image_file:
-           encoded_string = base64.b64encode(image_file.read())
-           return encoded_string.decode('utf-8')
-
-    def convert_to_png(self, input_path, output_path):
-        try:
-            # Mở ảnh sử dụng PIL
-            img = Image.open(input_path)
-            # Chuyển đổi và lưu ảnh dưới dạng PNG
-            img.save(output_path, format='PNG')
-        except Exception as e:
-            print(f"Lỗi khi chuyển đổi ảnh sang PNG: {e}")
 
     def post(self, request,shop_id):
         shop = get_object_or_404(Shop, id=shop_id)
@@ -1016,11 +998,7 @@ class CreateOneProduct(APIView):
         body_raw = request.body.decode('utf-8')
         product_data = json.loads(body_raw)
         base64_images = product_data.get('images', [])
-        for i, base64_data in enumerate(base64_images):
-            output_path = f"C:/anhtiktok/output_{i + 1}.jpg"
-            
-            self.base64_to_image(base64_data, output_path)
-            base64_data = self.image_to_base64(image_path=output_path)
+        
 
         images_ids = self.upload_images(base64_images=base64_images, access_token=access_token)
 
@@ -1036,7 +1014,8 @@ class CreateOneProduct(APIView):
             category_id=product_data.get("category_id"),
             brand_id=product_data.get("brand_id"),
             description=product_data.get("description"),
-            skus= product_data.get("skus")
+            skus= product_data.get("skus"),
+            product_attributes = product_data.get("product_attributes")
         )
         
 
@@ -1198,59 +1177,16 @@ class GetProductAttribute(APIView):
 class CreateOneProductDraf(APIView):
     # permission_classes = (IsAuthenticated,)
 
-    def count_bits(self, img_data):
-       try:
-           image = Image.open(io.BytesIO(base64.b64decode(img_data)))
-           mode_to_bpp = {'1': 1, 'L': 8, 'P': 8, 'RGB': 24, 'RGBA': 32, 'CMYK': 32, 'YCbCr': 24, 'I': 32, 'F': 32}
-           data = mode_to_bpp[image.mode]
-           return data
-       except PIL.UnidentifiedImageError:
-           print("UnidentifiedImageError: Cannot identify image file")
-           return None  # or another appropriate default value
-
-      
-
-       
-    def convert_to_rgb(self, img_data):
-        try:
-            image = Image.open(io.BytesIO(base64.b64decode(img_data)))
-            rgb_image = Image.new("RGB", image.size)
-            rgb_image.paste(image)
-            buffered = io.BytesIO()
-            rgb_image.save(buffered, format="JPEG")
-            return base64.b64encode(buffered.getvalue()).decode('utf-8')
-        except Exception as e:
-            return None
     def upload_images(self, base64_images, access_token):
        images_ids = []
        for img_data in base64_images:
-           bits = self.count_bits(img_data)
-           if bits is not None and bits > 24:
-               img_data = self.convert_to_rgb(img_data)
+           
            if img_data is not None:
                img_id = callUploadImage(access_token, img_data=img_data)
                if img_id !="":
                    images_ids.append(img_id)
        return images_ids
     
-    def base64_to_image(base64_string, output_path):
-       image_data = base64.b64decode(base64_string)
-       image = Image.frombytes('I', (32, 32), image_data, 'raw', 'I;16')
-       image.save(output_path)
-
-    def image_to_base64(image_path):
-       with open(image_path, "rb") as image_file:
-           encoded_string = base64.b64encode(image_file.read())
-           return encoded_string.decode('utf-8')
-
-    def convert_to_png(self, input_path, output_path):
-        try:
-            # Mở ảnh sử dụng PIL
-            img = Image.open(input_path)
-            # Chuyển đổi và lưu ảnh dưới dạng PNG
-            img.save(output_path, format='PNG')
-        except Exception as e:
-            print(f"Lỗi khi chuyển đổi ảnh sang PNG: {e}")
 
     def post(self, request,shop_id):
         shop = get_object_or_404(Shop, id=shop_id)
@@ -1258,12 +1194,7 @@ class CreateOneProductDraf(APIView):
         body_raw = request.body.decode('utf-8')
         product_data = json.loads(body_raw)
         base64_images = product_data.get('images', [])
-        for i, base64_data in enumerate(base64_images):
-            output_path = f"C:/anhtiktok/output_{i + 1}.jpg"
-            output_path_png = f"C:/anhtiktok/outputpng_{i + 1}.png"
-            self.base64_to_image(base64_data, output_path)
-            self.convert_to_png(input_path=output_path, output_path=output_path_png)
-            base64_data = self.image_to_base64(image_path=output_path_png)
+        
 
         images_ids = self.upload_images(base64_images=base64_images, access_token=access_token)
 
@@ -1282,6 +1213,9 @@ class CreateOneProductDraf(APIView):
             skus= product_data.get("skus"),
             product_attributes = product_data.get("product_attributes")
         )
+        
+
+        
         
 
         callCreateOneProductDraf(access_token, product_object)

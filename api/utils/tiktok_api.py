@@ -468,10 +468,10 @@ def callCreateOneProduct(access_token,product_object):
     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
     query_params["sign"] = sign
 
-    query_params["sign"] = sign
+    
     response = requests.post(url, params=query_params, json=json.loads(body))
 
-    
+    print(response.text)
     return HttpResponse(response)
 
 def callGlobalCategories(access_token):
