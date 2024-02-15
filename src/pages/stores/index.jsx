@@ -14,6 +14,7 @@ const Stores = () => {
   const navigate = useNavigate()
   const [isShowModal, setShowModal] = useState(false)
   const [shopData, setShopData] = useState([])
+  const [messageApi, contextHolder] = message.useMessage();
   const { stores, loading, getAllStores, refreshToken } = useShopsStore((state) => state)
   const [searchParams] = useSearchParams()
   const app_key = searchParams.get('app_key')
@@ -38,7 +39,15 @@ const Stores = () => {
   }
 
   const handleRefreshToken = (shopId) => {
-    refreshToken(shopId, (res) => console.log(res), (err) => console.log(err))
+    const onSuccess = (res) => {
+      if (res) {
+        messageApi.open({
+          type: 'success',
+          content: 'Gia hạn cửa hàng thành công',
+        })        
+      }
+    }
+    refreshToken(shopId, onSuccess, (err) => console.log(err))
   }
 
   const storesTable = [
@@ -146,6 +155,7 @@ const Stores = () => {
 
   return (
     <Layout.Content className='mt-4 px-5'>
+      {contextHolder}
       <p className='my-5 font-semibold text-[20px]'>Danh sách cửa hàng</p>
       <div className='mb-4 flex justify-between'>
         <div className='w-[400px] mr-3'>
@@ -159,7 +169,7 @@ const Stores = () => {
         scroll={{ x: true }}
         size='middle'
         bordered
-        dataSource={shopData && shopData.length ? shopData : []}
+        dataSource={shopData && shopData.length ? shopData.sort((a, b) => a.id - b.id) : []}
         loading={loading}
       />
 
