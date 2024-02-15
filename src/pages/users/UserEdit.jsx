@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Row, Col, Button, Form, Input, Select, Spin, message } from 'antd'
 
@@ -6,7 +7,6 @@ import { useShopsStore } from '../../store/shopsStore'
 import { getPathByIndex } from '../../utils'
 
 import PageTitle from "../../components/common/PageTitle"
-import { useEffect, useState } from 'react'
 
 const UserEdit = () => {
     const navigate = useNavigate()
@@ -121,7 +121,7 @@ const UserEdit = () => {
                         </Form.Item>
                     </Form>
                 </>
-                </Spin>
+            </Spin>
         </div>
     )
 }

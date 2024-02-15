@@ -11,11 +11,14 @@ const Users = () => {
   const navigate = useNavigate()
   const [userData, setUserData] = useState([])
   const { getShopByUser} = useUsersStore((state) => state)
-  console.log('userData: ', userData);
 
   const handleUseEdit = (userId, shops) => {
     navigate(`/users/edit/${userId}`, { state: { shops }})
-  } 
+  }
+  
+  const handleUserDelete = (userId, shops) => {
+    console.log(userId, shops);
+  }
 
   const columns = [
     {
@@ -42,7 +45,7 @@ const Users = () => {
               <Button size="middle" icon={<EditOutlined />} onClick={() => handleUseEdit(record.user_id, record.shops)}/>
             </Tooltip>
             <Tooltip title="Xoá" color="blue" placement="right">
-              <Button size="middle" icon={<DeleteOutlined />} onClick={() => {}}/>
+              <Button size="middle" icon={<DeleteOutlined />} onClick={handleUserDelete(record.user_id, record.shops)}/>
             </Tooltip>
         </Space>
       )
