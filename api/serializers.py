@@ -107,4 +107,4 @@ class TemplateSerializer(serializers.ModelSerializer):
 class TemplatePutSerializer(serializers.ModelSerializer):
   class Meta:
     model = Templates
-    fields = ['name', 'category_id', 'warehouse_id', 'description', 'is_cod_open', 'package_height', 'package_length', 'package_weight', 'package_width', 'sizes', 'colors', 'type', 'types']
+    fields = ['name', 'category_id', 'warehouse_id', 'description', 'is_cod_open', 'package_height', 'package_length', 'package_weight', 'package_width', 'sizes', 'colors', 'type', 'types','badWords','suffixTitle']

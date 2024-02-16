@@ -460,7 +460,9 @@ class TemplateList(APIView):  # đổi tên thành TemplateList
             colors = request.data.get('colors'),
             type = request.data.get('type'),
             types = request.data.get('types'),
-            user = self.request.user
+            user = self.request.user,
+            badWords = request.data.get('badWords'),
+            suffixTitle = request.data.get('suffixTitle')
         )
         template.save()
         return Response({'message': 'Template created successfully'}, status=status.HTTP_201_CREATED)
@@ -970,7 +972,12 @@ class EditProductAPIView(APIView):
 
 
 
-        callEditProduct(access_token, product_object, img_base64)
+        try:
+            callEditProduct(access_token, product_object, img_base64)
+        except:
+            print("error to call edit product api")
+            return JsonResponse({'status': 'error to call product api'}, status=500)
+
 
         return JsonResponse({'status': 'success'}, status=200)
 import base64
@@ -1000,9 +1007,13 @@ class CreateOneProduct(APIView):
         base64_images = product_data.get('images', [])
         
 
-        images_ids = self.upload_images(base64_images=base64_images, access_token=access_token)
+        try:
+            images_ids = self.upload_images(base64_images=base64_images, access_token=access_token)
+        except:
+            print("error when all api upload image")
 
-        product_object = ProductCreateOneObject(
+        try:
+            product_object = ProductCreateOneObject(
             product_name=product_data.get("product_name"),
             images=images_ids,
             is_cod_open=product_data.get("is_cod_open"),
@@ -1017,9 +1028,16 @@ class CreateOneProduct(APIView):
             skus= product_data.get("skus"),
             product_attributes = product_data.get("product_attributes")
         )
+        except Exception as e:
+            print(f"Error creating product object: {e}")
+            return JsonResponse({'status': 'error', 'message': 'Error creating product object'}, status=500)    
         
+        try:
 
-        callCreateOneProduct(access_token, product_object)
+            callCreateOneProduct(access_token, product_object)
+        except Exception as e:
+            print(f"Error creating product in API function: {e}")
+            return JsonResponse({'status': 'error', 'message': 'Error creating product in API function'}, status=500)
 
         return JsonResponse({'status': 'success'}, status=201)
 
@@ -1118,8 +1136,10 @@ class ToShipOrderAPI(APIView):
         data_post = json.loads(request.body.decode('utf-8'))
         order_documents = data_post.get('order_documents', [])
         print(order_documents)
+      
 
         for order_document in order_documents:
+            print("da chay n lan")
             order_id = order_document.get('order_id')
             doc_url = order_document.get('doc_url')
 
@@ -1137,8 +1157,12 @@ class ToShipOrderAPI(APIView):
                         file.write(response.content)
 
                     # Upload the file to Google Drive
-                    order_detail = callOrderDetail(access_token=access_token, orderIds=orderIds)
+                    try: 
+                        order_detail = callOrderDetail(access_token=access_token, orderIds=orderIds)
+                    except:
+                        print("error when call OrderDetail API")
                     order_detail = order_detail.json()
+                    
                     infor_user_str = process_pdf(file_path)
                     infor_user = json.loads(infor_user_str)
 
@@ -1155,8 +1179,10 @@ class ToShipOrderAPI(APIView):
                         order_detail['state'] = infor_user['state']
                     if 'zip_code' in infor_user:
                         order_detail['zip_code'] = infor_user['zip_code']
+                   
 
                     data.append(order_detail)
+                    print(len(data))
             
 
             # Trả về kết quả sau khi loop hoàn thành

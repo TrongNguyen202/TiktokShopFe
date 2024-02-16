@@ -17,7 +17,7 @@ def callProductList(access_token):
         "timestamp": SIGN.get_timestamp()
     }
     body = json.dumps({
-        "page_size": 50,
+        "page_size": 99,
         "page_number": 1,
         "search_status": 0,
         "seller_sku_list": []
@@ -382,8 +382,8 @@ def callOrderDetail(access_token, orderIds):
     response = requests.post(url, params=query_params, json=json.loads(body))
   
     # Process the response
-    print(response.status_code)
-    print(response.text)
+    
+    
     return response
 
 def getAttributes(access_token, category_id):

@@ -83,5 +83,7 @@ class Templates(models.Model):
     colors = ArrayField(models.CharField(20), null=False, default=[])
     type = ArrayField(models.CharField(20), null=False, default=[])
     types = JSONField()
+    badWords = ArrayField(models.CharField(200), null=False, default=[])
+    suffixTitle = models.CharField(null=False, max_length=500,default='' )
 
     objects = models.Manager()
