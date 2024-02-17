@@ -26,6 +26,10 @@ class UserGroup(models.Model):
 
     class Meta:
         unique_together = (("user", "group_custom"),)
+    def print_attributes(self):
+        print(f"User: {self.user}")
+        print(f"Group Custom: {self.group_custom}")
+        print(f"Role: {self.role}")
 
 
 class Shop(models.Model):

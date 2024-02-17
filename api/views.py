@@ -210,8 +210,9 @@ class Shops(APIView):
            return Response({'error': 'auth_code is required'}, status=status.HTTP_400_BAD_REQUEST)
         
        respond = getAccessToken(auth_code=auth_code)
-       user_group = self.get_user_group(user=request.user)
-       group = user_group.group_custom
+       group_custom = self.get_user_group(user=self.request.user)
+       print("user_group_name", group_custom)
+      
 
        if respond.status_code == 200:
            json_data = respond.json()
@@ -236,7 +237,7 @@ class Shops(APIView):
            "refresh_token": refresh_token,
            "shop_name": shop_name,
            "shop_code": shop_code,
-           "group_custom_id":group
+           "group_custom_id":group_custom.id
        }
 
        shopSeri = ShopSerializers(data=shop_data)
@@ -267,7 +268,7 @@ class Shops(APIView):
         
                   UserShop.objects.create(user=user_seller, shop=new_shop)
                except User.DoesNotExist:
-                  print("error")
+                  print("error when finding user from user_seller_id")
        
 
            return Response(shopSeri.data, status=status.HTTP_201_CREATED)
