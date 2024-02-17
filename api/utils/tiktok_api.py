@@ -78,7 +78,7 @@ def callProductDetail(access_token,product_id):
     
     response = requests.get(url, params=query_params)
   
-    print(response.text)
+   
     return response
 
 
@@ -319,8 +319,8 @@ def callEditProduct(access_token, product_object,imgBase64):
         "product_id": product_object.product_id,
         "product_name": product_object.product_name,
         "images": images_list,
+        "is_cod_open":True,
         "price": product_object.price,
-        "is_cod_open": product_object.is_cod_open,
         "package_dimension_unit": product_object.package_dimension_unit,
         "package_height": product_object.package_height,
         "package_length": product_object.package_length,
@@ -333,7 +333,9 @@ def callEditProduct(access_token, product_object,imgBase64):
     }
     if product_object.brand_id != "":
         bodyjson["brand_id"] = product_object.brand_id
+ 
     body = json.dumps(bodyjson)
+    print(body)
     
 
     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
@@ -341,7 +343,7 @@ def callEditProduct(access_token, product_object,imgBase64):
 
     
     response = requests.put(url, params=query_params, json=json.loads(body))
-
+    
    
     print(response.text)
     return HttpResponse(response)
@@ -447,7 +449,7 @@ def callCreateOneProduct(access_token,product_object):
     bodyjson = {
         "product_name": product_object.product_name,
         "images": [{"id": image_id} for image_id in product_object.images],
-        "is_cod_open": product_object.is_cod_open,
+        "is_cod_open": True,
         "package_dimension_unit": product_object.package_dimension_unit,
         "package_height": product_object.package_height,
         "package_length": product_object.package_length,

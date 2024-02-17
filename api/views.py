@@ -205,10 +205,15 @@ class Shops(APIView):
         auth_code = request.data.get('auth_code', None)
         shop_name = request.data.get('shop_name', None)
         shop_code = request.data.get('shop_code', None)
+        user_seller_id = request.data.get('user_id', None)
         if not auth_code:
             return Response({'error': 'auth_code is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
 
         respond = getAccessToken(auth_code=auth_code)
+        user_group = self.get_user_group(user=request.user)
+        group = user_group.group_custom
+
 
         if respond.status_code == 200:
             json_data = respond.json()
@@ -231,7 +236,8 @@ class Shops(APIView):
             "access_token": access_token,
             "refresh_token": refresh_token,
             "shop_name": shop_name,
-            "shop_code": shop_code
+            "shop_code": shop_code,
+            "group_custom_id":group
         }
 
         shopSeri = ShopSerializers(data=shop_data)
@@ -251,7 +257,12 @@ class Shops(APIView):
                 return Response(shopSeri.data, status=status.HTTP_201_CREATED)
 
     # If shop_code doesn't exist, save a new instance
-            shopSeri.save()
+            new_shop= shopSeri.save()
+            user_shop = UserShop.objects.create(user=request.user, shop=new_shop, user_seller_id=user_seller_id)
+            user_shop.save()
+
+            
+            
             return Response(shopSeri.data, status=status.HTTP_201_CREATED)
 
         return Response(shopSeri.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -261,14 +272,7 @@ class Shops(APIView):
         responses=ShopSerializers,
 
     )
-    # def put(self, request, shop_id):
-    #    shop = get_object_or_404(Shop, id=shop_id)
-    #    shop_serializer = ShopSerializers(shop, data=request.data)
-    #    if shop_serializer.is_valid():
-    #        shop_serializer.save()
-    #        return Response(shop_serializer.data, status=200)
-    #    else:
-    #        return Response(shop_serializer.errors, status=400)
+ 
     def get(self, request):
         user = request.user
 
