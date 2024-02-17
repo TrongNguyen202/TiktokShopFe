@@ -201,71 +201,79 @@ class Shops(APIView):
 
     )
     def post(self, request):
+       auth_code = request.data.get('auth_code', None)
+       shop_name = request.data.get('shop_name', None)
+       shop_code = request.data.get('shop_code', None)
+       user_seller_id = request.data.get('user_id', None)
 
-        auth_code = request.data.get('auth_code', None)
-        shop_name = request.data.get('shop_name', None)
-        shop_code = request.data.get('shop_code', None)
-        user_seller_id = request.data.get('user_id', None)
-        if not auth_code:
-            return Response({'error': 'auth_code is required'}, status=status.HTTP_400_BAD_REQUEST)
+       if not auth_code:
+           return Response({'error': 'auth_code is required'}, status=status.HTTP_400_BAD_REQUEST)
         
+       respond = getAccessToken(auth_code=auth_code)
+       user_group = self.get_user_group(user=request.user)
+       group = user_group.group_custom
 
-        respond = getAccessToken(auth_code=auth_code)
-        user_group = self.get_user_group(user=request.user)
-        group = user_group.group_custom
+       if respond.status_code == 200:
+           json_data = respond.json()
+           data = json_data.get('data', {})
+           access_token = data.get('access_token', None)
+           refresh_token = data.get('refresh_token', None)
+           print(access_token)
+           print(refresh_token)
+       else:
+           # Handle error, for example:
+           return Response({'error': 'Failed to retrieve access_token or refresh_token from the response'}, status=respond.status_code)
+
+       if not access_token or not refresh_token:
+           return Response({'error': 'Failed to retrieve access_token or refresh_token from the response'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+       shop_data = {
+           'auth_code': auth_code,
+           "app_key": app_key,
+           "app_secret": secret,
+           "grant_type": grant_type,
+           "access_token": access_token,
+           "refresh_token": refresh_token,
+           "shop_name": shop_name,
+           "shop_code": shop_code,
+           "group_custom_id":group
+       }
+
+       shopSeri = ShopSerializers(data=shop_data)
+
+       if shopSeri.is_valid():
+           shop_code = shop_data.get('shop_code')
+
+        # Kiểm tra xem cửa hàng với shop_code đã tồn tại chưa
+           if Shop.objects.filter(shop_code=shop_code).exists():
+               existing_shop = Shop.objects.get(shop_code=shop_code)
+
+            # Cập nhật instance cửa hàng hiện có với access_token và refresh_token mới
+               existing_shop.access_token = access_token
+               existing_shop.refresh_token = refresh_token
+               existing_shop.save()
+
+               return Response(shopSeri.data, status=status.HTTP_201_CREATED)
+
+        # If shop_code doesn't exist, save a new instance
+           new_shop = shopSeri.save()
 
 
-        if respond.status_code == 200:
-            json_data = respond.json()
-            data = json_data.get('data', {})
-            access_token = data.get('access_token', None)
-            refresh_token = data.get('refresh_token', None)
-            print(access_token)
-            print(refresh_token)
+           if user_seller_id:
+               try:
+      
+                  user_seller = User.objects.get(id=user_seller_id)
+        
+        
+                  UserShop.objects.create(user=user_seller, shop=new_shop)
+               except User.DoesNotExist:
+                  print("error")
+       
 
-        else:
-            # Handle error, for example:
-            return Response({'error': 'Failed to retrieve access_token or refresh_token from the response'}, status=respond.status_code)
-        if not access_token or not refresh_token:
-            return Response({'error': 'Failed to retrieve access_token or refresh_token from the response'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        shop_data = {
-            'auth_code': auth_code,
-            "app_key": app_key,
-            "app_secret": secret,
-            "grant_type": grant_type,
-            "access_token": access_token,
-            "refresh_token": refresh_token,
-            "shop_name": shop_name,
-            "shop_code": shop_code,
-            "group_custom_id":group
-        }
+           return Response(shopSeri.data, status=status.HTTP_201_CREATED)
 
-        shopSeri = ShopSerializers(data=shop_data)
+       return Response(shopSeri.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        if shopSeri.is_valid():
-            shop_code = shop_data.get('shop_code')
-
-    # Check if shop with the given shop_code exists
-            if Shop.objects.filter(shop_code=shop_code).exists():
-                existing_shop = Shop.objects.get(shop_code=shop_code)
-
-        # Update the existing instance with new access_token and refresh_token
-                existing_shop.access_token = access_token
-                existing_shop.refresh_token = refresh_token
-                existing_shop.save()
-
-                return Response(shopSeri.data, status=status.HTTP_201_CREATED)
-
-    # If shop_code doesn't exist, save a new instance
-            new_shop= shopSeri.save()
-            user_shop = UserShop.objects.create(user=request.user, shop=new_shop, user_seller_id=user_seller_id)
-            user_shop.save()
-
-            
-            
-            return Response(shopSeri.data, status=status.HTTP_201_CREATED)
-
-        return Response(shopSeri.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(
         request=ShopSerializers,
