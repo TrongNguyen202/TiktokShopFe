@@ -26,7 +26,7 @@ from .serializers import (
     TemplatePutSerializer
 )
 
-from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes,callCreateOneProduct,callGlobalCategories,callGetShippingDocument,callGetAttribute,callCreateOneProductDraf
+from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes,callCreateOneProduct,callGlobalCategories,callGetShippingDocument,callGetAttribute,callCreateOneProductDraf,callPreCombinePackage
 from django.http import HttpResponse
 from .models import Shop, Image, Templates, Categories,UserShop,UserGroup,GroupCustom
 from api.utils.constant import app_key, secret, grant_type,ProductCreateObject,ProductCreateOneObject,MAX_WORKER
@@ -1325,5 +1325,31 @@ class UserInfor(APIView):
      
         return Response(user_info)
 
-               
- 
+
+
+
+
+
+class AllCombinePackage(APIView):
+    # permission_classes =(IsAuthenticated,)
+    def get(self, request, shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        try:
+            respond = callPreCombinePackage(access_token=access_token)
+            # Extracting content and decoding it as JSON
+            data_json_string = respond.content.decode('utf-8')
+            data = json.loads(data_json_string)
+            response_data = {
+                "code": 0,
+                "data": data,
+                "message": "Success",
+                
+            }
+            return JsonResponse(response_data, status=200)
+        except Exception as e:
+            print("Error when calling getAllCombinePack API:", str(e))
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+        

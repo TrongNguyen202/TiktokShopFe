@@ -50,10 +50,8 @@ urlpatterns = [
      path("groups/change_user", views.PermissionRole.as_view(), name="divide_role"),
 
     path('user-shops/groups', views.UserShopList.as_view(), name='user_shops_list'),
-     path('user/<int:user_id>/groups/infor', views.UserInfor.as_view(), name='user_group_infor')
-
-
-
+     path('user/<int:user_id>/groups/infor', views.UserInfor.as_view(), name='user_group_infor'),
+     path('shops/<int:shop_id>/pre_combine_pkg', views.AllCombinePackage.as_view(), name ='pre_combine_pkg'),
 
     
 ]

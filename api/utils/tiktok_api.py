@@ -622,3 +622,73 @@ def callCreateOneProductDraf(access_token,product_object):
 
     
     return HttpResponse(response)
+
+def callPreCombinePackage(access_token):
+    url = TIKTOK_API_URL['url_pre_combine_package']
+    query_params = {
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGNNOBODY.get_timestamp(),
+        "page_size":10
+
+    }
+    sign = SIGNNOBODY.cal_sign(secret,urllib.parse.urlparse(url),query_params)
+    query_params['sign'] = sign
+    response = requests.get(url,params=query_params)
+    print(response.text)
+    return HttpResponse(response)
+
+# def callCreate(access_token, orderIds):
+#     url = TIKTOK_API_URL['url_get_order_detail']
+#     query_params = {
+#         "app_key": app_key,
+#         "access_token": access_token,
+#         "timestamp": SIGN.get_timestamp(),
+#     }
+   
+#     body = json.dumps({
+#         "order_id_list": orderIds,
+#         "page_size": 50,
+#     })
+
+#     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
+#     query_params["sign"] = sign
+    
+#     response = requests.post(url, params=query_params, json=json.loads(body))
+  
+#     # Process the response
+    
+    
+#     return response
+
+# def callConFirmCombinePackage(access_token, order_id_list):
+#     url = TIKTOK_API_URL['url_confirm_combine_package']
+#     query_params = {
+#         "app_key": app_key,
+#         "access_token": access_token,
+#         "timestamp": SIGN.get_timestamp(),
+
+#     }
+#     order_id_list = 
+#     bodyjson = {
+#         "pre_combine_pkg_list": [
+#             {
+#                 "order_id_list": [
+#                     "576588912032452674",
+#                     "576588912848441410",
+#                     "576588899933851714"
+#                 ],
+#                 "pre_combine_pkg_id": "1153023699203952706"
+#             }
+#         ]
+#     }
+  
+#     body = json.dumps(bodyjson)
+    
+#     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
+#     query_params["sign"] = sign
+
+#     response = requests.post(url, params=query_params, json=json.loads(body))
+#     print(response.text)
+
+    
