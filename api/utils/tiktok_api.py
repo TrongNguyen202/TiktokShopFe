@@ -169,6 +169,7 @@ def callUploadImage(access_token, img_data):
 
         if data and "data" in data and "img_id" in data["data"]:
             img_id = data["data"]["img_id"]
+            print(img_id)
             return img_id
         else:
             print(f"Invalid response format: 'data' or 'img_id' not found in the response")
@@ -257,26 +258,19 @@ def getBrands(access_token):
     return response
 
 
-
-
-
-def callEditProduct(access_token, product_object,imgBase64):
+def callEditProduct(access_token, product_object, imgBase64):
     url = TIKTOK_API_URL['url_edit_product']
     images_list = [image for image in product_object.images]
-    if imgBase64 != []:
+    if imgBase64:
         for item in imgBase64:
             img_id = callUploadImage(access_token=access_token, img_data=item)
-            images_list.append({'id':img_id})
+            images_list.append({'id': img_id})
     
-    
-
     query_params = {
         "app_key": app_key,
         "access_token": access_token,
         "timestamp": SIGN.get_timestamp(),
     }
-
-    
 
     skus_list = []
     for sku in product_object.skus:
@@ -299,27 +293,25 @@ def callEditProduct(access_token, product_object,imgBase64):
             "original_price": sku.original_price,
             "stock_infos": stock_infos_list
         })
-        product_attributes_list = []
-        for attribute in product_object.product_attributes:
-            attribute_values_list = [
-                {
-                    "value_id": value.value_id,
-                    "value_name": value.value_name
-                } for value in attribute.attribute_values
-            ]
-            product_attributes_list.append({
-                "attribute_id": attribute.attribute_id,
-                "attribute_values": attribute_values_list
-            })
-  
-    
-
+        
+    product_attributes_list = []
+    for attribute in product_object.product_attributes:
+        attribute_values_list = [
+            {
+                "value_id": value.value_id,
+                "value_name": value.value_name
+            } for value in attribute.attribute_values
+        ]
+        product_attributes_list.append({
+            "attribute_id": attribute.attribute_id,
+            "attribute_values": attribute_values_list
+        })
 
     bodyjson = {
         "product_id": product_object.product_id,
         "product_name": product_object.product_name,
         "images": images_list,
-        "is_cod_open":True,
+        "is_cod_open": True,
         "price": product_object.price,
         "package_dimension_unit": product_object.package_dimension_unit,
         "package_height": product_object.package_height,
@@ -329,24 +321,108 @@ def callEditProduct(access_token, product_object,imgBase64):
         "category_id": product_object.category_id,
         "description": product_object.description,
         "skus": skus_list,
-        "product_attributes":product_attributes_list
+        "product_attributes": product_attributes_list
     }
     if product_object.brand_id != "":
         bodyjson["brand_id"] = product_object.brand_id
- 
+
     body = json.dumps(bodyjson)
-    print(body)
-    
 
     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
     query_params["sign"] = sign
 
-    
     response = requests.put(url, params=query_params, json=json.loads(body))
+    print(response.text)
+    return response
+
+
+# def callEditProduct(access_token, product_object,imgBase64):
+#     url = TIKTOK_API_URL['url_edit_product']
+#     images_list = [image for image in product_object.images]
+#     if imgBase64 != []:
+#         for item in imgBase64:
+#             img_id = callUploadImage(access_token=access_token, img_data=item)
+#             images_list.append({'id':img_id})
+    
+    
+
+#     query_params = {
+#         "app_key": app_key,
+#         "access_token": access_token,
+#         "timestamp": SIGN.get_timestamp(),
+#     }
+
+    
+
+#     skus_list = []
+#     for sku in product_object.skus:
+#         sales_attributes_list = [
+#             {
+#                 "attribute_id": attr.attribute_id,
+#                 "attribute_name": attr.attribute_name,
+#                 "value_id": attr.value_id,
+#                 "value_name": attr.value_name,
+#             } for attr in sku.sales_attributes
+#         ]
+#         stock_infos_list = [
+#             {
+#                 "warehouse_id": info.warehouse_id,
+#                 "available_stock": info.available_stock
+#             } for info in sku.stock_infos
+#         ]
+#         skus_list.append({
+#             "sales_attributes": sales_attributes_list,
+#             "original_price": sku.original_price,
+#             "stock_infos": stock_infos_list
+#         })
+#         product_attributes_list = []
+#         for attribute in product_object.product_attributes:
+#             attribute_values_list = [
+#                 {
+#                     "value_id": value.value_id,
+#                     "value_name": value.value_name
+#                 } for value in attribute.attribute_values
+#             ]
+#             product_attributes_list.append({
+#                 "attribute_id": attribute.attribute_id,
+#                 "attribute_values": attribute_values_list
+#             })
+  
+    
+
+
+#     bodyjson = {
+#         "product_id": product_object.product_id,
+#         "product_name": product_object.product_name,
+#         "images": images_list,
+#         "is_cod_open":True,
+#         "price": product_object.price,
+#         "package_dimension_unit": product_object.package_dimension_unit,
+#         "package_height": product_object.package_height,
+#         "package_length": product_object.package_length,
+#         "package_weight": product_object.package_weight,
+#         "package_width": product_object.package_width,
+#         "category_id": product_object.category_id,
+#         "description": product_object.description,
+#         "skus": skus_list,
+#         "product_attributes":product_attributes_list
+#     }
+#     if product_object.brand_id != "":
+#         bodyjson["brand_id"] = product_object.brand_id
+ 
+#     body = json.dumps(bodyjson)
+
+    
+
+#     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
+#     query_params["sign"] = sign
+
+    
+#     response = requests.put(url, params=query_params, json=json.loads(body))
     
    
-    print(response.text)
-    return HttpResponse(response)
+#     print(response.text)
+#     return HttpResponse(response)
 
 def callOrderList(access_token):
     url = TIKTOK_API_URL['url_get_orders']
@@ -474,7 +550,7 @@ def callCreateOneProduct(access_token,product_object):
     response = requests.post(url, params=query_params, json=json.loads(body))
 
     print(response.text)
-    return HttpResponse(response)
+    return response
 
 def callGlobalCategories(access_token):
     url = TIKTOK_API_URL['url_get_globle_categories']
@@ -661,34 +737,35 @@ def callPreCombinePackage(access_token):
     
 #     return response
 
-# def callConFirmCombinePackage(access_token, order_id_list):
-#     url = TIKTOK_API_URL['url_confirm_combine_package']
-#     query_params = {
-#         "app_key": app_key,
-#         "access_token": access_token,
-#         "timestamp": SIGN.get_timestamp(),
+def callConFirmCombinePackage(access_token, combine_item):
+    url = TIKTOK_API_URL['url_confirm_combine_package']
+    query_params = {
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp(),
 
-#     }
-#     order_id_list = 
-#     bodyjson = {
-#         "pre_combine_pkg_list": [
-#             {
-#                 "order_id_list": [
-#                     "576588912032452674",
-#                     "576588912848441410",
-#                     "576588899933851714"
-#                 ],
-#                 "pre_combine_pkg_id": "1153023699203952706"
-#             }
-#         ]
-#     }
+    }
+   
+    bodyjson = {
+        "pre_combine_pkg_list": [
+            {
+                "order_id_list": [
+                    "576588912032452674",
+                    "576588912848441410",
+                    "576588899933851714"
+                ],
+                "pre_combine_pkg_id": "1153023699203952706"
+            }
+        ]
+    }
   
-#     body = json.dumps(bodyjson)
+    body = json.dumps(bodyjson)
     
-#     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
-#     query_params["sign"] = sign
+    sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
+    query_params["sign"] = sign
 
-#     response = requests.post(url, params=query_params, json=json.loads(body))
-#     print(response.text)
+    response = requests.post(url, params=query_params, json=json.loads(body))
+    print(response.text)
+    return response
 
     

@@ -977,22 +977,32 @@ class EditProductAPIView(APIView):
         product_data_without_img = product_data.copy()
         img_base64 = product_data_without_img.pop('imgBase64', [])
         
-
         # Tạo một đối tượng ProductObject không chứa imgBase64
-        product_object_data = {key: value for key, value in product_data.items() if key != 'imgBase64' }
-       
-        product_object = ProductObject(**product_object_data)
-
-
+        product_object_data = {key: value for key, value in product_data.items() if key != 'imgBase64'}
+        try:
+            product_object = ProductObject(**product_object_data)
+        except Exception as e:
+            print("error to create product object:", str(e))
+            return JsonResponse({'message': 'Error occurred while creating product object'}, status=500)
 
         try:
-            callEditProduct(access_token, product_object, img_base64)
-        except:
-            print("error to call edit product api")
-            return JsonResponse({'status': 'error to call product api'}, status=500)
+            response = callEditProduct(access_token, product_object, img_base64)
+            response_text = response.text
+            response_data = response.json()
+            if response_data['data'] is None:
+                error_message = response_data['message']
+                print("error from API:", error_message)
+                return JsonResponse({'message': error_message}, status=400)
+            
+            else:
+                response_text = response.text
+                return HttpResponse(response_text, content_type="text/plain", status=200)
+                
+        except Exception as e:
+            print("error to call edit product api:", str(e))
+            return JsonResponse({'message': 'Error occurred while calling edit product API'}, status=400)
 
 
-        return JsonResponse({'status': 'success'}, status=200)
 import base64
 from PIL import Image
 import io  
@@ -1047,12 +1057,21 @@ class CreateOneProduct(APIView):
         
         try:
 
-            callCreateOneProduct(access_token, product_object)
+           response = callCreateOneProduct(access_token, product_object)
+           response_text = response.text
+           response_data = response.json()
+           if response_data['data'] is None:
+                error_message = response_data['message']
+                print("error from API:", error_message)
+                return JsonResponse({'message': error_message}, status=400)
+           else:
+                response_text = response.text
+                return HttpResponse(response_text, content_type="text/plain", status=200)
         except Exception as e:
-            print(f"Error creating product in API function: {e}")
-            return JsonResponse({'status': 'error', 'message': 'Error creating product in API function'}, status=500)
+            print("error to call create product api:", str(e))
+            return JsonResponse({'message': 'Error occurred while calling edit product API'}, status=400)
 
-        return JsonResponse({'status': 'success'}, status=201)
+       
 
 class ListCategoriesGlobal(APIView):
     # permission_classes = (IsAuthenticated,)
@@ -1351,5 +1370,21 @@ class AllCombinePackage(APIView):
             print("Error when calling getAllCombinePack API:", str(e))
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
+class InforUserCurrent(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        user = request.user
+        user_groups = UserGroup.objects.filter(user=user)
+        
+        user_info = {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'groups': [user_group.group_custom.group_name for user_group in user_groups]
+        }
+        return Response(user_info)
 
         

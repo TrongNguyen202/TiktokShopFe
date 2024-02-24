@@ -23,7 +23,10 @@ TIKTOK_API_URL = {
   'url_create_draf_product':'https://open-api.tiktokglobalshop.com/api/products/save_draft',
   'url_pre_combine_package':'https://open-api.tiktokglobalshop.com/api/fulfillment/pre_combine_pkg/list',
   'url_confirm_combine_package':'https://open-api.tiktokglobalshop.com/api/fulfillment/pre_combine_pkg/confirm',
-  'url_create_label':'https://open-api.tiktokglobalshop.com/api/fulfillment/create_label'
+  'url_create_label':'https://open-api.tiktokglobalshop.com/api/fulfillment/create_label',
+  'url_search_package':'https://open-api.tiktokglobalshop.com/api/fulfillment/search',
+  'url_get_shipping_service':'https://open-api.tiktokglobalshop.com/api/fulfillment/shipping_service/get',
+  'get_package_detail':'https://open-api.tiktokglobalshop.com/api/fulfillment/detail'
  
 }
 

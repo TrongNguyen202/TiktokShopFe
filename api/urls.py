@@ -47,8 +47,8 @@ urlpatterns = [
     path("brands/global", views.GlobalBrand.as_view(), name="globals_brands"),
     path("brands/global", views.GlobalBrand.as_view(), name="globals_brands"),
     path('shops/<int:shop_id>/products/create_product_draf', views.CreateOneProductDraf.as_view(), name='create_one_product_draf'),
-     path("groups/change_user", views.PermissionRole.as_view(), name="divide_role"),
-
+    path("groups/change_user", views.PermissionRole.as_view(), name="divide_role"),
+    path("groups/user_login_infor", views.InforUserCurrent.as_view(), name="usercurrent_infor"),
     path('user-shops/groups', views.UserShopList.as_view(), name='user_shops_list'),
      path('user/<int:user_id>/groups/infor', views.UserInfor.as_view(), name='user_group_infor'),
      path('shops/<int:shop_id>/pre_combine_pkg', views.AllCombinePackage.as_view(), name ='pre_combine_pkg'),
