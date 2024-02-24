@@ -10,7 +10,7 @@ export default function IdentityRequest() {
 
   useEffect(() => {
     const onSuccess = (res) => {
-      console.log(res)
+
     }
     const onFail = (err) => {
       alert.error(err)

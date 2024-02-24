@@ -60,7 +60,6 @@ const MultiAddProducts = () => {
   };
 
   const onSelectTemplate = (value) => {
-    console.log("value: ", value);
     const template = templates.find((item) => item.id === value);
     setTemplateJSON(template);
   };
@@ -175,14 +174,16 @@ const MultiAddProducts = () => {
 
     for (let item of productsJSON) {
       const { sku, title, warehouse, images } = item;
-      if (!sku || !title || !warehouse || !images) {
+      // if (!sku || !title || !warehouse || !images) {
+      if (!title || !images) {
         message.error(
           "Excel file is not in the correct format: Missing required field sku, title, warehouse or images"
         );
         return false;
       }
 
-      if (!sku?.trim() || !title?.trim() || !warehouse?.trim()) {
+      // if (!sku?.trim() || !title?.trim() || !warehouse?.trim()) {
+      if (!title?.trim()) {
         message.error("sku, title or warehouse cannot be empty");
         return false;
       }
@@ -271,6 +272,7 @@ const MultiAddProducts = () => {
       skus: convertDataSku(),
       description,
     };
+    console.log('dataSubmit: ', dataSubmit);
     const onSuccess = () => {
       message.success("Thêm sản phẩm thành công");
       navigate(`/shops/${shopId}/products`);
@@ -339,8 +341,8 @@ const MultiAddProducts = () => {
             </Col>
           </Row>
         </Row>
-        <div className="flex justify-between mt-20">
-          <div className=" flex gap-3 items-center">
+        <div className="flex-col md:flex-row flex justify-between mt-20 gap-5">
+          <div className="flex-col md:flex-row flex gap-3 md:items-center">
             <p className="font-semibold">Chọn template: </p>
             <Select
               showSearch
@@ -363,6 +365,9 @@ const MultiAddProducts = () => {
             <Button
               className=""
               type="primary"
+              style={{
+                width: 200,
+              }}
               ghost
               icon={<PlusOutlined />}
               onClick={() => setShowModalAddTemplate(true)}
@@ -370,12 +375,12 @@ const MultiAddProducts = () => {
               Thêm mới template
             </Button>
           </div>
-          <div className="flex gap-2 items-center">
+          <div className="flex-col md:flex-row flex gap-2 md:items-center">
             <p className="font-semibold">Chọn warehouse:</p>
             <Select
               showSearch
               style={{
-                width: 200,
+                width: 260,
               }}
               placeholder="Chọn warehouse"
               optionFilterProp="children"

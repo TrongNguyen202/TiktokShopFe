@@ -44,15 +44,12 @@ const ProductCreateAddVariationForm = ({handleAdd, handleClose, warehouses}) => 
     ))
 
     const selectedSelector = flatMapArray(selectedColor, selectedSize)
-    
-    console.log('selectedColor: ', selectedColor);
+
     const handAddVariations = () => {
-        console.log('variationsData: ', variationsData)
         handleAdd(variationsData)
     }
 
     const handleAddData = (data) => {
-        console.log('data: ', data);
         const newData = data?.map((item) => ({
             ...item,
             variations: item.variations?.map((item, index) => ({
@@ -61,7 +58,6 @@ const ProductCreateAddVariationForm = ({handleAdd, handleClose, warehouses}) => 
                 ...item,
             }))
         }))
-        console.log('newData: ', newData);
         setVariationsData(newData)
         setShowModalPrice(false)
     }

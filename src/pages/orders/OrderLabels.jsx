@@ -86,7 +86,7 @@ const OrderLabels = () => {
 
     const handleToShipOrders = () => {
         const onSuccess = (res) => {
-            console.log(res);
+            ;
             setCheckDesign(true)
         }
         getToShipInfo(shopId, onSuccess, () => {})

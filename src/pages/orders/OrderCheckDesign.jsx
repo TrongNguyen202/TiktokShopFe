@@ -28,9 +28,6 @@ const OrderCheckDesign = () => {
         return [...acc, ...rows];
     }, []);
 
-    // console.log('dataSource: ', dataSource);
-    // console.log('sheets: ', sheets);
-
     const columns = [
         {
             title: 'Order ID',
@@ -103,7 +100,6 @@ const OrderCheckDesign = () => {
             }
         });
     }
-    console.log('newDesignData: ', newDesignData);
 
     const handleAddDesign = async () => {
         let oauthAccessToken = localStorage.getItem('oauthAccessToken')
@@ -123,7 +119,7 @@ const OrderCheckDesign = () => {
                 }
             }
             const onFail = () => { }
-            AddRowToSheet('Team Dang!A:F', dataAddRowToSheet, oauthAccessToken, onSuccess, onFail)            
+            AddRowToSheet('Team Truong', dataAddRowToSheet, oauthAccessToken, onSuccess, onFail)            
         }
       }
 
@@ -135,11 +131,11 @@ const OrderCheckDesign = () => {
         const onFail = (err) => {
             console.log(err);
         }
-        getAllSheetInfo('Team Dang!A:F', onSuccess, onFail)
+        getAllSheetInfo('Team Truong', onSuccess, onFail)
     }, [])
 
     return (
-        <div className="p-10">
+        <div className="p-3 md:p-10">
             <PageTitle title='Kiểm tra và thêm mẫu' showBack/>
             <div className='text-center'>
                 {!hasAddDesign && <Button type="primary" className='mb-3' onClick={handleCheckOrderWithExcel}>Kiếm tra mẫu trên Google Sheet</Button>}
@@ -150,7 +146,7 @@ const OrderCheckDesign = () => {
                 }
             </div>
             {hasNewDesignData && <OrdersAddImageDesignByExcel/>}
-            {!hasAddDesign && <Table rowKey="order_id" columns={columns} dataSource={dataSource} bordered pagination={{ position: ['none'] }} /> }
+            {!hasAddDesign && <Table scroll={{ x: true }} rowKey="order_id" columns={columns} dataSource={dataSource} bordered pagination={{ position: ['none'] }} />}
             {hasAddDesign && <OrdersAddNewDesignData dataColumns={newDesignData} /> }
             {contextHolder}
         </div>

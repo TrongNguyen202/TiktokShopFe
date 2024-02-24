@@ -18,11 +18,8 @@ const Fulfillment = () => {
     }
 
     const getToShipInfo = (data) => {
-        console.log('data: ', data);
         setToShipInfoData(data)
     }
-
-    console.log('toShipInfoData: ', toShipInfoData);
 
     const steps = [
         {
@@ -54,22 +51,21 @@ const Fulfillment = () => {
         title: item.title,
     }));
 
-    console.log('toShipInfoData: ', toShipInfoData);
 
     useEffect(() => {
         const onSuccess = (res) => {
-            console.log(res)
+
         }
 
         const onFail = (err) => {
             console.log(err);
         }
         
-        getAllSheetInfo('Team Dang!A:F', onSuccess, onFail)
+        getAllSheetInfo('Team Truong', onSuccess, onFail)
     }, [])
 
     return (
-      <div className='p-10'>
+        <div className='p-3 md:p-10'>
           <PageTitle title='Fulfillment' showBack/>
           <Steps current={current} items={items} />
           <div className='mt-5'>

@@ -15,7 +15,7 @@ const ProductCreateVariation = ({shopId, variations, variationsDataTable}) => {
     const listAttributesData = variations?.map((item) => item.sales_attributes)
     const variationData = variations?.map((item) => ({
         variations: item.sales_attributes,
-        price: item.price.original_price,
+        price: item?.price?.original_price,
         stock_infos: {
             available_stock: item.stock_infos[0].available_stock,
             warehouse_id: item.stock_infos[0].warehouse_id
@@ -24,11 +24,9 @@ const ProductCreateVariation = ({shopId, variations, variationsDataTable}) => {
         key: item.id
     }))
 
-    console.log('warehousesById: ', warehousesById)
 
     useEffect(() => {
         const onSuccess = (res) => {
-            console.log(res)
         }
         const onFail = (err) => {
             alerts.error(err)

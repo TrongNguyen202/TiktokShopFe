@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie'
 
-const tokenKey = 'token'
+const tokenKey = 'tk-tk'
 const refreshTokenKey = 'refreshToken'
 
 export function getToken() {

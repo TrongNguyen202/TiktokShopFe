@@ -11,7 +11,7 @@ const StoreDetailBrands = ({shopId}) => {
 
     useEffect(() => {
       const onSuccess = (res) => {
-        console.log(res)
+
       }
       const onFail = (err) => {
         alerts.error(err)

@@ -9,20 +9,20 @@ const ProductCreateShipping = ({isProductCreate}) => {
     return (
         <>
             <ProductSectionTitle title='Thông tin vận chuyển' />
-            <Row gutter={30}>
-                <Col span={6}>
+            {/* <Row gutter={30}>
+                <Col md={{ span: 6 }} span={24}>
                     <Form.Item name='is_cod_open' label='Chấp nhận thanh toán khi nhận hàng: '>
                         <Switch {...(isProductCreate && { defaultChecked: true })}
                             checkedChildren='Bật'
-                            unCheckedChildren='Tắt' 
+                            unCheckedChildren='Tắt'
                         />
                     </Form.Item>
                 </Col>
-            </Row>
+            </Row> */}
 
 
             <Row gutter={30}>
-                <Col span={6}>
+                <Col md={{ span: 6 }} span={12}>
                     <Form.Item name='package_weight' label='Cân nặng:' rules={[{ required: true, message: 'Cân nặng không được để trống' }]}>
                         <InputNumber
                             min={0}
@@ -33,7 +33,7 @@ const ProductCreateShipping = ({isProductCreate}) => {
                         />
                     </Form.Item>
                 </Col>
-                <Col span={6}>
+                <Col md={{ span: 6 }} span={12}>
                     <Form.Item name='package_width' label='Chiều rộng:' rules={[{ required: true, message: 'Chiều rộng không được để trống' }]}>
                         <InputNumber
                             min={0}
@@ -44,7 +44,7 @@ const ProductCreateShipping = ({isProductCreate}) => {
                         />
                     </Form.Item>
                 </Col>
-                <Col span={6}>
+                <Col md={{ span: 6 }} span={12}>
                     <Form.Item name='package_height' label='Chiều dài:' rules={[{ required: true, message: 'Chiều dài không được để trống' }]}>
                         <InputNumber
                             min={0}
@@ -55,7 +55,7 @@ const ProductCreateShipping = ({isProductCreate}) => {
                         />
                     </Form.Item>
                 </Col>
-                <Col span={6}>
+                <Col md={{ span: 6 }} span={12}>
                     <Form.Item name='package_length' label='Chiều cao:' rules={[{ required: true, message: 'Chiều cao không được để trống' }]}>
                         <InputNumber
                             min={0}

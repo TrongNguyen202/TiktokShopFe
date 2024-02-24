@@ -16,7 +16,7 @@ const Categories = () => {
 
     useEffect(() => {
         const onSuccess = (res) => {
-          console.log(res)
+
         }
         const onFail = (err) => {
           alerts.error(err)

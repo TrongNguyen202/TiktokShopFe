@@ -64,7 +64,7 @@ const Template = () => {
     {
       title: "",
       key: "action",
-      fixed: "right",
+      // fixed: "right",
       align: "center",
       render: (banner) => {
         return (

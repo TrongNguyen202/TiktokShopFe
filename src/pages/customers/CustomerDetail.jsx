@@ -11,7 +11,7 @@ export default function CustomerDetail({ id }) {
 
   useEffect(() => {
     const onSuccess = (res) => {
-      console.log(res)
+
     }
     const onFail = (err) => {
       alert.error(err)
@@ -20,7 +20,6 @@ export default function CustomerDetail({ id }) {
   }, [id])
 
   const renderCustomerDetail = () => {
-    console.log('storeById: ', customerById)
     if (loadingById) return <Loading />
     // if (customerById === {}) return <p>Không có dữ liệu</p>
 

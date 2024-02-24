@@ -53,7 +53,6 @@ export default function EditPriceForm({
   setShowModalPrice,
 }) {
   const [dataSource, setDataSource] = useState(dataPrice);
-  console.log('dataPrice:modalprice ', dataPrice);
 
   const dataSource2 = useRef(dataPrice);
 

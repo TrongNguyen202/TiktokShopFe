@@ -18,7 +18,6 @@ const ProductEditAddVariationForm = ({handleAdd, handleClose, warehouses, variat
             label: item.warehouse_name
         }
     ))
-    console.log('warehouseOptions: ', warehouseOptions)
     const variationsSelectColor = variationsSelect?.filter(item => item.name === 'Color')?.map((item) => (
         {
             label: item.value_name,
@@ -46,14 +45,12 @@ const ProductEditAddVariationForm = ({handleAdd, handleClose, warehouses, variat
             ]
         }))
     );  
-    // console.log('variationsData: ', variationsData)
 
     const handAddVariations = () => {
         handleAdd(variationsData)
     }
 
     const handleAddData = (data) => {
-        console.log('data: ', data);
         const newData = data?.map((item) => ({
             ...item,
             variations: item.variations?.map((item, index) => ({
@@ -61,7 +58,6 @@ const ProductEditAddVariationForm = ({handleAdd, handleClose, warehouses, variat
                 ...item,
             }))
         }))
-        console.log('newData: ', newData);
         setVariationsData(newData)
         setShowModalPrice(false)
     }

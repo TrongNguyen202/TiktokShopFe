@@ -12,7 +12,7 @@ export const useAuthStore = create((set) => ({
       set({ tokenInfo: response.data.access })
       onSuccess(response.data.access)
     } catch (error) {
-      onFail(error.response.data.msg || 'Có lỗi xảy ra!')
+      onFail(error.response.data.msg || 'Tài khoản hoặc mật khẩu không đúng!')
     }
     set({ loading: false })
   },
@@ -60,6 +60,16 @@ export const useAuthStore = create((set) => ({
     try {
       set({ loading: true })
       const response = await RepositoryRemote.auth.sendEmailOtp(form)
+      onSuccess(response)
+    } catch (error) {
+      onFail(error)
+    }
+    set({ loading: false })
+  },
+  getProfileInfo: async (onSuccess = () => { }, onFail = () => { }) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.auth.getProfileInfo()
       onSuccess(response)
     } catch (error) {
       onFail(error)
