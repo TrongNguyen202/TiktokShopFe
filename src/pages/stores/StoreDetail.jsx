@@ -23,7 +23,7 @@ export default function StoreDetail() {
 
   useEffect(() => {
     const onSuccess = (res) => {
-      console.log(res);
+      ;
     };
     const onFail = (err) => {
       alerts.error(err)
@@ -32,7 +32,7 @@ export default function StoreDetail() {
   }, [])
 
     return (
-      <div className='p-10'>
+      <div className=' p-4 md:p-10'>
         <PageTitle title='Chi tiết cửa hàng' showBack />
 
         <div className='mb-10'>
@@ -40,29 +40,31 @@ export default function StoreDetail() {
         </div>
 
         <div className='mb-10'>
-          <StoreDetailWareHouses shopId={shopId} />
-        </div>
-
-        <div className='mb-10'>
           <StoreDetailSectionTitle title='Thông tin chi tiết' />
           <Row gutter={[30, 30]}>
-            <Col span={6}>
+            {/* <Col span={6}>
               <StoreDetailBrands shopId={shopId} />
             </Col>
 
             <Col span={6}>
               <StoreDetailCategories shopId={shopId} />
-            </Col>
+            </Col> */}
 
-            <Col span={6}>
+            <Col md={{ span: 6 }} span={12}>
               <StoreDetailProducts shopId={shopId} />
             </Col>
 
-            <Col span={6}>
+            <Col md={{ span: 6 }} span={12}>
               <StoreDetailOrder shopId={shopId} />
             </Col>
           </Row>
         </div>
+
+        <div className='mb-10'>
+          <StoreDetailWareHouses shopId={shopId} />
+        </div>
+
+
       </div>
     )
 }

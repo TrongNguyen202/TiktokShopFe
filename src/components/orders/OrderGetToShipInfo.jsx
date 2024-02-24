@@ -41,10 +41,23 @@ const OrderGetToShipInfo = ({data, loading}) => {
             render: (_, record) => IntlNumberFormat(record.data.order_list[0].payment_info.currency, 'currency', 4, record.data.order_list[0].payment_info.sub_total)
         }
     ]
+
+    const checkDataTable = (value) => {
+        if (value.length === 0) {
+            return []
+        }
+        let data = []
+        value.forEach(item => {
+            if (item.data) {
+                data.push(item)
+            }
+        })
+        return data
+    }
     return (
         <Table
             columns={columns}
-            dataSource={data}
+            dataSource={checkDataTable(data).length ? checkDataTable(data) : []}
             bordered
             pagination={{ position: ['none'] }}
             loading={loading}

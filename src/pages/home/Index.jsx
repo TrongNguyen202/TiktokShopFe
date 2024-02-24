@@ -590,13 +590,13 @@ export default function Home() {
   }
 
   const badgeData = [
-    {
-      name: 'NCC cần định danh',
-      value: sellers_progressing,
-      icon: <IdentityIcon className='text-[#5B93FF] w-[40px] h-[40px]' />,
-      colorBgIcon: '#5B93FF33',
-      path: '/identity-request',
-    },
+    // {
+    //   name: 'NCC cần định danh',
+    //   value: sellers_progressing,
+    //   icon: <IdentityIcon className='text-[#5B93FF] w-[40px] h-[40px]' />,
+    //   colorBgIcon: '#5B93FF33',
+    //   path: '/identity-request',
+    // },
     {
       name: 'Tổng đơn hàng',
       value: total_orders,
@@ -611,13 +611,13 @@ export default function Home() {
       colorBgIcon: '#FF8F6B33',
       path: '/products',
     },
-    {
-      name: 'Khiếu nại cần xử lý',
-      value: ticket_progressing,
-      icon: <BillIcon className='text-[#14B8A6] w-[40px] h-[40px]' />,
-      colorBgIcon: '#5EE1DF33',
-      path: '',
-    },
+    // {
+    //   name: 'Khiếu nại cần xử lý',
+    //   value: ticket_progressing,
+    //   icon: <BillIcon className='text-[#14B8A6] w-[40px] h-[40px]' />,
+    //   colorBgIcon: '#5EE1DF33',
+    //   path: '',
+    // },
     {
       name: 'Sản phẩm cần duyệt',
       value: product_progressing,
@@ -625,13 +625,13 @@ export default function Home() {
       colorBgIcon: '#CA0CC133',
       path: '/products/status/0',
     },
-    {
-      name: 'Số yêu cầu rút tiền chờ xử lý',
-      value: total_products,
-      icon: <DollarIcon className='text-[#6366F1] w-[40px] h-[40px]' />,
-      colorBgIcon: '#6366F133',
-      path: '',
-    },
+    // {
+    //   name: 'Số yêu cầu rút tiền chờ xử lý',
+    //   value: total_products,
+    //   icon: <DollarIcon className='text-[#6366F1] w-[40px] h-[40px]' />,
+    //   colorBgIcon: '#6366F133',
+    //   path: '',
+    // },
   ]
 
 
@@ -643,7 +643,7 @@ export default function Home() {
         {badgeData.map((item) => {
           const { name, value, icon, colorBgIcon, path } = item
           return (
-            <Col span={8} key={name}>
+            <Col md={{ span: 8 }} span={24} key={name}>
               <Link to={path}>
                 <div className='bg-white h-[114px] flex items-center gap-[20px] px-[20px] rounded-[10px] text-[#414141] hover:shadow-[0_0_14px_0px_rgba(22,119,255,0.3)] duration-300'>
                   <div

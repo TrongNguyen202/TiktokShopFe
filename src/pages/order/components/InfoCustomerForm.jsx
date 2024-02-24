@@ -14,9 +14,7 @@ import {
   import { alerts } from "../../../utils/alerts";
   import PropTypes from "prop-types";
   
-  export default function InfoCustomerForm({ selectedAddress, onSubmit, orderExists }) {
-    console.log('orderExists: ', orderExists);
-    // const { loadingUpdate } = useBranchesStore((state) => state);
+export default function InfoCustomerForm({ selectedAddress, onSubmit, orderExists }) {
     const { getDistrict, districts, getWards, wards, resetDistrictAndWard } =
       useAddressStore();
     const provinces = JSON.parse(localStorage.getItem("provinces"));

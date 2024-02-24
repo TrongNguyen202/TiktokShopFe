@@ -1,6 +1,6 @@
 import { Button, Form, Input } from 'antd'
 import { Link, useNavigate } from 'react-router-dom'
-import LOGO from '../../assets/images/logo.svg'
+import LOGO from '../../assets/images/text_logo_FLN.png'
 import { PATH } from '../../constants/paths'
 import { useAuthStore } from '../../store/authStore'
 import { alerts } from '../../utils/alerts'
@@ -17,7 +17,6 @@ const Login = () => {
 
   const onSubmit = (value) => {
     const onSuccess = (token) => {
-      console.log('token: ', token)
       setToken(token)
       navigate(PATH.HOME)
       alerts.success('Thành công')
@@ -32,7 +31,6 @@ const Login = () => {
   const onLoginWithGoogle = async () => {
     try {
       const response = await signInWithGoogle();
-      console.log('response: ', response);
       const { user, providerId } = response;
       const { displayName, email, photoURL, uid, phoneNumber } = user;
       const params = {
@@ -49,7 +47,7 @@ const Login = () => {
   }
 
   const handleGetInfoSheet = () => {
-    getAllSheetInfo('Team Dang')
+    getAllSheetInfo('Team Truong')
   }
 
   const handleAddRow = async () => {
@@ -69,21 +67,22 @@ const Login = () => {
         ]
       ]
     }
-    AddRowToSheet('Team Dang', data, oauthAccessToken)
+    AddRowToSheet('Team Truong', data, oauthAccessToken)
   }
 
   return (
-    <div className='w-[500px] mx-auto border-[1px] border-[#ccc] border-solid p-5 rounded-[6px] mt-[25vh]'>
+    <div className='w-[90%] md:w-[500px] mx-auto border-[1px] border-[#ccc] border-solid p-5 rounded-[6px] mt-[25vh]'>
       <Form
         name='basic'
         labelCol={{
-          span: 6,
+          span: 24,
         }}
         wrapperCol={{
-          span: 20,
+          span: 24,
         }}
         onFinish={onSubmit}
         autoComplete='off'
+        layout='vertical'
       >
         <div className='text-center'>
           <img src={LOGO} alt='logo' width={100} height={35} />
@@ -107,7 +106,7 @@ const Login = () => {
         <Form.Item
           label='Mật khẩu'
           name='password'
-          labelAlign='left'
+          labelAlign='left' 
           rules={[
             {
               required: true,
@@ -121,10 +120,10 @@ const Login = () => {
 
         <Button className='mt-4' block type='primary' htmlType='submit' loading={loading}>Đăng nhập</Button>
       </Form>
-      <div className='flex gap-2 mt-3'>
+      {/* <div className='flex gap-2 mt-3'>
         <Button type='primary' onClick={handleGetInfoSheet}>Get sheet</Button>
         <Button type='primary' onClick={handleAddRow}>Add row</Button>
-      </div>
+      </div> */}
     </div>
   )
 }

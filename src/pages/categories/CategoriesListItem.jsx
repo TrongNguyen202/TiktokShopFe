@@ -3,7 +3,6 @@ import { useState } from 'react'
 import CategoryItem from './CategoryItem'
 
 export default function CategoriesListItem({ categoriesList }) {
-  console.log('categoriesList:111 ', categoriesList)
   const getChildren = () => {
     const categoriesSelect =
       categoriesList && categoriesList.length

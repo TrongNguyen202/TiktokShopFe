@@ -80,7 +80,7 @@ const OrdersProcessLabel = ({changeNextStep, toShipInfoData}) => {
                     }
                 }
         
-                getToShipInfo(shopId, dataLabelProcessTest, onSuccess, (err) => console.log(err))   
+                getToShipInfo(shopId, dataLabelProcess, onSuccess, (err) => console.log(err))   
             }
         }
 
@@ -121,7 +121,7 @@ const OrdersProcessLabel = ({changeNextStep, toShipInfoData}) => {
     }, [toShipInfo])
 
     return (
-        <div className="p-10">
+        <div className="p-3 md:p-10">
             {contextHolder}
             {stepProcessLabel === 1 &&
                 <>
@@ -140,7 +140,8 @@ const OrdersProcessLabel = ({changeNextStep, toShipInfoData}) => {
                         rowSelection={{
                             type: 'checkbox',
                             ...rowSelection,
-                        }}                    
+                    }}     
+                    scroll={{ x: true }}               
                         columns={columns}
                         dataSource={data}
                         bordered
@@ -156,7 +157,7 @@ const OrdersProcessLabel = ({changeNextStep, toShipInfoData}) => {
                     {!loadingGetInfo &&
                         <>
                             <Space className="mb-3">
-                                <Form onFinish={onSearch} onFinishFailed={() => {}} className='w-[400px] relative border-[1px] border-solid border-[#d9d9d9] rounded-[6px] pr-[90px]'>
+                        <Form onFinish={onSearch} onFinishFailed={() => { }} className='md:w-[400px] relative border-[1px] border-solid border-[#d9d9d9] rounded-[6px] pr-[90px]'>
                                         <Form.Item name="order_id" className="mb-0">
                                             <Input placeholder='Tìm kiếm theo Order ID...' className="!border-none"/>
                                         </Form.Item>

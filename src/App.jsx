@@ -45,6 +45,7 @@ const MultiAddProducts = lazy(
 const Order = lazy(() => import("./pages/orders/index.jsx"));
 const OrderDetail = lazy(() => import("./pages/orders/OrderDetail.jsx"));
 const ProductCreate = lazy(() => import ('./pages/products/ProductCreate.jsx'))
+const Crawl = lazy(() => import('./pages/crawl/index.jsx'))
 
 const PrivateRoute = () => {
   const [authenticated, setAuthenticated] = useState(false);
@@ -116,6 +117,14 @@ const App = () => {
                 element={
                   <Suspense fallback={<Loading />}>
                     <Sellers />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/crawl"
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <Crawl />
                   </Suspense>
                 }
               />

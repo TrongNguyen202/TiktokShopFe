@@ -18,7 +18,6 @@ const UserEdit = () => {
     const { getUserInfor, updateUser, loading } = useUsersStore((state) => state)
     const { getAllStores, stores} = useShopsStore((state) => state)
 
-    console.log(stores);
     const storesOption = stores?.length && stores?.map(item => (
         {
             value: item.id,

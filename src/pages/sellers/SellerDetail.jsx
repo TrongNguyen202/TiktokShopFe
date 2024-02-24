@@ -9,7 +9,7 @@ export default function SellerDetail({ id }) {
 
   useEffect(() => {
     const onSuccess = (res) => {
-      console.log(res)
+
     }
     const onFail = (err) => {
       alert.error(err)

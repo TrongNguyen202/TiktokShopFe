@@ -19,7 +19,6 @@ export const callApi = (endPoint, method, body) => {
     axios.interceptors.request.use(
       (config) => {
         const token = getToken()
-        // console.log('token: ', token);
         if (token) {
           config.headers['Authorization'] =  `Bearer ${token}`
         }
@@ -37,7 +36,7 @@ export const callApi = (endPoint, method, body) => {
         return response
       },
       (error) => {
-        console.log('error: ', error);
+        console.log('error: 11111', error);
         if (error?.response?.data?.code === 404) {
           // window.location.replace("/khong-tim-thay-trang");
         } else if (error?.response?.data?.code === 401) {

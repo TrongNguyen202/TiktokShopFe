@@ -1,21 +1,35 @@
-import { useEffect, useState, useRef } from "react";
+import { DownOutlined, LoadingOutlined, MessageOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Image, Popover, Space, Spin, Table, Tag, Tooltip } from "antd";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Image, Popover, Table, Tag, Tooltip, Button, Input, Space, Spin } from "antd";
-import { DownOutlined, MessageOutlined, SearchOutlined, LoadingOutlined } from "@ant-design/icons";
 
+import { statusOrder } from "../../constants/index";
+import { useShopsOrder } from "../../store/ordersStore";
 import { getPathByIndex, IntlNumberFormat } from "../../utils";
 import { formatDate } from "../../utils/date";
-import { useShopsOrder } from "../../store/ordersStore";
-import { statusOrder } from "../../constants/index";
 
-import { alerts } from "../../utils/alerts";
+import { DatePicker } from 'antd';
+import dayjs from "dayjs";
 import PageTitle from "../../components/common/PageTitle";
+
+const { RangePicker } = DatePicker;
+const rangePresets = [
+  { label: "Today", value: [dayjs().add(0, "d"), dayjs()] },
+  { label: "Yesterday", value: [dayjs().add(-1, "d"), dayjs().add(-1, "d")] },
+  { label: "Last 7 days", value: [dayjs().add(-7, "d"), dayjs()] },
+  { label: "Last 14 days", value: [dayjs().add(-14, "d"), dayjs()] },
+  { label: "Last 30 days", value: [dayjs().add(-30, "d"), dayjs()] },
+  // { label: "3 tháng trước", value: [dayjs().add(-90, "d"), dayjs()] },
+  // { label: "1 năm trước", value: [dayjs().add(-365, "d"), dayjs()] },
+];
+
 
 const Orders = () => {
   const shopId = getPathByIndex(2)
   const navigate = useNavigate()
   const searchInput = useRef(null);
   const [searchText, setSearchText] = useState('');
+  console.log('searchText: ', searchText);
   const [searchedColumn, setSearchedColumn] = useState('');
   const [orderSelected, setOrderSelected] = useState([])
   const { orders, buyLabels, getAllOrders, loading } = useShopsOrder((state) => state)
@@ -64,13 +78,30 @@ const Orders = () => {
     setSearchedColumn(dataIndex)
   };
 
+  const onRangeChange = (dates, dateStrings, confirm, dataIndex, setSelectedKeys, selectedKeys) => {
+    confirm()
+    setSelectedKeys(dateStrings)
+    setSearchText(dateStrings)
+    setSearchedColumn(dataIndex)
+  };
+
+
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div onKeyDown={(e) => e.stopPropagation()} className="px-5 py-3">
-        <Input ref={searchInput} placeholder={`Hãy tìm theo định dạng DD/MM/YY`} value={selectedKeys[0]}
+        {/* <Input ref={searchInput} placeholder={`Hãy tìm theo định dạng DD/MM/YYYY`} value={selectedKeys[0]}
           onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
           onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+        /> */}
+        {/* <ConfigProvider locale={viVN}> */}
+        <RangePicker
+          popupClassName="text-[12px]"
+          presets={[...rangePresets]}
+          format="DD/MM/YYYY"
+          onChange={(date, dateStrings) => onRangeChange(date, dateStrings, confirm, dataIndex, setSelectedKeys, selectedKeys)}
         />
+        {/* </ConfigProvider> */}
+
         <Space className="mt-3">
           <Button type="primary" size="small"
             onClick={() => {
@@ -101,8 +132,22 @@ const Orders = () => {
       <SearchOutlined className={filtered ? '#1677ff' : undefined}/>
     ),
 
-    onFilter: (value, record) => value ? formatDate(Number(record[dataIndex]), 'DD/MM/YY').includes(value) : '', 
-    render: (text) => formatDate(Number(text), "DD/MM/YY, hh:mm:ss a")
+    onFilter: (value, record) => {
+      if (searchText.length === 2) {
+        const startDate = dayjs(searchText[0], 'DD/MM/YYYY').startOf('day').valueOf();
+        const endDate = dayjs(searchText[1], 'DD/MM/YYYY').endOf('day').valueOf();
+        // const createTime = Number(record[dataIndex]);
+        // console.log('createTime: ', createTime, startDate, endDate,);
+
+        // console.log('createTime >= startDate && createTime <= endDate;: ', createTime >= startDate && createTime <= endDate);
+        // return createTime >= startDate && createTime <= endDate;
+        const createTime = dayjs(Number(record[dataIndex]), 'DD/MM/YYYY');
+
+        return createTime.isSameOrAfter(startDate) && createTime.isSameOrBefore(endDate);
+      }
+      return false;
+    },
+    render: (text) => formatDate(Number(text), "DD/MM/YYYY, hh:mm:ss a")
   });
 
   const rowSelection = {
@@ -135,7 +180,7 @@ const Orders = () => {
           {record?.order_id}{" "}
           <p style={{ fontSize: 11, color: "grey" }}>
             {" "}
-            {formatDate(record?.update_time * 1000, "DD/MM/YY, h:mm:ss a")}{" "}
+            {formatDate(record?.update_time * 1000, "DD/MM/YYYY, h:mm:ss a")}{" "}
           </p>
         </Link>
       ),
@@ -239,7 +284,7 @@ const Orders = () => {
 
   useEffect(() => {
     const onSuccess = (res) => {
-      console.log(res);
+      ;
     };
 
     const onFail = (err) => {
@@ -249,7 +294,7 @@ const Orders = () => {
   }, []);
 
   return (
-    <div className="p-10">
+    <div className="p-3 md:p-10">
       <PageTitle title="Danh sách đơn hàng" showBack count={orders?.length ? orders?.length : '0'}/>
       {orderSelected.length > 0 && <Button type="primary" className="mb-3" onClick={handleGetLabels}>
         Bắt đầu Fulfillment &nbsp;<span>({orderSelected.length})</span>
@@ -260,6 +305,7 @@ const Orders = () => {
           type: 'checkbox',
           ...rowSelection,
         }}
+        scroll={{ x: true }}
         columns={columns} 
         dataSource={orderDataTable} 
         loading={loading} 

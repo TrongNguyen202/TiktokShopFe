@@ -119,7 +119,7 @@ const Stores = () => {
     {
       title: '',
       key: 'action',
-      fixed: 'right',
+      // fixed: 'right',
       align: 'center',
       render: (_, store) => <Button size='small' icon={<EyeOutlined />} onClick={() => handleRefreshToken(store.id)}>Gia hạn</Button>,
     },

@@ -14,8 +14,7 @@ const StoreDetailProducts = ({shopId}) => {
     const { products, getAllProducts } = useProductsStore((state) => state)
 
     useEffect(() => {
-        const onSuccess = (res) => {
-          console.log(res)
+      const onSuccess = (res) => {
         }
         const onFail = (err) => {
           alerts.error(err)
@@ -26,7 +25,7 @@ const StoreDetailProducts = ({shopId}) => {
     
     return (
         <>
-            <Card className='cursor-pointer hover:shadow-md'>
+        <Card className='cursor-pointer hover:shadow-md' onClick={() => navigate(`/shops/${shopId}/products`)}>
                 <StoreDetailSectionTitle title='Sản phẩm' count={products?.length > 0 ? products?.length : '0'} isShowButton />
                 <Link to={`/shops/${shopId}/products`}>Xem thêm</Link>
             </Card>

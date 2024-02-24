@@ -81,7 +81,6 @@ const ProductVariationsPrice = ({selectedSelector, warehouseOptions, handleAddDa
 
     const onFinish = (values) => {
         const resultArray = Object.keys(values).map(key => values[key]);
-        // console.log('resultArray: ', resultArray)
         const newDataPrice = resultArray?.map((item) => (
             {
                 ...item,
@@ -94,7 +93,6 @@ const ProductVariationsPrice = ({selectedSelector, warehouseOptions, handleAddDa
                 ))
             }
         ))
-        // console.log('newDataPrice: ', newDataPrice)
         handleAddData(newDataPrice)
     }
 

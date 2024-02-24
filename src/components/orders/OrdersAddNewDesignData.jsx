@@ -3,8 +3,7 @@ import { Table, Button, Form, Input, Divider, message } from 'antd'
 import { useGoogleStore } from '../../store/googleSheets'
 import { signInWithGoogle } from '../../Firebase'
 
-const OrdersAddNewDesignData = ({dataColumns}) => {
-    console.log('dataColumns: ', dataColumns);
+const OrdersAddNewDesignData = ({ dataColumns }) => {
     const { AddRowToSheet } = useGoogleStore()
     const [messageApi, contextHolder] = message.useMessage();
     const columns = [
@@ -91,11 +90,11 @@ const OrdersAddNewDesignData = ({dataColumns}) => {
             }
             const onFail = (err) => {
                 messageApi.open({
-                    type: 'success',
+                    type: 'error',
                     content: 'Thêm mẫu mới vào Google Sheet thất bại',
                 });
             }
-            AddRowToSheet('Team Dang!A:F', dataAddRowToSheet, oauthAccessToken, onSuccess, onFail)            
+            AddRowToSheet('Team Truong', dataAddRowToSheet, oauthAccessToken, onSuccess, onFail)            
         }
     }
 
@@ -104,7 +103,7 @@ const OrdersAddNewDesignData = ({dataColumns}) => {
             {contextHolder}
             <Divider>Hoặc </Divider>
             <Form onFinish={onFinish}>
-                <Table columns={columns} dataSource={dataColumns} bordered pagination={{ position: ['none'] }}/>
+                <Table scroll={{ x: true }} columns={columns} dataSource={dataColumns} bordered pagination={{ position: ['none'] }} />
                 <Form.Item className='mt-3 text-center'>
                     <Button type="primary" htmlType="submit">Thêm mẫu</Button>
                 </Form.Item>

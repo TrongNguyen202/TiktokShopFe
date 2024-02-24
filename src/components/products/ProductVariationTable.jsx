@@ -10,7 +10,6 @@ import ProductCreateAddVariationForm from './ProductCreateAddVariationForm';
 const EditableContext = React.createContext(null);
 
 const EditableRow = ({ index, ...props }) => {
-    // console.log('edit table row')
     const [form] = Form.useForm();
     return (
         <Form form={form} component={false}>
@@ -41,7 +40,6 @@ const EditableCell = ({title, editable, children, dataIndex, record, handleSave,
 
     const save = async () => {
         try {
-            console.log('edit table cell')
         const values = await form.validateFields();
         toggleEdit();
         handleSave({
@@ -49,7 +47,6 @@ const EditableCell = ({title, editable, children, dataIndex, record, handleSave,
             ...values,
         });
         } catch (errInfo) {
-        console.log('Save failed:', errInfo);
         }
     };
 
@@ -80,7 +77,7 @@ const ProductCreateVariationTable = ({variationsData, variationsDataTable, isPro
         if(variationsData && variationsData[0]?.variations[0]?.value_name !== "Default") {
             setDataSource(variationsData)
         }
-    }, []);
+    }, [variationsData]);
 
     const handleDelete = (key) => {
         const newData = dataSource.filter((item) => item.key !== key);
@@ -88,7 +85,6 @@ const ProductCreateVariationTable = ({variationsData, variationsDataTable, isPro
     };
 
     const handleAdd = (newData) => {
-        console.log('newData from table: ', newData);
         setDataSource(newData)
         variationsDataTable(newData, ...dataSource)
         setIsModalOpen(false)
@@ -125,25 +121,28 @@ const ProductCreateVariationTable = ({variationsData, variationsDataTable, isPro
             title: 'Size',
             dataIndex: ['variations', 'Size'],
             render: (_, record) => (
-                record?.variations?.map((item) => item.id === "7322572932260136746" && item.value_name)
+                record?.variations?.map((item) => item.value_name)
             )
         },
-        {
-            title: 'SKU',
-            dataIndex: 'seller_sku',
-            editable: true
-        },
+        // {
+        //     title: 'SKU',
+        //     dataIndex: 'seller_sku',
+        //     editable: true,
+        //     width: "250px"
+        // },
         {
             title: 'Price',
             dataIndex: 'price',
             align: 'center',
-            editable: true
+            editable: true,
+            width: "200px"
         },
         {
             title: 'Số lượng',
             dataIndex: ['stock_infos', 'available_stock'],
             align: 'center',
-            editable: true
+            editable: true,
+            width: "200px"
         },
         {
             title: 'Hành động',
@@ -182,6 +181,7 @@ const ProductCreateVariationTable = ({variationsData, variationsDataTable, isPro
                 components={components}
                 rowClassName={() => 'editable-row'}
                 bordered
+                scroll={{ x: true }}
                 dataSource={dataSource&&dataSource}
                 columns={columns}
             />

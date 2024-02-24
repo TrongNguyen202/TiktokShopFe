@@ -68,4 +68,12 @@ export const useCategoriesStore = create((set) => ({
     }
     set({ attributeLoading: false })
   },
+  resetCategoryData: () => {
+    set({ categories: {} })
+    set({ categoriesIsLeaf: [] })
+    set({ categoriesIsLeafType2: [] })
+    set({ categoriesById: {} })
+    set({ infoTable: {} })
+    set({ attributes: [] })
+  }
 }))

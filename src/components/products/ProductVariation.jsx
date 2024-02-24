@@ -15,7 +15,7 @@ const ProductVariation = ({shopId, variations, variationsDataTable, isProductCre
 
     const variationsData = variations?.map((item) => ({
         variations: item.sales_attributes,
-        price: item.price.original_price,
+        price: item?.price?.original_price,
         stock_infos: {
             available_stock: item.stock_infos[0].available_stock,
             warehouse_id: item.stock_infos[0].warehouse_id
@@ -26,7 +26,6 @@ const ProductVariation = ({shopId, variations, variationsDataTable, isProductCre
 
     useEffect(() => {
         const onSuccess = (res) => {
-            console.log(res)
         }
         const onFail = (err) => {
             alerts.error(err)

@@ -552,8 +552,6 @@ const OrderDetail = () => {
     updateCart
   } = useOrderStore();
   const componentRef = useRef();
-  console.log('orderExists: ', orderExists);
-
 
   useEffect(() => {
     getOrderInfo(order_code);

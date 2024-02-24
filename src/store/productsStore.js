@@ -46,7 +46,7 @@ export const useProductsStore = create((set) => ({
       const response = await RepositoryRemote.products.createProductList(shopId, params)
       onSuccess()
     } catch (error) {
-      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+      onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo sản phẩm!')
     }
     set({ loading: false })
   },
@@ -56,7 +56,7 @@ export const useProductsStore = create((set) => ({
       const response = await RepositoryRemote.products.editProduct(shopId, productId, body)
       onSuccess(response.data)
     } catch (error) {
-      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra khi sửa sản phẩm!')
+      onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi sửa sản phẩm!')
     }
     set({ loading: false })
   },
@@ -67,7 +67,7 @@ export const useProductsStore = create((set) => ({
       set({ newProduct: response.data.data })
       onSuccess(response.data)
     } catch (error) {
-      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra khi tạo sản phẩm!')
+      onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo sản phẩm!')
     }
     set({ loading: false })
   },
@@ -82,4 +82,7 @@ export const useProductsStore = create((set) => ({
     }
     set({ loading: false })
   },
+  resetProductById: () => {
+    set({ productById: {} })
+  }
 }))

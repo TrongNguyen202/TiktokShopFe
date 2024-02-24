@@ -5,7 +5,6 @@ import React, { useRef, useState } from "react";
 let indexOption = 0;
 
 const ProductEditCustomSelect = ({ optionsSelect, type, onChange, selectedDefault }) => {
-  // console.log('optionsSelect: ', optionsSelect)
   const [options, setOptions] = useState(optionsSelect);
   const [valueInput, setValueInput] = useState("");
   const inputRef = useRef(null);
@@ -16,7 +15,6 @@ const ProductEditCustomSelect = ({ optionsSelect, type, onChange, selectedDefaul
 
   const addItem = (e) => {
     e.preventDefault();
-    console.log('valueInput: ', valueInput)
     indexOption = indexOption + 1;
     setOptions([
       ...options,
@@ -35,7 +33,6 @@ const ProductEditCustomSelect = ({ optionsSelect, type, onChange, selectedDefaul
     const selectedOption = value?.map((item) => (
       options.find(option => option.value === item)
     ))
-    console.log('selectedOption: ', selectedOption);
     onChange(selectedOption)
   }
 

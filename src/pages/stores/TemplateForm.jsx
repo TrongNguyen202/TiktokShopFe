@@ -524,6 +524,7 @@ export default function TemplateForm({
               >
                 <Switch
                   // checked={input}
+                  defaultChecked={templateJson?.id ? templateJson.is_cod_open : false}
                   checkedChildren="Bật"
                   unCheckedChildren="Tắt"
                 // onChange={() => {

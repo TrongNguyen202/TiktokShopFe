@@ -23,6 +23,7 @@ import {
   ProductIcon,
   SellerIcon,
   SettingIcon,
+  StoreIcon,
   VoucherIcon,
 } from "../../assets/icons";
 import StartIcon from "../../assets/icons/StartIcon";
@@ -116,6 +117,14 @@ const Sidebar = ({ collapsed }) => {
       icon: <UsergroupAddOutlined style={{ color: "#52dc07" }} />,
       label: (
         <Link className="flex justify-between" to="users">Quản lý user</Link>
+      ),
+    },
+
+    {
+      key: "/crawl",
+      icon: <FinanceIcon style={{ color: "#230fff" }} className="w-[16px]" />,
+      label: (
+        <Link className="flex justify-between" to="crawl">Listings</Link>
       ),
     },
     // {
@@ -235,41 +244,41 @@ const Sidebar = ({ collapsed }) => {
     //     </Link>
     //   ),
     // },
-    {
-      key: "/finance",
-      icon: <FinanceIcon style={{ color: "#230fff" }} className="w-[16px]" />,
-      label: (
-        <Link className="flex justify-between" to={path}>
-          Tài chính
-        </Link>
-      ),
-      children: [
-        {
-          key: "subFinance1",
-          label: (
-            <Link className="flex justify-between" to="/#">
-              tổng quan tài chính
-            </Link>
-          ),
-        },
-        {
-          key: "subFinance2",
-          label: (
-            <Link className="flex justify-between" to="/#">
-              Yêu cầu rút tiền (64)
-            </Link>
-          ),
-        },
-        {
-          key: "subFinance3",
-          label: (
-            <Link className="flex justify-between" to="/#">
-              Lịch sử thanh toán
-            </Link>
-          ),
-        },
-      ],
-    },
+    // {
+    //   key: "/finance",
+    //   icon: <FinanceIcon style={{ color: "#230fff" }} className="w-[16px]" />,
+    //   label: (
+    //     <Link className="flex justify-between" to={path}>
+    //       Tài chính
+    //     </Link>
+    //   ),
+    //   children: [
+    //     {
+    //       key: "subFinance1",
+    //       label: (
+    //         <Link className="flex justify-between" to="/#">
+    //           tổng quan tài chính
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "subFinance2",
+    //       label: (
+    //         <Link className="flex justify-between" to="/#">
+    //           Yêu cầu rút tiền (64)
+    //         </Link>
+    //       ),
+    //     },
+    //     {
+    //       key: "subFinance3",
+    //       label: (
+    //         <Link className="flex justify-between" to="/#">
+    //           Lịch sử thanh toán
+    //         </Link>
+    //       ),
+    //     },
+    //   ],
+    // },
     {
       key: "/transport",
       icon: <CarOutlined style={{ color: "#0c5f20" }} />,

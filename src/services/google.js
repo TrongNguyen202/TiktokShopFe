@@ -17,26 +17,45 @@ const getAllSheetInfo = (range) => {
     })
 }
 
+// const AddRowToSheet = (range, data, oauthAccessToken) => {
+//     const params = new URLSearchParams({
+//         key: c.API_GOOGLE_KEY,
+//         // majorDimension: 'ROWS',
+//         // valueRenderOption: 'FORMATTED_VALUE',
+//         // dateTimeRenderOption: 'FORMATTED_STRING',
+//         // includeValuesInResponse: true,
+//         // responseDateTimeRenderOption: 'FORMATTED_STRING',
+//         // responseValueRenderOption: 'FORMATTED_VALUE',
+//         valueInputOption: 'RAW'
+//     }).toString()
+//     return axios({
+//         method: "post",
+//         url: `${c.API_GOOGLE_SHEETS}/${c.SHEET_ID}/values/${range}:append${params ? `?${params}` : ''}`,
+//         data: data,
+//         headers: {
+//             'Content-Type': 'application/json',
+//             // 'authorization': `Bearer ${oauthAccessToken}`
+//             'Authorization': `Bearer ${oauthAccessToken}`
+//         },
+//     })
+// }
+
 const AddRowToSheet = (range, data, oauthAccessToken) => {
     const params = new URLSearchParams({
         key: c.API_GOOGLE_KEY,
-        // majorDimension: 'ROWS',
-        // valueRenderOption: 'FORMATTED_VALUE',
-        // dateTimeRenderOption: 'FORMATTED_STRING',
-        // includeValuesInResponse: true,
-        // responseDateTimeRenderOption: 'FORMATTED_STRING',
-        // responseValueRenderOption: 'FORMATTED_VALUE',
         valueInputOption: 'RAW'
-    }).toString()
-    return axios({
-        method: "post",
-        url: `${c.API_GOOGLE_SHEETS}/${c.SHEET_ID}/values/${range}:append${params ? `?${params}` : ''}`,
-        data: data,
+    }).toString();
+
+    const url = `${c.API_GOOGLE_SHEETS}/${c.SHEET_ID}/values/${range}:append${params ? `?${params}` : ''}`;
+
+    return fetch(url, {
+        method: "POST",
+        body: JSON.stringify(data),
         headers: {
             'Content-Type': 'application/json',
-            'authorization': `Bearer ${oauthAccessToken}`
+            'Authorization': `Bearer ${oauthAccessToken}`
         },
-    })
+    }).then(response => response.json());
 }
 
 export const google = {

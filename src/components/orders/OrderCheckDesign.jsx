@@ -12,9 +12,7 @@ import OrdersAddImageDesignByExcel from '../../components/orders/OrdersAddImageD
 import SectionTitle from '../common/SectionTitle';
 import OrderProductProver from './OrderProductProver';
 
-const OrderCheckDesign = ({toShipInfoData, sheetData}) => {
-    console.log('toShipInfoData: ', toShipInfoData);
-    console.log('sheetData: ', sheetData);
+const OrderCheckDesign = ({ toShipInfoData, sheetData }) => {
     const [messageApi, contextHolder] = message.useMessage();
     const [stepCheckDesign, setStepCheckDesign] = useState(1)
     const [newDesignData, setNewDesignData] = useState([])
@@ -35,10 +33,10 @@ const OrderCheckDesign = ({toShipInfoData, sheetData}) => {
               zip_code: item.zip_code,
               payment_info: item.data.order_list[0].payment_info
             }));
+        if (!rows) return acc;
             return [...acc, ...rows];
         }, []);
-    
-        console.log('toShipInfoDataConvert: ', toShipInfoDataConvert);
+
 
     const columns = [
         {
@@ -100,7 +98,6 @@ const OrderCheckDesign = ({toShipInfoData, sheetData}) => {
         )).flat()
         
         designNewId.forEach(item => {
-            console.log('item: ', item);
             if (!Object.values(designSkuIdObject).includes(item)) {
                 messageApi.open({
                     type: 'success',
@@ -145,12 +142,25 @@ const OrderCheckDesign = ({toShipInfoData, sheetData}) => {
                 }
             }
             const onFail = () => { }
-            AddRowToSheet('Team Dang!A:F', dataAddRowToSheet, oauthAccessToken, onSuccess, onFail)            
+            AddRowToSheet('Team Truong', dataAddRowToSheet, oauthAccessToken, onSuccess, onFail)            
         }
     }
 
+    const checkDataTable = () => {
+        if (toShipInfoData.length == 0) {
+            return []
+        }
+        let data = []
+        toShipInfoData.forEach(item => {
+            if (item?.data?.order_list) {
+                data.push(item)
+            }
+        })
+        return data
+    }
+
     return (
-        <div className="p-10">
+        <div className="p-3 md:p-10">
             <SectionTitle title='Kiểm tra và thêm mẫu' />
             <div>
                 {stepCheckDesign === 1 && <Button type="primary" className='mb-3' onClick={handleCheckDesign}>Kiểm tra mẫu trên Google Sheet</Button>}
@@ -161,7 +171,7 @@ const OrderCheckDesign = ({toShipInfoData, sheetData}) => {
                 }
             </div>
             {hasNewDesignData && <OrdersAddImageDesignByExcel/>}
-            {!hasAddDesign && <Table rowKey="order_id" columns={columns} dataSource={toShipInfoData} bordered pagination={{ position: ['none'] }} /> }
+            {!hasAddDesign && <Table rowKey="order_id" scroll={{ x: true }} columns={columns} dataSource={checkDataTable().length ? checkDataTable() : []} bordered pagination={{ position: ['none'] }} />}
             {hasAddDesign && <OrdersAddNewDesignData dataColumns={newDesignData} /> }
             {contextHolder}
         </div>
