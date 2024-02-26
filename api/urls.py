@@ -52,6 +52,11 @@ urlpatterns = [
     path('user-shops/groups', views.UserShopList.as_view(), name='user_shops_list'),
      path('user/<int:user_id>/groups/infor', views.UserInfor.as_view(), name='user_group_infor'),
      path('shops/<int:shop_id>/pre_combine_pkg', views.AllCombinePackage.as_view(), name ='pre_combine_pkg'),
+     path('shops/<int:shop_id>/confirm_combine_pkg', views.ConfirmCombinePackage.as_view(), name ='confirm_combine_pkg'),
+    path('shops/<int:shop_id>/category_recommend', views.CategogyRecommend.as_view(), name ='category_recommend'),
+    path('shops/<int:shop_id>/shipping_service', views.ShippingService.as_view(), name ='shipping_service'),
+    path('shops/<int:shop_id>/search_package', views.SearchPackage.as_view(), name ='search_package'),
+    path('shops/<int:shop_id>/packages/<int:package_id>/package_detail', views.PackageDetail.as_view(), name ='package_detail'),
 
     
 ]

@@ -93,6 +93,8 @@ CORS_ORIGIN_WHITELIST = (
     'https://open-api.tiktokglobalshop.com',
     'http://localhost:9999',
     'http://app.folinas.com',
+ 
+ 
 
 )
 ALLOWED_HOSTS = ['*']

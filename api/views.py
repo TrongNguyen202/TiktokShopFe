@@ -26,7 +26,7 @@ from .serializers import (
     TemplatePutSerializer
 )
 
-from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes,callCreateOneProduct,callGlobalCategories,callGetShippingDocument,callGetAttribute,callCreateOneProductDraf,callPreCombinePackage
+from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes,callCreateOneProduct,callGlobalCategories,callGetShippingDocument,callGetAttribute,callCreateOneProductDraf,callPreCombinePackage,callConFirmCombinePackage,categoryRecommend,callGetShippingService,callSearchPackage,callGetPackageDetail
 from django.http import HttpResponse
 from .models import Shop, Image, Templates, Categories,UserShop,UserGroup,GroupCustom
 from api.utils.constant import app_key, secret, grant_type,ProductCreateObject,ProductCreateOneObject,MAX_WORKER
@@ -1387,4 +1387,96 @@ class InforUserCurrent(APIView):
         }
         return Response(user_info)
 
+class ConfirmCombinePackage(APIView):
+    # permission_classes = (IsAuthenticated,)
+
+    def post(self,request,shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        body_raw = request.body.decode('utf-8')
+        body_raw_json = json.loads(body_raw)
+
+        respond =  callConFirmCombinePackage(access_token=access_token,body_raw_json=body_raw_json)
+        data_json_string = respond.content.decode('utf-8')
+        print("datatring",data_json_string)
+        data = json.loads(data_json_string)
+        print("dataoffi",data)
+        response_data = {
+                "code": 0,
+                "data": data,
+                "message": "Success",
+                
+            }
+        return JsonResponse(response_data, status=200)
+  
+
+class CategogyRecommend(APIView):
+    def post(self,request,shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        body_raw = request.body.decode('utf-8')
+        product_title_json = json.loads(body_raw)
+        data = product_title_json.get("product_name","")
+        response = categoryRecommend(access_token,data)
+        response_data = {
+               
+                "category": json.loads(response.content.decode('utf-8')),
+                "message": "Success",
+                
+            }
+        return JsonResponse(response_data,status=200)
+
+class ShippingService(APIView):
+
+    def post(self, request,shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        body_raw = request.body.decode('utf-8')
+        service_infor = json.loads(body_raw)
+        respond = callGetShippingService(access_token,service_infor)
+        data_json_string = respond.content.decode('utf-8')
+        data = json.loads(data_json_string)
+        data_inner = data.get("data")
+        shipping_services = data_inner.get("shipping_service_info",[])
         
+        simplified_shipping_services = [{"id": service.get("id"), "name": service.get("name")} for service in shipping_services]
+        response_data = {
+     
+                "data": simplified_shipping_services,
+                "message": "Success",
+                
+            }
+        return JsonResponse(response_data, status=200)
+class SearchPackage(APIView):
+
+    def get(self, request,shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        respond = callSearchPackage(access_token)
+        data_json_string = respond.content.decode('utf-8')
+        data = json.loads(data_json_string)
+        
+        response_data = {
+                
+                "data": data,
+                "message": "Success",
+                
+            }
+        return JsonResponse(response_data, status=200)
+
+class PackageDetail(APIView):
+
+    def get(self, request,shop_id,package_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        respond = callGetPackageDetail(access_token,package_id)
+        data_json_string = respond.content.decode('utf-8')
+        data = json.loads(data_json_string)
+        
+        response_data = {
+                
+                "data": data,
+                "message": "Success",
+                
+            }
+        return JsonResponse(response_data, status=200)
