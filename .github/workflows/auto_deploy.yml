@@ -3,7 +3,7 @@ name: Docker Image CI
 on:
     push:
         branches:
-            - main
+            - develop
 
 jobs:
     build:
@@ -26,7 +26,6 @@ jobs:
               run: |
                   docker stop $(docker ps | grep ':80->' | awk '{ print $1 }')
                   
-
             - name: Run Docker container
               run: |
                   docker run -p 80:5173 -d tiktokshop-folinas-fe
