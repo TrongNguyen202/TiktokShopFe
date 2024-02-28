@@ -26,6 +26,7 @@ const Login = () => {
     }
 
     login(value, onSuccess, onFail)
+
   }
 
   const onLoginWithGoogle = async () => {
@@ -106,7 +107,7 @@ const Login = () => {
         <Form.Item
           label='Mật khẩu'
           name='password'
-          labelAlign='left' 
+          labelAlign='left'
           rules={[
             {
               required: true,
