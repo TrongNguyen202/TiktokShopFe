@@ -1,12 +1,9 @@
 name: Docker Image CI
 
 on:
-    push:
-        branches:
-            - dev
     merge:
         branches:
-            - dev
+            - main
 
 jobs:
     build:
