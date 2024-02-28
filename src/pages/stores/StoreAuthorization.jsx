@@ -1,11 +1,13 @@
-import { Button, Col, Form, Input, Row } from 'antd'
 import React from 'react'
+import { Link } from 'react-router-dom'
+import { Form, Row, message } from 'antd'
+
 import { useShopsStore } from '../../store/shopsStore'
 import { alerts } from '../../utils/alerts'
 import { constants as c } from '../../constants'
 
 const StoreAuthorization = () => {
-  const {createStore, loading} = useShopsStore()
+  const {createStore} = useShopsStore()
 
   const onSubmit = (value) => {
     const params = {
@@ -22,24 +24,26 @@ const StoreAuthorization = () => {
   }
 
   return (
-    <Form
-      name='basic'
-      labelCol={{
-        span: 6,
-      }}
-      wrapperCol={{
-        span: 24,
-      }}
-      onFinish={onSubmit}
-      autoComplete='off'
-      layout='vertical'
-    >
-      <Row className='p-5 text-center justify-center text-[15px]'>
-        <h3 className='text-xl mb-5'>Uỷ quyền cho ứng dụng</h3>
-        <p className='mb-1'>Copy link sau và chạy trên trình duyệt (stealthfox, dophin anty,...) để tiến hành uỷ quyền và thêm của hàng</p>
-        <span className='text-lg text-[#1677ff]'>{c.LINK_STORE_CODE}</span>
-      </Row>
-    </Form>
+    <>
+      <Form
+        name='basic'
+        labelCol={{
+          span: 6,
+        }}
+        wrapperCol={{
+          span: 24,
+        }}
+        onFinish={onSubmit}
+        autoComplete='off'
+        layout='vertical'
+      >
+        <Row className='p-5 text-center justify-center text-[15px]'>
+          <h3 className='text-xl mb-5'>Uỷ quyền cho ứng dụng</h3>
+          <p className='mb-1'>Copy link sau và chạy trên trình duyệt (stealthfox, dophin anty,...) để tiến hành uỷ quyền và thêm của hàng</p>
+          <Link to={c.LINK_STORE_CODE} target='_blank' className='text-lg text-[#1677ff] flex-1'>{c.LINK_STORE_CODE}</Link>
+        </Row>
+      </Form>
+    </>
   )
 }
 

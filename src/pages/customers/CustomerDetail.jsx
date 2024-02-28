@@ -3,7 +3,7 @@ import { Col, Image, Row } from 'antd'
 import { useCustomersStore } from '../../store/customersStore'
 import ImageDefault from '../../assets/images/image-default.jpg'
 import { formatDate } from '../../utils/date'
-import Loading from '../../components/loading/Index'
+import Loading from '../../components/loading'
 import { formatNumber } from '../../utils'
 
 export default function CustomerDetail({ id }) {
@@ -11,7 +11,7 @@ export default function CustomerDetail({ id }) {
 
   useEffect(() => {
     const onSuccess = (res) => {
-      console.log(res)
+
     }
     const onFail = (err) => {
       alert.error(err)
@@ -20,9 +20,8 @@ export default function CustomerDetail({ id }) {
   }, [id])
 
   const renderCustomerDetail = () => {
-    console.log('storeById: ', customerById)
     if (loadingById) return <Loading />
-    if (customerById === {}) return <p>Không có dữ liệu</p>
+    // if (customerById === {}) return <p>Không có dữ liệu</p>
 
     const {
       avatar_image,

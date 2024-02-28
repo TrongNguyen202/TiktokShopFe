@@ -11,6 +11,12 @@ import { bannersAds } from './bannersAds'
 import { buttonMenu } from './buttonMenu'
 import { badges } from './badges'
 import { warehouses } from './warehouses'
+import { brand } from './brand'
+import { orders } from './orders'
+import { template } from './template'
+import { google } from './google'
+import { flashship } from './flashship'
+import { users } from './users'
 
 export const RepositoryRemote = {
   auth,
@@ -25,5 +31,11 @@ export const RepositoryRemote = {
   bannersAds,
   buttonMenu,
   badges,
-  warehouses
+  warehouses,
+  brand,
+  orders,
+  template,
+  google,
+  flashship,
+  users
 }

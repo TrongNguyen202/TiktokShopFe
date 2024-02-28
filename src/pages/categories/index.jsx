@@ -1,29 +1,49 @@
 import { useEffect } from 'react'
-import Loading from '../../components/loading/Index'
+import { Row, Col, Card } from 'antd'
+
 import { useCategoriesStore } from '../../store/categoriesStore'
-import CategoryItem from './CategoryItem'
-import CategoriesListItem from './CategoriesListItem'
+import { buildNestedArraysMenu, getPathByIndex } from '../../utils/index'
+import { alerts } from '../../utils/alerts';
 
-export default function Categories() {
-  const { categories, getAllCategories, loading, infoTable } = useCategoriesStore((state) => state)
-  console.log('categories: ', categories)
+import PageTitle from '../../components/common/PageTitle';
 
-  useEffect(() => {
-    const onSuccess = (res) => {
-      console.log(res)
-    }
-    const onFail = (err) => {
-      alert.error(err)
-    }
-    getAllCategories(onSuccess, onFail)
-  }, [])
-  return (
-    <div className='mt-4 px-5'>
-      <p className='my-5 font-semibold text-[20px]'>Danh mục sản phẩm</p>
-      {loading ? <Loading /> : null}
-      <div className='flex'>
-        <CategoriesListItem categoriesList={categories} />
-      </div>
-    </div>
-  )
+const Categories = () => {
+    const shopId = getPathByIndex(2)
+    const { getCategoriesById, categoriesById } = useCategoriesStore((state) => state)
+    const { category_list } = categoriesById
+
+    const categories = category_list&&buildNestedArraysMenu(category_list, "0")
+
+    useEffect(() => {
+        const onSuccess = (res) => {
+
+        }
+        const onFail = (err) => {
+          alerts.error(err)
+        }
+
+        getCategoriesById(shopId, onSuccess, onFail)
+    }, [shopId])
+
+    return (
+        <div className='p-10 categories-list'>
+            <PageTitle title='Danh sách danh mục' count={category_list?.length} showBack />
+
+            <Row gutter={[30, 30]}>
+                {categories?.length > 0 && categories?.map((category) => (
+                    <Col key={category.key} span={8}>
+                        <Card title={category.label} className='h-full'>
+                            <ul>
+                                {category.children?.map(item => (
+                                    <li key={item.key} className='py-2 border-0 border-solid border-bottom-[1px]'>{item.label}</li>
+                                ))}
+                            </ul>
+                        </Card>
+                    </Col>
+                ))}
+            </Row>
+        </div>
+    );
 }
+ 
+export default Categories;

@@ -39,7 +39,7 @@ export const StyledLogo = styled.div`
   justify-content: center;
   height: 64px;
   margin: 0;
-  padding: 10px 20px;
+  padding: 10px 24px;
   box-shadow: 0 2px 8px #f0f1f2;
   h1 {
     margin: 0 0 0 10px;

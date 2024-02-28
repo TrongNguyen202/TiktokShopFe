@@ -19,6 +19,10 @@ const sendEmailOtp = (form) => {
   return callApi('/send_email_otp', 'post', form)
 }
 
+const getProfileInfo = () => {
+  return callApi('/groups/user_login_infor', 'get')
+}
+
 export const auth = {
   login,
   register,
@@ -26,4 +30,5 @@ export const auth = {
   checkExists,
   resetPassword,
   sendEmailOtp,
+  getProfileInfo
 }

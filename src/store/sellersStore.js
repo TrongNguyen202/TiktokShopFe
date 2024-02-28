@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { RepositoryRemote } from '../services'
 
-export const useSellersStore = create((set) => ({
+export const useSellersStore = create((set, get) => ({
   sellers: {},
   sellerById: {},
   infoTable: {},

@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Col, Row } from 'antd'
 import { useSellersStore } from '../../store/sellersStore'
-import Loading from '../../components/loading/Index'
+import Loading from '../../components/loading'
 import { formatDate } from '../../utils/date'
 
 export default function SellerDetail({ id }) {
@@ -9,7 +9,7 @@ export default function SellerDetail({ id }) {
 
   useEffect(() => {
     const onSuccess = (res) => {
-      console.log(res)
+
     }
     const onFail = (err) => {
       alert.error(err)
@@ -19,7 +19,7 @@ export default function SellerDetail({ id }) {
 
   const renderSellerDetail = () => {
     if (loadingById) return <Loading />
-    if (sellerById === {}) return <p>Không có dữ liệu</p>
+    if (!sellerById) return <p>Không có dữ liệu</p>
 
     const { created_at, name, phone_number, updated_at, last_visit_time, email } = sellerById
     return (

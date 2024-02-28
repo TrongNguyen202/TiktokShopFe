@@ -2,17 +2,17 @@ import { create } from 'zustand'
 import { RepositoryRemote } from '../services'
 
 export const useWareHousesStore = create((set) => ({
-  warehousesById: {},
-  loadingWerehouses: false,
+  warehousesById: [],
+  loading: false,
   getWarehousesByShopId: async (id, onSuccess = () => {}, onFail = () => {}) => {
     try {
-      set({ loadingWerehouses: true })
+      set({ loading: true })
       const response = await RepositoryRemote.warehouses.getWarehousesByShopId(id)
       set({ warehousesById: response.data.data })
       onSuccess(response.data.data)
     } catch (error) {
-      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra khi lấy dữ liệu warehouse!')
     }
-    set({ loadingWerehouses: false })
+    set({ loading: false })
   }
 }))

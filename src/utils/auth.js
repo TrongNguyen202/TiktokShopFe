@@ -1,14 +1,14 @@
 import Cookies from 'js-cookie'
 
-const tokenKey = 'token'
+const tokenKey = 'tk-tk'
 const refreshTokenKey = 'refreshToken'
 
 export function getToken() {
-  return Cookies.get(tokenKey) || sessionStorage.getItem(tokenKey)
+  return localStorage.getItem(tokenKey)
 }
 
 export function setToken(token) {
-  return Cookies.set(tokenKey, token)
+  return localStorage.setItem(tokenKey, token)
 }
 
 export function setTempToken(token) {
@@ -16,8 +16,7 @@ export function setTempToken(token) {
 }
 
 export function removeToken() {
-  sessionStorage.removeItem(tokenKey)
-  return Cookies.remove(tokenKey)
+  return localStorage.removeItem(tokenKey)
 }
 
 export function getRefreshToken() {

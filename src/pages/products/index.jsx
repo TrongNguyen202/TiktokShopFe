@@ -1,233 +1,274 @@
-import { Layout, Select, Table } from 'antd'
-import { useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import SearchInput from '../../components/search-input'
-import { statusProduct } from '../../constants'
-import { useProductsStore } from '../../store/productsStore'
-import { formatNumber, getPathByIndex } from '../../utils'
-import { formatPriceProduct } from '../../utils/product'
-import './product.css'
-import { alerts } from '../../utils/alerts'
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button, Table, Tag, Input, Modal, Form, Tooltip, Space } from "antd";
+import { EditOutlined, EyeOutlined } from "@ant-design/icons";
 
-export default function Products() {
-  const navigate = useNavigate()
-  const location = useLocation();
-  const store = location.state.store;
-  console.log('location: ', store)
-  const statusProductByPath = getPathByIndex(3)
-  const { products, getAllProducts, loading, infoTable } = useProductsStore((state) => state)
-  const [tableParams, setTableParams] = useState({
-    pagination: {
-      current: 1,
-      pageSize: 20,
+import { IntlNumberFormat, removeDuplicates } from "../../utils/index";
+import { formatDate } from "../../utils/date";
+import { getPathByIndex } from "../../utils";
+import { statusProductTikTokShop } from "../../constants/index";
+
+import { useProductsStore } from "../../store/productsStore";
+
+import PageTitle from "../../components/common/PageTitle";
+import { useCategoriesStore } from "../../store/categoriesStore";
+
+const Products = () => {
+  const navigate = useNavigate();
+  const [form] = Form.useForm();
+  const shopId = getPathByIndex(2);
+  const [filterData, setFilterData] = useState([]);
+  const [productDataTable, setProductDataTable] = useState([]);
+  const [showSearchModal, setShowSearchModal] = useState(false);
+  const { products, getAllProducts, loading, resetProductById } = useProductsStore(
+    (state) => state
+  );
+  const { resetCategoryData } = useCategoriesStore()
+
+  const columnProduct = [
+    {
+      title: "Mã sản phẩm",
+      dataIndex: "id",
+      key: "id",
+      align: "center",
     },
-    status: statusProductByPath || '',
-    keyword: '',
-  })
-
-  const handleTableChange = (pagination) => {
-    setTableParams({
-      ...tableParams,
-      pagination: {
-        ...tableParams.pagination,
-        current: pagination.current,
-        status: statusProductByPath || '',
+    {
+      title: "Tên sản phẩm",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Giá sản phẩm",
+      dataIndex: ["skus", "price"],
+      key: "price",
+      align: "center",
+      render: (_, record) => {
+        const listPrice = record?.skus?.map(
+          (item) => item?.price?.original_price || 0
+        );
+        const current = removeDuplicates(
+          record?.skus?.map((item) => item?.price?.currency || "USD"),
+          "currency"
+        );
+        const minPrice = IntlNumberFormat(
+          current,
+          "currency",
+          3,
+          Math.min(...listPrice)
+        );
+        const maxPrice = IntlNumberFormat(
+          current,
+          "currency",
+          3,
+          Math.max(...listPrice)
+        );
+        return (
+          <>
+            {minPrice === maxPrice && <span>{minPrice}</span>}
+            {minPrice !== maxPrice && (
+              <span>
+                {minPrice} - {maxPrice}
+              </span>
+            )}
+          </>
+        );
       },
-    })
-  }
-
-  const productsTable = [
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      fixed: 'left',
-      sorter: (product1, product2) => +product1.id - +product2.id,
-    },
-    // {
-    //     title: "Hình ảnh",
-    //     dataIndex: "name",
-    //     key: "name",
-    //     sorter: (product1, product2) =>
-    //       (product1.name || "").localeCompare(product2.name || ""),
-    //     fixed: "left",
-    //   },
-    {
-      title: 'Mã SKU',
-      dataIndex: 'sku',
-      key: 'sku',
-      sorter: (product1, product2) => (product1.sku || '').localeCompare(product2.sku || ''),
     },
     {
-      title: 'Tên',
-      dataIndex: 'name',
-      key: 'name',
-      sorter: (product1, product2) => (product1.name || '').localeCompare(product2.name || ''),
-      render: (name, product) => (
-        <p className='text-[#0e2482] font-medium cursor-pointer'>
-          <Link to={`/products/${product.id}`}>{name}</Link>
-        </p>
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
+      align: "center",
+      render: (status) => (
+        <>
+          {statusProductTikTokShop.map(
+            (item, index) =>
+              status === index && (
+                <Tag key={index} color={item.color}>
+                  {item.title}
+                </Tag>
+              )
+          )}
+        </>
+      ),
+      filters: statusProductTikTokShop.map((item, index) => ({
+        text: item.title,
+        value: index,
+      })),
+      onFilter: (value, record) => record.status === value,
+    },
+    {
+      title: "Thời gian tạo",
+      dataIndex: "create_time",
+      key: "create_time",
+      sorter: (a, b) => a.create_time - b.create_time,
+      render: (create_time) => (
+        <span>{formatDate(create_time * 1000, "DD/MM/Y, h:mm:ss")}</span>
       ),
     },
     {
-      title: 'Giá',
-      dataIndex: 'price',
-      key: 'price',
-      sorter: (product1, product2) =>
-        product1.price.toString().localeCompare(product2.price.toString()),
-      render: (_, product) => formatPriceProduct(product),
+      title: "Thời gian cập nhật",
+      dataIndex: "update_time",
+      key: "update_time",
+      sorter: (a, b) => a.update_time - b.update_time,
+      render: (update_time) => (
+        <span>{formatDate(update_time * 1000, "DD/MM/Y, hh:mm:ss")}</span>
+      ),
     },
     {
-      title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
-      render: (_, product) => {
-        switch (product.status) {
-          case statusProduct.APPROVED:
-            return (
-              <div className='border-[#27AE60] border-solid text-[#27AE60] w-[110px] mx-auto border-[1px] font-semibold py-[6px] rounded-lg bg-[#27AE601A] text-center'>
-                Đã duyệt
-              </div>
-            )
-          case statusProduct.VIOLATION:
-            return (
-              <div className='border-[#E83A2F] border-solid text-[#E83A2F] w-[110px] mx-auto border-[1px] font-semibold py-[6px] rounded-lg bg-[#E83A2F1A] text-center'>
-                Vi phạm
-              </div>
-            )
-          case statusProduct.UNAPPROVED:
-            return (
-              <div className='border-[#F0AD00] border-solid text-[#F0AD00] w-[110px] mx-auto border-[1px] font-semibold py-[6px] rounded-lg bg-[#F0AD001A] text-center'>
-                Từ chối
-              </div>
-            )
-          case statusProduct.DELETED:
-            return (
-              <div className='border-[#FF833D] border-solid text-[#FF833D] w-[110px] mx-auto border-[1px] font-semibold py-[6px] rounded-lg bg-[#F0AD001A] text-center'>
-                Vi phạm
-              </div>
-            )
-          default:
-            return (
-              <div className='border-[#218ECB] border-solid text-[#218ECB] w-[110px] mx-auto border-[1px] font-semibold py-[6px] rounded-lg bg-[#218ECB1A] text-center'>
-                Chờ duyệt
-              </div>
-            )
-        }
-      },
+      dataIndex: "actions",
+      key: "actions",
+      width: "100px",
+      align: "center",
+      render: (_, record) => (
+        <Space size="middle">
+          <Tooltip title="Sửa" color="blue" placement="left">
+            <Button
+              size="middle"
+              icon={<EditOutlined />}
+              onClick={() => handleProductEdit(record.id)}
+            />
+          </Tooltip>
+          <Tooltip title="Xem" color="blue" placement="right">
+            <Button
+              size="middle"
+              icon={<EyeOutlined />}
+              onClick={() => handleProductDetail(record.id)}
+            />
+          </Tooltip>
+        </Space>
+      ),
     },
-  ]
+  ];
 
-  const dropdownOption = [
-    {
-      value: '',
-      label: 'Tất cả',
-    },
-    {
-      value: '0',
-      label: 'Chờ duyệt',
-    },
-    {
-      value: '2',
-      label: 'Đã duyệt',
-    },
-    {
-      value: '3',
-      label: 'Từ chối',
-    },
-    {
-      value: '1',
-      label: 'Vi phạm',
-    },
-    {
-      value: '4',
-      label: 'Đã xóa',
-    },
-  ]
+  const handleProductCreate = () => {
+    navigate(`/shops/${shopId}/products/create`);
+    resetProductById()
+    resetCategoryData()
+  };
+
+  const handleProductEdit = (productId) => {
+    navigate(`/shops/${shopId}/products/${productId}/edit`);
+  };
+
+  const handleProductDetail = (productId) => {
+    navigate(`/shops/${shopId}/products/${productId}`);
+  };
+
+  const onFinish = (values) => {
+    setFilterData(values);
+    const productFilter = products?.filter((item) => {
+      return (
+        (!values.product_id || item.id.includes(values.product_id)) &&
+        (!values.product_name || item.name.includes(values.product_name))
+      );
+    });
+    setProductDataTable(productFilter);
+    setShowSearchModal(false);
+    form.resetFields();
+  };
+
+  const handleRemoveFilter = () => {
+    setProductDataTable(products);
+    setFilterData([]);
+  };
 
   useEffect(() => {
-    fetchDataTable(tableParams.keyword)
-
-    window.addEventListener('beforeunload', () => {})
-    return () => {
-      window.removeEventListener('beforeunload', () => {})
-    }
-  }, [navigate, tableParams.status, tableParams.pagination.current])
-
-  const fetchDataTable = (keyword) => {
-    const onSuccess = (response) => {
-      setTableParams({
-        ...tableParams,
-        pagination: {
-          ...tableParams.pagination,
-          total: response.total,
-        },
-      })
-    }
+    const onSuccess = (res) => {
+      if (res.products.length > 0) {
+        setProductDataTable(res.products);
+      }
+    };
     const onFail = (err) => {
-      alerts.error(err)
-    }
-    getAllProducts(
-      store.id,
-      null,
-      onSuccess,
-      onFail,
-    )
-  }
+      console.log(err);
+    };
 
-  const onKeywordChange = (value) => {
-    setTableParams({
-      ...tableParams,
-      pagination: {
-        ...tableParams.pagination,
-        current: 1,
-      },
-      keyword: value,
-    })
-  }
-
-  const onChangDropdown = (e) => {
-    setTableParams({
-      ...tableParams,
-      pagination: {
-        ...tableParams.pagination,
-        current: 1,
-      },
-      status: e,
-    })
-  }
+    getAllProducts(shopId, onSuccess, onFail);
+  }, [shopId]);
 
   return (
-    <Layout.Content className='mt-4 px-5'>
-      <div className='flex justify-between'>
-        <p className='my-5 font-semibold text-[20px]'>Danh sách sản phẩm</p>
-        <div className='flex items-center gap-4'>
-          <p className='text-[#0e2482] font-medium'>{infoTable.total} sản phẩm</p>
-          {/* <SearchInput
-            keyword={tableParams.keyword}
-            onChange={onKeywordChange}
-            onSearch={fetchDataTable}
-          /> */}
-          {!statusProductByPath && (
-            <Select
-              style={{ width: 200 }}
-              defaultValue=''
-              options={dropdownOption}
-              onChange={onChangDropdown}
-            />
+    <div className="p-3 md:p-10">
+      <PageTitle title="Danh sách sản phẩm" count={products?.length} showBack />
+      <div className="flex flex-wrap items-center">
+        <Button
+          type="primary"
+          className="mr-3"
+          size="small"
+          onClick={() => setShowSearchModal(true)}
+        >
+          Tìm kiếm
+        </Button>
+        <Button
+          size="small"
+          type="primary"
+          onClick={handleProductCreate}
+          className="mt-5 mb-5 mr-3"
+        >
+          Thêm sản phẩm
+        </Button>
+        <Button
+          size="small"
+          type="primary"
+          onClick={() => navigate(`/shops/${shopId}/add-many-products`)}
+        >
+          Thêm hàng loạt
+        </Button>
+        <div className="flex-1 text-right">
+          {(filterData.product_name || filterData.product_id) && (
+            <span>Tìm kiếm theo: </span>
+          )}
+          {filterData.product_name && (
+            <Tag color="blue">Tên sản phẩm: {filterData.product_name}</Tag>
+          )}
+          {filterData.product_id && (
+            <Tag color="orange">Mã sản phẩm: {filterData.product_id}</Tag>
+          )}
+          {(filterData.product_name || filterData.product_id) && (
+            <Button type="primary" onClick={handleRemoveFilter}>
+              Xoá tất cả
+            </Button>
           )}
         </div>
       </div>
       <Table
-        columns={productsTable}
-        scroll={{ x: true }}
-        size='middle'
+        columns={columnProduct}
+        size="middle"
         bordered
-        dataSource={products.length ? products : []}
+        scroll={{ x: true }}
+        dataSource={productDataTable?.length ? productDataTable : []}
         loading={loading}
-        onChange={handleTableChange}
-        pagination={tableParams.pagination}
       />
-    </Layout.Content>
-  )
-}
+
+      <Modal
+        title="Tìm kiếm"
+        open={showSearchModal}
+        footer={null}
+        onOk={() => { }}
+        onCancel={() => setShowSearchModal(false)}
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={onFinish}
+          onFinishFailed={() => {}}
+        >
+          <Form.Item label="Mã sản phẩm" name="product_id">
+            <Input />
+          </Form.Item>
+
+          <Form.Item label="Tên sản phẩm" name="product_name">
+            <Input />
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Tìm kiếm
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+    </div>
+  );
+};
+
+export default Products;
