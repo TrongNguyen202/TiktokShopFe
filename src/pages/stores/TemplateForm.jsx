@@ -125,6 +125,9 @@ export default function TemplateForm({
   const [selectedType, setSelectedType] = useState(
     templateJson?.id ? templateJson.type : []
   );
+  const [selectedBadWord, setSelectedBadWord] = useState(
+    templateJson?.id ? templateJson.badWords : []
+  );
   const [isShowModalPrice, setShowModalPrice] = useState(false);
   const dataPrice = useRef(templateJson?.id ? templateJson.types : null);
 
@@ -132,18 +135,20 @@ export default function TemplateForm({
     value: item.id,
     label: item.name,
   }));
-  const categoriesData = buildNestedArraysMenu(categoriesIsLeaf, '0')
+  const categoriesData = buildNestedArraysMenu(categoriesIsLeaf, "0");
 
   useEffect(() => {
     getAllCategoriesIsLeaf();
   }, []);
 
   useEffect(() => {
-    dataPrice.current = convertDataTable(
-      selectedType,
-      selectedSize,
-      selectedColor
-    );
+    if (!templateJson?.id) {
+      dataPrice.current = convertDataTable(
+        selectedType,
+        selectedSize,
+        selectedColor
+      );
+    }
   }, [selectedSize, selectedType]);
 
   const convertDataCategory = (data) => {
@@ -184,7 +189,7 @@ export default function TemplateForm({
       description: description,
       category_id: category,
       warehouse_id: warehouse,
-      is_cod_open: is_cod_open,
+      is_cod_open: is_cod_open || false,
       package_height,
       package_length,
       package_weight,
@@ -197,6 +202,7 @@ export default function TemplateForm({
     const onSuccess = () => {
       message.success("Thêm template thành công");
       getAllTemplate(shopId);
+      setShowModalAddTemplate(false);
     };
     const onFail = (err) => {
       message.error(err);
@@ -205,7 +211,7 @@ export default function TemplateForm({
       ? updateTemplate(templateJson?.id, dataSubmit, onSuccess, onFail)
       : createTemplate(dataSubmit, onSuccess, onFail);
     onSaveTemplate(dataSubmit);
-    setShowModalAddTemplate(false);
+    console.log('dataSubmit: ', dataSubmit);
   };
 
   function sortByType(arr) {
@@ -246,7 +252,7 @@ export default function TemplateForm({
   };
 
   const handleChangeCategories = (e) => {
-    const categoryId = e[e.length - 1]
+    const categoryId = e[e.length - 1];
     // const onSuccess = (res) => {
     //     getAttributeValues(res.data.attributes)
     // }
@@ -258,7 +264,7 @@ export default function TemplateForm({
     //     });
     // }
     // getAttributeByCategory(shopId, categoryId, onSuccess, onFail)
-  }
+  };
 
   return (
     <div>
@@ -297,37 +303,6 @@ export default function TemplateForm({
               <p className="font-semibold text-[#0e2482] text-[16px]">
                 1. Các thông số chung
               </p>
-              {/* <Form.Item
-                label="Category"
-                name="category"
-                labelAlign="left"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn category!",
-                  },
-                ]}
-                sx={{ justifyContent: "space-between" }}
-                initialValue={templateJson?.id ? templateJson.category_id : ""}
-              >
-                <Select
-                  showSearch
-                  style={{
-                    width: "100%",
-                  }}
-                  placeholder="Chọn category"
-                  optionFilterProp="children"
-                  filterOption={(input, option) =>
-                    (option?.label ?? "").toLowerCase().includes(input)
-                  }
-                  filterSort={(optionA, optionB) =>
-                    (optionA?.label ?? "")
-                      .toLowerCase()
-                      .localeCompare((optionB?.label ?? "").toLowerCase())
-                  }
-                  options={convertDataCategory(categoriesIsLeaf)}
-                />
-              </Form.Item> */}
 
               <Form.Item
                 label="Danh mục:"
@@ -336,7 +311,7 @@ export default function TemplateForm({
                   { required: true, message: "Danh mục không được để trống" },
                 ]}
                 initialValue={templateJson?.id ? templateJson.category_id : ""}
-              // initialValue={["824328", "839944", "601226"]}
+                // initialValue={["824328", "839944", "601226"]}
               >
                 <Cascader
                   options={categoriesData}
@@ -508,7 +483,7 @@ export default function TemplateForm({
                 </Row>
               </div>
 
-              <Form.Item
+              {/* <Form.Item
                 label="Bật COD"
                 name="is_cod_open"
                 labelAlign="left"
@@ -531,7 +506,7 @@ export default function TemplateForm({
                 //   setInput(!input);
                 // }}
                 />
-              </Form.Item>
+              </Form.Item> */}
             </div>
             <div className="flex-1">
               <p className="font-semibold text-[#0e2482] text-[16px]">
@@ -607,10 +582,8 @@ export default function TemplateForm({
                 <CustomSelect
                   optionsSelect={initBadWordOptions}
                   type={"bad word"}
-                  selectedDefault={
-                    templateJson?.id ? templateJson.badWords : []
-                  }
-                // onChange={setSelectedType}
+                  selectedDefault={selectedBadWord}
+                  onChange={setSelectedBadWord}
                 />
               </Form.Item>
 

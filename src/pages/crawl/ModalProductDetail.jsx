@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
-import { Modal, Upload, Form } from "antd";
+import { Modal, Upload, Form, Input, Button } from "antd";
 
-import { removeDuplicates } from "../../utils";
-import ProductSectionTitle from "./ProuctSectionTitle";
-import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
+import { DndContext, PointerSensor, useSensor } from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   useSortable,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -22,55 +20,54 @@ const getBase64 = (file) =>
   });
 
 const DraggableUploadListItem = ({ originNode, file }) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: file.uid,
   });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    cursor: 'move',
+    cursor: "move",
   };
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={isDragging ? 'is-dragging h-[100%] w-[100%]' : ' h-[100%] w-[100%]'}
+      className={
+        isDragging ? "is-dragging h-[100%] w-[100%]" : " h-[100%] w-[100%]"
+      }
       {...attributes}
       {...listeners}
     >
-      {file.status === 'error' && isDragging ? originNode.props.children : originNode}
+      {file.status === "error" && isDragging
+        ? originNode.props.children
+        : originNode}
     </div>
   );
 };
 
-const ProductMedia = ({
-  productData,
+export default function ModalProductDetail({
+  product,
+  setIsOpenModal,
+  isOpenModal,
   imgBase64,
-  isProductCreate,
-  setFileList,
-  fileList,
-}) => {
+  handleChangeProduct,
+}) {
+  const [fileList, setFileList] = useState(product.images);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
-  // const [fileList, setFileList] = useState([]);
-  const mediaData = productData?.images?.map((item) =>
-    item?.url_list?.map((image) => ({
-      uid: item.id,
-      name: productData?.product_name,
-      status: "done",
-      url: image,
-    }))
+  const [imageLink, setImageLink] = useState("");
+  const [productTitle, setProductTitle] = useState(product.title);
+  const [productDescription, setProductDescription] = useState(
+    product.description
   );
-  const mediaConcat = mediaData && [].concat(...mediaData);
-  const mediaUpload = mediaConcat && removeDuplicates(mediaConcat, "uid");
-
-  useEffect(() => {
-    if (!isProductCreate) setFileList(mediaUpload || []);
-    // imgBase64(productData?.images)
-  }, [productData]);
-
-  const handleCancel = () => setPreviewOpen(false);
 
   const handlePreview = async (file) => {
     if (!file.url && !file.preview)
@@ -93,6 +90,8 @@ const ProductMedia = ({
     },
   });
 
+  const handleCancel = () => setPreviewOpen(false);
+
   const onDragEnd = ({ active, over }) => {
     if (active.id !== over?.id) {
       setFileList((prev) => {
@@ -103,12 +102,45 @@ const ProductMedia = ({
     }
   };
 
+  const handleAddImage = () => {
+    if (!imageLink) return;
+    setFileList((prev) => [
+      ...prev,
+      {
+        id: new Date().getTime(),
+        url: imageLink,
+      },
+    ]);
+    setImageLink("");
+  };
+
+  const handleOK = () => {
+    const newProduct = {
+      ...product,
+      images: fileList,
+      title: productTitle,
+      description: productDescription,
+    };
+    handleChangeProduct(newProduct);
+    setIsOpenModal(false);
+  };
+
   return (
-    <>
-      <ProductSectionTitle title="Ảnh và video" />
-      <Form.Item name="images">
+    <div>
+      <Modal
+        title={product.title}
+        visible={isOpenModal}
+        onOk={handleOK}
+        okText="Save"
+        cancelText="Cancel"
+        onCancel={() => setIsOpenModal(false)}
+        width="50vw"
+      >
         <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
-          <SortableContext items={fileList?.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
+          <SortableContext
+            items={fileList?.map((i) => i.uid)}
+            strategy={verticalListSortingStrategy}
+          >
             <Upload
               listType="picture-card"
               fileList={fileList}
@@ -121,15 +153,43 @@ const ProductMedia = ({
                 <DraggableUploadListItem originNode={originNode} file={file} />
               )}
             >
-              {fileList?.length >= 8 ? null : (
+              {/* {fileList?.length >= 8 ? null : (
                 <button style={{ border: 0, background: "none" }} type="button">
                   <PlusOutlined />
                   <div style={{ marginTop: 8 }}> Upload</div>
                 </button>
-              )}
+              )} */}
             </Upload>
           </SortableContext>
         </DndContext>
+        <Form.Item label="Add image:" labelCol={{ span: 24 }}>
+          <div className="flex gap-2">
+            <Input
+              value={imageLink}
+              onChange={(e) => setImageLink(e.target.value)}
+              onPressEnter={handleAddImage}
+              placeholder="Enter image link here"
+            />
+            <Button type="primary" ghost onClick={handleAddImage}>
+              Add
+            </Button>
+          </div>
+        </Form.Item>
+
+        <Form.Item label="Title:" labelCol={{ span: 24 }}>
+          <Input
+            value={productTitle}
+            onChange={(e) => setProductTitle(e.target.value)}
+          />
+        </Form.Item>
+        <Form.Item label="Description" wrapperCol={{ span: 24 }}>
+          <Input.TextArea
+            value={productDescription}
+            rows={4}
+            placeholder="Description"
+            onChange={(e) => setProductDescription(e.target.value)}
+          />
+        </Form.Item>
         {/* <input type='file'/> */}
         <Modal
           open={previewOpen}
@@ -143,8 +203,7 @@ const ProductMedia = ({
             src={previewImage}
           />
         </Modal>
-      </Form.Item>
-    </>
+      </Modal>
+    </div>
   );
-};
-export default ProductMedia;
+}

@@ -50,7 +50,7 @@ const MultiAddProducts = () => {
   const convertDataWarehouse = (data) => {
     if (!data || !Array.isArray(data) || !data.length) return [];
     const result = [];
-    data.forEach((item) => {
+    data?.filter((item) => item.warehouse_type === 1)?.forEach((item) => {
       result.push({
         label: item.warehouse_name,
         value: item.warehouse_id,
@@ -65,7 +65,6 @@ const MultiAddProducts = () => {
   };
 
   const readUploadFile = (files) => {
-    console.log("files: ", files);
     if (files) {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -139,26 +138,29 @@ const MultiAddProducts = () => {
   const convertDataSku = () => {
     const { types } = templateJSON ?? {};
     const result = [];
-    types.forEach((item) => {
-      const obj = {};
-      obj.sales_attributes = [
-        {
-          attribute_name: "Type",
-          custom_value: item.type,
-          attribute_id: "100000",
-        },
-        {
-          attribute_name: "Size",
-          custom_value: item.size,
-          attribute_id: "7322572932260136746",
-        },
-      ];
-      obj.original_price = item.price;
-      obj.stock_infos = [
-        { warehouse_id: warehouseId, available_stock: item.quantity },
-      ];
-      result.push(obj);
-    });
+    templateJSON.colors.forEach((color) => {
+      types.forEach((item) => {
+        const obj = {};
+        obj.sales_attributes = [
+          {
+            attribute_name: "Color",
+            custom_value: color,
+            attribute_id: "100000",
+          },
+          {
+            attribute_name: "Size",
+            custom_value: item.id,
+            attribute_id: "7322572932260136746",
+          },
+        ];
+        obj.original_price = item.price;
+        obj.stock_infos = [
+          { warehouse_id: warehouseId, available_stock: item.quantity },
+        ];
+        obj.seller_sku = productsJSON.sku || ""
+        result.push(obj);
+      })
+    })
 
     return result;
   };
@@ -233,7 +235,7 @@ const MultiAddProducts = () => {
         title += ` ${suffixTitle}`;
       }
       doc.title = originalTitle.replace(originalTitle, title);
-      // doc.title = title;
+      doc.title = doc.title.replace(/\b\w/g, (l) => l.toUpperCase());
 
       return doc;
     });
