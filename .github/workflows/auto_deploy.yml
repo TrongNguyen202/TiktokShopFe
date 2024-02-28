@@ -3,7 +3,7 @@ name: Docker Image CI
 on:
     push:
         branches:
-            - develop
+            - main
 
 jobs:
     build:
@@ -21,6 +21,10 @@ jobs:
             - name: Build the Docker image
               run: |
                   docker build -t tiktokshop-folinas-fe .
+                  
+            - name: stop running container running on port 80
+              run: |
+                  docker stop $(docker ps -q --filter ancestor=tiktokshop-folinas-fe) || true
 
             - name: Run Docker container
               run: |
