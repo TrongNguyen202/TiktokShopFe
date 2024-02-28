@@ -49,7 +49,7 @@ const ProductCreate = () => {
       images: imgBase64?.map((item) =>
         item.thumbUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, "")
       ),
-      package_dimension_unit: "metric",
+      package_dimension_unit: "imperial",
       package_height: values.package_height ? values.package_height : "",
       package_length: values.package_length ? values.package_length : "",
       package_weight: values.package_weight ? values.package_weight : "",

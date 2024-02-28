@@ -137,7 +137,7 @@ const ProductEdit = () => {
           imgBase64: getImageBase64(imgBase64),
           price: values.price,
           is_cod_open: false,
-          package_dimension_unit: "metric",
+          package_dimension_unit: "imperial",
           package_height: values.package_height,
           package_length: values.package_length,
           package_weight: values.package_weight,
