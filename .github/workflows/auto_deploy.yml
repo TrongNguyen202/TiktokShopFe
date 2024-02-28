@@ -11,12 +11,12 @@ jobs:
 
         steps:
             - name: Checkout Repository
-              uses: actions/checkout@v3.0.2
+              uses: actions/checkout@v3
 
             - name: Build the Docker image
               run: |
-                  sudo docker build -t tiktokshop-folinas-fe .
+                  docker build -t tiktokshop-folinas-fe .
 
             - name: Run Docker container
               run: |
-                  sudo docker run -p 80:5173 -d tiktokshop-folinas-fe
+                  docker run -p 80:5173 -d tiktokshop-folinas-fe
