@@ -14,6 +14,7 @@ const Categories = () => {
 
     const categories = category_list&&buildNestedArraysMenu(category_list, "0")
 
+
     useEffect(() => {
         const onSuccess = (res) => {
 
