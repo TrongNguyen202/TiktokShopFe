@@ -4,6 +4,7 @@ import { Row, Col, Card, Badge, Spin } from 'antd'
 import { useWareHousesStore } from '../../store/warehousesStore'
 
 import StoreDetailSectionTitle from './StoreDetailSectionTitle';
+import { alerts } from '../../utils/alerts';
 
 const StoreDetailWareHouses = ({shopId}) => {
     const { getWarehousesByShopId, warehousesById, loading } = useWareHousesStore((state) => state)

@@ -1,6 +1,11 @@
-import { DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { DndContext } from "@dnd-kit/core";
+import { SortableContext } from "@dnd-kit/sortable";
 import { Col, Modal, Tooltip } from "antd";
 import React, { useState } from "react";
+import Upload from "../../components/upload";
+import ModalProductDetail from "./ModalProductDetail";
+import { LazyLoadImage } from "react-lazy-load-image-component";
 
 export default function ProductItem({
 	product,
@@ -8,17 +13,19 @@ export default function ProductItem({
 	handleDeleteProduct,
 	checkedItems,
 	handleCheckChange,
+	handleChangeProduct,
 }) {
 	const [isOpenModal, setIsOpenModal] = useState(false);
 
 	return (
 		<div className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-md hover:shadow-blue-300 duration-300 hover:translate-y-[-5px]">
 			<div className="w-[100%] h-[13vw] relative">
-				<img
+        <LazyLoadImage
 					src={product.images[0].url}
 					alt={product.title}
 					className="w-full h-full object-cover cursor-pointer"
 					onClick={() => setIsOpenModal(true)}
+          loading="lazy"
 				/>
 				<input
 					type="checkbox"
@@ -42,7 +49,7 @@ export default function ProductItem({
 				</p>
 			</div>
 			<div className="p-2">
-				<p className="h-[76px] line-clamp-4">{product.title}</p>
+				<a className="h-[76px] line-clamp-4 block text-black" href={product.url} target="blank">{product.title}</a>
 				<div className="flex justify-between items-center mt-2">
 					<p
 						className="h-[30px] w-[30px] flex justify-center items-center border-[1px] border-solid rounded-lg text-yellow-600 cursor-pointer hover:bg-yellow-100 duration-300"
@@ -53,17 +60,14 @@ export default function ProductItem({
 					<p className="font-semibold text-green-600">${product.price}</p>
 				</div>
 			</div>
+
 			{isOpenModal && (
-				<Modal
-					title="Basic Modal"
-					visible={isOpenModal}
-					onOk={() => setIsOpenModal(false)}
-					onCancel={() => setIsOpenModal(false)}
-				>
-					<p>Some contents...</p>
-					<p>Some contents...</p>
-					<p>Some contents...</p>
-				</Modal>
+				<ModalProductDetail
+					product={product}
+					setIsOpenModal={setIsOpenModal}
+					isOpenModal={isOpenModal}
+					handleChangeProduct={handleChangeProduct}
+				/>
 			)}
 		</div>
 	);
