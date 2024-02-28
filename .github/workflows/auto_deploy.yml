@@ -4,6 +4,9 @@ on:
     push:
         branches:
             - dev
+    merge:
+        branches:
+            - dev
 
 jobs:
     build:
@@ -12,6 +15,11 @@ jobs:
         steps:
             - name: Checkout Repository
               uses: actions/checkout@v3
+
+            - name: Kill the running container with name tiktokshop-folinas-fe
+              run: |
+                  docker stop tiktokshop-folinas-fe || true
+                  docker rm tiktokshop-folinas-fe || true
 
             - name: Build the Docker image
               run: |
