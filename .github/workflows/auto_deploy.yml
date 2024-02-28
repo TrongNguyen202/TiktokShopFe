@@ -2,15 +2,26 @@ name: Docker Image CI
 
 on:
     push:
-        branches: ["main"]
+        branches:
+            - main
 
 jobs:
     build:
         runs-on: self-hosted
 
         steps:
-            - uses: actions/checkout@v3
+            - name: Set Git Configurations
+              run: |
+                  git config --global user.email "hokage321xxx@gmail.com"
+                  git config --global user.name "2uanDM"
+
+            - name: Checkout Repository
+              uses: actions/checkout@v3
+
             - name: Build the Docker image
               run: |
                   docker build -t tiktokshop-folinas-fe .
+
+            - name: Run Docker container
+              run: |
                   docker run -p 80:5173 -d tiktokshop-folinas-fe
