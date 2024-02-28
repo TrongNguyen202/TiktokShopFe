@@ -29,6 +29,15 @@ const confirmCombine = (shopId, body) => {
   return callApi(`/shops/${shopId}/confirm_combine_pkg`, 'post', body)
 }
 
+const createLabel = (shopId, body) => {
+  return callApi(`/shops/${shopId}/packages/package_detail`, 'post', body)
+}
+
+const shippingService = (shopId, body) => {
+  return callApi(`/shops/${shopId}/shipping_service`, 'post', body)
+}
+
+
 export const orders = {
     getAllOrders,
     buyLabels,
@@ -36,5 +45,7 @@ export const orders = {
     uploadLabelToDriver,
     getToShipInfo,
     getAllCombine,
-    confirmCombine
+    confirmCombine,
+    createLabel,
+    shippingService,
 }

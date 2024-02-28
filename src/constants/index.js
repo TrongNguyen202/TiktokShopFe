@@ -84,3 +84,50 @@ export const variationsOption = [
   // { value: '100007', label: 'Size' },
   { value: '7322572932260136746', label: 'Size' },
 ]
+
+export const OrderPackageWeightSize = [
+  {
+    name: "loại 1",
+    items: [
+      {"S": "0.3", "size": "9x9x2" },
+      {"M": "0.375", "size": "9x9x2" },
+      {"L": "0.4375", "size": "9x9x2" },
+      {"XL": "0.45", "size": "10x10x3"},
+      {"2XL": "0.5625", "size": "10x10x3"},
+      {"3XL": "0.5625", "size": "10x10x3"},
+    ]
+  },
+  {
+    name: "T-shirt",
+    items: [
+      {"S": "0.3", "size": "9x9x2" },
+      {"M": "0.375", "size": "9x9x2" },
+      {"L": "0.4375", "size": "9x9x2" },
+      {"XL": "0.45", "size": "10x10x3"},
+      {"2XL": "0.5625", "size": "10x10x3"},
+      {"3XL": "0.5625", "size": "10x10x3"},
+    ]
+  },
+  {
+    name: "Sweatshirt",
+    items: [
+      {"S": "1", "size": "9x9x2" },
+      {"M": "1.25", "size": "9x9x2" },
+      {"L": "1.3125", "size": "9x9x2" },
+      {"XL": "1.375", "size": "10x10x3"},
+      {"2XL": "1.4375", "size": "10x10x3"},
+      {"3XL": "1.5625", "size": "10x10x3"},
+    ]
+  },
+  {
+    name: "Hoodie",
+    items: [
+      {"S": "1", "size": "9x9x2" },
+      {"M": "1.25", "size": "9x9x2" },
+      {"L": "1.3125", "size": "9x9x2" },
+      {"XL": "1.375", "size": "10x10x3"},
+      {"2XL": "1.4375", "size": "10x10x3"},
+      {"3XL": "1.5625", "size": "10x10x3"},
+    ]
+  }
+]

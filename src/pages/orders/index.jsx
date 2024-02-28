@@ -1,4 +1,4 @@
-import { DownOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
+import { DownOutlined, LoadingOutlined, SearchOutlined, EditOutlined } from "@ant-design/icons";
 import { Button, Image, Popover, Space, Spin, Table, Tag, Tooltip, Modal, message } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -35,7 +35,7 @@ const Orders = () => {
   const [searchedColumn, setSearchedColumn] = useState('');
   const [messageApi, contextHolder] = message.useMessage();
   const [dataCombineConfirm, setDataCombineConfirm] = useState([])
-  const { orders, buyLabels, getAllOrders, getAllCombine, combineList, loading } = useShopsOrder((state) => state)
+  const { orders, buyLabels, getAllOrders, getAllCombine, combineList, createLabel, shippingService, shippingServiceInfo, loading } = useShopsOrder((state) => state)
   const orderDataTable = orders.map(item => (
     {
       ...item,
@@ -196,21 +196,33 @@ const Orders = () => {
     getAllOrders(shopId);
   }
 
+  const handleCreateLabels = () => {
+    const onSuccess = (res) => {
+      if (res) {
+        console.log('res: ', res)
+        navigate(`/shops/${shopId}/orders/create-label`, {state: { orders: res }})
+      }
+    }
+    createLabel(shopId, orderSelected, onSuccess, () => {})
+  }
+
   const rowSelection = {
     onChange: (_, selectedRows) => {
       const selectedRowsPackageId = selectedRows.map(item => item.package_list[0].package_id)
-      const seen = new Set();
-      const packageSelect = selectedRowsPackageId.map(item => {
-          if (!seen.has(item)) {
-              seen.add(item);
-              return item;
-          }
-          return null;
-      }).filter(item => item !== null);
-      setOrderSelected(packageSelect)
+      // const seen = new Set();
+      // const packageSelect = selectedRowsPackageId.map(item => {
+      //     if (!seen.has(item)) {
+      //         seen.add(item);
+      //         return item;
+      //     }
+      //     return null;
+      // }).filter(item => item !== null);
+
+      // console.log('selectedRowsPackageId: ', selectedRowsPackageId);
+      setOrderSelected(selectedRowsPackageId)
     },
     getCheckboxProps: (record) => ({
-      disabled: [140, 130, 122, 121, 105].includes(record.order_status)
+      disabled: [140, 130, 122, 121, 105, 100].includes(record.order_status)
     })
   };
 
@@ -328,22 +340,22 @@ const Orders = () => {
     {
       title: "Vận chuyển",
       dataIndex: "delivery_option",
-      key: "delivery_option",
+      key: "delivery_option"
     }
   ];
 
-  const handleGetLabels = () => {
-    const ordersId = {
-      order_ids: orderSelected.map(item => item.order_id)
-    }
+  // const handleGetLabels = () => {
+  //   const ordersId = {
+  //     order_ids: orderSelected.map(item => item.order_id)
+  //   }
 
-    const onSuccess = (res) => {
-      if (res.doc_urls) {
-        navigate(`/shops/${shopId}/orders/fulfillment`, { state: { labels:  res.doc_urls, orders: orderSelected} })
-      }
-    }
-    buyLabels(shopId, ordersId, onSuccess, (err) => console.log(err))
-  }
+  //   const onSuccess = (res) => {
+  //     if (res.doc_urls) {
+  //       navigate(`/shops/${shopId}/orders/fulfillment`, { state: { labels:  res.doc_urls, orders: orderSelected} })
+  //     }
+  //   }
+  //   buyLabels(shopId, ordersId, onSuccess, (err) => console.log(err))
+  // }
 
   useEffect(() => {
     const onSuccess = (res) => {
@@ -357,16 +369,23 @@ const Orders = () => {
     getAllOrders(shopId, onSuccess, onFail);
   }, []);
 
+  console.log('orderSelected: ', orderSelected);
+
   return (
     <div className="p-3 md:p-10">
       {contextHolder}
       <PageTitle title="Danh sách đơn hàng" showBack count={orders?.length ? orders?.length : '0'}/>
       <Space className="mb-3">
         <Button type="primary" onClick={handleGetAllCombine}>Get All Combinable</Button>
-        {orderSelected.length > 0 && <Button type="primary" onClick={handleGetLabels}>
-          Bắt đầu Fulfillment &nbsp;<span>({orderSelected.length})</span>
+        {orderSelected.length > 0 && <Button type="primary" onClick={handleCreateLabels}>
+          Create Label &nbsp;<span>({orderSelected.length})</span>
           {loading && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
         </Button>}
+        
+        {/* {orderSelected.length > 0 && <Button type="primary" onClick={handleGetLabels}>
+          Bắt đầu Fulfillment &nbsp;<span>({orderSelected.length})</span>
+          {loading && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
+        </Button>} */}
       </Space>
       <Table 
         rowSelection={{
@@ -378,7 +397,7 @@ const Orders = () => {
         dataSource={sortByPackageId(orderDataTable)} 
         loading={loading} 
         bordered
-        pagination={{ pageSize: 20}}
+        pagination={{ pageSize: 100}}
       />
       <Modal
         title="Combine"
