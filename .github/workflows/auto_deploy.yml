@@ -24,7 +24,7 @@ jobs:
                   
             - name: stop running container running on port 80
               run: |
-                  docker stop $(docker ps | grep ':80->' | awk '{ print $1 }')
+                  docker stop $(docker ps | grep ':80->' | awk '{ print $1 }') || true
 
             - name: Run Docker container
               run: |
