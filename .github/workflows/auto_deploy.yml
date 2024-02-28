@@ -3,18 +3,13 @@ name: Docker Image CI
 on:
     push:
         branches:
-            - main
+            - dev
 
 jobs:
     build:
         runs-on: self-hosted
 
         steps:
-            - name: Set Git Configurations
-              run: |
-                  sudo git config --global user.email "hokage321xxx@gmail.com"
-                  sudo git config --global user.name "2uanDM"
-
             - name: Checkout Repository
               uses: actions/checkout@v3
 
