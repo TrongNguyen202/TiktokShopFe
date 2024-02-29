@@ -1,3 +1,6 @@
+import time
+import hmac
+import hashlib
 from uuid import uuid4
 from ..models import CustomUser
 
@@ -44,3 +47,25 @@ def send_mail_verification(request, new_user):
         recipient_list=[new_user.email],
         fail_silently=False
     )
+
+
+class GenerateSign:
+    def obj_key_sort(self, obj):
+        return {k: obj[k] for k in sorted(obj)}
+
+    def get_timestamp(self):
+        return int(time.time())
+
+    def cal_sign(self, secrete, url, query_params, body):
+        sorted_params = self.obj_key_sort(query_params)
+        sorted_params.pop('sign', None)
+        sorted_params.pop('access_token', None)
+
+        sign_string = secrete + url.path
+        for key, value in sorted_params.items():
+            sign_string += key + value
+
+        sign_string += body + secrete
+        signature = hmac.new(secrete.encode(), sign_string.encode(), hashlib.sha256).hexdigest()
+
+        return signature
