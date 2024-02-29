@@ -1,8 +1,8 @@
 import { callApi } from '../apis'
 
-const getAllProducts = (id) => {
+const getAllProducts = (id,page_number) => {
   return callApi(
-    `/shops/${id}/products/list`, 'get')
+    `/shops/${id}/products/list/page=${page_number}`, 'get')
 }
 
 const getProductsById = (shopId, productId) => {
