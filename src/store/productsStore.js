@@ -12,12 +12,15 @@ export const useProductsStore = create((set, get) => ({
       set({ loading: true })
       const response = await RepositoryRemote.products.getAllProducts(id,page_number)
       set({ products: [...get().products,...response.data.data.products] })
-      set({ infoTable: response.data.data })
+      set({ infoTable: response.data })
       onSuccess(response.data.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }
     set({ loading: false })
+  },
+  clearProducts: () => {
+    set({ products: [] });
   },
   getProductsById: async (shopId, productId, onSuccess = () => {}, onFail = () => {}) => {
     try {

@@ -24,7 +24,6 @@ const Products = () => {
     (state) => state
   );
 
-  console.log("infoTable", infoTable)
   const { resetCategoryData } = useCategoriesStore()
   const [page_number, setPage_number] =useState(1)
 
@@ -181,7 +180,7 @@ const Products = () => {
       if (res.products.length > 0) {
         setProductDataTable([...productDataTable, ...res.products]);
       }
-    };
+    }; 
     const onFail = (err) => {
       console.log(err);
     };
@@ -189,9 +188,10 @@ const Products = () => {
     getAllProducts(shopId,page_number, onSuccess, onFail);
   }, [shopId,page_number]);
 
+
   return (
     <div className="p-3 md:p-10">
-      <PageTitle title="Danh sách sản phẩm" count={products?.length} showBack />
+      <PageTitle title="Danh sách sản phẩm" count={infoTable?.data?.total ||"0"} showBack />
       <div className="flex flex-wrap items-center">
         <Button
           type="primary"
@@ -206,6 +206,7 @@ const Products = () => {
           className="mr-3"
           size="small"
           onClick={() => setPage_number(page_number+1)}
+          disabled = {productDataTable?.length == infoTable?.data?.total}
         >
           Load More Products
         </Button>
@@ -248,7 +249,7 @@ const Products = () => {
         scroll={{ x: true }}
         dataSource={productDataTable?.length ? productDataTable : []}
         loading={loading}
-        pagination={{total: infoTable.total}}
+        pagination={{total: infoTable?.data?.total}}
       />
 
       <Modal
