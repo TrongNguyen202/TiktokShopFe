@@ -20,10 +20,13 @@ const Products = () => {
   const [filterData, setFilterData] = useState([]);
   const [productDataTable, setProductDataTable] = useState([]);
   const [showSearchModal, setShowSearchModal] = useState(false);
-  const { products, getAllProducts, loading, resetProductById } = useProductsStore(
+  const { products, getAllProducts, loading, resetProductById, infoTable } = useProductsStore(
     (state) => state
   );
+
+  console.log("infoTable", infoTable)
   const { resetCategoryData } = useCategoriesStore()
+  const [page_number, setPage_number] =useState(1)
 
   const columnProduct = [
     {
@@ -176,15 +179,15 @@ const Products = () => {
   useEffect(() => {
     const onSuccess = (res) => {
       if (res.products.length > 0) {
-        setProductDataTable(res.products);
+        setProductDataTable([...productDataTable, ...res.products]);
       }
     };
     const onFail = (err) => {
       console.log(err);
     };
 
-    getAllProducts(shopId, onSuccess, onFail);
-  }, [shopId]);
+    getAllProducts(shopId,page_number, onSuccess, onFail);
+  }, [shopId,page_number]);
 
   return (
     <div className="p-3 md:p-10">
@@ -197,6 +200,14 @@ const Products = () => {
           onClick={() => setShowSearchModal(true)}
         >
           Tìm kiếm
+        </Button>
+        <Button
+          type="primary"
+          className="mr-3"
+          size="small"
+          onClick={() => setPage_number(page_number+1)}
+        >
+          Load More Products
         </Button>
         <Button
           size="small"
@@ -225,7 +236,7 @@ const Products = () => {
           )}
           {(filterData.product_name || filterData.product_id) && (
             <Button type="primary" onClick={handleRemoveFilter}>
-              Xoá tất cả
+              Quay lại
             </Button>
           )}
         </div>
@@ -237,6 +248,7 @@ const Products = () => {
         scroll={{ x: true }}
         dataSource={productDataTable?.length ? productDataTable : []}
         loading={loading}
+        pagination={{total: infoTable.total}}
       />
 
       <Modal

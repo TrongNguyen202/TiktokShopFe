@@ -1,17 +1,17 @@
 import { create } from 'zustand'
 import { RepositoryRemote } from '../services'
 
-export const useProductsStore = create((set) => ({
-  products: {},
+export const useProductsStore = create((set, get) => ({
+  products: [],
   productById: {},
   infoTable: {},
   newProduct: {},
   loading: false,
-  getAllProducts: async (id, onSuccess = () => {}, onFail = () => {}) => {
+  getAllProducts: async (id, page_number,onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true })
-      const response = await RepositoryRemote.products.getAllProducts(id)
-      set({ products: response.data.data.products })
+      const response = await RepositoryRemote.products.getAllProducts(id,page_number)
+      set({ products: [...get().products,...response.data.data.products] })
       set({ infoTable: response.data.data })
       onSuccess(response.data.data)
     } catch (error) {
