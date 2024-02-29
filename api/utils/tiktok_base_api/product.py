@@ -151,7 +151,7 @@ def getWareHouseList(access_token: str):
     return response
 
 
-def getBrands(access_token):
+def getBrands(access_token: str):
     url = TIKTOK_API_URL['url_get_brands']
 
     query_params = {
@@ -171,7 +171,7 @@ def getBrands(access_token):
     return response
 
 
-def getAttributes(access_token, category_id):
+def getAttributes(access_token: str, category_id: str):
     url = TIKTOK_API_URL['url_get_attributes']
 
     query_params = {
@@ -192,7 +192,7 @@ def getAttributes(access_token, category_id):
     return response
 
 
-def createProduct(access_token, title, images_ids, product_object):
+def createProduct(access_token: str, title: str, images_ids: list, product_object):
     """
         Use with batch create product (With Excel file)
     """
@@ -360,7 +360,7 @@ def callCreateOneProduct(access_token: str, product_object):
     return response
 
 
-def categoryRecommend(access_token, product_name):
+def categoryRecommend(access_token: str, product_name: str):
     url = TIKTOK_API_URL['url_get_category_recommend']
 
     query_params = {
@@ -394,3 +394,48 @@ def categoryRecommend(access_token, product_name):
     logger.info(f'Category recommend response: {response.text}')
 
     return response
+
+
+def callUploadImage(access_token: str, img_data):
+    try:
+        url = TIKTOK_API_URL['url_upload_image']
+
+        query_params = {
+            'app_key': app_key,
+            'access_token': access_token,
+            'timestamp': SIGN.get_timestamp()
+        }
+
+        body = json.dumps({
+            'img_data': img_data,
+            'img_scene': 1
+        })
+
+        sign = SIGN.cal_sign(
+            secret=secret,
+            url=urllib.parse.urlparse(url),
+            query_params=query_params,
+            body=body
+        )
+
+        query_params['sign'] = sign
+
+        response = requests.post(
+            url=url,
+            params=query_params,
+            json=json.loads(body)
+        )
+
+        # Check if the image is uploaded successfully
+        data = json.loads(response.text)
+
+        if data and 'data' in data and 'img_id' in data['data']:
+            img_id = data['data']['img_id']
+            logger.info(f'Upload image success: {img_id}')
+            return img_id
+        else:
+            logger.error(f'Error when upload image: {response.text}')
+            return ''
+    except Exception as e:
+        logging.error(f'Error when upload image', exc_info=e)
+        return ''
