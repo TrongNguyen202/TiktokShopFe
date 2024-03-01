@@ -1,15 +1,70 @@
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Table, Popover, Image, Button } from "antd";
+import { Table, Popover, Image, Button, Modal, Form, Input, Radio, Space, Spin } from "antd";
 import { DownOutlined, EditOutlined } from "@ant-design/icons"
 
 import { getPathByIndex } from "../../utils";
 import { OrderPackageWeightSize } from "../../constants"
 
+import { useShopsOrder } from "../../store/ordersStore"
+
 const CreateLabel = () => {
     const location = useLocation()
     const { orders } = location.state
     const shopId = getPathByIndex(2)
-    console.log('OrderPackageWeightSize: ', OrderPackageWeightSize)
+    const [open, setOpen] = useState(false)
+    const [shippingServiceData, setShippingServiceData] = useState([])
+    const [dataSizeChart, setDataSizeChart] = useState(OrderPackageWeightSize)
+    const { shippingService, loading } = useShopsOrder(state => state)
+    const dataSizeChartConvert = dataSizeChart.map(sizeChart => (
+        sizeChart.items.map((item, index) => (
+            {
+                ...item,
+                type: sizeChart.name,
+                rowSpan: index === 0 ? sizeChart.items.length : 0
+            }
+        ))
+    )).flat()
+
+    const dataTableWeightSize = (data) => {
+        const labelItems = data.map(label => {
+            const orderList = label.data.order_info_list.map(order => {
+                const productList = order.sku_list.map(product => {
+                    const orderPackageList = dataSizeChart.find(orderPackage => product.sku_name.includes(orderPackage.name) || orderPackage.name === 'T-shirt').items
+                    const orderPackageSizeChart = orderPackageList.find(orderPackage => product.sku_name.includes(orderPackage.name) || orderPackageList[0])
+                    const orderPackageWeight = orderPackageSizeChart.weight * product.quantity
+                    const orderPackageSize = orderPackageSizeChart.size
+                    return {orderPackageWeight, orderPackageSize}
+                })
+                
+                const sumWeight = productList.map(product => parseFloat(product.orderPackageWeight)).reduce((partialSum, current) => partialSum + current, 0).toFixed(6).replace(/0+$/, '')
+                const sumSize = order.sku_list.length > 1 ? "10x10x3".split('x') : productList[0].orderPackageSize.split('x')
+                return {sumWeight, sumSize}  
+            })
+            
+            const sumPackageCombine = {
+                package_weight: orderList.map(item => parseFloat(item.sumWeight)).reduce((partialSum, current) => partialSum + current, 0).toFixed(6).replace(/0+$/, ''),
+                package_size: orderList.length > 1 ? '10x10x3'.split('x') : orderList[0].sumSize.split('x')
+            }
+            
+            return (
+                {
+                    ...label,
+                    package_weight: sumPackageCombine.package_weight,
+                    package_size: sumPackageCombine.package_size
+                }
+            )
+        })
+        return labelItems
+    }
+    const dataTableConvert = dataTableWeightSize(orders)
+    const [tableData, setTableData] = useState(dataTableConvert)
+
+    useEffect(() => {
+        const updatedTableData = dataTableWeightSize(orders)
+        setTableData(updatedTableData)
+    }, [dataSizeChart]);
+
 
     const renderListItemProduct = (data) => {
         const skuList = data.order_info_list.map(item => item.sku_list)
@@ -37,20 +92,137 @@ const CreateLabel = () => {
         });
     };
 
-    const handleChangeShippingService = (shopId, shippingServiceData) => {
-        console.log('click');
+    const handleUpdatePackage = (e, key, index) => {
+        const dataUpdate = [...tableData]
+        
+        if (key.includes('package_size')) {
+            const originalSize = dataTableConvert[index]
+            const position = key.slice(key.lastIndexOf('_') + 1)
+            dataUpdate[index].package_size[position] = e.target.value
+        } else {
+            dataUpdate[index][key] = parseFloat(e.target.value)      
+        }
+        setTableData(dataUpdate)
+    }
+
+    const handleUpdateSizeChart = (values) => {
+        const hasTypePosition =   Object.keys(values)
+        .map(key => ({ index: key, type: values[key].type }))
+        .filter(item => item.type !== undefined)
+        .map(item => parseInt(item.index));
+              
+        const sizeChartSplice = []
+        for (let i = 0; i < hasTypePosition.length - 1; i++) {
+            const start = hasTypePosition[i];
+            const end = hasTypePosition[i + 1];
+            const spliceData = Object.values(values).slice(start, end);
+            sizeChartSplice.push(spliceData);
+        }
+
+        const result = Object.values(values).slice(hasTypePosition[hasTypePosition.length - 1]);
+        sizeChartSplice.push(result);
+        const sizeChartUpdate = sizeChartSplice.map(itemUpdate => (
+            {
+                name: itemUpdate[0].type,
+                items: itemUpdate.map(item => (
+                    {
+                        name: item.name,
+                        weight: item.weight,
+                        size: item.size
+    
+                    }
+                ))
+            }
+        ))
+        setDataSizeChart(sizeChartUpdate)
+        setOpen(false)
+    }
+
+    const contentPopover = (data, key, index) => {
+        return (
+            <>
+                {key === 'size' && 
+                    <>
+                        <div className='mb-3'>
+                            <label>Package length</label>
+                            <Input name="length" suffix="in" defaultValue={data[0]} onChange={(e) => handleUpdatePackage(e, "package_size_0", index)} />
+                        </div>
+                        <div className='mb-3' >
+                            <label>Package width</label>
+                            <Input name="width" suffix="in" defaultValue={data[1]} onChange={(e) => handleUpdatePackage(e, "package_size_1", index)} />
+                        </div>
+                        <div className='mb-3' >
+                            <label>Package height</label>
+                            <Input name="height" suffix="in" defaultValue={data[2]} onChange={(e) => handleUpdatePackage(e, "package_size_2", index)} />
+                        </div>   
+                    </>
+                }
+
+                {key === 'weight' && 
+                    <div className='mb-3'>
+                        <label>Package weight</label>
+                        <Input name="length" suffix="lb" defaultValue={data} onChange={(e) => handleUpdatePackage(e, "package_weight", index)} />
+                    </div>
+                }
+            </>
+        )
+    }
+
+    const handleGetShippingService = (newStatus, packageId) => {
+        const onSuccess = (res) => {
+            if (res) {
+                const shippingService = res.data
+                setShippingServiceData(shippingService)
+            }
+        }
+
+        const onFail = (err) => {
+            console.log(err)
+        }
+
+        if (newStatus === true) {
+            shippingService(shopId, packageId, onSuccess, onFail)            
+        }
+    }
+
+    const handleChangeShippingService = (e, index) => {
+        const shippingService = e.target.value.split('-')
+        const dataShippingServiceUpdate = [...tableData]
+        dataShippingServiceUpdate[index].data.shipping_provider_id = shippingService[0]
+        dataShippingServiceUpdate[index].data.shipping_provider = shippingService[1]
+        setTableData(dataShippingServiceUpdate)
+    }
+
+    const contentPopoverShipping = (index) => {
+        return (
+            <div className='p-5'>
+                <Spin spinning={loading}>
+                    <Radio.Group onChange={(e) => handleChangeShippingService(e, index)}>
+                        <Space direction="vertical">
+                            {shippingServiceData.length > 0 && shippingServiceData.map(item => (
+                                <Radio key={item.id} value={`${item.id}-${item.name}`}>{item.name}</Radio>
+                            ))}
+                        </Space>
+                    </Radio.Group>
+                </Spin>
+            </div>
+        )
     }
 
     const rowSelection = {
         onChange: (_, selectedRows) => {
-          console.log(selectedRows)
-        },
-        // getCheckboxProps: (record) => ({
-        //   disabled: [140, 130, 122, 121, 105, 100].includes(record.order_status)
-        // })
-    };
+          console.log('selectedRows: ', selectedRows)
+        }
+    };    
 
     const columns = [
+        {
+            title: "STT",
+            dataIndex: "index",
+            key: "index",
+            align: 'center',
+            render: (_, record, i) => <p>{i + 1}</p>,
+        },
         {
           title: "Đơn hàng",
           dataIndex: "combine_item",
@@ -75,8 +247,8 @@ const CreateLabel = () => {
                                 <p>{sumItem} items</p>
                                 <ul className='text-ellipsis whitespace-nowrap overflow-hidden w-[180px]'>
                                     {record.data.order_info_list.map(item => (
-                                            item.sku_list.map((prItem, index) => (
-                                                <li key={item.sku_id} className='inline-block mr-3 w-10 h-10 [&:nth-child(3+n)]:hidden'>
+                                            item.sku_list.map(prItem => (
+                                                <li key={prItem.sku_id} className='inline-block mr-3 w-10 h-10 [&:nth-child(3+n)]:hidden'>
                                                     <img className="w-full h-full object-cover" width={30} height={30} src={prItem.sku_image} />
                                                 </li>
                                             ))
@@ -91,62 +263,152 @@ const CreateLabel = () => {
         },
         {
             title: "Cân nặng",
-            dataIndex: "weight",
-            key: "weight",
-            render: (_, record) => {
-                console.log('record: ', record)
-                const productItems = record.data.order_info_list.map(item => (
-                    item.sku_list.map(skuItem => skuItem.sku_name).flat()
-                )).flat()
-
-                console.log('productItems: ', productItems);
-                const productItemsWeight = productItems.map(item => {
-                    const packageName = item.split(",")
-                    const findPackageName = packageName.map(name => OrderPackageWeightSize.find(packageItem => packageItem.name === name)).filter(filterItem => filterItem !== undefined).flat()
-                    console.log(findPackageName);
-                })
+            dataIndex: "package_weight",
+            key: "package_weight",
+            align: 'center',
+            render: (_, record, index) => {
+                return (
+                    <Popover title="Sửa cân nặng" 
+                        className='flex flex-wrap items-center gap-3 cursor-pointer group relative'
+                        trigger="click"
+                        content={contentPopover(record.package_weight, "weight", index)}
+                    >
+                    
+                        <p>{record.package_weight} <span>lb</span></p>
+                        <span className='cursor-pointer hidden absolute top-[50%] right-5 -translate-y-[50%] group-hover:inline-block'><EditOutlined /></span>
+                    </Popover>
+                )
             }
         },
         {
             title: "Kích thước",
             dataIndex: "package-size",
             key: "package-size",
+            align: 'center',
+            render: (_, record, index) => {
+                return (
+                    <Popover title="Sửa kích thước" 
+                        className='flex flex-wrap items-center gap-3 cursor-pointer group relative'
+                        trigger="click"
+                        content={contentPopover(record.package_size, "size", index)}
+                    >
+                    
+                        <p>{record.package_size[0]} x {record.package_size[1]} x {record.package_size[2]} <span>in</span></p>
+                        <span className='cursor-pointer hidden absolute top-[50%] right-5 -translate-y-[50%] group-hover:inline-block'><EditOutlined /></span>
+                    </Popover>
+                )
+            }
         },
         {
           title: "Vận chuyển",
           dataIndex: "shipping_provider",
           key: "shipping_provider",
-          render: (_, record) => {
+          render: (_, record, index) => {
             const shippingServiceData = {
-                "package_id": record.package_id
+                "package_id": record.data.package_id
             }
 
             return (
-                <div className='flex flex-wrap gap-3 items-center'>
-                    <p>{record.data.shipping_provider}</p>
-                    <Popover
-                        // content={}
-                    >
-                        <Button onClick={handleChangeShippingService(shopId, shippingServiceData)}><EditOutlined /></Button>
-                    </Popover>
-                </div>
-              )
+                <Popover
+                    className='flex flex-wrap items-center gap-3 cursor-pointer group relative'
+                    trigger="click"
+                    content={contentPopoverShipping(index)}
+                    onOpenChange={(newStatus) => handleGetShippingService(newStatus, shippingServiceData)}
+                >
+                    <p className='flex-1'>{record.data.shipping_provider}</p>
+                    <span className='cursor-pointer hidden absolute top-[50%] right-5 -translate-y-[50%] group-hover:inline-block'><EditOutlined /></span>
+                </Popover>
+            )
           }
         }
     ];
+
+    const columnsSizeChart = [
+        {
+            title: 'Loại',
+            dataIndex: 'type',
+            key: 'type',
+            align: 'center',
+            render: (text, _, index) => (
+                <Form.Item name={[index, "type"]} initialValue={text}>
+                    <Input className='pointer-events-none border-0 text-center bg-transparent'/>
+                </Form.Item>
+            ),
+            onCell: (record) => ({ rowSpan: record.rowSpan })
+        },
+        {
+            title: 'Tên',
+            dataIndex: 'name',
+            key: 'name',
+            align: 'center',
+            render: (text, _, index) => (
+                <Form.Item name={[index, "name"]} initialValue={text}>
+                    <Input className='pointer-events-none border-0 text-center bg-transparent'/>
+                </Form.Item>
+            )
+        },
+        {
+            title: 'Weight',
+            dataIndex: 'weight',
+            key: 'weight',
+            align: 'center',
+            render: (text, _, index) => (
+                <Form.Item name={[index, "weight"]} initialValue={text}>
+                    <Input className='text-center'/>
+                </Form.Item>
+            )
+        },
+        {
+            title: 'Size',
+            dataIndex: 'size',
+            key: 'size',
+            align: 'center',
+            render: (text, _, index) => (
+                <Form.Item name={[index, "size"]} initialValue={text}>
+                    <Input className='text-center'/>
+                </Form.Item>
+            )
+        }
+    ]
+
     return (
-        <Table 
-            rowSelection={{
-                type: 'checkbox',
-                ...rowSelection,
-            }}
-            scroll={{ x: true }}
-            columns={columns} 
-            dataSource={orders} 
-            // loading={loading}
-            bordered
-            pagination={{ pageSize: 100}}
-        />
+        <div className='p-10'>
+            <div className='flex flex-wrap items-center justify-end mb-5'>
+                <Button type='primary' onClick={() => setOpen(true)}>Sửa Size Chart</Button>
+            </div>
+            <Table 
+                rowSelection={{
+                    type: 'checkbox',
+                    ...rowSelection,
+                }}
+                scroll={{ x: true }}
+                columns={columns} 
+                dataSource={tableData} 
+                // loading={loading}
+                bordered
+                pagination={{ pageSize: 100}}
+                rowKey={(record) => record.request_id}
+            />
+
+            <Modal
+                title="Size Chart"
+                open={open}
+                onCancel={() => setOpen(false)}
+                width={1000}
+                footer={false}
+            >
+                <Form
+                    name="basic"
+                    onFinish={handleUpdateSizeChart}
+                    onFinishFailed={() => {}}
+                >
+                    <Table dataSource={dataSizeChartConvert} columns={columnsSizeChart} bordered pagination={false} />
+                    <Form.Item className='text-right mt-10'>
+                        <Button type='primary' htmlType="submit">Update</Button>
+                    </Form.Item>
+                </Form>
+            </Modal>
+        </div>
     )
 }
  

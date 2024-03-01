@@ -65,7 +65,6 @@ export const useShopsOrder = create((set) => ({
 
   getAllCombine: async (shopId, onSuccess = () => {}, onFail = () => {}) => {
     try {
-      // set({ loading: true })
       const response = await RepositoryRemote.orders.getAllCombine(shopId)
       set({ combineList: response.data.data.data})
       onSuccess(response.data)
@@ -73,7 +72,6 @@ export const useShopsOrder = create((set) => ({
       console.log('error: ', error);
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }
-    set({ loadingGetInfo: false })
   },
 
   confirmCombine: async (shopId, body, onSuccess = () => {}, onFail = () => {}) => {
@@ -96,11 +94,13 @@ export const useShopsOrder = create((set) => ({
 
   shippingService: async (shopId, body, onSuccess = () => {}, onFail = () => {}) => {
     try {
+      set({ loading : true})
       const response = await RepositoryRemote.orders.shippingService(shopId, body)
       set({ shippingServiceInfo : response.data })
       onSuccess(response.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }
+    set({ loading : false})
   },
 }))

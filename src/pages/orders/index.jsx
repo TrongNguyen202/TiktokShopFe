@@ -209,16 +209,6 @@ const Orders = () => {
   const rowSelection = {
     onChange: (_, selectedRows) => {
       const selectedRowsPackageId = selectedRows.map(item => item.package_list[0].package_id)
-      // const seen = new Set();
-      // const packageSelect = selectedRowsPackageId.map(item => {
-      //     if (!seen.has(item)) {
-      //         seen.add(item);
-      //         return item;
-      //     }
-      //     return null;
-      // }).filter(item => item !== null);
-
-      // console.log('selectedRowsPackageId: ', selectedRowsPackageId);
       setOrderSelected(selectedRowsPackageId)
     },
     getCheckboxProps: (record) => ({
@@ -369,8 +359,6 @@ const Orders = () => {
     getAllOrders(shopId, onSuccess, onFail);
   }, []);
 
-  console.log('orderSelected: ', orderSelected);
-
   return (
     <div className="p-3 md:p-10">
       {contextHolder}
@@ -398,6 +386,7 @@ const Orders = () => {
         loading={loading} 
         bordered
         pagination={{ pageSize: 100}}
+        rowKey={record => record.package_list[0]?.package_id}
       />
       <Modal
         title="Combine"

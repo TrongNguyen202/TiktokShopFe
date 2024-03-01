@@ -89,45 +89,45 @@ export const OrderPackageWeightSize = [
   {
     name: "loại 1",
     items: [
-      {"S": "0.3", "size": "9x9x2" },
-      {"M": "0.375", "size": "9x9x2" },
-      {"L": "0.4375", "size": "9x9x2" },
-      {"XL": "0.45", "size": "10x10x3"},
-      {"2XL": "0.5625", "size": "10x10x3"},
-      {"3XL": "0.5625", "size": "10x10x3"},
+      {"name": "S", "weight": "0.3", "size": "9x9x2" },
+      {"name": "M", "weight": "0.375", "size": "9x9x2" },
+      {"name": "L", "weight": "0.4375", "size": "9x9x2" },
+      {"name": "XL", "weight": "0.45", "size": "10x10x3"},
+      {"name": "2XL", "weight": "0.5625", "size": "10x10x3"},
+      {"name": "3XL", "weight": "0.5625", "size": "10x10x3"}
     ]
   },
   {
     name: "T-shirt",
     items: [
-      {"S": "0.3", "size": "9x9x2" },
-      {"M": "0.375", "size": "9x9x2" },
-      {"L": "0.4375", "size": "9x9x2" },
-      {"XL": "0.45", "size": "10x10x3"},
-      {"2XL": "0.5625", "size": "10x10x3"},
-      {"3XL": "0.5625", "size": "10x10x3"},
+      {"name": "S", "weight": "0.3", "size": "9x9x2" },
+      {"name": "M", "weight": "0.375", "size": "9x9x2" },
+      {"name": "L", "weight": "0.4375", "size": "9x9x2" },
+      {"name": "XL", "weight": "0.45", "size": "10x10x3"},
+      {"name": "2XL", "weight": "0.5625", "size": "10x10x3"},
+      {"name": "3XL", "weight": "0.5625", "size": "10x10x3"},
     ]
   },
   {
     name: "Sweatshirt",
     items: [
-      {"S": "1", "size": "9x9x2" },
-      {"M": "1.25", "size": "9x9x2" },
-      {"L": "1.3125", "size": "9x9x2" },
-      {"XL": "1.375", "size": "10x10x3"},
-      {"2XL": "1.4375", "size": "10x10x3"},
-      {"3XL": "1.5625", "size": "10x10x3"},
+      {"name": "S", "weight": "1", "size": "9x9x2" },
+      {"name": "M", "weight": "1.25", "size": "9x9x2" },
+      {"name": "L", "weight": "1.3125", "size": "9x9x2" },
+      {"name": "XL", "weight": "1.375", "size": "10x10x3"},
+      {"name": "2XL", "weight": "1.4375", "size": "10x10x3"},
+      {"name": "3XL", "weight": "1.5625", "size": "10x10x3"},
     ]
   },
   {
     name: "Hoodie",
     items: [
-      {"S": "1", "size": "9x9x2" },
-      {"M": "1.25", "size": "9x9x2" },
-      {"L": "1.3125", "size": "9x9x2" },
-      {"XL": "1.375", "size": "10x10x3"},
-      {"2XL": "1.4375", "size": "10x10x3"},
-      {"3XL": "1.5625", "size": "10x10x3"},
+      {"name": "S", "weight": "1", "size": "9x9x2" },
+      {"name": "M", "weight": "1.25", "size": "9x9x2" },
+      {"name": "L", "weight": "1.3125", "size": "9x9x2" },
+      {"name": "XL", "weight": "1.375", "size": "10x10x3"},
+      {"name": "2XL", "weight": "1.4375", "size": "10x10x3"},
+      {"name": "3XL", "weight": "1.5625", "size": "10x10x3"},
     ]
   }
 ]
