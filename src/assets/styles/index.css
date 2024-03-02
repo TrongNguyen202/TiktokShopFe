@@ -24,3 +24,10 @@ input::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+/* 
+body .ant-table-wrapper .ant-table.ant-table-bordered >.ant-table-container,
+body table,
+body table tr th,
+body table tr td {
+  border-color: #c3c3c3 !important;
+} */

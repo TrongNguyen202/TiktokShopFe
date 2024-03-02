@@ -12,7 +12,7 @@ import OrderGetToShipInfo from "./OrderGetToShipInfo";
 const OrdersProcessLabel = ({changeNextStep, toShipInfoData}) => {
     const shopId = getPathByIndex(2)
     const location = useLocation()
-    const { labels, orders } = location.state
+    const { labels, shippingDoc } = location.state
     const [stepProcessLabel, setStepProcessLabel] = useState(1)
     const [labelSelected, setLabelSelected] = useState([])
     const [labelSearch, setLabelSearch] = useState([])
@@ -20,13 +20,7 @@ const OrdersProcessLabel = ({changeNextStep, toShipInfoData}) => {
     const [messageApi, contextHolder] = message.useMessage();
     const { getLabelsById, getToShipInfo, toShipInfo, uploadLabelToDriver, loading, loadingGetInfo } = useShopsOrder((state) => state)
 
-    const data = orders.map((order, index) => (
-        {
-            key: index,
-            order_id: order.order_id,
-            label: labels[index]
-        }
-    ))
+    console.log('shippingDoc: ', shippingDoc);
 
     const columns = [
         {
@@ -36,8 +30,9 @@ const OrdersProcessLabel = ({changeNextStep, toShipInfoData}) => {
             render: (_, record, index) => index + 1
         },
         {
-          title: 'Order ID',
-          dataIndex: 'order_id'
+          title: 'Package ID',
+          dataIndex: 'package_id',
+          render: (_, record) => record.order_list.package_id
         },
         {
           title: 'Label URL',
@@ -48,6 +43,7 @@ const OrdersProcessLabel = ({changeNextStep, toShipInfoData}) => {
 
     const rowSelection = {
         onChange: (_, selectedRows) => {
+            console.log('selectedRows: ', selectedRows)
             setLabelSelected(selectedRows)
         },
         getCheckboxProps: (record) => ({
@@ -98,19 +94,6 @@ const OrdersProcessLabel = ({changeNextStep, toShipInfoData}) => {
         
     }
 
-    const dataLabelProcessTest = {
-        "order_documents": [
-            {
-                "order_id": "576574955557261378",
-                "doc_url": "https://utfs.io/f/69e037b2-c448-49eb-8958-6c1ceb21270c-goim43.pdf"
-            },
-            {
-                "order_id": "576579276613062722",
-                "doc_url": "https://utfs.io/f/242db5cd-efae-48e9-aa98-a8677e4e7d22-1tv8vr.pdf"
-            }
-        ]
-    }
-
     const handleBack = () => {
         setStepProcessLabel(1)
         setLabelSelected([])
@@ -120,13 +103,15 @@ const OrdersProcessLabel = ({changeNextStep, toShipInfoData}) => {
         toShipInfoData(toShipInfo)
     }, [toShipInfo])
 
+    console.log('labelSelected: ', labelSelected)
+
     return (
         <div className="p-3 md:p-10">
             {contextHolder}
             {stepProcessLabel === 1 &&
                 <>
                     <div className="mb-3 text-start">
-                        <SectionTitle title='Danh sách label' count={labels.length}/>
+                        <SectionTitle title='Danh sách label' count={shippingDoc.length}/>
                         <p><i>(Vui lòng tick vào ô để chọn label cần xử lý)</i></p>
                         {labelSelected.length > 0 && 
                             <Button type="primary" onClick={handlePushToDriver} className="mt-3">
@@ -140,13 +125,14 @@ const OrdersProcessLabel = ({changeNextStep, toShipInfoData}) => {
                         rowSelection={{
                             type: 'checkbox',
                             ...rowSelection,
-                    }}     
-                    scroll={{ x: true }}               
+                        }}     
+                        scroll={{ x: true }}               
                         columns={columns}
-                        dataSource={data}
+                        dataSource={shippingDoc}
                         bordered
-                        pagination={{ position: ['none'] }}
+                        pagination={false}
                         loading={loading}
+                        rowKey={(record) => record.order_list.package_id}
                     />
                 </>
             }

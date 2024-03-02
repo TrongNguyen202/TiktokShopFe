@@ -1,16 +1,17 @@
-import { DownOutlined, LoadingOutlined, MessageOutlined, SearchOutlined } from "@ant-design/icons";
-import { Button, Image, Popover, Space, Spin, Table, Tag, Tooltip } from "antd";
+import { DownOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Image, Popover, Space, Spin, Table, Tag, Tooltip, Modal, message } from "antd";
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 import { statusOrder } from "../../constants/index";
 import { useShopsOrder } from "../../store/ordersStore";
-import { getPathByIndex, IntlNumberFormat } from "../../utils";
+import { getPathByIndex } from "../../utils";
 import { formatDate } from "../../utils/date";
 
 import { DatePicker } from 'antd';
 import dayjs from "dayjs";
 import PageTitle from "../../components/common/PageTitle";
+import OrderCombinable from "./OrderCombinable"
 
 const { RangePicker } = DatePicker;
 const rangePresets = [
@@ -23,16 +24,18 @@ const rangePresets = [
   // { label: "1 năm trước", value: [dayjs().add(-365, "d"), dayjs()] },
 ];
 
-
 const Orders = () => {
   const shopId = getPathByIndex(2)
   const navigate = useNavigate()
+  const location = useLocation()
   const searchInput = useRef(null);
+  const [open, setOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
-  console.log('searchText: ', searchText);
-  const [searchedColumn, setSearchedColumn] = useState('');
   const [orderSelected, setOrderSelected] = useState([])
-  const { orders, buyLabels, getAllOrders, loading } = useShopsOrder((state) => state)
+  const [searchedColumn, setSearchedColumn] = useState('');
+  const [messageApi, contextHolder] = message.useMessage();
+  const [dataCombineConfirm, setDataCombineConfirm] = useState([])
+  const { orders, getAllOrders, getAllCombine, combineList, createLabel, shippingService, loading } = useShopsOrder((state) => state)
   const orderDataTable = orders.map(item => (
     {
       ...item,
@@ -40,11 +43,31 @@ const Orders = () => {
     }
   ))
 
+  function sortByPackageId(arr) {
+    const grouped = arr.reduce((acc, item) => {
+        const key = item.package_list.length > 0 ? item.package_list[0].package_id : null
+        if (!acc[key]) {
+            acc[key] = [];
+        }
+        acc[key].push(item);
+        return acc;
+    }, {});
+
+    const sortedGroups = Object.values(grouped).sort((a, b) => {
+        if (a[0].package_id < b[0].package_id) return -1;
+        if (a[0].package_id > b[0].package_id) return 1;
+        return 0;
+    });
+
+    const sortedArray = [].concat(...sortedGroups);      
+    return sortedArray;
+  }
+
   const renderListItemProduct = (record) => {
     const { item_list } = record;
     return item_list.map((item, index) => {
       return (
-        <div>
+        <div key={index}>
           <div className="flex justify-between items-center gap-3 mt-3 w-[300px]">
             <div className="flex gap-2">
               <div className="flex-1">
@@ -84,7 +107,6 @@ const Orders = () => {
     setSearchText(dateStrings)
     setSearchedColumn(dataIndex)
   };
-
 
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
@@ -150,13 +172,75 @@ const Orders = () => {
     render: (text) => formatDate(Number(text), "DD/MM/YYYY, hh:mm:ss a")
   });
 
+  const handleGetAllCombine = () => {
+    const onSuccess = (res) => {
+      if (res && res.data.data.total !== 0) {
+        setOpen(true)
+      } else {
+        messageApi.open({
+          type: 'warning',
+          content: 'Không tìm thấy order nào có thể gộp',
+        });
+      }
+    }
+
+    const onFail = (err) => {
+      console.log(err);
+    }
+
+    getAllCombine(shopId, onSuccess, onFail)
+  }
+
+  const handleOpenModal = (isOpenModal) => {
+    setOpen(isOpenModal)
+    getAllOrders(shopId);
+  }
+
+  const handleCreateLabels = () => {
+    const onSuccess = (res) => {
+      if (res) {
+        let dataUpdate = [...res];
+        const promises = dataUpdate.map((item, index) => {
+          return new Promise((resolve, reject) => {
+            const packageId = {
+              package_id: item.data.package_id
+            };
+            const onSuccessShipping = (resShipping) => {
+              if (resShipping) {
+                const dataCreateLabel = dataUpdate.find(resItem => resItem.data.package_id === packageId.package_id);
+                dataCreateLabel.data.shipping_provider = resShipping.data[0].name;
+                dataCreateLabel.data.shipping_provider_id = resShipping.data[0].id;
+                dataUpdate[index] = dataCreateLabel;
+                resolve();
+              }
+            };
+            shippingService(shopId, packageId, onSuccessShipping, (err) => {
+              console.log(err);
+              reject(err);
+            });
+          });
+        });
+  
+        Promise.all(promises)
+        .then(() => {
+          navigate(`/shops/${shopId}/orders/create-label`, { state: { combine: dataUpdate } });
+        })
+        .catch((error) => {
+          console.error('Error updating data:', error);
+        });
+      }
+    };
+    createLabel(shopId, orderSelected, onSuccess, () => {});
+  };
+  
   const rowSelection = {
     onChange: (_, selectedRows) => {
-      setOrderSelected(selectedRows)
+      const selectedRowsPackageId = selectedRows.map(item => item.package_list[0].package_id)
+      setOrderSelected(selectedRowsPackageId)
     },
     getCheckboxProps: (record) => ({
-      disabled: [140, 130, 122, 121].includes(record.order_status)
-  })
+      disabled: [140, 130, 122, 121, 105, 100].includes(record.order_status)
+    })
   };
 
   const columns = [
@@ -166,6 +250,36 @@ const Orders = () => {
       key: "index",
       align: 'center',
       render: (_, item, i) => <p>{i + 1}</p>,
+    },
+    {
+      title: "Package ID",
+      dataIndex: ["package_list", "package_id"],
+      key: "package_id",
+      align: 'center',
+      render: (_, record) => record.package_list.length > 0 ? record.package_list[0].package_id : "Hiện chưa có package ID",
+      onCell: (record, index) => {
+        const rowSpanData = orderDataTable.filter(item => item.package_list.length > 0 && record.package_list.length > 0 && item.package_list[0].package_id === record.package_list[0].package_id)
+        const orderIdRowSpanData = rowSpanData.map(item => {
+          return (
+            {
+              ...item,
+              order_position: item.order_id === record.order_id ? index : null
+            }
+          )
+        })
+
+        if (rowSpanData.length > 1) {
+          if (index === orderIdRowSpanData[0].order_position) {
+            return {
+              rowSpan: rowSpanData.length,
+            };
+          } else {
+            return {
+              rowSpan: 0,
+            };
+          }          
+        }
+      },
     },
     {
       title: "Mã đơn",
@@ -183,22 +297,7 @@ const Orders = () => {
             {formatDate(record?.update_time * 1000, "DD/MM/YYYY, h:mm:ss a")}{" "}
           </p>
         </Link>
-      ),
-    },
-    {
-      title: "Người mua",
-      dataIndex: "buyer_uid",
-      key: "buyer_uid",
-      render: (_, record) => (
-        <div className="flex items-center gap-1">
-          <p className="ml-2">{record?.buyer_uid}</p>
-          {record?.buyer_message && (
-            <Tooltip title={record?.buyer_message} className="cursor-pointer">
-              <MessageOutlined className="text-[12px]" />
-            </Tooltip>
-          )}
-        </div>
-      ),
+      )
     },
     {
       title: "Sản phẩm",
@@ -257,49 +356,37 @@ const Orders = () => {
     },
     {
       title: "Vận chuyển",
-      dataIndex: "delivery_option",
-      key: "delivery_option",
-    },
-    {
-      title: "Tổng",
-      dataIndex: "payment_info",
-      key: "payment_info",
-      align: 'center',
-      render: (_, record) => IntlNumberFormat(record?.payment_info?.currency, 'currency', 5, record?.payment_info?.total_amount)
-    },
+      dataIndex: "shipping_provider",
+      key: "shipping_provider"
+    }
   ];
 
-  const handleGetLabels = () => {
-    const ordersId = {
-      order_ids: orderSelected.map(item => item.order_id)
-    }
-
-    const onSuccess = (res) => {
-      if (res.doc_urls) {
-        navigate(`/shops/${shopId}/orders/fulfillment`, { state: { labels:  res.doc_urls, orders: orderSelected} })
-      }
-    }
-    buyLabels(shopId, ordersId, onSuccess, (err) => console.log(err))
-  }
-
   useEffect(() => {
+    if (location.state) {
+      setStartFulfillment(location.state.startFulfillment)
+    }
     const onSuccess = (res) => {
-      ;
+      console.log(res);
     };
 
     const onFail = (err) => {
       console.log(err);
     };
+
     getAllOrders(shopId, onSuccess, onFail);
-  }, []);
+  }, [location.state]);
 
   return (
     <div className="p-3 md:p-10">
+      {contextHolder}
       <PageTitle title="Danh sách đơn hàng" showBack count={orders?.length ? orders?.length : '0'}/>
-      {orderSelected.length > 0 && <Button type="primary" className="mb-3" onClick={handleGetLabels}>
-        Bắt đầu Fulfillment &nbsp;<span>({orderSelected.length})</span>
-        {loading && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
-      </Button>}
+      <Space className="mb-3">
+        <Button type="primary" onClick={handleGetAllCombine}>Get All Combinable</Button>
+        {orderSelected.length > 0 && <Button type="primary" onClick={handleCreateLabels}>
+          Create Label &nbsp;<span>({orderSelected.length})</span>
+          {loading && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
+        </Button>}
+      </Space>
       <Table 
         rowSelection={{
           type: 'checkbox',
@@ -307,10 +394,22 @@ const Orders = () => {
         }}
         scroll={{ x: true }}
         columns={columns} 
-        dataSource={orderDataTable} 
+        dataSource={sortByPackageId(orderDataTable)} 
         loading={loading} 
         bordered
+        pagination={{ pageSize: 100}}
+        rowKey={record => record.package_list[0]?.package_id}
       />
+      <Modal
+        title="Combine"
+        centered
+        open={open}
+        onCancel={() => setOpen(false)}
+        width={1000}
+        footer={false}
+      >
+        <OrderCombinable data={combineList} popOverContent={renderListItemProduct} dataOrderDetail={orderDataTable} isOpenModal={handleOpenModal} />
+      </Modal>
     </div>
   );
 };
