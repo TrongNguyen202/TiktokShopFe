@@ -49,8 +49,9 @@ const ProductMedia = ({
   isProductCreate,
   setFileList,
   fileList,
+  sizeChart,
+  setSizeChart,
 }) => {
-  console.log('fileList: ', fileList);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
@@ -67,7 +68,15 @@ const ProductMedia = ({
   const mediaUpload = mediaConcat && removeDuplicates(mediaConcat, "uid");
 
   useEffect(() => {
-    if (!isProductCreate) setFileList(mediaUpload || []);
+    if (!isProductCreate) {
+      setFileList(mediaUpload || [])
+      setSizeChart(productData?.size_chart ? [{
+        uid: productData?.size_chart?.id,
+        status: "done",
+        url: productData?.size_chart?.url_list[0],
+
+      }] : [])
+    };
     // imgBase64(productData?.images)
   }, [productData]);
 
@@ -88,11 +97,17 @@ const ProductMedia = ({
     imgBase64(newFileList);
   };
 
+  const onChangeSizeChart = ({ fileList: newFileList }) => {
+    console.log('newFileList: ', newFileList);
+    setSizeChart(newFileList);
+  };
+
   const sensor = useSensor(PointerSensor, {
     activationConstraint: {
       distance: 10,
     },
   });
+
   const onDragEnd = ({ active, over }) => {
     if (active.id !== over?.id) {
       setFileList((prev) => {
@@ -143,6 +158,42 @@ const ProductMedia = ({
             src={previewImage}
           />
         </Modal>
+      </Form.Item>
+
+      <ProductSectionTitle title="Ảnh size chart" />
+      <Form.Item name="sizeChart">
+        <Upload
+          listType="picture-card"
+          fileList={sizeChart}
+          onPreview={handlePreview}
+          onChange={onChangeSizeChart}
+          beforeUpload={() => false}
+          previewFile={getBase64}
+        // multiple
+        // itemRender={(originNode, file) => (
+        //   <DraggableUploadListItem originNode={originNode} file={file} />
+        // )}
+        >
+          {sizeChart.length ? null : (
+            <button style={{ border: 0, background: "none" }} type="button">
+              <PlusOutlined />
+              <div style={{ marginTop: 8 }}> Upload</div>
+            </button>
+          )}
+        </Upload>
+        {/* <input type='file'/> */}
+        {/* <Modal
+          open={previewOpen}
+          title={previewTitle}
+          footer={null}
+          onCancel={handleCancel}
+        >
+          <img
+            alt={previewTitle}
+            style={{ width: "100%" }}
+            src={previewImage}
+          />
+        </Modal> */}
       </Form.Item>
     </>
   );

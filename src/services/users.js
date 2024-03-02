@@ -12,8 +12,13 @@ const updateUser = (data) => {
   return callApi(`/groups/change_user`, 'post', data)
 }
 
+const createUser = (data) => {
+  return callApi(`/groups/add_user_group`, 'post', data)
+}
+
 export const users = {
   getShopByUser,
   getUserInfor,
-  updateUser
+  updateUser,
+  createUser
 }

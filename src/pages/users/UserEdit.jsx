@@ -75,7 +75,7 @@ const UserEdit = () => {
             <Spin spinning={loading}>
                 <>
                     {contextHolder}
-                    <PageTitle title="Sửa thông tin nhân viên" showBack />
+                    <PageTitle title="Sửa thông tin nhân viên" showBack nav='' />
                     <Form layout="vertical" onFinish={onFinish} form={form}>
                         <Row gutter={30}>
                             <Col span={12}>

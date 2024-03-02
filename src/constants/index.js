@@ -85,6 +85,7 @@ export const variationsOption = [
   { value: '7322572932260136746', label: 'Size' },
 ]
 
+
 export const OrderPackageWeightSize = [
   {
     name: "loại 1",
@@ -131,3 +132,10 @@ export const OrderPackageWeightSize = [
     ]
   }
 ]
+
+export const permission = {
+  ADMIN: 0, // Admin
+  MANAGER: 1, // Manager
+  SELLER: 2 // Seller
+}
+

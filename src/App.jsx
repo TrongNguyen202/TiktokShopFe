@@ -8,7 +8,6 @@ import {
 } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Loading from "./components/loading/index.jsx";
 import { PATH } from "./constants/paths";
 import MainLayout from "./layouts/mainLayout/MainLayout";
 import Login from "./pages/login/index.jsx";
@@ -17,6 +16,7 @@ import Template from "./pages/templates/index.jsx";
 import VoucherForm from "./pages/vouchers/VoucherForm";
 import { useBadgesStore } from "./store/badgesStore";
 import { getToken } from "./utils/auth";
+import Loading from "./components/loading";
 
 const Sellers = lazy(() => import("./pages/sellers/index.jsx"));
 const Home = lazy(() => import("./pages/home/index.jsx"));

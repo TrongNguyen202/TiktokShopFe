@@ -232,9 +232,25 @@ export default function EditPriceForm({
     };
   });
 
+  const synchronizeQuantity = (data) => {
+    const maxQuantities = data.reduce((acc, item) => {
+      if (!acc[item.type] || Number(item.quantity) > Number(acc[item.type])) {
+        acc[item.type] = Number(item.quantity);
+      }
+      return acc;
+    }, {});
+
+    const updatedData = data.map(item => ({
+      ...item,
+      quantity: maxQuantities[item.type].toString(),
+    }));
+
+    return updatedData;
+  }
+
   const handleSaveDataSource = () => {
-    setDataSource(dataSource2.current);
-    onSavePrice(dataSource2.current);
+    setDataSource(synchronizeQuantity(dataSource2.current));
+    onSavePrice(synchronizeQuantity(dataSource2.current));
     setShowModalPrice(false);
   };
 

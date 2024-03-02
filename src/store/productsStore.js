@@ -1,23 +1,26 @@
 import { create } from 'zustand'
 import { RepositoryRemote } from '../services'
 
-export const useProductsStore = create((set) => ({
-  products: {},
+export const useProductsStore = create((set, get) => ({
+  products: [],
   productById: {},
   infoTable: {},
   newProduct: {},
   loading: false,
-  getAllProducts: async (id, onSuccess = () => {}, onFail = () => {}) => {
+  getAllProducts: async (id, page_number,onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true })
-      const response = await RepositoryRemote.products.getAllProducts(id)
-      set({ products: response.data.data.products })
-      set({ infoTable: response.data.data })
+      const response = await RepositoryRemote.products.getAllProducts(id,page_number)
+      set({ products: [...get().products,...response.data.data.products] })
+      set({ infoTable: response.data })
       onSuccess(response.data.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }
     set({ loading: false })
+  },
+  clearProducts: () => {
+    set({ products: [] });
   },
   getProductsById: async (shopId, productId, onSuccess = () => {}, onFail = () => {}) => {
     try {
@@ -46,7 +49,11 @@ export const useProductsStore = create((set) => ({
       const response = await RepositoryRemote.products.createProductList(shopId, params)
       onSuccess()
     } catch (error) {
-      onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo sản phẩm!')
+      if (error?.response?.data?.message === 'required qualification is missing') {
+        onFail('Wrong category, please choose another category')
+      } else {
+        onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo sản phẩm!')
+      }
     }
     set({ loading: false })
   },
@@ -67,7 +74,11 @@ export const useProductsStore = create((set) => ({
       set({ newProduct: response.data.data })
       onSuccess(response.data)
     } catch (error) {
-      onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo sản phẩm!')
+      if (error?.response?.data?.message === 'required qualification is missing') {
+        onFail('Wrong category, please choose another category')
+      } else {
+        onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo sản phẩm!')
+      }
     }
     set({ loading: false })
   },
