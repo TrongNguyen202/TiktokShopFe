@@ -5,10 +5,6 @@ const getAllOrders = (id) => {
     `/shops/${id}/orders/detail`, 'get')
 }
 
-const buyLabels = (id, body) => {
-  return callApi(`/shops/${id}/buy_lebal`, 'post', body)
-}
-
 const getLabelsById = (orderId) => {
   return callApi(`/shops/orders/${orderId}/search_file`, 'get')
 }
@@ -37,10 +33,18 @@ const shippingService = (shopId, body) => {
   return callApi(`/shops/${shopId}/shipping_service`, 'post', body)
 }
 
+const buyLabel = (shopId, body) => {
+  return callApi(`/shops/${shopId}/packages/buy_label`, 'post', body)
+}
+
+const getShippingDoc = (id, body) => {
+  return callApi(`/shops/${id}/get_shipping_doc_package_ids`, 'post', body)
+}
+
+
 
 export const orders = {
     getAllOrders,
-    buyLabels,
     getLabelsById,
     uploadLabelToDriver,
     getToShipInfo,
@@ -48,4 +52,6 @@ export const orders = {
     confirmCombine,
     createLabel,
     shippingService,
+    buyLabel,
+    getShippingDoc,
 }

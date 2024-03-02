@@ -1,11 +1,11 @@
-import { DownOutlined, LoadingOutlined, SearchOutlined, EditOutlined } from "@ant-design/icons";
+import { DownOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
 import { Button, Image, Popover, Space, Spin, Table, Tag, Tooltip, Modal, message } from "antd";
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 import { statusOrder } from "../../constants/index";
 import { useShopsOrder } from "../../store/ordersStore";
-import { getPathByIndex, IntlNumberFormat } from "../../utils";
+import { getPathByIndex } from "../../utils";
 import { formatDate } from "../../utils/date";
 
 import { DatePicker } from 'antd';
@@ -24,10 +24,10 @@ const rangePresets = [
   // { label: "1 năm trước", value: [dayjs().add(-365, "d"), dayjs()] },
 ];
 
-
 const Orders = () => {
   const shopId = getPathByIndex(2)
   const navigate = useNavigate()
+  const location = useLocation()
   const searchInput = useRef(null);
   const [open, setOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
@@ -35,7 +35,7 @@ const Orders = () => {
   const [searchedColumn, setSearchedColumn] = useState('');
   const [messageApi, contextHolder] = message.useMessage();
   const [dataCombineConfirm, setDataCombineConfirm] = useState([])
-  const { orders, buyLabels, getAllOrders, getAllCombine, combineList, createLabel, shippingService, shippingServiceInfo, loading } = useShopsOrder((state) => state)
+  const { orders, getAllOrders, getAllCombine, combineList, createLabel, shippingService, loading } = useShopsOrder((state) => state)
   const orderDataTable = orders.map(item => (
     {
       ...item,
@@ -199,13 +199,40 @@ const Orders = () => {
   const handleCreateLabels = () => {
     const onSuccess = (res) => {
       if (res) {
-        console.log('res: ', res)
-        navigate(`/shops/${shopId}/orders/create-label`, {state: { orders: res }})
+        let dataUpdate = [...res];
+        const promises = dataUpdate.map((item, index) => {
+          return new Promise((resolve, reject) => {
+            const packageId = {
+              package_id: item.data.package_id
+            };
+            const onSuccessShipping = (resShipping) => {
+              if (resShipping) {
+                const dataCreateLabel = dataUpdate.find(resItem => resItem.data.package_id === packageId.package_id);
+                dataCreateLabel.data.shipping_provider = resShipping.data[0].name;
+                dataCreateLabel.data.shipping_provider_id = resShipping.data[0].id;
+                dataUpdate[index] = dataCreateLabel;
+                resolve();
+              }
+            };
+            shippingService(shopId, packageId, onSuccessShipping, (err) => {
+              console.log(err);
+              reject(err);
+            });
+          });
+        });
+  
+        Promise.all(promises)
+        .then(() => {
+          navigate(`/shops/${shopId}/orders/create-label`, { state: { combine: dataUpdate } });
+        })
+        .catch((error) => {
+          console.error('Error updating data:', error);
+        });
       }
-    }
-    createLabel(shopId, orderSelected, onSuccess, () => {})
-  }
-
+    };
+    createLabel(shopId, orderSelected, onSuccess, () => {});
+  };
+  
   const rowSelection = {
     onChange: (_, selectedRows) => {
       const selectedRowsPackageId = selectedRows.map(item => item.package_list[0].package_id)
@@ -329,25 +356,15 @@ const Orders = () => {
     },
     {
       title: "Vận chuyển",
-      dataIndex: "delivery_option",
-      key: "delivery_option"
+      dataIndex: "shipping_provider",
+      key: "shipping_provider"
     }
   ];
 
-  // const handleGetLabels = () => {
-  //   const ordersId = {
-  //     order_ids: orderSelected.map(item => item.order_id)
-  //   }
-
-  //   const onSuccess = (res) => {
-  //     if (res.doc_urls) {
-  //       navigate(`/shops/${shopId}/orders/fulfillment`, { state: { labels:  res.doc_urls, orders: orderSelected} })
-  //     }
-  //   }
-  //   buyLabels(shopId, ordersId, onSuccess, (err) => console.log(err))
-  // }
-
   useEffect(() => {
+    if (location.state) {
+      setStartFulfillment(location.state.startFulfillment)
+    }
     const onSuccess = (res) => {
       console.log(res);
     };
@@ -357,7 +374,7 @@ const Orders = () => {
     };
 
     getAllOrders(shopId, onSuccess, onFail);
-  }, []);
+  }, [location.state]);
 
   return (
     <div className="p-3 md:p-10">
@@ -369,11 +386,6 @@ const Orders = () => {
           Create Label &nbsp;<span>({orderSelected.length})</span>
           {loading && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
         </Button>}
-        
-        {/* {orderSelected.length > 0 && <Button type="primary" onClick={handleGetLabels}>
-          Bắt đầu Fulfillment &nbsp;<span>({orderSelected.length})</span>
-          {loading && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
-        </Button>} */}
       </Space>
       <Table 
         rowSelection={{

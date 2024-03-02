@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Table, Popover, Image, Button, Modal, Form, Input, Radio, Space, Spin } from "antd";
-import { DownOutlined, EditOutlined } from "@ant-design/icons"
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Table, Popover, Image, Button, Modal, Form, Input, Radio, Space, Spin, message } from "antd";
+import { DownOutlined, EditOutlined,LoadingOutlined } from "@ant-design/icons"
 
 import { getPathByIndex } from "../../utils";
 import { OrderPackageWeightSize } from "../../constants"
@@ -10,12 +10,16 @@ import { useShopsOrder } from "../../store/ordersStore"
 
 const CreateLabel = () => {
     const location = useLocation()
-    const { orders } = location.state
+    const navigate = useNavigate();
+    const { combine } = location.state
     const shopId = getPathByIndex(2)
     const [open, setOpen] = useState(false)
+    const [startFulfillment, setStartFulfillment] = useState(false)
     const [shippingServiceData, setShippingServiceData] = useState([])
     const [dataSizeChart, setDataSizeChart] = useState(OrderPackageWeightSize)
-    const { shippingService, loading } = useShopsOrder(state => state)
+    const [buyLabelSelected, setBuyLabelSelected] = useState([])
+    const { buyLabel, shippingService, getShippingDoc, loading } = useShopsOrder(state => state)
+    const [messageApi, contextHolder] = message.useMessage();
     const dataSizeChartConvert = dataSizeChart.map(sizeChart => (
         sizeChart.items.map((item, index) => (
             {
@@ -27,24 +31,32 @@ const CreateLabel = () => {
     )).flat()
 
     const dataTableWeightSize = (data) => {
-        const labelItems = data.map(label => {
+        const labelItems = data.map((label, index) => {
             const orderList = label.data.order_info_list.map(order => {
                 const productList = order.sku_list.map(product => {
-                    const orderPackageList = dataSizeChart.find(orderPackage => product.sku_name.includes(orderPackage.name) || orderPackage.name === 'T-shirt').items
-                    const orderPackageSizeChart = orderPackageList.find(orderPackage => product.sku_name.includes(orderPackage.name) || orderPackageList[0])
-                    const orderPackageWeight = orderPackageSizeChart.weight * product.quantity
-                    const orderPackageSize = orderPackageSizeChart.size
+                    let orderPackageList = dataSizeChart.find(orderPackage => product.sku_name.includes(orderPackage.name))
+                    
+                    if (orderPackageList === undefined) {
+                        orderPackageList = dataSizeChart.find(orderPackage => orderPackage.name === 'T-shirt')
+                    }
+
+                    let orderPackageSizeChart = orderPackageList?.items.find(orderPackage => product.sku_name.includes(orderPackage.name) || orderPackageList[0])
+                    if (orderPackageSizeChart === undefined) {
+                        orderPackageSizeChart = dataSizeChart.find(orderPackage => orderPackage.name === 'T-shirt').items[0]
+                    }
+                    const orderPackageWeight = orderPackageSizeChart?.weight * product.quantity
+                    const orderPackageSize = orderPackageSizeChart?.size
                     return {orderPackageWeight, orderPackageSize}
                 })
                 
-                const sumWeight = productList.map(product => parseFloat(product.orderPackageWeight)).reduce((partialSum, current) => partialSum + current, 0).toFixed(6).replace(/0+$/, '')
-                const sumSize = order.sku_list.length > 1 ? "10x10x3".split('x') : productList[0].orderPackageSize.split('x')
+                const sumWeight = productList.map(product => parseFloat(product.orderPackageWeight)).reduce((partialSum, current) => partialSum + current, 0).toFixed(1)
+                const sumSize = order.sku_list.length > 1 ? "10x10x3".split('x') : productList[0]?.orderPackageSize?.split('x')
                 return {sumWeight, sumSize}  
             })
             
             const sumPackageCombine = {
-                package_weight: orderList.map(item => parseFloat(item.sumWeight)).reduce((partialSum, current) => partialSum + current, 0).toFixed(6).replace(/0+$/, ''),
-                package_size: orderList.length > 1 ? '10x10x3'.split('x') : orderList[0].sumSize.split('x')
+                package_weight: orderList.map(item => parseFloat(item.sumWeight)).reduce((partialSum, current) => partialSum + current, 0).toFixed(1),
+                package_size: orderList.length > 1 ? '10x10x3'.split('x') : orderList[0]?.sumSize
             }
             
             return (
@@ -57,13 +69,12 @@ const CreateLabel = () => {
         })
         return labelItems
     }
-    const dataTableConvert = dataTableWeightSize(orders)
+    const dataTableConvert = dataTableWeightSize(combine)
     const [tableData, setTableData] = useState(dataTableConvert)
-
     useEffect(() => {
-        const updatedTableData = dataTableWeightSize(orders)
+        const updatedTableData = dataTableWeightSize(combine)
         setTableData(updatedTableData)
-    }, [dataSizeChart]);
+    }, [combine, dataSizeChart]);
 
 
     const renderListItemProduct = (data) => {
@@ -211,9 +222,57 @@ const CreateLabel = () => {
 
     const rowSelection = {
         onChange: (_, selectedRows) => {
-          console.log('selectedRows: ', selectedRows)
+            setBuyLabelSelected(selectedRows)
         }
-    };    
+    }; 
+    
+    const handleBuyLabel = () => {
+        const dataBuyLabel = buyLabelSelected.map(item => (
+            {
+                dimension: {
+                    length: item.package_size[0],
+                    width: item.package_size[1],
+                    height: item.package_size[2]
+                  },
+                  dimension_unit: 2,
+                  package_id: item.data.package_id,
+                  shipping_service_id: item.data.shipping_provider_id,
+                  weight: item.package_weight,
+                  weight_unit: 2
+            }
+        ))
+
+        const onSuccess = (res) => {
+            messageApi.open({
+                type: 'success',
+                content: 'Mua label thành công',
+            })
+
+            setStartFulfillment(true)
+        }
+        buyLabel(shopId, dataBuyLabel, onSuccess, (err) => console.log(err))
+    }
+
+    const handleStartFulfillment = () => {
+        const packageIds = {
+            package_ids: buyLabelSelected.map(item => item.data.package_id)
+        }
+
+        const onSuccess = (res) => {
+          if (res) {
+            const shippingDocData = buyLabelSelected.map((item, index) => (
+                {
+                    order_list: item.data,
+                    label: res.doc_urls[index]
+                }
+            ))
+
+            navigate(`/shops/${shopId}/orders/fulfillment`, { state: { shippingDoc: shippingDocData } });
+          }
+        }
+    
+        getShippingDoc(shopId, packageIds, onSuccess, (err) => console.log(err))
+    }
 
     const columns = [
         {
@@ -373,7 +432,15 @@ const CreateLabel = () => {
 
     return (
         <div className='p-10'>
-            <div className='flex flex-wrap items-center justify-end mb-5'>
+            {contextHolder}
+            <div className='flex flex-wrap items-center justify-end gap-3 mb-5'>
+                {startFulfillment && <Button type='primary' onClick={handleStartFulfillment}>Bắt đầu Fulfillment</Button>}
+                {!startFulfillment && buyLabelSelected.length > 0 && 
+                    <Button type='primary' onClick={handleBuyLabel}>
+                        Mua Label &nbsp;<span>({buyLabelSelected.length})</span>
+                        {loading && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
+                    </Button>
+                }
                 <Button type='primary' onClick={() => setOpen(true)}>Sửa Size Chart</Button>
             </div>
             <Table 
@@ -384,7 +451,7 @@ const CreateLabel = () => {
                 scroll={{ x: true }}
                 columns={columns} 
                 dataSource={tableData} 
-                // loading={loading}
+                loading={loading}
                 bordered
                 pagination={{ pageSize: 100}}
                 rowKey={(record) => record.request_id}

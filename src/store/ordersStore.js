@@ -9,22 +9,12 @@ export const useShopsOrder = create((set) => ({
   shippingServiceInfo: [],
   loading: false,
   loadingGetInfo: false,
+  cancelTokenSource: null,
   getAllOrders: async (id, onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true })
       const response = await RepositoryRemote.orders.getAllOrders(id)
       set({ orders: response.data.data.order_list })
-      onSuccess(response.data.data)
-    } catch (error) {
-      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
-    }
-    set({ loading: false })
-  },
-  buyLabels: async (id, body, onSuccess = () => {}, onFail = () => {}) => {
-    try {
-      set({ loading: true })
-      const response = await RepositoryRemote.orders.buyLabels(id, body)
-      set({ labels: response.data.data })
       onSuccess(response.data.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
@@ -85,11 +75,13 @@ export const useShopsOrder = create((set) => ({
 
   createLabel: async (shopId, body, onSuccess = () => {}, onFail = () => {}) => {
     try {
+      set({ loading : true})
       const response = await RepositoryRemote.orders.createLabel(shopId, body)
       onSuccess(response.data.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }
+    set({ loading : false})
   },
 
   shippingService: async (shopId, body, onSuccess = () => {}, onFail = () => {}) => {
@@ -102,5 +94,28 @@ export const useShopsOrder = create((set) => ({
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }
     set({ loading : false})
+  },
+
+  buyLabel: async (shopId, body, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading : true})
+      const response = await RepositoryRemote.orders.buyLabel(shopId, body)
+      onSuccess(response.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading : false})
+  },
+
+  getShippingDoc: async (id, body, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.orders.getShippingDoc(id, body)
+      console.log('response: ', response.data.data);
+      onSuccess(response.data.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
   },
 }))
