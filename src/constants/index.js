@@ -84,3 +84,9 @@ export const variationsOption = [
   // { value: '100007', label: 'Size' },
   { value: '7322572932260136746', label: 'Size' },
 ]
+
+export const permission = {
+  ADMIN: 0, // Admin
+  MANAGER: 1, // Manager
+  SELLER: 2 // Seller
+}

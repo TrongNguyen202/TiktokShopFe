@@ -30,6 +30,7 @@ const ProductEdit = () => {
   const [skusData, setSkusData] = useState([]);
   const [imgBase64, setImgBase64] = useState([]);
   const [fileList, setFileList] = useState([]);
+  const [sizeChart, setSizeChart] = useState([]);
   const [attributeValues, setAttributeValues] = useState([]);
   const { getAllCategoriesIsLeaf, categoriesIsLeaf } = useCategoriesStore(
     (state) => state
@@ -134,6 +135,7 @@ const ProductEdit = () => {
         .map((item) => ({
           id: item.uid,
         })),
+      size_chart: sizeChart ? { id: sizeChart.uid } : null,
       imgBase64: getImageBase64(imgBase64),
       price: values.price,
       is_cod_open: false,
@@ -209,6 +211,8 @@ const ProductEdit = () => {
             imgBase64={handleImgBase64}
             setFileList={setFileList}
             fileList={fileList}
+            sizeChart={sizeChart}
+            setSizeChart={setSizeChart}
           />
         </div>
 

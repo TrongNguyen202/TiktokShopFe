@@ -25,6 +25,8 @@ const ProductCreate = () => {
   const [attributeValues, setAttributeValues] = useState([]);
   const [messageApi, contextHolder] = message.useMessage();
   const [fileList, setFileList] = useState([]);
+  const [sizeChart, setSizeChart] = useState([]);
+  console.log('sizeChart: 111111111', sizeChart);
   const { getAllCategoriesIsLeaf, categoriesIsLeaf } = useCategoriesStore(
     (state) => state
   );
@@ -49,6 +51,9 @@ const ProductCreate = () => {
       images: imgBase64?.map((item) =>
         item.thumbUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, "")
       ),
+      size_chart: {
+        img_id: sizeChart.length ? sizeChart[0].thumbUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, "") : "",
+      },
       package_dimension_unit: "imperial",
       package_height: values.package_height ? values.package_height : "",
       package_length: values.package_length ? values.package_length : "",
@@ -159,6 +164,8 @@ const ProductCreate = () => {
               isProductCreate
               setFileList={setFileList}
               fileList={fileList}
+              sizeChart={sizeChart}
+              setSizeChart={setSizeChart}
             />
           </div>
 

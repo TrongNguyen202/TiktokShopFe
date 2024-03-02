@@ -191,12 +191,50 @@ export default function Crawl() {
     });
   };
 
+  const convertDataProductsToSenPrints = () => {
+    const selectedProducts = productList.filter(
+      (product) => checkedItems[product.id]
+    );
+    console.log('selectedProducts: ', selectedProducts);
+
+    const convertImageLink = (images) => {
+      const imageObject = images.reduce((obj, link, index) => {
+        const key = `mockup_url_${index + 1}`;
+        obj[key] = link.url;
+        return obj;
+      }, {});
+      return imageObject;
+    };
+
+    return selectedProducts.map((product) => {
+      return {
+        campaign_name: product.title,
+        campaign_desc: "",
+        collection: "",
+        product_sku: "",
+        colors: "",
+        price: product.price,
+        ...convertImageLink(product.images),
+      };
+    });
+  };
+
   const handleExportExcel = () => {
     const data = convertDataProducts();
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
     XLSX.writeFile(wb, "productList.xlsx");
+    setCheckedItems([]);
+    setIsAllChecked(false);
+  };
+
+  const handleExportSenPrints = () => {
+    const data = convertDataProductsToSenPrints();
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+    XLSX.writeFile(wb, "senprints.xlsx");
     setCheckedItems([]);
     setIsAllChecked(false);
   };
@@ -241,6 +279,14 @@ export default function Crawl() {
           </div>
         </div>
         <div className="flex gap-2 items-center mt-5">
+          <Button
+            type="primary"
+            disabled={CountSelectedItems === 0}
+            icon={<DownloadOutlined />}
+            onClick={handleExportSenPrints}
+          >
+            Export SenPrints
+          </Button>
           <Button
             type="primary"
             disabled={CountSelectedItems === 0}

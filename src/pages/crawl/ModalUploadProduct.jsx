@@ -148,19 +148,18 @@ export default function ModalUploadProduct({
   const sanitizeTitles = (documents) => {
     const { badWords, suffixTitle } = templateJSON ?? {};
     return documents.map((doc) => {
-      const originalTitle = doc.title;
-      let title = originalTitle.toLowerCase();
+      let title = doc.title;
 
-      if (badWords && badWords.length === 0) {
+      if (badWords && badWords.length > 0) {
         badWords.forEach((word) => {
-          title = title.replace(word.toLowerCase(), "");
+          const regex = new RegExp(word, 'gi');
+          title = title.replace(regex, "");
         });
       }
-
-      doc.title = originalTitle.replace(originalTitle, title);
-      doc.title = doc.title + (suffixTitle || "");
-      // doc.title = title;
-
+      if (suffixTitle) {
+        title += ` ${suffixTitle}`;
+      }
+      doc.title = title.trim();
       return doc;
     });
   };
@@ -219,6 +218,7 @@ export default function ModalUploadProduct({
       package_width,
       description,
       types,
+      size_chart
     } = templateJSON ?? {};
     const dataSubmit = {
       excel: sanitizeTitles(productsJSON),
@@ -231,6 +231,7 @@ export default function ModalUploadProduct({
       is_cod_open,
       skus: convertDataSku(),
       description,
+      size_chart
     };
     console.log('dataSubmit: ', dataSubmit);
     const onSuccess = () => {

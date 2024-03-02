@@ -223,20 +223,18 @@ const MultiAddProducts = () => {
   const sanitizeTitles = (documents) => {
     const { badWords, suffixTitle } = templateJSON ?? {};
     return documents.map((doc) => {
-      const originalTitle = doc.title;
-      let title = originalTitle.toLowerCase();
+      let title = doc.title;
 
-      if (badWords && badWords.length === 0) {
+      if (badWords && badWords.length > 0) {
         badWords.forEach((word) => {
-          title = title.replace(word.toLowerCase(), "");
+          const regex = new RegExp(word, 'gi');
+          title = title.replace(regex, "");
         });
       }
       if (suffixTitle) {
         title += ` ${suffixTitle}`;
       }
-      doc.title = originalTitle.replace(originalTitle, title);
-      doc.title = doc.title.replace(/\b\w/g, (l) => l.toUpperCase());
-
+      doc.title = title.trim();
       return doc;
     });
   };
@@ -261,6 +259,7 @@ const MultiAddProducts = () => {
       package_width,
       description,
       types,
+      size_chart
     } = templateJSON ?? {};
     const dataSubmit = {
       excel: sanitizeTitles(productsJSON),
@@ -273,6 +272,7 @@ const MultiAddProducts = () => {
       is_cod_open,
       skus: convertDataSku(),
       description,
+      size_chart
     };
     console.log('dataSubmit: ', dataSubmit);
     const onSuccess = () => {

@@ -12,6 +12,7 @@ import {
   Space,
   Spin,
   Switch,
+  Upload,
   message,
 } from "antd";
 import React, { useEffect, useRef, useState } from "react";
@@ -23,6 +24,15 @@ import { buildNestedArraysMenu, getPathByIndex } from "../../utils";
 import { useWareHousesStore } from "../../store/warehousesStore";
 import { useTemplateStore } from "../../store/templateStore";
 import { useShopsBrand } from "../../store/brandStore";
+import ProductSectionTitle from "../../components/products/ProuctSectionTitle";
+
+const getBase64 = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
 
 const initColorOptions = [
   {
@@ -129,6 +139,17 @@ export default function TemplateForm({
     templateJson?.id ? templateJson.badWords : []
   );
   const [isShowModalPrice, setShowModalPrice] = useState(false);
+  const [sizeChart, setSizeChart] = useState(
+    templateJson?.id && templateJson.size_chart ? [{
+      uid: templateJson.size_chart?.id || 123,
+      status: "done",
+      url: `data:image/jpeg;base64,${templateJson.size_chart}`,
+    }] : []
+  );
+  console.log("sizeChart: ", sizeChart);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState("");
+
   const dataPrice = useRef(templateJson?.id ? templateJson.types : null);
 
   const optionsBranch = brands?.brand_list?.map((item) => ({
@@ -196,6 +217,11 @@ export default function TemplateForm({
       package_width,
       badWords: bad_word,
       suffixTitle: suffix_title,
+      size_chart:
+        sizeChart[0]?.thumbUrl?.replace(
+          /^data:image\/(png|jpg|jpeg);base64,/,
+          ""
+        ) || "",
       // brand_id: brand_id,
     };
 
@@ -211,7 +237,7 @@ export default function TemplateForm({
       ? updateTemplate(templateJson?.id, dataSubmit, onSuccess, onFail)
       : createTemplate(dataSubmit, onSuccess, onFail);
     onSaveTemplate(dataSubmit);
-    console.log('dataSubmit: ', dataSubmit);
+    console.log("dataSubmit: ", dataSubmit);
   };
 
   function sortByType(arr) {
@@ -264,6 +290,21 @@ export default function TemplateForm({
     //     });
     // }
     // getAttributeByCategory(shopId, categoryId, onSuccess, onFail)
+  };
+
+  const handlePreview = async (file) => {
+    if (!file.url && !file.preview)
+      file.preview = await getBase64(file.originFileObj);
+    setPreviewImage(file.url || file.preview);
+    setPreviewOpen(true);
+    setPreviewTitle(
+      file.name || file.url.substring(file.url.lastIndexOf("/") + 1)
+    );
+  };
+
+  const onChangeSizeChart = ({ fileList: newFileList }) => {
+    console.log("newFileList: ", newFileList);
+    setSizeChart(newFileList);
   };
 
   return (
@@ -481,6 +522,47 @@ export default function TemplateForm({
                     </div>
                   </Col>
                 </Row>
+                <Form.Item
+                  name="sizeChart"
+                  label="Ảnh sizeChart"
+                  className="mt-3"
+                >
+                  <Upload
+                    listType="picture-card"
+                    fileList={sizeChart}
+                    onPreview={handlePreview}
+                    onChange={onChangeSizeChart}
+                    beforeUpload={() => false}
+                    previewFile={getBase64}
+                  // multiple
+                  // itemRender={(originNode, file) => (
+                  //   <DraggableUploadListItem originNode={originNode} file={file} />
+                  // )}
+                  >
+                    {sizeChart.length ? null : (
+                      <button
+                        style={{ border: 0, background: "none" }}
+                        type="button"
+                      >
+                        <PlusOutlined />
+                        <div style={{ marginTop: 8 }}> Upload</div>
+                      </button>
+                    )}
+                  </Upload>
+                  {/* <input type='file'/> */}
+                  <Modal
+                    open={previewOpen}
+                    title={""}
+                    footer={null}
+                    onCancel={() => setPreviewOpen(false)}
+                  >
+                    <img
+                      alt={""}
+                      style={{ width: "100%" }}
+                      src={previewImage}
+                    />
+                  </Modal>
+                </Form.Item>
               </div>
 
               {/* <Form.Item

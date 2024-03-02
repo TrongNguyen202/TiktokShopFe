@@ -76,12 +76,12 @@ export const useAuthStore = create((set) => ({
     }
     set({ loading: false })
   },
-  logOut: async (onSuccess, onFail) => {
+  logOut: async (onSuccess, onFail = () => { }) => {
     try {
       removeToken()
       // localStorage.removeItem("profile")
       // localStorage.removeItem("badges")
-      // localStorage.removeItem("cartInfo")
+      localStorage.removeItem("user")
       set({ tokenInfo: {} })
       onSuccess()
     } catch (error) {

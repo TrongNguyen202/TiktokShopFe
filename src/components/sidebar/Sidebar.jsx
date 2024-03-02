@@ -30,12 +30,14 @@ import StartIcon from "../../assets/icons/StartIcon";
 import Logo from "../../assets/images/text_logo_FLN.png";
 import LogoCollapse from "../../assets/images/favicon.png"
 import { StyledLogo, StyledSidebar } from "./Sidebar.style";
+import { hasManagerPermission, hasSellerPermission } from "../../utils/permission";
 
 const Sidebar = ({ collapsed }) => {
   // const badges = JSON.parse(localStorage.getItem('badges'))
   const path = window.location.pathname;
   const navigate = useNavigate();
   const [showMenuMobile, setShowMenuMobile] = useState(false)
+  const [menuSidebar, setMenuSidebar] = useState([])
 
   useEffect(() => {
     window.addEventListener("beforeunload", () => {});
@@ -43,20 +45,12 @@ const Sidebar = ({ collapsed }) => {
       window.removeEventListener("beforeunload", () => {});
     };
   }, [navigate]);
-  // const {
-  //   product_progressing,
-  //   product_approved,
-  //   product_delete,
-  //   product_unapproved,
-  //   product_violation,
-  //   total_voucher,
-  //   total_products,
-  //   total_sellers,
-  //   total_identify_profile,
-  //   total_stores,
-  // } = badges ?? {}
 
-  const menuSidebar = [
+  useEffect(() => {
+    setMenuSidebar(initMenuSidebar)
+  }, [JSON.stringify(localStorage.getItem("user"))])
+
+  const initMenuSidebar = [
     {
       key: "/",
       icon: <DashboardOutlined style={{ color: "#4595ef" }} />,
@@ -65,28 +59,8 @@ const Sidebar = ({ collapsed }) => {
           Tổng quan
         </Link>
       ),
+      hasPer: hasManagerPermission() || hasSellerPermission()
     },
-    // {
-    //   key: "/order",
-    //   icon: <OrderIcon style={{ color: "#4595ef" }} className="w-[16px]" />,
-    //   label: (
-    //     <Link className="flex justify-between" to="order">
-    //       Đơn hàng
-    //     </Link>
-    //   ),
-    // },
-    // {
-    //   key: "/sellers",
-    //   icon: <SellerIcon style={{ color: "#ff98aa" }} className="w-[16px]" />,
-    //   label: (
-    //     <Link to="sellers" className="flex justify-between">
-    //       Seller{" "}
-    //       <div>
-    //         {/* ( <span className='font-medium'>{total_sellers}</span> ) */}
-    //       </div>
-    //     </Link>
-    //   ),
-    // },
     {
       key: "/shops",
       // icon: <StoreIcon classNstyle={{color: "#ff98aa"}}ame="w-[16px]"/>,
@@ -99,6 +73,7 @@ const Sidebar = ({ collapsed }) => {
           </div>
         </Link>
       ),
+      hasPer: hasManagerPermission() || hasSellerPermission()
     },
     {
       key: "/templates",
@@ -111,6 +86,7 @@ const Sidebar = ({ collapsed }) => {
           </div>
         </Link>
       ),
+      hasPer: hasManagerPermission() || hasSellerPermission()
     },
     {
       key: "/users",
@@ -118,6 +94,7 @@ const Sidebar = ({ collapsed }) => {
       label: (
         <Link className="flex justify-between" to="users">Quản lý user</Link>
       ),
+      hasPer: hasManagerPermission()
     },
 
     {
@@ -126,159 +103,8 @@ const Sidebar = ({ collapsed }) => {
       label: (
         <Link className="flex justify-between" to="crawl">Listings</Link>
       ),
+      hasPer: hasManagerPermission() || hasSellerPermission()
     },
-    // {
-    //   key: "/products",
-    //   icon: <ProductIcon style={{ color: "#ff6900" }} className="w-[16px]" />,
-    //   label: (
-    //     <Link className="flex justify-between" to={path}>
-    //       Sản phẩm
-    //     </Link>
-    //   ),
-    //   children: [
-    //     {
-    //       key: "/products",
-    //       label: (
-    //         <Link className="flex justify-between" to="/products">
-    //           Tất cả{" "}
-    //           <div>
-    //           </div>
-    //         </Link>
-    //       ),
-    //     },
-    //     {
-    //       key: "/products/status/2",
-    //       label: (
-    //         <Link
-    //           className="flex justify-between text-[#27AE60]"
-    //           to="/products/status/2"
-    //           style={{ color: "#27AE60" }}
-    //         >
-    //           Đang hiển thị{" "}
-    //           <div>
-    //             {/* ( <span className='font-medium'>{product_approved}</span> ) */}
-    //           </div>
-    //         </Link>
-    //       ),
-    //     },
-    //     {
-    //       key: "/products/status/0",
-    //       label: (
-    //         <Link
-    //           className="flex justify-between"
-    //           to="/products/status/0"
-    //           style={{ color: "#218ECB" }}
-    //         >
-    //           Cần duyệt{" "}
-    //           <div>
-    //             {/* ( <span className='font-medium'>{product_progressing}</span> ) */}
-    //           </div>
-    //         </Link>
-    //       ),
-    //     },
-    //     {
-    //       key: "/products/status/1",
-    //       label: (
-    //         <Link
-    //           className="flex justify-between"
-    //           to="/products/status/1"
-    //           style={{ color: "#E83A2F" }}
-    //         >
-    //           Vi phạm{" "}
-    //           <div>
-    //             {/* ( <span className='font-medium'>{product_violation}</span> ) */}
-    //           </div>
-    //         </Link>
-    //       ),
-    //     },
-    //     {
-    //       key: "/products/status/3",
-    //       label: (
-    //         <Link
-    //           className="flex justify-between"
-    //           to="/products/status/3"
-    //           style={{ color: "#F0AD00" }}
-    //         >
-    //           Từ chối{" "}
-    //           <div>
-    //             {/* ( <span className='font-medium'>{product_unapproved}</span> ) */}
-    //           </div>
-    //         </Link>
-    //       ),
-    //     },
-    //     {
-    //       key: "/products/status/4",
-    //       label: (
-    //         <Link
-    //           className="flex justify-between"
-    //           to="/products/status/4"
-    //           style={{ color: "#FF833D" }}
-    //         >
-    //           Đã xóa{" "}
-    //           <div>
-    //             {/* ( <span className='font-medium'>{product_delete}</span> ) */}
-    //           </div>
-    //         </Link>
-    //       ),
-    //     },
-    //   ],
-    // },
-    // {
-    //   key: "/vouchers",
-    //   icon: <VoucherIcon style={{ color: "red" }} className="w-[16px]" />,
-    //   label: (
-    //     <Link className="flex justify-between" to="/vouchers">
-    //       Vouchers{" "}
-    //       <div>
-    //         {/* ( <span className='font-medium'>{total_voucher}</span> ) */}
-    //       </div>
-    //     </Link>
-    //   ),
-    // },
-    // {
-    //   key: "/categories",
-    //   icon: <ShoppingOutlined style={{ color: "#03aaff" }} />,
-    //   label: (
-    //     <Link className="flex justify-between" to="/categories">
-    //       Danh mục
-    //     </Link>
-    //   ),
-    // },
-    // {
-    //   key: "/finance",
-    //   icon: <FinanceIcon style={{ color: "#230fff" }} className="w-[16px]" />,
-    //   label: (
-    //     <Link className="flex justify-between" to={path}>
-    //       Tài chính
-    //     </Link>
-    //   ),
-    //   children: [
-    //     {
-    //       key: "subFinance1",
-    //       label: (
-    //         <Link className="flex justify-between" to="/#">
-    //           tổng quan tài chính
-    //         </Link>
-    //       ),
-    //     },
-    //     {
-    //       key: "subFinance2",
-    //       label: (
-    //         <Link className="flex justify-between" to="/#">
-    //           Yêu cầu rút tiền (64)
-    //         </Link>
-    //       ),
-    //     },
-    //     {
-    //       key: "subFinance3",
-    //       label: (
-    //         <Link className="flex justify-between" to="/#">
-    //           Lịch sử thanh toán
-    //         </Link>
-    //       ),
-    //     },
-    //   ],
-    // },
     {
       key: "/transport",
       icon: <CarOutlined style={{ color: "#0c5f20" }} />,
@@ -305,6 +131,7 @@ const Sidebar = ({ collapsed }) => {
           ),
         },
       ],
+      hasPer: hasManagerPermission() || hasSellerPermission()
     },
     {
       key: "/supplierWarehouse",
@@ -340,6 +167,7 @@ const Sidebar = ({ collapsed }) => {
           ),
         },
       ],
+      hasPer: hasManagerPermission() || hasSellerPermission()
     },
     {
       key: "/productReviews",
@@ -375,6 +203,7 @@ const Sidebar = ({ collapsed }) => {
           ),
         },
       ],
+      hasPer: hasManagerPermission() || hasSellerPermission()
     },
     {
       key: "/news",
@@ -402,6 +231,7 @@ const Sidebar = ({ collapsed }) => {
           ),
         },
       ],
+      hasPer: hasManagerPermission() || hasSellerPermission()
     },
     {
       key: "/settings",
@@ -469,10 +299,13 @@ const Sidebar = ({ collapsed }) => {
           ),
         },
       ],
+      hasPer: hasManagerPermission() || hasSellerPermission()
     },
   ];
 
-  const handleShowMenu = () => {}
+  if (!hasManagerPermission() && !hasSellerPermission()) {
+    return null
+  }
 
   return (
     <StyledSidebar
@@ -510,7 +343,7 @@ const Sidebar = ({ collapsed }) => {
           autoHideDuration={200}
         >
           <Menu
-            items={menuSidebar}
+            items={menuSidebar.filter((item) => item.hasPer)}
             theme="light"
             mode="inline"
             defaultSelectedKeys={[path]}
