@@ -1,5 +1,19 @@
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Button, Layout, Modal, Popconfirm, Space, Table, Tooltip } from "antd";
+import {
+  DeleteOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
+  Layout,
+  Modal,
+  Popconfirm,
+  Space,
+  Table,
+  Tooltip,
+  Upload,
+} from "antd";
 import Search from "antd/es/transfer/search";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +30,16 @@ const Template = () => {
   const [templateSelected, setTemplateSelected] = useState(null);
   const [isShowModal, setShowModal] = useState(false);
 
+  useEffect(() => {
+    const onSuccess = (res) => {
+      console.log("res: ", res);
+    };
+    const onFail = (err) => {
+      alerts.error(err);
+    };
+    getAllTemplate(onSuccess, onFail);
+  }, []);
+
   const handleDeleteTemplate = (id) => {
     const onSuccess = (res) => {
       alerts.success("Xoá template thành công");
@@ -25,6 +49,32 @@ const Template = () => {
       alerts.error(err);
     };
     deleteTemplate(id, onSuccess, onFail);
+  };
+
+  const handleDownload = (template) => {
+    // Thêm trường để đánh dấu là file download
+    const dataTemplate = { ...template, isFromFile: true };
+    console.log('dataTemplate: ', dataTemplate);
+    const json = JSON.stringify(dataTemplate);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.download = "template.json";
+    link.href = url;
+    link.click();
+  };
+
+  const handleFileUpload = (file) => {
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      const data = JSON.parse(event.target.result);
+      setTemplateSelected(data);
+      setShowModal(true);
+    };
+
+    reader.readAsText(file);
+    return false;
   };
 
   const storesTable = [
@@ -56,11 +106,11 @@ const Template = () => {
       dataIndex: "description",
       key: "description",
     },
-    {
-      title: "Cân nặng",
-      dataIndex: "package_weight",
-      key: "package_weight",
-    },
+    // {
+    //   title: "Cân nặng",
+    //   dataIndex: "package_weight",
+    //   key: "package_weight",
+    // },
     {
       title: "",
       key: "action",
@@ -69,6 +119,15 @@ const Template = () => {
       render: (banner) => {
         return (
           <Space size="middle">
+            <Tooltip title="Download" color="blue">
+              <Button
+                size="small"
+                icon={<DownloadOutlined />}
+                onClick={() => {
+                  handleDownload(banner);
+                }}
+              />
+            </Tooltip>
             <Tooltip title="Sửa" color="blue">
               <Button
                 size="small"
@@ -76,8 +135,6 @@ const Template = () => {
                 onClick={() => {
                   setShowModal(true);
                   setTemplateSelected(banner);
-                  //   setSelectedBanner(banner)
-                  //   setImage(banner.image_url)
                 }}
               />
             </Tooltip>
@@ -101,16 +158,6 @@ const Template = () => {
     },
   ];
 
-  useEffect(() => {
-    const onSuccess = (res) => {
-      console.log("res: ", res);
-    };
-    const onFail = (err) => {
-      alerts.error(err);
-    };
-    getAllTemplate(onSuccess, onFail);
-  }, []);
-
   const toggleModal = (value) => {
     setShowModal(value);
   };
@@ -122,15 +169,22 @@ const Template = () => {
         <div className="w-[400px]">
           <Search placeholder="Tìm kiếm..." name="search" />
         </div>
-        <Button
-          type="primary"
-          onClick={() => {
-            setShowModal(true);
-            setTemplateSelected(null);
-          }}
-        >
-          Thêm template
-        </Button>
+        <div className="flex gap-2">
+          <Tooltip title="Upload" color="blue">
+            <Upload accept=".json" beforeUpload={handleFileUpload} multiple={false}>
+              <Button icon={<UploadOutlined />}>Thêm bằng file</Button>
+            </Upload>
+          </Tooltip>
+          <Button
+            type="primary"
+            onClick={() => {
+              setShowModal(true);
+              setTemplateSelected(null);
+            }}
+          >
+            Thêm template
+          </Button>
+        </div>
       </div>
 
       <Table
@@ -140,6 +194,11 @@ const Template = () => {
         bordered
         dataSource={templates && templates.length ? templates : []}
         loading={loading}
+        pagination={
+          {
+            pageSize: 20,
+          }
+        }
       />
       {isShowModal && (
         <Modal

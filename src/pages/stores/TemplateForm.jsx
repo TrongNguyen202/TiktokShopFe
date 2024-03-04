@@ -143,10 +143,9 @@ export default function TemplateForm({
     templateJson?.id && templateJson.size_chart ? [{
       uid: templateJson.size_chart?.id || 123,
       status: "done",
-      url: `data:image/jpeg;base64,${templateJson.size_chart}`,
+      thumbUrl: `data:image/jpeg;base64,${templateJson.size_chart}`,
     }] : []
   );
-  console.log("sizeChart: ", sizeChart);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
 
@@ -233,7 +232,7 @@ export default function TemplateForm({
     const onFail = (err) => {
       message.error(err);
     };
-    templateJson?.id
+    templateJson?.id && !templateJson?.isFromFile
       ? updateTemplate(templateJson?.id, dataSubmit, onSuccess, onFail)
       : createTemplate(dataSubmit, onSuccess, onFail);
     onSaveTemplate(dataSubmit);
@@ -262,8 +261,8 @@ export default function TemplateForm({
             id: `${selectedType[j]}-${selectedSize[i]}`,
             type: selectedType[j],
             size: selectedSize[i],
-            quantity: 0,
-            price: 0,
+            quantity: "",
+            price: "",
           });
         }
       }
@@ -509,7 +508,7 @@ export default function TemplateForm({
                       >
                         <Input
                           style={{ height: "30px", width: "150px" }}
-                          placeholder=""
+                          placeholder="height"
                           suffix={
                             <span className="text-[#ccc] border-l-[1px] border-solid border-t-0 border-r-0 border-b-0 pl-1">
                               inch
@@ -524,7 +523,7 @@ export default function TemplateForm({
                 </Row>
                 <Form.Item
                   name="sizeChart"
-                  label="Ảnh sizeChart"
+                  label="Ảnh Size Chart"
                   className="mt-3"
                 >
                   <Upload
@@ -699,7 +698,8 @@ export default function TemplateForm({
                   footer={null}
                   okText="Đồng ý"
                   cancelText="Hủy"
-                  width={800}
+                  width={1000}
+                  centered
                   maskClosable={false}
                 >
                   <EditPriceForm
@@ -726,7 +726,7 @@ export default function TemplateForm({
               type="primary"
               htmlType="submit"
             >
-              {templateJson?.id ? "Cập nhật" : "Thêm"}
+              {templateJson?.id && !templateJson?.isFromFile ? "Cập nhật" : "Thêm"}
             </Button>
           </div>
         </Spin>

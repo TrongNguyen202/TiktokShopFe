@@ -124,12 +124,12 @@ const ProductCreateVariationTable = ({variationsData, variationsDataTable, isPro
                 record?.variations?.map((item) => item.value_name)
             )
         },
-        // {
-        //     title: 'SKU',
-        //     dataIndex: 'seller_sku',
-        //     editable: true,
-        //     width: "250px"
-        // },
+        {
+            title: 'SKU',
+            dataIndex: 'seller_sku',
+            editable: true,
+            width: "250px"
+        },
         {
             title: 'Price',
             dataIndex: 'price',

@@ -60,7 +60,7 @@ export default function EditPriceForm({
     {
       title: "Type",
       dataIndex: "type",
-      width: "25%",
+      width: "20%",
       render: (text, row, index) => {
         if (index % selectedSize.length === 0) {
           return {
@@ -81,7 +81,7 @@ export default function EditPriceForm({
     {
       title: "Quantity",
       dataIndex: "quantity",
-      width: "25%",
+      width: "20%",
       editable: true,
       render: (text, row, index) => {
         if (index % selectedSize.length === 0) {
@@ -103,14 +103,20 @@ export default function EditPriceForm({
     {
       title: "Size",
       dataIndex: "size",
-      width: "25%",
+      width: "20%",
     },
     {
       title: "Price",
       dataIndex: "price",
       editable: true,
-      width: "25%",
+      width: "20%",
     },
+    // {
+    //   title: "Seller sku",
+    //   dataIndex: "seller_sku",
+    //   editable: true,
+    //   width: "20%",
+    // },
   ];
 
   const EditableCell = ({
@@ -167,6 +173,8 @@ export default function EditPriceForm({
           style={{
             margin: 0,
             width: "155px",
+            height: "30px",
+            borderRadius: "2px",
           }}
           name={dataIndex}
           rules={[
@@ -179,7 +187,7 @@ export default function EditPriceForm({
           {/* <Input ref={inputRef} onPressEnter={save} onBlur={save} /> */}
           <Input
             ref={inputRef}
-            type="number"
+            type="text"
             onChange={(e) => handleChangeInput(e, record, dataIndex)}
           />
         </Form.Item>
@@ -188,6 +196,8 @@ export default function EditPriceForm({
           className="editable-cell-value-wrap"
           style={{
             paddingRight: 24,
+            height: "30px",
+            borderRadius: "2px",
           }}
           onClick={toggleEdit}
         >
