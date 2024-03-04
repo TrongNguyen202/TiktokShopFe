@@ -3,7 +3,7 @@ import { Button, message, Steps, theme } from 'antd';
 
 import { useGoogleStore } from '../../store/googleSheets'
 
-import OrdersProcessLabel from '../../components/orders/OrdersProcessLabel'
+import OrdersLabel from '../../components/orders/OrdersLabel'
 import OrderCheckDesign from '../../components/orders/OrderCheckDesign'
 import PageTitle from '../../components/common/PageTitle';
 
@@ -23,21 +23,21 @@ const Fulfillment = () => {
 
     const steps = [
         {
-            title: 'Xửa lý label',
-            content: <OrdersProcessLabel changeNextStep={changeNextStep} toShipInfoData={getToShipInfo}/>,
+            title: 'Danh sách label đã mua',
+            content: <OrdersLabel changeNextStep={changeNextStep} toShipInfoData={getToShipInfo}/>,
         },
         {
             title: 'Xử lý mẫu',
             content: <OrderCheckDesign changeNextStep={changeNextStep} toShipInfoData={toShipInfoData} sheetData={sheets}/>,
         },
         {
-            title: 'Tạo đơn hàng bên FlashShip',
-            content: 'Last-content',
+            title: 'Tạo đơn hàng',
+            content: 'Danh sách đơn hàng gửi cho FlashShip và PrintCare',
         },
-        {
-            title: 'Tạo đơn hàng bên PrintCare',
-            content: 'Last-content',
-        }
+        // {
+        //     title: 'Tạo đơn hàng bên PrintCare',
+        //     content: 'Last-content',
+        // }
     ];
 
     const next = () => {

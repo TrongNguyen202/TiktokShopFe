@@ -382,10 +382,11 @@ const Orders = () => {
       <PageTitle title="Danh sách đơn hàng" showBack count={orders?.length ? orders?.length : '0'}/>
       <Space className="mb-3">
         <Button type="primary" onClick={handleGetAllCombine}>Get All Combinable</Button>
-        {orderSelected.length > 0 && <Button type="primary" onClick={handleCreateLabels}>
+        <Button type="primary" onClick={() => {}}>Fulfillment</Button>
+        <Button type="primary" onClick={handleCreateLabels} disabled={!orderSelected.length}>
           Create Label &nbsp;<span>({orderSelected.length})</span>
-          {loading && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
-        </Button>}
+          {(orderSelected.length > 0 && loading) && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
+        </Button>
       </Space>
       <Table 
         rowSelection={{

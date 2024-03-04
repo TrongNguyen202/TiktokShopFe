@@ -6,10 +6,10 @@ import { getPathByIndex } from '../../utils'
 import { useShopsOrder } from "../../store/ordersStore";
 
 import SectionTitle from "../common/SectionTitle";
-import LoadingButton from '../../components/common/LoadingButton'
+import LoadingButton from '../common/LoadingButton'
 import OrderGetToShipInfo from "./OrderGetToShipInfo";
 
-const OrdersProcessLabel = ({changeNextStep, toShipInfoData}) => {
+const OrdersLabel = ({changeNextStep, toShipInfoData}) => {
     const shopId = getPathByIndex(2)
     const location = useLocation()
     const { labels, shippingDoc } = location.state
@@ -175,4 +175,4 @@ const OrdersProcessLabel = ({changeNextStep, toShipInfoData}) => {
     )
 }
  
-export default OrdersProcessLabel;
+export default OrdersLabel;

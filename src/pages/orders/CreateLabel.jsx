@@ -434,11 +434,16 @@ const CreateLabel = () => {
         <div className='p-10'>
             {contextHolder}
             <div className='flex flex-wrap items-center justify-end gap-3 mb-5'>
-                {startFulfillment && <Button type='primary' onClick={handleStartFulfillment}>Bắt đầu Fulfillment</Button>}
-                {!startFulfillment && buyLabelSelected.length > 0 && 
-                    <Button type='primary' onClick={handleBuyLabel}>
+                {startFulfillment && 
+                    <Button type='primary' onClick={handleStartFulfillment}>
+                        Fulfillment &nbsp;<span>({buyLabelSelected.length})</span>
+                        {( buyLabelSelected.length > 0 && loading) && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
+                    </Button>
+                }
+                {!startFulfillment && 
+                    <Button type='primary' onClick={handleBuyLabel} disabled={!buyLabelSelected.length}>
                         Mua Label &nbsp;<span>({buyLabelSelected.length})</span>
-                        {loading && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
+                        {( buyLabelSelected.length > 0 && loading) && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
                     </Button>
                 }
                 <Button type='primary' onClick={() => setOpen(true)}>Sửa Size Chart</Button>
