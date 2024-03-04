@@ -56,16 +56,23 @@ class GenerateSign:
     def get_timestamp(self):
         return int(time.time())
 
-    def cal_sign(self, secrete, url, query_params, body):
+    def cal_sign(self, secret, url, query_params, body=None):
+        # 1. Trích xuất các tham số từ query_params ngoại trừ sign và access_token, sau đó sắp xếp theo thứ tự từ điểm
         sorted_params = self.obj_key_sort(query_params)
         sorted_params.pop('sign', None)
         sorted_params.pop('access_token', None)
 
-        sign_string = secrete + url.path
+        # 2. Nối các tham
+        sign_string = secret + url.path
         for key, value in sorted_params.items():
-            sign_string += key + value
+            sign_string += key + str(value)
 
-        sign_string += body + secrete
-        signature = hmac.new(secrete.encode(), sign_string.encode(), hashlib.sha256).hexdigest()
+        # 3. Nếu có body thì nối thêm body vào chuỗi
+        if body:
+            sign_string += body + secret
+        else:
+            sign_string += secret
+
+        signature = hmac.new(secret.encode(), sign_string.encode(), hashlib.sha256).hexdigest()
 
         return signature

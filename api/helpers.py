@@ -1,3 +1,5 @@
+import io
+from PIL import Image
 from uuid import uuid4
 
 from django.core.mail import send_mail
@@ -13,9 +15,7 @@ from datetime import datetime
 import base64
 from PIL import Image, WebPImagePlugin
 WebPImageFile = WebPImagePlugin.WebPImageFile
-import base64
-from PIL import Image
-import io  
+
 
 def check_token(user, token):
     return user.customuser.verify_token == token
@@ -85,13 +85,15 @@ class GenerateSignNoBody:
 
 
 def is_webp_image_without_bits(img):
-  
+
     if isinstance(img, WebPImageFile):
         try:
             bits = img.bits
         except AttributeError:
             return True
     return False
+
+
 class AttributeValue:
     def __init__(self, value_id, value_name):
         self.value_id = value_id
@@ -102,6 +104,7 @@ class AttributeValue:
             "value_id": self.value_id,
             "value_name": self.value_name
         }
+
 
 class ProductAttribute:
     def __init__(self, attribute_id, attribute_values):
@@ -114,10 +117,12 @@ class ProductAttribute:
             "attribute_id": self.attribute_id,
             "attribute_values": values_json
         }
+
+
 class ProductObject:
-    def __init__(self, product_id, product_name, images, price, is_cod_open, 
+    def __init__(self, product_id, product_name, images, price, is_cod_open,
                  package_dimension_unit, package_height, package_length, package_weight, package_width,
-                 category_id,brand_id, description, skus,product_attributes):
+                 category_id, brand_id, description, skus, product_attributes):
         self.product_id = product_id
         self.product_name = product_name
         self.images = images
@@ -155,6 +160,7 @@ class ProductObject:
             "product_attributes": attributes_json
         }
 
+
 class SKU:
     def __init__(self, sales_attributes, original_price, stock_infos):
         self.sales_attributes = [SalesAttribute(**attr) for attr in sales_attributes]
@@ -169,6 +175,7 @@ class SKU:
             "original_price": self.original_price,
             "stock_infos": stock_infos_json
         }
+
 
 class SalesAttribute:
     def __init__(self, attribute_id, attribute_name, value_id, value_name):
@@ -185,6 +192,7 @@ class SalesAttribute:
             "value_name": self.value_name
         }
 
+
 class StockInfo:
     def __init__(self, warehouse_id, available_stock):
         self.warehouse_id = warehouse_id
@@ -196,21 +204,23 @@ class StockInfo:
             "available_stock": self.available_stock
         }
 
-def count_bits( img_data):
-   
-            image = Image.open(io.BytesIO(base64.b64decode(img_data)))
-            mode_to_bpp = {'1':1, 'L':8, 'P':8, 'RGB':24, 'RGBA':32, 'CMYK':32, 'YCbCr':24, 'I':32, 'F':32}
-            data= mode_to_bpp[image.mode]
-            print(data)
-            return data
-       
+
+def count_bits(img_data):
+
+    image = Image.open(io.BytesIO(base64.b64decode(img_data)))
+    mode_to_bpp = {'1': 1, 'L': 8, 'P': 8, 'RGB': 24, 'RGBA': 32, 'CMYK': 32, 'YCbCr': 24, 'I': 32, 'F': 32}
+    data = mode_to_bpp[image.mode]
+    print(data)
+    return data
+
+
 def convert_to_rgb(img_data):
-        try:
-            image = Image.open(io.BytesIO(base64.b64decode(img_data)))
-            rgb_image = Image.new("RGB", image.size)
-            rgb_image.paste(image)
-            buffered = io.BytesIO()
-            rgb_image.save(buffered, format="JPEG")
-            return base64.b64encode(buffered.getvalue()).decode('utf-8')
-        except Exception as e:
-            return None
+    try:
+        image = Image.open(io.BytesIO(base64.b64decode(img_data)))
+        rgb_image = Image.new("RGB", image.size)
+        rgb_image.paste(image)
+        buffered = io.BytesIO()
+        rgb_image.save(buffered, format="JPEG")
+        return base64.b64encode(buffered.getvalue()).decode('utf-8')
+    except Exception as e:
+        return None

@@ -1,3 +1,10 @@
+from .models import Templates  # import model
+from api.utils.google.googleapi import upload_pdf
+import io
+from .models import UserGroup
+from api.utils.pdf.ocr_pdf import process_pdf
+from api.utils.google.googleapi import search_file
+from PIL import UnidentifiedImageError
 import PIL
 from django.contrib.auth.models import User
 from django.db import transaction
@@ -16,7 +23,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics
-from .helpers import send_mail_verification, GenerateSign,is_webp_image_without_bits,ProductObject
+from .helpers import send_mail_verification, GenerateSign, is_webp_image_without_bits, ProductObject
 from .serializers import (
     SignUpSerializers,
     VerifySerializers,
@@ -26,10 +33,10 @@ from .serializers import (
     TemplatePutSerializer
 )
 
-from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct,getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes,callCreateOneProduct,callGlobalCategories,callGetShippingDocument,callGetAttribute,callCreateOneProductDraf,callPreCombinePackage,callConFirmCombinePackage,categoryRecommend,callGetShippingService,callSearchPackage,callGetPackageDetail
+from api.utils.tiktok_api import callProductList, getAccessToken, refreshToken, callProductDetail, getCategories, getWareHouseList, callUploadImage, createProduct, getBrands, callEditProduct, callOrderList, callOrderDetail, getAttributes, callCreateOneProduct, callGlobalCategories, callGetShippingDocument, callGetAttribute, callCreateOneProductDraf, callPreCombinePackage, callConFirmCombinePackage, categoryRecommend, callGetShippingService, callSearchPackage, callGetPackageDetail
 from django.http import HttpResponse
-from .models import Shop, Image, Templates, Categories,UserShop,UserGroup,GroupCustom
-from api.utils.constant import app_key, secret, grant_type,ProductCreateObject,ProductCreateOneObject,MAX_WORKER
+from .models import Shop, Image, Templates, Categories, UserShop, UserGroup, GroupCustom
+from api.utils.constant import app_key, secret, ProductCreateObject, ProductCreateOneObject, MAX_WORKER
 from django.http import HttpResponse
 from django.http import JsonResponse
 import base64
@@ -73,63 +80,10 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from PIL import Image
-from .models import Shop,Brand
-
-class SignUp(APIView):
-    permission_classes = [AllowAny]
-
-    @extend_schema(
-        request=SignUpSerializers,
-        responses={
-            201: {"description": "Please check your email to verify your account."},
-        },
-    )
-    def post(self, request):
-        serializer = SignUpSerializers(data=request.data)
-        if serializer.is_valid():
-            with transaction.atomic():
-                serializer.save()
-                new_user = serializer.instance
-                send_mail_verification(request, new_user=new_user)
-                data = {
-                    "message": ("Please check your email to verify your account."),
-                    "user": serializer.data,
-                }
-
-                return Response(data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+from .models import Shop, Brand
 
 
-class Verify(APIView):
-    permission_classes = [AllowAny]
-
-    def get(self, request, uidb64, token):
-        uid = force_str(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(pk=uid)
-        user_dict = model_to_dict(
-            user, ["pk", "username", "email", "first_name", "last_name"]
-        )
-        data = {
-            "pk": uid,
-            "verify_token": token,
-        }
-        serializer = VerifySerializers(user, data=data)
-        if serializer.is_valid():
-            serializer.save()
-            data = {
-                "message": (
-                    "Thank you for your email confirmation. Now you can login your account."
-                ),
-                "user": user_dict,
-            }
-            return Response(data, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# render list product by shop
-
-
+# List product by shop
 class ListProduct(APIView):
     # permission_classes = (IsAuthenticated,)
 
@@ -138,12 +92,11 @@ class ListProduct(APIView):
 
         response = callProductList(access_token=shop.access_token)
         content = response.content
-        
+
         return HttpResponse(content, content_type='application/json')
 
-# create shop
-    
-# order list by Shop
+
+# List order of a shop
 class ListOrder(APIView):
     # permission_classes = (IsAuthenticated,)
 
@@ -155,13 +108,15 @@ class ListOrder(APIView):
         print("content", content)
         return HttpResponse(content, content_type='application/json')
 
+
+# List order detail of a list of order ids
 class OrderDetail(APIView):
 
     def get(self, request, shop_id):
         shop = get_object_or_404(Shop, id=shop_id)
         access_token = shop.access_token
         responseOrderList = callOrderList(access_token=access_token)
-        if(responseOrderList.json()['data']['total'] == 0): 
+        if (responseOrderList.json()['data']['total'] == 0):
             orderIds = []
             content = {
                 'code': 200,
@@ -170,195 +125,32 @@ class OrderDetail(APIView):
                 }
             }
             return JsonResponse(content, content_type='application/json')
-        else: 
+        else:
             orders = responseOrderList.json()['data']['order_list']
             orderIds = [order['order_id'] for order in orders]
         response = callOrderDetail(
             access_token=access_token, orderIds=orderIds)
-        
+
         print("response", response)
 
         content = response.content
         return HttpResponse(content, content_type='application/json')
 
-from .models import UserGroup
-class Shops(APIView):
-    permission_classes =  (IsAuthenticated,)
-    def get_user_group(self, user):
-        try:
-            user_group = UserGroup.objects.get(user=user)
-            return user_group.group_custom
-        except UserGroup.DoesNotExist:
-            return None
-    def get_shop_list(self, group):
-        # Lấy danh sách cửa hàng thuộc nhóm
-        shops = Shop.objects.filter(group_custom_id=group)
-        return shops
 
-    @extend_schema(
-        request=ShopRequestSerializers,
-        responses=ShopSerializers,
-
-    )
-    def post(self, request):
-       auth_code = request.data.get('auth_code', None)
-       shop_name = request.data.get('shop_name', None)
-       shop_code = request.data.get('shop_code', None)
-       user_seller_id = request.data.get('user_id', None)
-
-       if not auth_code:
-           return Response({'error': 'auth_code is required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-       respond = getAccessToken(auth_code=auth_code)
-       group_custom = self.get_user_group(user=self.request.user)
-       print("user_group_name", group_custom)
-      
-
-       if respond.status_code == 200:
-           json_data = respond.json()
-           data = json_data.get('data', {})
-           access_token = data.get('access_token', None)
-           refresh_token = data.get('refresh_token', None)
-           print(access_token)
-           print(refresh_token)
-       else:
-           # Handle error, for example:
-           return Response({'error': 'Failed to retrieve access_token or refresh_token from the response'}, status=respond.status_code)
-
-       if not access_token or not refresh_token:
-           return Response({'error': 'Failed to retrieve access_token or refresh_token from the response'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-       shop_data = {
-           'auth_code': auth_code,
-           "app_key": app_key,
-           "app_secret": secret,
-           "grant_type": grant_type,
-           "access_token": access_token,
-           "refresh_token": refresh_token,
-           "shop_name": shop_name,
-           "shop_code": shop_code,
-           "group_custom_id":group_custom.id
-       }
-
-       shopSeri = ShopSerializers(data=shop_data)
-
-       if shopSeri.is_valid():
-           shop_code = shop_data.get('shop_code')
-
-        # Kiểm tra xem cửa hàng với shop_code đã tồn tại chưa
-           if Shop.objects.filter(shop_code=shop_code).exists():
-               existing_shop = Shop.objects.get(shop_code=shop_code)
-
-            # Cập nhật instance cửa hàng hiện có với access_token và refresh_token mới
-               existing_shop.access_token = access_token
-               existing_shop.refresh_token = refresh_token
-               existing_shop.save()
-
-               return Response(shopSeri.data, status=status.HTTP_201_CREATED)
-
-        # If shop_code doesn't exist, save a new instance
-           new_shop = shopSeri.save()
+# class ShopList(APIView):
+#     def get(self, request):
+#         user_shop = UserShop.objects.filter(user=request.user)
+#         shops = Shop.objects.filter(id=user_shop.shop.id)
+#         serializer = ShopSerializers(shops, many=True)
+#         return Response(serializer.data)
 
 
-           if user_seller_id:
-               try:
-      
-                  user_seller = User.objects.get(id=user_seller_id)
-        
-        
-                  UserShop.objects.create(user=user_seller, shop=new_shop)
-               except User.DoesNotExist:
-                  print("error when finding user from user_seller_id")
-       
+# class ShopListAPI(APIView):
+#     def get(self, request):
 
-           return Response(shopSeri.data, status=status.HTTP_201_CREATED)
-
-       return Response(shopSeri.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-    @extend_schema(
-        request=ShopSerializers,
-        responses=ShopSerializers,
-
-    )
- 
-    def get(self, request):
-        user = request.user
-
-        # Lấy thông tin nhóm của người dùng
-        user_group = self.get_user_group(user)
-
-        # Nếu không có thông tin nhóm, trả về một Response phù hợp
-        if user_group is None:
-            return Response({'error': 'User does not belong to any group'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Lấy danh sách cửa hàng thuộc nhóm của người dùng
-        shops = self.get_shop_list(user_group)
-        serializer = ShopSerializers(shops, many=True)
-
-        return Response(serializer.data)
-
-class ShopList(APIView):
-    def get(self, request):
-        user_shop = UserShop.objects.filter(user = request.user)
-        shops = Shop.objects.filter(id= user_shop.shop.id)
-        serializer = ShopSerializers(shops, many=True)
-        return Response(serializer.data)
-
-
-class ShopListAPI(APIView):
-    def get(self, request):
-        
-        shops = Shop.objects.filter()
-        serializer = ShopSerializers(shops, many=True)
-        return Response(serializer.data)
-    
-class ShopDetail(APIView):
-    # permission_classes = (IsAuthenticated,)
-
-    def put(self, request, shop_id):
-        shop = get_object_or_404(Shop, id=shop_id)
-        shop_serializer = ShopSerializers(shop, data=request.data)
-
-        if shop_serializer.is_valid():
-            shop_serializer.save()
-            return Response(shop_serializer.data, status=200)
-        else:
-            return Response(shop_serializer.errors, status=400)
-
-    def get(self, request, shop_id):
-        shop = get_object_or_404(Shop, id=shop_id)
-        shop_serializer = ShopSerializers(shop)
-        return Response(shop_serializer.data)
-
-    def delete(self, request, shop_id):
-        shop = get_object_or_404(Shop, id=shop_id)
-
-        try:
-            shop.delete()
-            return Response({'message': 'Shop deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
-        except Exception as e:
-            # Handle potential exceptions, log them, and return an appropriate response
-            return Response({'error': f'Failed to delete shop: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-# refresh token
-class RefreshToken(APIView):
-
-    def post(self, request, shop_id):
-        shop = get_object_or_404(Shop, id=shop_id)
-        respond = refreshToken(refreshToken=shop.refresh_token)
-        json_data = respond.json()
-        data = json_data.get('data', {})
-        access_token = data.get('access_token', None)
-        refresh_token = data.get('refresh_token', None)  # Fix the typo here
-        print(access_token)
-        print(refresh_token)
-        shop.access_token = access_token
-        shop.refresh_token = refresh_token
-        shop.save()
-        return Response(respond)
-
+#         shops = Shop.objects.filter()
+#         serializer = ShopSerializers(shops, many=True)
+#         return Response(serializer.data)
 
 
 class ProductDetail(APIView):
@@ -397,16 +189,21 @@ class CategoriesByShopId(APIView):
 
         return HttpResponse(response.content, content_type='application/json', status=response.status_code)
 
+
 class GlobalCategory(APIView):
-     def get(self, request):
-       categories = Categories.objects.get(id = 1)
+    def get(self, request):
+        categories = Categories.objects.get(id=1)
 
-       return Response(categories.data, status=status.HTTP_200_OK)
+        return Response(categories.data, status=status.HTTP_200_OK)
+
+
 class GlobalBrand(APIView):
-     def get(self, request):
-       categories = Brand.objects.get(id = 1)
+    def get(self, request):
+        categories = Brand.objects.get(id=1)
 
-       return Response(categories.data, status=status.HTTP_200_OK)
+        return Response(categories.data, status=status.HTTP_200_OK)
+
+
 class WareHouse(APIView):
 
     def get(self, request, shop_id):
@@ -424,6 +221,7 @@ class Attributes(APIView):
         access_token = shop.access_token
         response = getAttributes(access_token=access_token, category_id=category_id)
         return HttpResponse(response.content, content_type='application/json', status=response.status_code)
+
 
 class ShopSearchViews(generics.ListAPIView):
     serializer_class = ShopSerializers
@@ -449,45 +247,48 @@ class ShopSearchViews(generics.ListAPIView):
             queryset = queryset.filter(shop_code__icontains=shop_code)
 
         return queryset
-from .models import Templates  # import model
+
 
 class TemplateList(APIView):  # đổi tên thành TemplateList
     permission_classes = (IsAuthenticated,)
-    
+
     def get(self, request):
         user = self.request.user
         templates = Templates.objects.filter(user=user)
         serializer = TemplateSerializer(templates, many=True)
         return Response(serializer.data)
+
     def post(self, request):
         template = Templates.objects.create(
-            name = request.data.get('name'),
-            category_id = request.data.get('category_id'),
-            description = request.data.get('description'),
-            is_cod_open = request.data.get('is_cod_open'),
-            package_height = request.data.get('package_height'),
-            package_length = request.data.get('package_length'),
-            package_weight = request.data.get('package_weight'),
-            package_width = request.data.get('package_width'),
-            sizes = request.data.get('sizes'),
-            colors = request.data.get('colors'),
-            type = request.data.get('type'),
-            types = request.data.get('types'),
-            user = self.request.user,
-            badWords = request.data.get('badWords'),
-            suffixTitle = request.data.get('suffixTitle')
+            name=request.data.get('name'),
+            category_id=request.data.get('category_id'),
+            description=request.data.get('description'),
+            is_cod_open=request.data.get('is_cod_open'),
+            package_height=request.data.get('package_height'),
+            package_length=request.data.get('package_length'),
+            package_weight=request.data.get('package_weight'),
+            package_width=request.data.get('package_width'),
+            sizes=request.data.get('sizes'),
+            colors=request.data.get('colors'),
+            type=request.data.get('type'),
+            types=request.data.get('types'),
+            user=self.request.user,
+            badWords=request.data.get('badWords'),
+            suffixTitle=request.data.get('suffixTitle')
         )
         template.save()
         return Response({'message': 'Template created successfully'}, status=status.HTTP_201_CREATED)
+
     def put(self, request, template_id):
         template = get_object_or_404(Templates, id=template_id)
-       
+
         template_serializer = TemplatePutSerializer(template, data=request.data)
         if template_serializer.is_valid():
             template_serializer.save()
             return Response(template_serializer.data, status=200)
         else:
             return Response(template_serializer.errors, status=400)
+
     def delete(self, request, template_id):
         template = get_object_or_404(Templates, id=template_id)
         try:
@@ -523,6 +324,7 @@ class UploadImage(APIView):
         else:
             # Trả về lỗi nếu không có dữ liệu ảnh
             return Response({'error': 'No image data provided'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ProcessExcelNo(APIView):
@@ -564,9 +366,9 @@ class ProcessExcelNo(APIView):
                             if img.mode != 'RGB' or img.bits != 8:
                                 img = img.convert('RGB')
                             if is_webp_image_without_bits(img=img):
-                               os.remove(image_path)
-                               print(f"Đã xóa ảnh: {image_path}")
-                               continue
+                                os.remove(image_path)
+                                print(f"Đã xóa ảnh: {image_path}")
+                                continue
                             img.verify()
                             img.close()
 
@@ -599,7 +401,7 @@ class ProcessExcelNo(APIView):
         else:
 
             return Response({'error': 'No excel data provided'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
 
 class GetAllBrands(APIView):
 
@@ -607,9 +409,8 @@ class GetAllBrands(APIView):
         shop = get_object_or_404(Shop, id=shop_id)
         response = getBrands(access_token=shop.access_token)
         content = response.content
-        
-        return HttpResponse(content, content_type='application/json')
 
+        return HttpResponse(content, content_type='application/json')
 
 
 class CategoriesIsleaf(APIView):
@@ -636,8 +437,6 @@ class CategoriesIsleaf(APIView):
             return JsonResponse(data)
 
         return HttpResponse(response.content, content_type='application/json', status=response.status_code)
-
-
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -682,12 +481,10 @@ class MultithreadProcessExcel(View):
         downloaded_image_paths = []
         futures = []
 
-  
         with ThreadPoolExecutor() as executor:
             for col, image_url in row_data.items():
                 if col.startswith('image') and not pd.isna(image_url):
                     futures.append(executor.submit(self.download_image, image_url, col, shop))
-
 
             for future in futures:
                 downloaded_image_paths.append(future.result())
@@ -742,39 +539,6 @@ class MultithreadProcessExcel(View):
         createProduct(shop.access_token, category_id, warehouse_id, title, images_ids)
 
 
-
-
-import json
-import os
-import base64
-import uuid
-import requests
-import traceback
-from concurrent.futures import ThreadPoolExecutor
-from django.views import View
-from django.shortcuts import get_object_or_404
-from django.http import JsonResponse, HttpResponse
-from django.core.exceptions import ObjectDoesNotExist
-from rest_framework import status
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from PIL import Image
-from PIL import UnidentifiedImageError
-import base64
-import json
-import os
-import traceback
-import uuid
-from concurrent.futures import ThreadPoolExecutor
-from PIL import Image
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import JsonResponse, HttpResponse
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-from django.views import View
-import requests
-
-
 @method_decorator(csrf_exempt, name='dispatch')
 class ProcessExcel(View):
 
@@ -784,7 +548,7 @@ class ProcessExcel(View):
 
             excel_data = data.get('excel', [])
             category_id = data.get('category_id', '')
-          
+
             warehouse_id = data.get('warehouse_id', '')
             is_cod_open = data.get('is_cod_open', '')
             package_height = data.get('package_height', 1)
@@ -839,6 +603,7 @@ class ProcessExcel(View):
         images_ids = self.upload_images(base64_images, shop)
         self.create_product_fun(shop, item, category_id, warehouse_id, is_cod_open, package_height, package_length,
                                 package_weight, package_width, images_ids, description, skus)
+
     def convert_to_png(self, input_path, output_path):
         try:
             # Mở ảnh sử dụng PIL
@@ -860,8 +625,6 @@ class ProcessExcel(View):
                 with open(image_filename, 'wb') as f:
                     f.write(response.content)
 
-
-
                 return image_filename
             else:
                 print(f"Failed to download image: {image_url}, Status code: {response.status_code}")
@@ -874,7 +637,6 @@ class ProcessExcel(View):
                 img = Image.open(image_path)
                 if img is None:
                     continue
-                
 
                 with open(image_path, 'rb') as img_file:
                     base64_image = base64.b64encode(img_file.read()).decode('utf-8')
@@ -885,17 +647,16 @@ class ProcessExcel(View):
         return base64_images
 
     def upload_images(self, base64_images, shop):
-    # Use list comprehension to call callUploadImage for each img_data
-       images_ids = [callUploadImage(access_token=shop.access_token, img_data=img_data) for img_data in base64_images]
+        # Use list comprehension to call callUploadImage for each img_data
+        images_ids = [callUploadImage(access_token=shop.access_token, img_data=img_data) for img_data in base64_images]
 
     # Filter out empty strings from the list
-       images_ids = [img_id for img_id in images_ids if img_id != ""]
+        images_ids = [img_id for img_id in images_ids if img_id != ""]
 
-       return images_ids
-
+        return images_ids
 
     def create_product_fun(self, shop, item, category_id, warehouse_id, is_cod_open, package_height, package_length,
-                            package_weight, package_width, images_ids, description, skus):
+                           package_weight, package_width, images_ids, description, skus):
         title = item.get('title', '')
         product_object = ProductCreateObject(
             is_cod_open=is_cod_open,
@@ -909,15 +670,8 @@ class ProcessExcel(View):
             description=description,
             skus=skus
         )
-        
 
         createProduct(shop.access_token, title, images_ids, product_object)
-
-
-
-
-
-
 
 
 # class EditProductAPIView(APIView):
@@ -928,7 +682,7 @@ class ProcessExcel(View):
 #         product_data = json.loads(body_raw)
 
 #         print(product_data.get("skus")[0].get("sales_attributes"))
-        
+
 #         product_object = ProductObject(
 
 #         )
@@ -936,7 +690,7 @@ class ProcessExcel(View):
 #         response = callEditProduct(access_token, product_object)
 
 #         return JsonResponse({"status_code": response.status_code, "response_text": response.json})
-        
+
 
 # class EditProductAPIView(APIView):
 #     def get(self, request, shop_id, product_id):
@@ -966,7 +720,7 @@ class ProcessExcel(View):
 
 #         return JsonResponse({"status_code": response.status_code, "response_text": response.json})
 class EditProductAPIView(APIView):
-    
+
     def put(self, request, shop_id, product_id):
         shop = get_object_or_404(Shop, id=shop_id)
         access_token = shop.access_token
@@ -976,7 +730,7 @@ class EditProductAPIView(APIView):
         # Tạo một bản sao của product_data để loại bỏ imgBase64
         product_data_without_img = product_data.copy()
         img_base64 = product_data_without_img.pop('imgBase64', [])
-        
+
         # Tạo một đối tượng ProductObject không chứa imgBase64
         product_object_data = {key: value for key, value in product_data.items() if key != 'imgBase64'}
         try:
@@ -993,42 +747,35 @@ class EditProductAPIView(APIView):
                 error_message = response_data['message']
                 print("error from API:", error_message)
                 return JsonResponse({'message': error_message}, status=400)
-            
+
             else:
                 response_text = response.text
                 return HttpResponse(response_text, content_type="text/plain", status=200)
-                
+
         except Exception as e:
             print("error to call edit product api:", str(e))
             return JsonResponse({'message': 'Error occurred while calling edit product API'}, status=400)
 
 
-import base64
-from PIL import Image
-import io  
 class CreateOneProduct(APIView):
     # permission_classes = (IsAuthenticated,)
 
-   
-
     def upload_images(self, base64_images, access_token):
-       images_ids = []
-       for img_data in base64_images:
-           
-           if img_data is not None:
-               img_id = callUploadImage(access_token, img_data=img_data)
-               if img_id !="":
-                   images_ids.append(img_id)
-       return images_ids
-    
+        images_ids = []
+        for img_data in base64_images:
 
-    def post(self, request,shop_id):
+            if img_data is not None:
+                img_id = callUploadImage(access_token, img_data=img_data)
+                if img_id != "":
+                    images_ids.append(img_id)
+        return images_ids
+
+    def post(self, request, shop_id):
         shop = get_object_or_404(Shop, id=shop_id)
         access_token = shop.access_token
         body_raw = request.body.decode('utf-8')
         product_data = json.loads(body_raw)
         base64_images = product_data.get('images', [])
-        
 
         try:
             images_ids = self.upload_images(base64_images=base64_images, access_token=access_token)
@@ -1037,46 +784,45 @@ class CreateOneProduct(APIView):
 
         try:
             product_object = ProductCreateOneObject(
-            product_name=product_data.get("product_name"),
-            images=images_ids,
-            is_cod_open=product_data.get("is_cod_open"),
-            package_dimension_unit=product_data.get("package_dimension_unit"),
-            package_height=product_data.get("package_height"),
-            package_length=product_data.get("package_length"),
-            package_weight=product_data.get("package_weight"),
-            package_width=product_data.get("package_width"),
-            category_id=product_data.get("category_id"),
-            brand_id=product_data.get("brand_id"),
-            description=product_data.get("description"),
-            skus= product_data.get("skus"),
-            product_attributes = product_data.get("product_attributes")
-        )
+                product_name=product_data.get("product_name"),
+                images=images_ids,
+                is_cod_open=product_data.get("is_cod_open"),
+                package_dimension_unit=product_data.get("package_dimension_unit"),
+                package_height=product_data.get("package_height"),
+                package_length=product_data.get("package_length"),
+                package_weight=product_data.get("package_weight"),
+                package_width=product_data.get("package_width"),
+                category_id=product_data.get("category_id"),
+                brand_id=product_data.get("brand_id"),
+                description=product_data.get("description"),
+                skus=product_data.get("skus"),
+                product_attributes=product_data.get("product_attributes")
+            )
         except Exception as e:
             print(f"Error creating product object: {e}")
-            return JsonResponse({'status': 'error', 'message': 'Error creating product object'}, status=500)    
-        
+            return JsonResponse({'status': 'error', 'message': 'Error creating product object'}, status=500)
+
         try:
 
-           response = callCreateOneProduct(access_token, product_object)
-           response_text = response.text
-           response_data = response.json()
-           if response_data['data'] is None:
+            response = callCreateOneProduct(access_token, product_object)
+            response_text = response.text
+            response_data = response.json()
+            if response_data['data'] is None:
                 error_message = response_data['message']
                 print("error from API:", error_message)
                 return JsonResponse({'message': error_message}, status=400)
-           else:
+            else:
                 response_text = response.text
                 return HttpResponse(response_text, content_type="text/plain", status=200)
         except Exception as e:
             print("error to call create product api:", str(e))
             return JsonResponse({'message': 'Error occurred while calling edit product API'}, status=400)
 
-       
 
 class ListCategoriesGlobal(APIView):
     # permission_classes = (IsAuthenticated,)
 
-    def get(self, request,shop):
+    def get(self, request, shop):
         response = callGlobalCategories(access_token=shop.access_token)
         content = response.content
         print("content", content)
@@ -1085,27 +831,26 @@ class ListCategoriesGlobal(APIView):
 
 class ShippingLabel(APIView):
 
-    def post(self,request ,shop_id):
-        shop = get_object_or_404(Shop, id= shop_id)
+    def post(self, request, shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
         access_token = shop.access_token
         data = json.loads(request.body.decode('utf-8'))
         doc_urls = []
         order_ids = data.get('order_ids', [])
         for order_id in order_ids:
-           doc_url =  callGetShippingDocument(order_id=order_id, access_token=access_token)
-           doc_urls.append(doc_url)
-           print(doc_url)
+            doc_url = callGetShippingDocument(order_id=order_id, access_token=access_token)
+            doc_urls.append(doc_url)
+            print(doc_url)
         respond = {
-                'code': 0,
-                'data': {
-                    'doc_urls': doc_urls
-                }
+            'code': 0,
+            'data': {
+                'doc_urls': doc_urls
             }
+        }
 
         return JsonResponse(respond)
-    
-from  api.utils.google.googleapi import upload_pdf
-from  api.utils.google.googleapi import search_file
+
+
 class UploadDriver(APIView):
 
     def post(self, request):
@@ -1137,25 +882,21 @@ class UploadDriver(APIView):
             # Log the error
             print(f"Error in UploadDriver: {str(e)}")
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
-        
 
-
-    
 
 class SearchPDF(APIView):
 
-    def get(self,request,order_id):
+    def get(self, request, order_id):
         file_name = str(order_id)
         try:
             result = search_file(file_name)
 
-            return JsonResponse(result,safe=False, status=200)
+            return JsonResponse(result, safe=False, status=200)
         except Exception as e:
             print(f"Error in find PDF: {str(e)}")
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
-        
 
-from api.utils.pdf.ocr_pdf import process_pdf
+
 class ToShipOrderAPI(APIView):
     def ocr_infor(self, pdf_path):
         result_json_user = process_pdf(pdf_path=pdf_path)
@@ -1168,7 +909,6 @@ class ToShipOrderAPI(APIView):
         data_post = json.loads(request.body.decode('utf-8'))
         order_documents = data_post.get('order_documents', [])
         print(order_documents)
-      
 
         for order_document in order_documents:
             print("da chay n lan")
@@ -1189,12 +929,12 @@ class ToShipOrderAPI(APIView):
                         file.write(response.content)
 
                     # Upload the file to Google Drive
-                    try: 
+                    try:
                         order_detail = callOrderDetail(access_token=access_token, orderIds=orderIds)
                     except:
                         print("error when call OrderDetail API")
                     order_detail = order_detail.json()
-                    
+
                     infor_user_str = process_pdf(file_path)
                     infor_user = json.loads(infor_user_str)
 
@@ -1211,48 +951,42 @@ class ToShipOrderAPI(APIView):
                         order_detail['state'] = infor_user['state']
                     if 'zip_code' in infor_user:
                         order_detail['zip_code'] = infor_user['zip_code']
-                   
 
                     data.append(order_detail)
                     print(len(data))
-            
 
             # Trả về kết quả sau khi loop hoàn thành
             return JsonResponse(data, status=200, safe=False)
 
-    
-
 
 class GetProductAttribute(APIView):
 
-    def get(self, request,shop_id,category_id):
-       shop = get_object_or_404(Shop, id=shop_id)
-       access_token = shop.access_token
-       data = callGetAttribute(access_token=access_token, category_id=category_id)
-       return JsonResponse(data, status=200)
+    def get(self, request, shop_id, category_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        data = callGetAttribute(access_token=access_token, category_id=category_id)
+        return JsonResponse(data, status=200)
 
 
 class CreateOneProductDraf(APIView):
     # permission_classes = (IsAuthenticated,)
 
     def upload_images(self, base64_images, access_token):
-       images_ids = []
-       for img_data in base64_images:
-           
-           if img_data is not None:
-               img_id = callUploadImage(access_token, img_data=img_data)
-               if img_id !="":
-                   images_ids.append(img_id)
-       return images_ids
-    
+        images_ids = []
+        for img_data in base64_images:
 
-    def post(self, request,shop_id):
+            if img_data is not None:
+                img_id = callUploadImage(access_token, img_data=img_data)
+                if img_id != "":
+                    images_ids.append(img_id)
+        return images_ids
+
+    def post(self, request, shop_id):
         shop = get_object_or_404(Shop, id=shop_id)
         access_token = shop.access_token
         body_raw = request.body.decode('utf-8')
         product_data = json.loads(body_raw)
         base64_images = product_data.get('images', [])
-        
 
         images_ids = self.upload_images(base64_images=base64_images, access_token=access_token)
 
@@ -1268,13 +1002,9 @@ class CreateOneProductDraf(APIView):
             category_id=product_data.get("category_id"),
             brand_id=product_data.get("brand_id"),
             description=product_data.get("description"),
-            skus= product_data.get("skus"),
-            product_attributes = product_data.get("product_attributes")
+            skus=product_data.get("skus"),
+            product_attributes=product_data.get("product_attributes")
         )
-        
-
-        
-        
 
         callCreateOneProductDraf(access_token, product_object)
 
@@ -1309,25 +1039,26 @@ class PermissionRole(APIView):
 
 class UserShopList(APIView):
     permission_classes = (IsAuthenticated,)
-    
+
     def get(self, request):
         user = request.user
         users_groups = get_object_or_404(UserGroup, user=user)
-        group_custom = users_groups.group_custom  
-        
+        group_custom = users_groups.group_custom
+
         user_shops_data = {"group_id": group_custom.id, "group_name": group_custom.group_name, "users": []}
-         
 
         users_filter = []
-        for user_group in group_custom.usergroup_set.filter(role=2):  
-            user_data = {"user_id": user_group.user.id, "user_name":user_group.user.username, "shops": []}
-           
+        for user_group in group_custom.usergroup_set.filter(role=2):
+            user_data = {"user_id": user_group.user.id, "user_name": user_group.user.username, "shops": []}
+
             for user_shop in user_group.user.usershop_set.filter(shop__group_custom_id=group_custom.id):
-                user_data["shops"].append({"id":user_shop.shop.id,"name":user_shop.shop.shop_name})
-            
+                user_data["shops"].append({"id": user_shop.shop.id, "name": user_shop.shop.shop_name})
+
             user_shops_data["users"].append(user_data)
-        
+
         return Response({"data": user_shops_data})
+
+
 class UserInfor(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -1341,12 +1072,8 @@ class UserInfor(APIView):
             'first_name': user.first_name,  # Lấy first_name từ đối tượng User
             'last_name': user.last_name,    # Lấy last_name từ đối tượng User
         }
-     
+
         return Response(user_info)
-
-
-
-
 
 
 class AllCombinePackage(APIView):
@@ -1363,12 +1090,13 @@ class AllCombinePackage(APIView):
                 "code": 0,
                 "data": data,
                 "message": "Success",
-                
+
             }
             return JsonResponse(response_data, status=200)
         except Exception as e:
             print("Error when calling getAllCombinePack API:", str(e))
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
 
 class InforUserCurrent(APIView):
     permission_classes = (IsAuthenticated,)
@@ -1376,7 +1104,7 @@ class InforUserCurrent(APIView):
     def get(self, request):
         user = request.user
         user_groups = UserGroup.objects.filter(user=user)
-        
+
         user_info = {
             'id': user.id,
             'username': user.username,
@@ -1387,96 +1115,102 @@ class InforUserCurrent(APIView):
         }
         return Response(user_info)
 
+
 class ConfirmCombinePackage(APIView):
     # permission_classes = (IsAuthenticated,)
 
-    def post(self,request,shop_id):
+    def post(self, request, shop_id):
         shop = get_object_or_404(Shop, id=shop_id)
         access_token = shop.access_token
         body_raw = request.body.decode('utf-8')
         body_raw_json = json.loads(body_raw)
 
-        respond =  callConFirmCombinePackage(access_token=access_token,body_raw_json=body_raw_json)
+        respond = callConFirmCombinePackage(access_token=access_token, body_raw_json=body_raw_json)
         data_json_string = respond.content.decode('utf-8')
-        print("datatring",data_json_string)
+        print("datatring", data_json_string)
         data = json.loads(data_json_string)
-        print("dataoffi",data)
+        print("dataoffi", data)
         response_data = {
-                "code": 0,
-                "data": data,
-                "message": "Success",
-                
-            }
+            "code": 0,
+            "data": data,
+            "message": "Success",
+
+        }
         return JsonResponse(response_data, status=200)
-  
+
 
 class CategogyRecommend(APIView):
-    def post(self,request,shop_id):
+    def post(self, request, shop_id):
         shop = get_object_or_404(Shop, id=shop_id)
         access_token = shop.access_token
         body_raw = request.body.decode('utf-8')
         product_title_json = json.loads(body_raw)
-        data = product_title_json.get("product_name","")
-        response = categoryRecommend(access_token,data)
+        data = product_title_json.get("product_name", "")
+        response = categoryRecommend(access_token, data)
         response_data = {
-               
-                "category": json.loads(response.content.decode('utf-8')),
-                "message": "Success",
-                
-            }
-        return JsonResponse(response_data,status=200)
+
+            "category": json.loads(response.content.decode('utf-8')),
+            "message": "Success",
+
+        }
+        return JsonResponse(response_data, status=200)
+
 
 class ShippingService(APIView):
 
-    def post(self, request,shop_id):
+    def post(self, request, shop_id):
         shop = get_object_or_404(Shop, id=shop_id)
         access_token = shop.access_token
         body_raw = request.body.decode('utf-8')
         service_infor = json.loads(body_raw)
-        respond = callGetShippingService(access_token,service_infor)
+        respond = callGetShippingService(access_token, service_infor)
         data_json_string = respond.content.decode('utf-8')
         data = json.loads(data_json_string)
         data_inner = data.get("data")
-        shipping_services = data_inner.get("shipping_service_info",[])
-        
-        simplified_shipping_services = [{"id": service.get("id"), "name": service.get("name")} for service in shipping_services]
+        shipping_services = data_inner.get("shipping_service_info", [])
+
+        simplified_shipping_services = [
+            {"id": service.get("id"), "name": service.get("name")} for service in shipping_services]
         response_data = {
-     
-                "data": simplified_shipping_services,
-                "message": "Success",
-                
-            }
+
+            "data": simplified_shipping_services,
+            "message": "Success",
+
+        }
         return JsonResponse(response_data, status=200)
+
+
 class SearchPackage(APIView):
 
-    def get(self, request,shop_id):
+    def get(self, request, shop_id):
         shop = get_object_or_404(Shop, id=shop_id)
         access_token = shop.access_token
         respond = callSearchPackage(access_token)
         data_json_string = respond.content.decode('utf-8')
         data = json.loads(data_json_string)
-        
+
         response_data = {
-                
-                "data": data,
-                "message": "Success",
-                
-            }
+
+            "data": data,
+            "message": "Success",
+
+        }
         return JsonResponse(response_data, status=200)
+
 
 class PackageDetail(APIView):
 
-    def get(self, request,shop_id,package_id):
+    def get(self, request, shop_id, package_id):
         shop = get_object_or_404(Shop, id=shop_id)
         access_token = shop.access_token
-        respond = callGetPackageDetail(access_token,package_id)
+        respond = callGetPackageDetail(access_token, package_id)
         data_json_string = respond.content.decode('utf-8')
         data = json.loads(data_json_string)
-        
+
         response_data = {
-                
-                "data": data,
-                "message": "Success",
-                
-            }
+
+            "data": data,
+            "message": "Success",
+
+        }
         return JsonResponse(response_data, status=200)

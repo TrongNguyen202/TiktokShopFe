@@ -1,5 +1,5 @@
-from .constant import secret,TIKTOK_API_URL,app_key,grant_type
-from api.helpers import GenerateSign,GenerateSignNoBody,ProductObject,convert_to_rgb,count_bits
+from .constant import secret, TIKTOK_API_URL, app_key
+from api.helpers import GenerateSign, GenerateSignNoBody, ProductObject, convert_to_rgb, count_bits
 import requests
 import json
 import urllib.parse
@@ -8,7 +8,9 @@ from django.http import HttpResponse
 import traceback
 
 SIGN = GenerateSign()
-SIGNNOBODY =GenerateSignNoBody()
+SIGNNOBODY = GenerateSignNoBody()
+
+
 def callProductList(access_token):
     url = TIKTOK_API_URL['url_product_list']
     query_params = {
@@ -25,37 +27,39 @@ def callProductList(access_token):
 
     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
     query_params["sign"] = sign
-    
+
     response = requests.post(url, params=query_params, json=json.loads(body))
-  
+
     # Process the response
-    
+
     return response
+
 
 def getAccessToken(auth_code):
     url = TIKTOK_API_URL['url_get_access_token']
-  
+
     body = json.dumps({
 
-       "app_key":app_key,
-       "app_secret":secret,
-       "grant_type":grant_type,
-       "auth_code":auth_code,
+        "app_key": app_key,
+        "app_secret": secret,
+        "grant_type": grant_type,
+        "auth_code": auth_code,
     })
 
     response = requests.post(url, json=json.loads(body))
     print(response.status_code)
     print(response.text)
     return response
+
 
 def refreshToken(refreshToken):
     url = TIKTOK_API_URL['url_refresh_token']
     body = json.dumps({
 
-       "app_key":app_key,
-       "app_secret":secret,
-       "refresh_token":refreshToken,
-       "grant_type":"refresh_token",
+        "app_key": app_key,
+        "app_secret": secret,
+        "refresh_token": refreshToken,
+        "grant_type": "refresh_token",
     })
     response = requests.post(url, json=json.loads(body))
     print(response.status_code)
@@ -63,22 +67,20 @@ def refreshToken(refreshToken):
     return response
 
 
-def callProductDetail(access_token,product_id):
+def callProductDetail(access_token, product_id):
     url = TIKTOK_API_URL['url_detail_product']
     query_params = {
         "app_key": app_key,
         "access_token": access_token,
         "timestamp": SIGN.get_timestamp(),
-        "product_id":product_id,
+        "product_id": product_id,
     }
-   
 
     sign = SIGNNOBODY.cal_sign(secret, urllib.parse.urlparse(url), query_params)
     query_params["sign"] = sign
-    
+
     response = requests.get(url, params=query_params)
-  
-   
+
     return response
 
 
@@ -89,13 +91,13 @@ def callProductDetail(access_token,product_id):
 #         "access_token": access_token,
 #         "timestamp": SIGN.get_timestamp()
 #     }
-   
+
 
 #     sign = SIGNNOBODY.cal_sign(secret, urllib.parse.urlparse(url), query_params )
 #     query_params["sign"] = sign
-    
+
 #     response = requests.post(url, params=query_params)
-  
+
 #     # Process the response
 #     print(response.status_code)
 #     print(response.text)
@@ -107,18 +109,18 @@ def getCategories(access_token):
         "app_key": app_key,
         "access_token": access_token,
         "timestamp": SIGNNOBODY.get_timestamp(),
-        
+
     }
-   
 
     sign = SIGNNOBODY.cal_sign(secret, urllib.parse.urlparse(url), query_params)
     query_params["sign"] = sign
-    
+
     response = requests.get(url, params=query_params)
-  
+
     # Process the response
 
     return response
+
 
 def getWareHouseList(access_token):
     url = TIKTOK_API_URL['url_get_warehouse']
@@ -126,19 +128,17 @@ def getWareHouseList(access_token):
         "app_key": app_key,
         "access_token": access_token,
         "timestamp": SIGNNOBODY.get_timestamp(),
-        
+
     }
-   
 
     sign = SIGNNOBODY.cal_sign(secret, urllib.parse.urlparse(url), query_params)
     query_params["sign"] = sign
-    
+
     response = requests.get(url, params=query_params)
-  
+
     # Process the response
 
     return response
-    
 
 
 def callUploadImage(access_token, img_data):
@@ -165,7 +165,6 @@ def callUploadImage(access_token, img_data):
         response = requests.post(url, params=query_params, json=json.loads(body))
 
         data = json.loads(response.text)
-       
 
         if data and "data" in data and "img_id" in data["data"]:
             img_id = data["data"]["img_id"]
@@ -180,9 +179,8 @@ def callUploadImage(access_token, img_data):
         print(traceback.format_exc())
         return ""
 
-   
 
-def createProduct(access_token,title,images_ids,product_object):
+def createProduct(access_token, title, images_ids, product_object):
     url = TIKTOK_API_URL['url_create_product']
     query_params = {
         "app_key": app_key,
@@ -222,7 +220,7 @@ def createProduct(access_token,title,images_ids,product_object):
         "package_weight": product_object.package_weight,
         "package_width": product_object.package_width,
         "category_id": product_object.category_id,
-       
+
         "description": product_object.description or "",
         "skus": skus_list
     }
@@ -232,13 +230,13 @@ def createProduct(access_token,title,images_ids,product_object):
     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
     query_params["sign"] = sign
 
-    
     response = requests.post(url, params=query_params, json=json.loads(body))
 
     # Process the response
     print(response.text)
-   
+
     return HttpResponse(response)
+
 
 def getBrands(access_token):
     url = TIKTOK_API_URL['url_get_brands']
@@ -246,15 +244,14 @@ def getBrands(access_token):
         "app_key": app_key,
         "access_token": access_token,
         "timestamp": SIGN.get_timestamp(),
-        
-    }
 
+    }
 
     sign = SIGNNOBODY.cal_sign(secret, urllib.parse.urlparse(url), query_params)
     query_params["sign"] = sign
-    
+
     response = requests.get(url, params=query_params)
-  
+
     return response
 
 
@@ -265,7 +262,7 @@ def callEditProduct(access_token, product_object, imgBase64):
         for item in imgBase64:
             img_id = callUploadImage(access_token=access_token, img_data=item)
             images_list.append({'id': img_id})
-    
+
     query_params = {
         "app_key": app_key,
         "access_token": access_token,
@@ -293,7 +290,7 @@ def callEditProduct(access_token, product_object, imgBase64):
             "original_price": sku.original_price,
             "stock_infos": stock_infos_list
         })
-        
+
     product_attributes_list = []
     for attribute in product_object.product_attributes:
         attribute_values_list = [
@@ -343,8 +340,7 @@ def callEditProduct(access_token, product_object, imgBase64):
 #         for item in imgBase64:
 #             img_id = callUploadImage(access_token=access_token, img_data=item)
 #             images_list.append({'id':img_id})
-    
-    
+
 
 #     query_params = {
 #         "app_key": app_key,
@@ -352,7 +348,6 @@ def callEditProduct(access_token, product_object, imgBase64):
 #         "timestamp": SIGN.get_timestamp(),
 #     }
 
-    
 
 #     skus_list = []
 #     for sku in product_object.skus:
@@ -387,8 +382,6 @@ def callEditProduct(access_token, product_object, imgBase64):
 #                 "attribute_id": attribute.attribute_id,
 #                 "attribute_values": attribute_values_list
 #             })
-  
-    
 
 
 #     bodyjson = {
@@ -409,18 +402,17 @@ def callEditProduct(access_token, product_object, imgBase64):
 #     }
 #     if product_object.brand_id != "":
 #         bodyjson["brand_id"] = product_object.brand_id
- 
+
 #     body = json.dumps(bodyjson)
 
-    
 
 #     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
 #     query_params["sign"] = sign
 
-    
+
 #     response = requests.put(url, params=query_params, json=json.loads(body))
-    
-   
+
+
 #     print(response.text)
 #     return HttpResponse(response)
 
@@ -441,6 +433,7 @@ def callOrderList(access_token):
 
     return response
 
+
 def callOrderDetail(access_token, orderIds):
     url = TIKTOK_API_URL['url_get_order_detail']
     query_params = {
@@ -448,7 +441,7 @@ def callOrderDetail(access_token, orderIds):
         "access_token": access_token,
         "timestamp": SIGN.get_timestamp(),
     }
-   
+
     body = json.dumps({
         "order_id_list": orderIds,
         "page_size": 50,
@@ -456,13 +449,13 @@ def callOrderDetail(access_token, orderIds):
 
     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
     query_params["sign"] = sign
-    
+
     response = requests.post(url, params=query_params, json=json.loads(body))
-  
+
     # Process the response
-    
-    
+
     return response
+
 
 def getAttributes(access_token, category_id):
     url = TIKTOK_API_URL['url_get_attributes']
@@ -479,7 +472,8 @@ def getAttributes(access_token, category_id):
 
     return response
 
-def callCreateOneProduct(access_token,product_object):
+
+def callCreateOneProduct(access_token, product_object):
     url = TIKTOK_API_URL['url_create_product']
     query_params = {
         "app_key": app_key,
@@ -487,7 +481,7 @@ def callCreateOneProduct(access_token,product_object):
         "timestamp": SIGN.get_timestamp(),
 
     }
-    
+
     skus_list = []
     for sku in product_object.skus:
         sales_attributes_list = [
@@ -542,15 +536,14 @@ def callCreateOneProduct(access_token,product_object):
     body = json.dumps(bodyjson)
     print("Images:", product_object.images)
 
-
     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
     query_params["sign"] = sign
 
-    
     response = requests.post(url, params=query_params, json=json.loads(body))
 
     print(response.text)
     return response
+
 
 def callGlobalCategories(access_token):
     url = TIKTOK_API_URL['url_get_globle_categories']
@@ -559,19 +552,17 @@ def callGlobalCategories(access_token):
         "access_token": access_token,
         "timestamp": SIGN.get_timestamp()
     }
- 
 
     sign = SIGNNOBODY.cal_sign(secret, urllib.parse.urlparse(url), query_params)
     query_params["sign"] = sign
     response = requests.get(url, params=query_params)
-    print("dddd",response.text)
+    print("dddd", response.text)
     return response
-
 
 
 def callGetShippingDocument(access_token,  order_id):
     url = TIKTOK_API_URL['url_get_shipping_document']
-    
+
     query_params = {
         "app_key": app_key,
         "access_token": access_token,
@@ -585,12 +576,11 @@ def callGetShippingDocument(access_token,  order_id):
     query_params["sign"] = sign
 
     response = requests.get(url, params=query_params)
-    
+
     try:
         response_data = response.json()
         doc_url = response_data["data"]["doc_url"]
-        
-        
+
         if doc_url:
             return doc_url
         else:
@@ -601,6 +591,8 @@ def callGetShippingDocument(access_token,  order_id):
         return None
 
 
+# TODO: Duplicate
+
 def callGetAttribute(access_token, category_id):
     url = TIKTOK_API_URL['url_get_product_attritrute']
     query_params = {
@@ -608,7 +600,7 @@ def callGetAttribute(access_token, category_id):
         "access_token": access_token,
         "timestamp": SIGN.get_timestamp(),
         "category_id": category_id,
-        
+
     }
 
     sign = SIGNNOBODY.cal_sign(secret, urllib.parse.urlparse(url), query_params)
@@ -623,9 +615,9 @@ def callGetAttribute(access_token, category_id):
         return None
 
 
+# TODO: Duplicate
 
-
-def callCreateOneProductDraf(access_token,product_object):
+def callCreateOneProductDraf(access_token, product_object):
     url = TIKTOK_API_URL['url_create_draf_product']
     query_params = {
         "app_key": app_key,
@@ -633,7 +625,7 @@ def callCreateOneProductDraf(access_token,product_object):
         "timestamp": SIGN.get_timestamp(),
 
     }
-    
+
     skus_list = []
     for sku in product_object.skus:
         sales_attributes_list = [
@@ -686,18 +678,15 @@ def callCreateOneProductDraf(access_token,product_object):
         bodyjson["brand_id"] = product_object.brand_id
 
     body = json.dumps(bodyjson)
-    
-
 
     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
     query_params["sign"] = sign
 
-   
     response = requests.post(url, params=query_params, json=json.loads(body))
     print(response.text)
 
-    
     return HttpResponse(response)
+
 
 def callPreCombinePackage(access_token):
     url = TIKTOK_API_URL['url_pre_combine_package']
@@ -705,12 +694,12 @@ def callPreCombinePackage(access_token):
         "app_key": app_key,
         "access_token": access_token,
         "timestamp": SIGNNOBODY.get_timestamp(),
-        "page_size":10
+        "page_size": 10
 
     }
-    sign = SIGNNOBODY.cal_sign(secret,urllib.parse.urlparse(url),query_params)
+    sign = SIGNNOBODY.cal_sign(secret, urllib.parse.urlparse(url), query_params)
     query_params['sign'] = sign
-    response = requests.get(url,params=query_params)
+    response = requests.get(url, params=query_params)
     print(response.text)
     return HttpResponse(response)
 
@@ -721,7 +710,7 @@ def callPreCombinePackage(access_token):
 #         "access_token": access_token,
 #         "timestamp": SIGN.get_timestamp(),
 #     }
-   
+
 #     body = json.dumps({
 #         "order_id_list": orderIds,
 #         "page_size": 50,
@@ -729,15 +718,15 @@ def callPreCombinePackage(access_token):
 
 #     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
 #     query_params["sign"] = sign
-    
+
 #     response = requests.post(url, params=query_params, json=json.loads(body))
-  
+
 #     # Process the response
-    
-    
+
+
 #     return response
 
-def callConFirmCombinePackage(access_token,body_raw_json):
+def callConFirmCombinePackage(access_token, body_raw_json):
     url = TIKTOK_API_URL['url_confirm_combine_package']
     query_params = {
         "app_key": app_key,
@@ -745,12 +734,11 @@ def callConFirmCombinePackage(access_token,body_raw_json):
         "timestamp": SIGN.get_timestamp(),
 
     }
-   
+
     bodyjson = body_raw_json
-    
-  
+
     body = json.dumps(bodyjson)
-    
+
     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
     query_params["sign"] = sign
 
@@ -758,7 +746,8 @@ def callConFirmCombinePackage(access_token,body_raw_json):
     print(response.text)
     return HttpResponse(response)
 
-def categoryRecommend(access_token,product_title):
+
+def categoryRecommend(access_token, product_title):
     url = TIKTOK_API_URL['url_get_category_recommend']
     query_params = {
         "app_key": app_key,
@@ -766,14 +755,13 @@ def categoryRecommend(access_token,product_title):
         "timestamp": SIGN.get_timestamp(),
 
     }
-   
+
     bodyjson = {
-        "product_name":product_title
+        "product_name": product_title
     }
-    
-  
+
     body = json.dumps(bodyjson)
-    
+
     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
     query_params["sign"] = sign
 
@@ -781,7 +769,8 @@ def categoryRecommend(access_token,product_title):
     print(response.text)
     return HttpResponse(response)
 
-def callGetShippingService(access_token,body_raw_json):
+
+def callGetShippingService(access_token, body_raw_json):
     url = TIKTOK_API_URL['url_get_shipping_service']
     query_params = {
         "app_key": app_key,
@@ -789,18 +778,18 @@ def callGetShippingService(access_token,body_raw_json):
         "timestamp": SIGN.get_timestamp(),
 
     }
-   
+
     bodyjson = body_raw_json
-    
-  
+
     body = json.dumps(bodyjson)
-    
+
     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
     query_params["sign"] = sign
 
     response = requests.post(url, params=query_params, json=json.loads(body))
 
     return HttpResponse(response)
+
 
 def callSearchPackage(access_token):
     url = TIKTOK_API_URL['url_search_package']
@@ -810,14 +799,13 @@ def callSearchPackage(access_token):
         "timestamp": SIGN.get_timestamp(),
 
     }
-   
+
     bodyjson = {
-        "page_size":10000
+        "page_size": 10000
     }
-    
-  
+
     body = json.dumps(bodyjson)
-    
+
     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
     query_params["sign"] = sign
 
@@ -825,7 +813,8 @@ def callSearchPackage(access_token):
 
     return HttpResponse(response)
 
-def callCreateLabel(access_token,body_raw_json):
+
+def callCreateLabel(access_token, body_raw_json):
     url = TIKTOK_API_URL['url_create_label']
     query_params = {
         "app_key": app_key,
@@ -833,12 +822,11 @@ def callCreateLabel(access_token,body_raw_json):
         "timestamp": SIGN.get_timestamp(),
 
     }
-   
+
     bodyjson = body_raw_json
-    
-  
+
     body = json.dumps(bodyjson)
-    
+
     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
     query_params["sign"] = sign
 
@@ -846,16 +834,16 @@ def callCreateLabel(access_token,body_raw_json):
 
     return HttpResponse(response)
 
-def callGetPackageDetail(access_token,package_id):
+
+def callGetPackageDetail(access_token, package_id):
     url = TIKTOK_API_URL['url_get_package_detail']
     query_params = {
         "app_key": app_key,
         "access_token": access_token,
         "timestamp": SIGN.get_timestamp(),
-        "package_id":package_id
+        "package_id": package_id
 
     }
-   
 
     sign = SIGNNOBODY.cal_sign(secret, urllib.parse.urlparse(url), query_params)
     query_params["sign"] = sign
