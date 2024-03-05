@@ -233,7 +233,7 @@ const CreateLabel = () => {
                     length: item.package_size[0],
                     width: item.package_size[1],
                     height: item.package_size[2]
-                  },
+                  }, 
                   dimension_unit: 2,
                   package_id: item.data.package_id,
                   shipping_service_id: item.data.shipping_provider_id,

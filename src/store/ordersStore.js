@@ -10,6 +10,7 @@ export const useShopsOrder = create((set) => ({
   loading: false,
   loadingGetInfo: false,
   cancelTokenSource: null,
+  packageBought: [],
   getAllOrders: async (id, onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true })
@@ -117,5 +118,37 @@ export const useShopsOrder = create((set) => ({
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }
     set({ loading: false })
+  },
+
+  getPackageBought: async (onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.orders.getPackageBought()
+      set({ packageBought: response.data})
+      onSuccess(response.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  },
+
+  pdfLabelSearch: async (packageId, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.orders.pdfLabelSearch(packageId)
+      onSuccess(response.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  },
+
+  pdfLabelDownload: async (fileName, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      const response = await RepositoryRemote.orders.pdfLabelDownload(fileName)
+      onSuccess(response.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
   },
 }))

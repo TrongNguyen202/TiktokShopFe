@@ -51,19 +51,6 @@ const Fulfillment = () => {
         title: item.title,
     }));
 
-
-    useEffect(() => {
-        const onSuccess = (res) => {
-
-        }
-
-        const onFail = (err) => {
-            console.log(err);
-        }
-        
-        getAllSheetInfo('Team Truong', onSuccess, onFail)
-    }, [])
-
     return (
         <div className='p-3 md:p-10'>
           <PageTitle title='Fulfillment' showBack/>

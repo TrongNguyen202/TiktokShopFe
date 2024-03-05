@@ -35,13 +35,7 @@ const Orders = () => {
   const [searchedColumn, setSearchedColumn] = useState('');
   const [messageApi, contextHolder] = message.useMessage();
   const [dataCombineConfirm, setDataCombineConfirm] = useState([])
-  const { orders, getAllOrders, getAllCombine, combineList, createLabel, shippingService, loading } = useShopsOrder((state) => state)
-  const orderDataTable = orders.map(item => (
-    {
-      ...item,
-      key: item.order_id
-    }
-  ))
+  const { orders, getAllOrders, getAllCombine, combineList, createLabel, shippingService, getPackageBought, packageBought, getShippingDoc, loading } = useShopsOrder((state) => state)
 
   function sortByPackageId(arr) {
     const grouped = arr.reduce((acc, item) => {
@@ -232,16 +226,49 @@ const Orders = () => {
     };
     createLabel(shopId, orderSelected, onSuccess, () => {});
   };
+
+  const handleStartFulfillment = () => {
+    const ordersHasPackageId = orders.filter(order => order.package_list.length > 0)
+    const orderBoughtLabel = packageBought.map(item => ordersHasPackageId.find(order => item.package_id === order.package_list[0].package_id))
+
+    const packageIds = {
+      package_ids: orderBoughtLabel.map(item => item.package_list[0].package_id)
+    }
+
+    const onSuccess = (res) => {
+      if (res) {
+        console.log(res)
+        const shippingDocData = orderBoughtLabel.map((item, index) => (
+            {
+                order_list: item,
+                label: res.doc_urls[index]
+            }
+        ))
+        navigate(`/shops/${shopId}/orders/fulfillment`, { state: { shippingDoc: shippingDocData } })
+      }
+    }
+
+    getShippingDoc(shopId, packageIds, onSuccess, (err) => console.log(err))
+  }
   
   const rowSelection = {
-    onChange: (_, selectedRows) => {
+    onChange: (_,selectedRows) => {
+      console.log('selectedRows: ', selectedRows);
       const selectedRowsPackageId = selectedRows.map(item => item.package_list[0].package_id)
       setOrderSelected(selectedRowsPackageId)
     },
-    getCheckboxProps: (record) => ({
-      disabled: [140, 130, 122, 121, 105, 100].includes(record.order_status)
-    })
-  };
+    getCheckboxProps: (record) => {
+      const disabledStatus = [140, 130, 122, 121, 105, 100]
+      const disabledLabel = packageBought.map(item => item.package_id)
+
+      const isDisabledStatus = disabledStatus.includes(record.order_status);
+      const isDisabledLabel = disabledLabel.includes(record.package_list.length > 0 && record.package_list[0].package_id);
+
+      return {
+        disabled: isDisabledStatus || isDisabledLabel
+      }
+    }
+  }
 
   const columns = [
     {
@@ -258,7 +285,7 @@ const Orders = () => {
       align: 'center',
       render: (_, record) => record.package_list.length > 0 ? record.package_list[0].package_id : "Hiện chưa có package ID",
       onCell: (record, index) => {
-        const rowSpanData = orderDataTable.filter(item => item.package_list.length > 0 && record.package_list.length > 0 && item.package_list[0].package_id === record.package_list[0].package_id)
+        const rowSpanData = orders.filter(item => item.package_list.length > 0 && record.package_list.length > 0 && item.package_list[0].package_id === record.package_list[0].package_id)
         const orderIdRowSpanData = rowSpanData.map(item => {
           return (
             {
@@ -374,6 +401,7 @@ const Orders = () => {
     };
 
     getAllOrders(shopId, onSuccess, onFail);
+    getPackageBought()
   }, [location.state]);
 
   return (
@@ -382,7 +410,7 @@ const Orders = () => {
       <PageTitle title="Danh sách đơn hàng" showBack count={orders?.length ? orders?.length : '0'}/>
       <Space className="mb-3">
         <Button type="primary" onClick={handleGetAllCombine}>Get All Combinable</Button>
-        <Button type="primary" onClick={() => {}}>Fulfillment</Button>
+        <Button type="primary" onClick={handleStartFulfillment}>Fulfillment</Button>
         <Button type="primary" onClick={handleCreateLabels} disabled={!orderSelected.length}>
           Create Label &nbsp;<span>({orderSelected.length})</span>
           {(orderSelected.length > 0 && loading) && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
@@ -395,7 +423,7 @@ const Orders = () => {
         }}
         scroll={{ x: true }}
         columns={columns} 
-        dataSource={sortByPackageId(orderDataTable)} 
+        dataSource={sortByPackageId(orders)} 
         loading={loading} 
         bordered
         pagination={{ pageSize: 100}}
@@ -409,7 +437,7 @@ const Orders = () => {
         width={1000}
         footer={false}
       >
-        <OrderCombinable data={combineList} popOverContent={renderListItemProduct} dataOrderDetail={orderDataTable} isOpenModal={handleOpenModal} />
+        <OrderCombinable data={combineList} popOverContent={renderListItemProduct} dataOrderDetail={orders} isOpenModal={handleOpenModal} />
       </Modal>
     </div>
   );

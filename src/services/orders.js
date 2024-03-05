@@ -41,7 +41,17 @@ const getShippingDoc = (id, body) => {
   return callApi(`/shops/${id}/get_shipping_doc_package_ids`, 'post', body)
 }
 
+const getPackageBought = (id) => {
+  return callApi(`/shops/get_package_buyed`, 'get')
+}
 
+const pdfLabelSearch = (packageId) => {
+  return callApi(`/pdf-search/?query=${packageId}`, 'get')
+}
+
+const pdfLabelDownload = (fileName) => {
+  return callApi(`/pdf-download/?filename=${fileName}`, 'get')
+}
 
 export const orders = {
     getAllOrders,
@@ -54,4 +64,7 @@ export const orders = {
     shippingService,
     buyLabel,
     getShippingDoc,
+    getPackageBought,
+    pdfLabelSearch,
+    pdfLabelDownload
 }

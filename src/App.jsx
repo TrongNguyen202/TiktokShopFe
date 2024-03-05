@@ -29,6 +29,7 @@ const Brands = lazy(() => import("./pages/brands"));
 const Orders = lazy(() => import("./pages/orders"));
 const CreateLabel = lazy(() => import("./pages/orders/CreateLabel.jsx"));
 const Fulfillment = lazy(() => import("./pages/orders/Fulfillment.jsx"));
+const OrderCheckBoughtLabel = lazy(() => import("./pages/orders/OrderCheckBoughtLabel.jsx"));
 const OrderCheckDesign= lazy(() => import("./pages/orders/OrderCheckDesign.jsx"));
 const OrderFlashShip= lazy(() => import("./pages/orders/OrderFlashShip.jsx"));
 const Users = lazy(() => import("./pages/users"));
@@ -233,6 +234,15 @@ const App = () => {
                 element={
                   <Suspense fallback={<Loading />}>
                     <Fulfillment />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                path="/check-label"
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <OrderCheckBoughtLabel />
                   </Suspense>
                 }
               />

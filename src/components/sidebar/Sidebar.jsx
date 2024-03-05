@@ -9,7 +9,8 @@ import {
   UserOutlined,
   UsergroupAddOutlined,
   MenuOutlined,
-  CloseOutlined
+  CloseOutlined,
+  SearchOutlined
 } from "@ant-design/icons";
 import { Menu } from "antd";
 import { useEffect } from "react";
@@ -96,12 +97,19 @@ const Sidebar = ({ collapsed }) => {
       ),
       hasPer: hasManagerPermission()
     },
-
     {
       key: "/crawl",
       icon: <FinanceIcon style={{ color: "#230fff" }} className="w-[16px]" />,
       label: (
         <Link className="flex justify-between" to="crawl">Listings</Link>
+      ),
+      hasPer: hasManagerPermission() || hasSellerPermission()
+    },
+    {
+      key: "/check-label",
+      icon: <SearchOutlined style={{ color: "#ff800f" }} className="w-[16px]" />,
+      label: (
+        <Link className="flex justify-between" to="/check-label">Kiếm tra Label đã mua</Link>
       ),
       hasPer: hasManagerPermission() || hasSellerPermission()
     },
