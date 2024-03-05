@@ -201,7 +201,7 @@ const Products = () => {
         >
           Tìm kiếm
         </Button>
-        <Button
+        {/* <Button
           type="primary"
           className="mr-3"
           size="small"
@@ -209,7 +209,7 @@ const Products = () => {
           disabled = {productDataTable?.length == infoTable?.data?.total}
         >
           Load More Products
-        </Button>
+        </Button> */}
         <Button
           size="small"
           type="primary"

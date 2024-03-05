@@ -45,6 +45,7 @@ export default function Crawl() {
   const [optionCrawl, setOptionCrawl] = useState(initialCrawl);
   const [loading, setLoading] = useState(false);
   const [isShowModalUpload, setShowModalUpload] = useState(false);
+  const [showSkeleton, setShowSkeleton] = useState(false);
 
   useEffect(() => {
     setProductList(productListStorage);
@@ -108,6 +109,7 @@ export default function Crawl() {
                 checkedItems={checkedItems}
                 handleCheckChange={handleCheckChange}
                 handleChangeProduct={handleChangeProduct}
+                showSkeleton={showSkeleton}
               />
             </Col>
           );
@@ -130,6 +132,54 @@ export default function Crawl() {
     });
   };
 
+  const fetchInfoProducts = async (ids, productData) => {
+    setLoading(true);
+    const headers = {
+      accept: "application/json",
+      authority: "vk1ng.com",
+      "accept-language": "vi,vi-VN;q=0.9,en-US;q=0.8,en;q=0.7",
+      "content-type": "application/json",
+      authorization: "Bearer YG07HhcRJeMDGZ8TmB3bjaeN4K96JOrvGqav5ggx",
+      referer: "https://www.etsy.com/",
+      "sec-ch-ua-mobile": "?0",
+      "sec-fetch-dest": "empty",
+      "sec-fetch-mode": "cors",
+      "sec-fetch-site": "cross-site",
+      "sec-ch-ua-platform": "Windows",
+      "user-agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36",
+    };
+    fetch(`https://vk1ng.com/api/bulk/listings/${ids}`, {
+      method: "GET",
+      headers: headers,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const combineProducts = productData.map((item) => {
+          const product = data.data.find((product) => item.id.split(".")[0] == product.listing_id);
+          return {
+            ...item,
+            ...product,
+          };
+        });
+        setProductList(combineProducts);
+        localStorage.setItem("productList", JSON.stringify(combineProducts));
+        // setProductList(data.data);
+      })
+      .catch((error) => {
+        message.error(error.message);
+      })
+      .finally(() => {
+        setLoading(false);
+        setShowSkeleton(false);
+      });
+  };
+
   const fetchDataProductList = async (url, crawler) => {
     const params = {
       crawler: crawler,
@@ -143,15 +193,15 @@ export default function Crawl() {
       .then((response) => {
         // setProductList(response.data.data);
         localStorage.setItem("productList", JSON.stringify(response.data.data));
+        const ids = response.data.data.map((item) => item.id.split('.')[0]).join(",");
         setCheckedItems([]);
         setIsAllChecked(false);
+        setShowSkeleton(true);
+        fetchInfoProducts(ids, response.data.data);
       })
       .catch((error) => {
         message.error(error.response.data.message);
       })
-      .finally(() => {
-        setLoading(false);
-      });
   };
 
   const handleCrawl = () => {
@@ -179,7 +229,7 @@ export default function Crawl() {
           sku: product.sku,
           title: product.title,
           warehouse: "",
-          images: { ...convertImageLink(product.images) }
+          images: { ...convertImageLink(product.images) },
         };
       }
       return {
@@ -195,7 +245,7 @@ export default function Crawl() {
     const selectedProducts = productList.filter(
       (product) => checkedItems[product.id]
     );
-    console.log('selectedProducts: ', selectedProducts);
+    console.log("selectedProducts: ", selectedProducts);
 
     const convertImageLink = (images) => {
       const imageObject = images.reduce((obj, link, index) => {
@@ -247,6 +297,7 @@ export default function Crawl() {
             value={optionCrawl.url}
             placeholder="Page URL"
             onChange={onChangeUrl}
+            onPressEnter={handleCrawl}
           />
           <Select
             defaultValue="Etsy"
