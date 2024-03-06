@@ -1,4 +1,4 @@
-from ....serializers import TemplatesSerializers
+from ....serializers import TemplateSerializer
 from ....models import Templates
 from api.views import *
 
@@ -12,7 +12,7 @@ class TemplateList(APIView):
     def get(self, request):
         user = self.request.user
         templates = Templates.objects.filter(user=user)
-        serializer = TemplatesSerializers(templates, many=True)
+        serializer = TemplateSerializer(templates, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -44,7 +44,7 @@ class TemplateList(APIView):
     def put(self, request, template_id):
         template = get_object_or_404(Templates, id=template_id)
 
-        template_serializer = TemplatesSerializers(template, data=request.data)
+        template_serializer = TemplateSerializer(template, data=request.data)
         if template_serializer.is_valid():
             template_serializer.save()
             return Response(template_serializer.data, status=status.HTTP_200_OK)

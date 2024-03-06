@@ -45,28 +45,27 @@ shop_urls = [
     path('shops/<int:shop_id>/category_recommend', tiktok.product_action.CategoryRecommend.as_view(), name='category_recommend'),
     path('shops/<int:shop_id>/shipping_service', tiktok.order_action.ShippingService.as_view(), name='shipping_service'),
     path('shops/<int:shop_id>/search_package', tiktok.order_action.SearchPackage.as_view(), name='search_package'),
-    path('shops/<int:shop_id>/packages/<int:package_id>/package_detail', tiktok.order_action.PackageDetail.as_view(), name='package_detail')
+    path('shops/<int:shop_id>/packages/<int:package_id>/package_detail', tiktok.order_action.PackageDetail.as_view(), name='package_detail'),
     path('shops/<int:shop_id>/products/create_product_draf', tiktok.product_action.CreateOneProductDraf.as_view(), name='create_one_product_draf'),
 
 ]
 
 template_urls = [
-     path('templates', tiktok.template_action.TemplateList.as_view(), name='template_list'),
-     path('templates/<int:template_id>', tiktok.template_action.TemplateList.as_view(), name='template_detail'),
+    path('templates', tiktok.template_action.TemplateList.as_view(), name='template_list'),
+    path('templates/<int:template_id>', tiktok.template_action.TemplateList.as_view(), name='template_detail'),
 ]
 
 global_urls = [
-     path("categories/global", tiktok.product_action.GlobalCategory.as_view(), name="global_categories"),
-     path("brands/global", tiktok.product_action.GlobalBrand.as_view(), name="globals_brands"),
+    path("categories/global", tiktok.product_action.GlobalCategory.as_view(), name="global_categories"),
+    path("brands/global", tiktok.product_action.GlobalBrand.as_view(), name="globals_brands"),
 ]
 
 group_urls = [
-     path("groups", tiktok.permission_action.GroupList.as_view(), name="group_list"),
-     path("groups/<int:group_id>", tiktok.permission_action.GroupDetail.as_view(), name="group_detail"),
-     path('user-shops/groups', tiktok.shop_action.UserShopList.as_view(), name='user_shops_list'),
-     path('user/<int:user_id>/groups/infor', tiktok.permission_action.UserInfo.as_view(), name='user_group_infor'),
+    #     path("groups", tiktok.permission_action.GroupList.as_view(), name="group_list"),
+    #     path("groups/<int:group_id>", tiktok.permission_action.GroupDetail.as_view(), name="group_detail"),
+    path('user-shops/groups', tiktok.shop_action.UserShopList.as_view(), name='user_shops_list'),
+    path('user/<int:user_id>/groups/infor', tiktok.permission_action.UserInfo.as_view(), name='user_group_infor'),
 ]
-     
 
 
 # Tách URLs ra thành các nhóm URLs nhỏ để dễ quản lý
