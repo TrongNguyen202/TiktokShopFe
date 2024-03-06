@@ -13,12 +13,10 @@ import OrderGetToShipInfo from "./OrderGetToShipInfo";
 const OrdersLabel = ({changeNextStep, toShipInfoData}) => {
     const shopId = getPathByIndex(2)
     const location = useLocation()
-    const { labels, shippingDoc } = location.state
+    const { shippingDoc } = location.state
     const [labelSelected, setLabelSelected] = useState([])
     const [messageApi, contextHolder] = message.useMessage();
     const { getToShipInfo, toShipInfo, uploadLabelToDriver, loading } = useShopsOrder((state) => state)
-
-    console.log('shippingDoc: ', shippingDoc);
 
     const columns = [
         {
@@ -29,9 +27,15 @@ const OrdersLabel = ({changeNextStep, toShipInfoData}) => {
         },
         {
           title: 'Package ID',
-          dataIndex: 'package_id',
-          render: (_, record) => record.order_list.package_list[0].package_id
+          dataIndex: 'package_id'
         },
+        {
+            title: 'Order ID',
+            dataIndex: 'order_id',
+            render: (_, record) => record.order_list.map(item => (
+                <p className="py-4 border-0 border-b-[1px] border-solid border-[#0505050f] last:border-b-0">{item.order_id}</p>
+            ))
+          },
         {
           title: 'Label URL',
           dataIndex: 'label',
@@ -42,6 +46,8 @@ const OrdersLabel = ({changeNextStep, toShipInfoData}) => {
     const rowSelection = {
         onChange: (_, selectedRows) => {
             setLabelSelected(selectedRows)
+            if (selectedRows.length) changeNextStep(true)
+            else changeNextStep(false)
         },
         getCheckboxProps: (record) => ({
             disabled: record.label === null
@@ -60,14 +66,12 @@ const OrdersLabel = ({changeNextStep, toShipInfoData}) => {
 
         const onSuccess = (res) => {
             if (res) {
-                messageApi.open({
-                    type: 'success',
-                    content: 'Đã đẩy label lên Driver thành công',
-                })
-
-                setStepProcessLabel(2)
                 const onSuccess = (res) => {
                     if (res) {
+                        messageApi.open({
+                            type: 'success',
+                            content: 'Đã đẩy label lên Server thành công',
+                        })
                         setDataGetToShipInfo(toShipInfo)
                     }
                 }
@@ -81,16 +85,15 @@ const OrdersLabel = ({changeNextStep, toShipInfoData}) => {
     }
 
     useEffect(() => {
-        toShipInfoData(toShipInfo)
-        changeNextStep(true)
-    }, [toShipInfo])
+        toShipInfoData(labelSelected)
+    }, [labelSelected])
 
     return (
         <div className="p-3 md:p-10">
             {contextHolder}
             <div className="mb-3 text-start">
                 <SectionTitle title='Danh sách label' count={shippingDoc.length}/>
-                <p><i>(Vui lòng tick vào ô để chọn label)</i></p>
+                <p><i>(Vui lòng tick vào ô để chọn label muốn Fulfillment)</i></p>
                 <Button type="primary" onClick={handlePushToDriver} className="mt-3" disabled={!labelSelected.length}>
                     Lưu file Label đã mua vào Server &nbsp;
                     <span>({labelSelected.length})</span>
@@ -108,7 +111,7 @@ const OrdersLabel = ({changeNextStep, toShipInfoData}) => {
                 bordered
                 pagination={false}
                 loading={loading}
-                rowKey={(record) => record.order_list.package_list[0].package_id}
+                rowKey={(record) => record.package_id}
             />
         </div>
     )

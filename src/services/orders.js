@@ -53,6 +53,26 @@ const pdfLabelDownload = (fileName) => {
   return callApi(`/pdf-download/?filename=${fileName}`, 'get')
 }
 
+const getDesignSku = () => {
+  return callApi('/designskus/', 'get')
+}
+
+const getDesignSkuSize = (page) => {
+  return callApi(`/designskus/?page=${page}`, 'get')
+}
+
+const postDesignSku = (body) => {
+  return callApi('/designskus/', 'post', body)
+}
+
+const putDesignSku = (body, DesignId) => {
+  return callApi(`/designskus/${DesignId}/`, 'put', body)
+}
+
+const deleteDesignSku = (DesignId) => {
+  return callApi(`/designskus/${DesignId}/`, 'delete')
+}
+
 export const orders = {
     getAllOrders,
     getLabelsById,
@@ -66,5 +86,10 @@ export const orders = {
     getShippingDoc,
     getPackageBought,
     pdfLabelSearch,
-    pdfLabelDownload
+    pdfLabelDownload,
+    getDesignSku,
+    getDesignSkuSize,
+    postDesignSku,
+    putDesignSku,
+    deleteDesignSku,
 }

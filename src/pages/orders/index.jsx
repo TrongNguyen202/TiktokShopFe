@@ -105,18 +105,12 @@ const Orders = () => {
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div onKeyDown={(e) => e.stopPropagation()} className="px-5 py-3">
-        {/* <Input ref={searchInput} placeholder={`Hãy tìm theo định dạng DD/MM/YYYY`} value={selectedKeys[0]}
-          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-        /> */}
-        {/* <ConfigProvider locale={viVN}> */}
         <RangePicker
           popupClassName="text-[12px]"
           presets={[...rangePresets]}
           format="DD/MM/YYYY"
           onChange={(date, dateStrings) => onRangeChange(date, dateStrings, confirm, dataIndex, setSelectedKeys, selectedKeys)}
         />
-        {/* </ConfigProvider> */}
 
         <Space className="mt-3">
           <Button type="primary" size="small"
@@ -229,21 +223,24 @@ const Orders = () => {
 
   const handleStartFulfillment = () => {
     const ordersHasPackageId = orders.filter(order => order.package_list.length > 0)
-    const orderBoughtLabel = packageBought.map(item => ordersHasPackageId.find(order => item.package_id === order.package_list[0].package_id))
-
+    const orderBoughtLabel = packageBought.map(item => ordersHasPackageId.filter(order => item.package_id === order.package_list[0].package_id))
+    const orderBoughtLabelUnique = packageBought.map(item => ordersHasPackageId.find(order => item.package_id === order.package_list[0].package_id))
     const packageIds = {
-      package_ids: orderBoughtLabel.map(item => item.package_list[0].package_id)
+      package_ids: orderBoughtLabelUnique.map(item => item.package_list[0].package_id)
     }
-
+    
     const onSuccess = (res) => {
       if (res) {
         console.log(res)
         const shippingDocData = orderBoughtLabel.map((item, index) => (
-            {
-                order_list: item,
-                label: res.doc_urls[index]
-            }
+          {
+
+            order_list: item,
+            label: res.doc_urls[index],
+            package_id: item[0].package_list[0].package_id
+          }
         ))
+
         navigate(`/shops/${shopId}/orders/fulfillment`, { state: { shippingDoc: shippingDocData } })
       }
     }
@@ -410,7 +407,10 @@ const Orders = () => {
       <PageTitle title="Danh sách đơn hàng" showBack count={orders?.length ? orders?.length : '0'}/>
       <Space className="mb-3">
         <Button type="primary" onClick={handleGetAllCombine}>Get All Combinable</Button>
-        <Button type="primary" onClick={handleStartFulfillment}>Fulfillment</Button>
+        <Button type="primary" onClick={handleStartFulfillment}>
+          Fulfillment
+          {loading && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
+        </Button>
         <Button type="primary" onClick={handleCreateLabels} disabled={!orderSelected.length}>
           Create Label &nbsp;<span>({orderSelected.length})</span>
           {(orderSelected.length > 0 && loading) && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}

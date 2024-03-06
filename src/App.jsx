@@ -31,7 +31,6 @@ const CreateLabel = lazy(() => import("./pages/orders/CreateLabel.jsx"));
 const Fulfillment = lazy(() => import("./pages/orders/Fulfillment.jsx"));
 const OrderCheckBoughtLabel = lazy(() => import("./pages/orders/OrderCheckBoughtLabel.jsx"));
 const OrderCheckDesign= lazy(() => import("./pages/orders/OrderCheckDesign.jsx"));
-const OrderFlashShip= lazy(() => import("./pages/orders/OrderFlashShip.jsx"));
 const Users = lazy(() => import("./pages/users"));
 const UserEdit = lazy(() => import("./pages/users/UserEdit.jsx"));
 const Account = lazy(() => import("./pages/account"));
@@ -221,6 +220,15 @@ const App = () => {
               />
 
               <Route
+                path="/shops/:id/orders/:id"
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <OrderDetail />
+                  </Suspense>
+                }
+              />
+
+              <Route
                 path="/shops/:id/orders/create-label"
                 element={
                   <Suspense fallback={<Loading />}>
@@ -252,24 +260,6 @@ const App = () => {
                 element={
                   <Suspense fallback={<Loading />}>
                     <OrderCheckDesign />
-                  </Suspense>
-                }
-              />
-
-              <Route
-                path="/shops/:id/orders/order-flash-ship"
-                element={
-                  <Suspense fallback={<Loading />}>
-                    <OrderFlashShip />
-                  </Suspense>
-                }
-              />
-
-              <Route
-                path="/shops/:id/orders/:id"
-                element={
-                  <Suspense fallback={<Loading />}>
-                    <OrderDetail />
                   </Suspense>
                 }
               />

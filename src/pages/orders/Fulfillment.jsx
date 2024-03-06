@@ -5,6 +5,7 @@ import { useGoogleStore } from '../../store/googleSheets'
 
 import OrdersLabel from '../../components/orders/OrdersLabel'
 import OrderCheckDesign from '../../components/orders/OrderCheckDesign'
+import OrderForPartner from '../../components/orders/OrderForPartner'
 import PageTitle from '../../components/common/PageTitle';
 
 const Fulfillment = () => {
@@ -23,21 +24,17 @@ const Fulfillment = () => {
 
     const steps = [
         {
-            title: 'Danh sách label đã mua',
+            title: 'Danh sách Label đã mua',
             content: <OrdersLabel changeNextStep={changeNextStep} toShipInfoData={getToShipInfo}/>,
         },
         {
-            title: 'Xử lý mẫu',
-            content: <OrderCheckDesign changeNextStep={changeNextStep} toShipInfoData={toShipInfoData} sheetData={sheets}/>,
+            title: 'Kiểm tra và xử lý Design',
+            content: <OrderCheckDesign changeNextStep={changeNextStep} toShipInfoData={toShipInfoData} />,
         },
         {
-            title: 'Tạo đơn hàng',
-            content: 'Danh sách đơn hàng gửi cho FlashShip và PrintCare',
-        },
-        // {
-        //     title: 'Tạo đơn hàng bên PrintCare',
-        //     content: 'Last-content',
-        // }
+            title: 'Tạo và xử lý đơn hàng',
+            content: <OrderForPartner toShipInfoData={toShipInfoData}/>,
+        }
     ];
 
     const next = () => {
