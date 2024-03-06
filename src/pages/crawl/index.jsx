@@ -45,6 +45,11 @@ export default function Crawl() {
   const [loading, setLoading] = useState(false);
   const [isShowModalUpload, setShowModalUpload] = useState(false);
   const [showSkeleton, setShowSkeleton] = useState(false);
+  const [licenseCode, setLicenseCode] = useState({
+    code: localStorage.getItem("licenseCode"),
+    invalid: localStorage.getItem("licenseCode") ? false : true,
+  });
+  console.log('licenseCode: ', licenseCode);
 
   useEffect(() => {
     setProductList(productListStorage);
@@ -137,7 +142,7 @@ export default function Crawl() {
       authority: "vk1ng.com",
       "accept-language": "vi,vi-VN;q=0.9,en-US;q=0.8,en;q=0.7",
       "content-type": "application/json",
-      authorization: "Bearer YG07HhcRJeMDGZ8TmB3bjaeN4K96JOrvGqav5ggx",
+      authorization: `Bearer ${licenseCode.code}`,
       referer: "https://www.etsy.com/",
       "sec-ch-ua-mobile": "?0",
       "sec-fetch-dest": "empty",
@@ -152,12 +157,14 @@ export default function Crawl() {
       headers: headers,
     })
       .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
         return response.json();
       })
       .then((data) => {
+        if (data.message === "Unauthenticated.") {
+          message.error("Please enter the correct lincense code!");
+          setLicenseCode({ code: "", invalid: true });
+          return;
+        }
         const combineProducts = productData.map((item) => {
           const product = data.data.find(
             (product) => item.id.split(".")[0] == product.listing_id
@@ -171,7 +178,7 @@ export default function Crawl() {
         localStorage.setItem("productList", JSON.stringify(combineProducts));
       })
       .catch((error) => {
-        message.error(error.message);
+        message.error(error.data.message);
       })
       .finally(() => {
         setLoading(false);
@@ -311,9 +318,27 @@ export default function Crawl() {
     setIsAllChecked(false);
   };
 
+  const onSaveLicenseCode = () => {
+    localStorage.setItem("licenseCode", licenseCode.code)
+    setLicenseCode((prev) => ({ ...prev, invalid: false }));
+  };
+
   return (
     <div>
       <div className="p-5 bg-[#F7F8F9]">
+        {licenseCode.invalid && (
+          <div className="flex gap-2 mb-3">
+            <Input
+              placeholder="Enter your license code"
+              onChange={(e) =>
+                setLicenseCode((prev) => ({ ...prev, code: e.target.value }))
+              }
+            />
+            <Button type="primary" onClick={onSaveLicenseCode}>
+              Save
+            </Button>
+          </div>
+        )}
         <div className="flex gap-2 items-center">
           <TextArea
             value={optionCrawl.url}
@@ -334,6 +359,7 @@ export default function Crawl() {
             Crawl
           </Button>
         </div>
+
         <div className="flex items-center gap-4 mt-4">
           <div className="flex gap-2 items-center">
             <input
