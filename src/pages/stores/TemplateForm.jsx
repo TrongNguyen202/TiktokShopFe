@@ -140,14 +140,19 @@ export default function TemplateForm({
   );
   const [isShowModalPrice, setShowModalPrice] = useState(false);
   const [sizeChart, setSizeChart] = useState(
-    templateJson?.id && templateJson.size_chart ? [{
-      uid: templateJson.size_chart?.id || 123,
-      status: "done",
-      thumbUrl: `data:image/jpeg;base64,${templateJson.size_chart}`,
-    }] : []
+    templateJson?.id && templateJson.size_chart
+      ? [
+        {
+          uid: templateJson.size_chart?.id || 123,
+          status: "done",
+          thumbUrl: `data:image/jpeg;base64,${templateJson.size_chart}`,
+        },
+      ]
+      : []
   );
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
+  const [dataPriceState, setDataPriceState] = useState([]);
 
   const dataPrice = useRef(templateJson?.id ? templateJson.types : null);
 
@@ -162,13 +167,11 @@ export default function TemplateForm({
   }, []);
 
   useEffect(() => {
-    if (!templateJson?.id) {
-      dataPrice.current = convertDataTable(
-        selectedType,
-        selectedSize,
-        selectedColor
-      );
-    }
+    // if (!templateJson?.id) {
+    //   dataPrice.current = convertDataTable(selectedType, selectedSize);
+    // }
+    // dataPrice.current = convertDataTable(selectedType, selectedSize);
+    setDataPriceState(convertDataTable(selectedType, selectedSize));
   }, [selectedSize, selectedType]);
 
   const convertDataCategory = (data) => {
@@ -247,33 +250,41 @@ export default function TemplateForm({
     });
   }
 
-  const convertDataTable = (selectedType, selectedSize, selectedColor) => {
-    let data = [];
+  const convertDataTable = (selectedType, selectedSize) => {
+    const newData = [];
+    const currentData = templateJson?.id ? [...templateJson?.types] : [...dataPriceState]
+    const resultData = [];
 
-    if (templateJson?.id) {
-      data = templateJson.types;
-    } else {
-      if (!selectedType || !selectedType.length) return [];
+    if (!selectedType || !selectedType.length) return [];
 
-      for (let i = 0; i < selectedSize.length; i++) {
-        for (let j = 0; j < selectedType.length; j++) {
-          data.push({
-            id: `${selectedType[j]}-${selectedSize[i]}`,
-            type: selectedType[j],
-            size: selectedSize[i],
-            quantity: "",
-            price: "",
-          });
-        }
+    for (let i = 0; i < selectedSize.length; i++) {
+      for (let j = 0; j < selectedType.length; j++) {
+        newData.push({
+          id: `${selectedType[j]}-${selectedSize[i]}`,
+          size: selectedSize[i],
+          type: selectedType[j],
+          quantity: "",
+          price: "",
+        });
       }
     }
-    const dataSave = sortByType(data);
-    dataPrice.current = dataSave;
-    return dataSave;
+
+    newData.forEach((item) => {
+      const index = currentData.findIndex(
+        (el) => el.id == item.id
+      );
+      if (index == -1) {
+        resultData.push(item);
+      } else {
+        resultData.push(currentData[index]);
+      }
+    });
+    return sortByType(resultData);
   };
 
   const onSavePrice = (value) => {
     dataPrice.current = value;
+    setDataPriceState(value);
   };
 
   const handleChangeCategories = (e) => {
@@ -533,10 +544,10 @@ export default function TemplateForm({
                     onChange={onChangeSizeChart}
                     beforeUpload={() => false}
                     previewFile={getBase64}
-                  // multiple
-                  // itemRender={(originNode, file) => (
-                  //   <DraggableUploadListItem originNode={originNode} file={file} />
-                  // )}
+                    // multiple
+                    // itemRender={(originNode, file) => (
+                    //   <DraggableUploadListItem originNode={originNode} file={file} />
+                    // )}
                   >
                     {sizeChart.length ? null : (
                       <button
@@ -707,12 +718,13 @@ export default function TemplateForm({
                     setShowModalPrice={(value) => setShowModalPrice(value)}
                     onSavePrice={onSavePrice}
                     dataPrice={
-                      dataPrice.current ||
-                      convertDataTable(
-                        selectedType,
-                        selectedSize,
-                        selectedColor
-                      )
+                      // dataPrice.current ||
+                      // convertDataTable(
+                      //   selectedType,
+                      //   selectedSize,
+                      //   selectedColor
+                      // )
+                      dataPriceState
                     }
                   />
                 </Modal>
@@ -726,7 +738,9 @@ export default function TemplateForm({
               type="primary"
               htmlType="submit"
             >
-              {templateJson?.id && !templateJson?.isFromFile ? "Cập nhật" : "Thêm"}
+              {templateJson?.id && !templateJson?.isFromFile
+                ? "Cập nhật"
+                : "Thêm"}
             </Button>
           </div>
         </Spin>

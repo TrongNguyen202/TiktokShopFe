@@ -205,10 +205,12 @@ const Template = () => {
           open={isShowModal}
           onCancel={() => {
             setShowModal(false);
+            setTemplateSelected(null);
           }}
           centered
           footer={null}
           width={1000}
+          maskClosable={false}
         >
           <TemplateForm
             onSaveTemplate={() => {}}

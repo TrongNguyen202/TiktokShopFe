@@ -5,6 +5,7 @@ import ProductItem from "./ProductItem";
 import * as XLSX from "xlsx";
 import { CloudUploadOutlined, DownloadOutlined } from "@ant-design/icons";
 import ModalUploadProduct from "./ModalUploadProduct";
+import TextArea from "antd/es/input/TextArea";
 
 const crawlerOptions = [
   {
@@ -34,8 +35,6 @@ const initialCrawl = {
   crawler: "Etsy",
 };
 
-const initialUrl = "https://www.etsy.com/search?q=shirt&ref=search_bar";
-
 export default function Crawl() {
   const productListStorage = JSON.parse(localStorage.getItem("productList"));
 
@@ -63,7 +62,6 @@ export default function Crawl() {
 
   const handleDeleteProduct = (product_id) => {
     const newProductList = productList.filter((item) => item.id !== product_id);
-    // localStorage.setItem('productList', JSON.stringify(newProductList));
     setProductList(newProductList);
   };
 
@@ -161,7 +159,9 @@ export default function Crawl() {
       })
       .then((data) => {
         const combineProducts = productData.map((item) => {
-          const product = data.data.find((product) => item.id.split(".")[0] == product.listing_id);
+          const product = data.data.find(
+            (product) => item.id.split(".")[0] == product.listing_id
+          );
           return {
             ...item,
             ...product,
@@ -169,7 +169,6 @@ export default function Crawl() {
         });
         setProductList(combineProducts);
         localStorage.setItem("productList", JSON.stringify(combineProducts));
-        // setProductList(data.data);
       })
       .catch((error) => {
         message.error(error.message);
@@ -181,27 +180,50 @@ export default function Crawl() {
   };
 
   const fetchDataProductList = async (url, crawler) => {
+    setLoading(true);
+    // lấy danh sách url từ textarea và split theo dòng
+    const urlsList = url
+      .trim()
+      .split("\n")
+      .filter((line) => line.trim() !== "");
+
+    // nếu url không bắt đầu bằng http thì là id sản phẩm -> thêm đầu link etsy
+    const urls = urlsList.map((url) =>
+      url.startsWith("http") ? url : `https://www.etsy.com/listing/${url}`
+    );
     const params = {
       crawler: crawler,
     };
-    setLoading(true);
-    axios({
-      method: "post",
-      url: `https://kaa.iamzic.com/api/v1/crawl.json?crawlURL=${url}`,
-      data: params,
-    })
-      .then((response) => {
-        // setProductList(response.data.data);
-        localStorage.setItem("productList", JSON.stringify(response.data.data));
-        const ids = response.data.data.map((item) => item.id.split('.')[0]).join(",");
-        setCheckedItems([]);
-        setIsAllChecked(false);
-        setShowSkeleton(true);
-        fetchInfoProducts(ids, response.data.data);
-      })
-      .catch((error) => {
-        message.error(error.response.data.message);
-      })
+    const fetchProductList = async (url) => {
+      return axios({
+        method: "post",
+        url: `https://kaa.iamzic.com/api/v1/crawl.json?crawlURL=${url}`,
+        data: params,
+      }).catch((error) => ({ error }));
+    };
+
+    // gọi đồng thời các request lấy dữ liệu sản phẩm
+    const responses = await Promise.allSettled(
+      urls.map((url) => fetchProductList(url))
+    );
+
+    // concat các sản phẩm vào chung 1 mảng
+    const productData = responses
+      .filter(
+        (response) => response.status === "fulfilled" && response.value.data
+      )
+      .reduce((acc, response) => {
+        const { data } = response.value;
+        return [...acc, ...data.data];
+      }, []);
+
+    // lấy danh sách id của sản phẩm để get thông tin sản phẩm
+    const ids = productData.map((item) => item.id.split(".")[0]).join(",");
+    localStorage.setItem("productList", JSON.stringify(productData));
+    setCheckedItems([]);
+    setIsAllChecked(false);
+    setShowSkeleton(true);
+    fetchInfoProducts(ids, productData);
   };
 
   const handleCrawl = () => {
@@ -292,12 +314,13 @@ export default function Crawl() {
   return (
     <div>
       <div className="p-5 bg-[#F7F8F9]">
-        <div className="flex gap-2">
-          <Input
+        <div className="flex gap-2 items-center">
+          <TextArea
             value={optionCrawl.url}
             placeholder="Page URL"
             onChange={onChangeUrl}
-            onPressEnter={handleCrawl}
+            // onPressEnter={handleCrawl}
+            rows={4}
           />
           <Select
             defaultValue="Etsy"

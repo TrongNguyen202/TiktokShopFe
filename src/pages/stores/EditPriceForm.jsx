@@ -60,7 +60,7 @@ export default function EditPriceForm({
     {
       title: "Type",
       dataIndex: "type",
-      width: "20%",
+      width: "25%",
       render: (text, row, index) => {
         if (index % selectedSize.length === 0) {
           return {
@@ -81,7 +81,7 @@ export default function EditPriceForm({
     {
       title: "Quantity",
       dataIndex: "quantity",
-      width: "20%",
+      width: "25%",
       editable: true,
       render: (text, row, index) => {
         if (index % selectedSize.length === 0) {
@@ -103,20 +103,14 @@ export default function EditPriceForm({
     {
       title: "Size",
       dataIndex: "size",
-      width: "20%",
+      width: "25%",
     },
     {
       title: "Price",
       dataIndex: "price",
       editable: true,
-      width: "20%",
+      width: "25%",
     },
-    // {
-    //   title: "Seller sku",
-    //   dataIndex: "seller_sku",
-    //   editable: true,
-    //   width: "20%",
-    // },
   ];
 
   const EditableCell = ({
@@ -172,7 +166,7 @@ export default function EditPriceForm({
         <Form.Item
           style={{
             margin: 0,
-            width: "155px",
+            width: "200px",
             height: "30px",
             borderRadius: "2px",
           }}
