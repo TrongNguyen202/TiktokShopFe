@@ -14,9 +14,11 @@ import Login from "./pages/login/index.jsx";
 import ForgotPassword from "./pages/login/ForgotPassword";
 import Template from "./pages/templates/index.jsx";
 import VoucherForm from "./pages/vouchers/VoucherForm";
+import PromotionFrom from "./pages/promotion/PromotionForm.jsx";
 import { useBadgesStore } from "./store/badgesStore";
 import { getToken } from "./utils/auth";
 import Loading from "./components/loading";
+import Promotion from "./pages/promotion/index.jsx";
 
 const Sellers = lazy(() => import("./pages/sellers/index.jsx"));
 const Home = lazy(() => import("./pages/home/index.jsx"));
@@ -29,8 +31,12 @@ const Brands = lazy(() => import("./pages/brands"));
 const Orders = lazy(() => import("./pages/orders"));
 const CreateLabel = lazy(() => import("./pages/orders/CreateLabel.jsx"));
 const Fulfillment = lazy(() => import("./pages/orders/Fulfillment.jsx"));
-const OrderCheckBoughtLabel = lazy(() => import("./pages/orders/OrderCheckBoughtLabel.jsx"));
-const OrderCheckDesign= lazy(() => import("./pages/orders/OrderCheckDesign.jsx"));
+const OrderCheckBoughtLabel = lazy(
+  () => import("./pages/orders/OrderCheckBoughtLabel.jsx")
+);
+const OrderCheckDesign = lazy(
+  () => import("./pages/orders/OrderCheckDesign.jsx")
+);
 const Users = lazy(() => import("./pages/users"));
 const UserEdit = lazy(() => import("./pages/users/UserEdit.jsx"));
 const Account = lazy(() => import("./pages/account"));
@@ -45,8 +51,8 @@ const MultiAddProducts = lazy(
 );
 const Order = lazy(() => import("./pages/orders/index.jsx"));
 const OrderDetail = lazy(() => import("./pages/orders/OrderDetail.jsx"));
-const ProductCreate = lazy(() => import ('./pages/products/ProductCreate.jsx'))
-const Crawl = lazy(() => import('./pages/crawl/index.jsx'))
+const ProductCreate = lazy(() => import("./pages/products/ProductCreate.jsx"));
+const Crawl = lazy(() => import("./pages/crawl/index.jsx"));
 
 const PrivateRoute = () => {
   const [authenticated, setAuthenticated] = useState(false);
@@ -191,7 +197,7 @@ const App = () => {
               />
 
               <Route
-                path='/shops/:id/products/create'
+                path="/shops/:id/products/create"
                 element={
                   <Suspense fallback={<Loading />}>
                     <ProductCreate />
@@ -255,11 +261,30 @@ const App = () => {
                 }
               />
 
+              {/* promotions */}
               <Route
                 path="/shops/:id/orders/check-design"
                 element={
                   <Suspense fallback={<Loading />}>
                     <OrderCheckDesign />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                path="/shops/:id/promotions"
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <Promotion />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                path="/shops/:id/promotions/create-prd-discount"
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <PromotionFrom />
                   </Suspense>
                 }
               />
