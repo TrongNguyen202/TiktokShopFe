@@ -60,8 +60,9 @@ class UserInfo(APIView):
             'id': user.id,
             'username': user.username,
             'email': user.email,
-            'first_name': user.first_name,  # Lấy first_name từ đối tượng User
-            'last_name': user.last_name,    # Lấy last_name từ đối tượng User
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'password': user.password
         }
 
         return Response(user_info)

@@ -7,7 +7,7 @@ setup_logging(logger, is_root=False, level=logging.INFO)
 
 
 class Shops(APIView):
-    permission_classes = (IsAuthenticated, )  # Chỉ cho phép người dùng đã đăng nhập truy cập
+    permission_classes = (IsAuthenticated, )
 
     def get_user_group(self, user):
         """
@@ -19,40 +19,19 @@ class Shops(APIView):
         except UserGroup.DoesNotExist:
             return None
 
-    def get_shop_list(self, group):
-        """
-            Lấy danh sách các shop được phần quyền cho mỗi group
-        """
-        shops = Shop.objects.filter(group_custom_id=group)
-        return shops
-
     @extend_schema(
         request=ShopSerializers,
         responses=ShopSerializers,
     )
     def get(self, request):
-        user = request.user
+        # List ra các cửa hàng mà user đã đăng ký
+        user_shops = UserShop.objects.filter(user=request.user)
 
-        # Lấy thông tin group của user
-        user_group = self.get_user_group(user)
-
-        if user_group is None:
-            logger.error(f'User {user} does not belong to any group')
-
-            return Response(
-                {
-                    'status': 'error',
-                    'message': 'User does not belong to any group',
-                    'data': None
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # Lấy danh sách các shop được phần quyền cho mỗi group
-        shops = self.get_shop_list(user_group)
-        serializer = ShopSerializers(shops, many=True)  # Chuyển đổi danh sách các shop thành dạng JSON
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        # Lấy ra thông tin của các cửa hàng
+        shop_ids = [user_shop.shop_id for user_shop in user_shops]
+        shops = Shop.objects.filter(id__in=shop_ids)
+        serializer = ShopSerializers(shops, many=True)
+        return Response(serializer.data)
 
     @extend_schema(
         request=ShopRequestSerializers,
@@ -66,24 +45,18 @@ class Shops(APIView):
 
         if not auth_code:
             logger.error(f'User {request.user} does not provide auth_code')
-
-            return Response(
-                {'error': 'auth_code is required'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({'error': 'auth_code is required'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Từ auth_code, lấy access_token và refresh_token
         response = token.getAccessToken(auth_code=auth_code)
         group_custom = self.get_user_group(user=self.request.user)
-
-        logger.info(f'User {self.request.user} is in group {group_custom}')
+        logger.info(f'User {self.request.user} is in group (department) {group_custom}')
 
         if response.status_code == 200:
             json_data = response.json()
             data = json_data.get('data', None)
             access_token = data.get('access_token', None)
             refresh_token = data.get('refresh_token', None)
-
             logger.info(f'Access token: {access_token}, Refresh token: {refresh_token}')
         else:
             logger.error(f'User {request.user}: Get access token failed: {response.text}')
@@ -100,7 +73,6 @@ class Shops(APIView):
             )
 
         # Sau khi lấy được access_token và refresh_token, lưu vào database
-
         shop_data = {
             'auth_code': auth_code,
             'app_key': constant.app_key,
@@ -237,10 +209,14 @@ class UserShopList(APIView):
         }
 
         users_filter = []
-        for user_group in group_custom.usergroup_set.filter(role=2):
+        for user_group in group_custom.usergroup_set.filter(role=1) | group_custom.usergroup_set.filter(role=2):
             user_data = {
                 "user_id": user_group.user.id,
                 "user_name": user_group.user.username,
+                "first_name": user_group.user.first_name,
+                "last_name": user_group.user.last_name,
+                "password": user_group.user.password,
+                "email": user_group.user.email,
                 "shops": []
             }
 

@@ -36,6 +36,8 @@ class TemplateList(APIView):
             user=self.request.user,
             badWords=request.data.get('badWords'),
             suffixTitle=request.data.get('suffixTitle'),
+            size_chart=request.data.get('size_chart', ''),
+            fixed_images=request.data.get('fixed_images', []),
         )
 
         template.save()

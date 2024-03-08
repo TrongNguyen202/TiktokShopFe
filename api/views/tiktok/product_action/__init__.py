@@ -60,10 +60,13 @@ class CreateOneProduct(APIView):
     def upload_images(self, base64_images, access_token):
         images_ids = []
 
-        for img_data in base64_images:
-            if img_data is not None:
-                img_id = product.callUploadImage(access_token=access_token, img_data=img_data)
-                if img_id != "":
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            futures = [executor.submit(product.callUploadImage, access_token, img_data) for img_data in base64_images]
+
+            for idx, future in enumerate(futures):
+                logger.info(f'User {self.request.user}: Upload image [{idx} | {len(futures)}] result: {future.result()}', exc_info=True)
+                img_id = future.result()
+                if img_id:
                     images_ids.append(img_id)
 
         return images_ids
@@ -74,13 +77,19 @@ class CreateOneProduct(APIView):
         body_raw = request.body.decode('utf-8')
         product_data = json.loads(body_raw)
         base64_images = product_data.pop('images', [])
+        base64_images_size_chart = product_data.get('size_chart')
 
         try:
             images_ids = self.upload_images(base64_images, access_token)
         except Exception as e:
-            logger.error(
-                f'User {request.user}: Error when upload images', exc_info=e)
+            logger.error(f'User {request.user}: Error when upload images', exc_info=e)
 
+        try:
+            images_id_size_chart = product.callUploadImage(access_token, base64_images_size_chart.get('img_id'))
+        except Exception as e:
+            logger.error(f'User {request.user}: Error when upload size chart image', exc_info=e)
+
+        product_object = None
         try:
             product_object = constant.ProductCreateOneObject(
                 product_name=product_data.get("product_name"),
@@ -95,7 +104,8 @@ class CreateOneProduct(APIView):
                 brand_id=product_data.get("brand_id"),
                 description=product_data.get("description"),
                 skus=product_data.get("skus"),
-                product_attributes=product_data.get("product_attributes")
+                product_attributes=product_data.get("product_attributes"),
+                size_chart=images_id_size_chart
             )
         except Exception as e:
             logger.error('Error when create product object from request body', exc_info=e)
@@ -427,9 +437,7 @@ class CategoriesIsLeaf(APIView):
             json_data = response.json
             categories = json_data.get('data', {}).get('category_list', [])
 
-            filtered_categories = [
-                category for category in categories if category.get('is_leaf', False)
-            ]
+            filtered_categories = [category for category in categories if category.get('is_leaf', False)]
 
             data = {
                 'code': 0,

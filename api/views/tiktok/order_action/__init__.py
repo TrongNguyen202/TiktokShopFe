@@ -108,6 +108,9 @@ class ShippingService(APIView):
         }
         return JsonResponse(response_data, status=200)
 
+    def call_get_shipping_service(self, access_token, service_info):
+        return order.callGetShippingService(access_token, service_info)
+
 
 """Packages"""
 
@@ -181,16 +184,28 @@ class SearchPackage(APIView):
 
 class PackageDetail(APIView):
 
-    def get(self, request, shop_id, package_id):
+    def post(self, request, shop_id):
+        package_ids = json.loads(request.body.decode('utf-8'))
         shop = get_object_or_404(Shop, id=shop_id)
         access_token = shop.access_token
+        data_main = []
 
-        response = order.callGetPackageDetail(access_token, package_id)
-        data_json_string = response.content.decode('utf-8')
-        data = json.loads(data_json_string)
+        # Sử dụng ThreadPoolExecutor để thực hiện các cuộc gọi API đa luồng
+        with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
+            futures = []
+            for package_id in package_ids:
+                futures.append(executor.submit(order.callGetPackageDetail, access_token, package_id))
+
+            # Thu thập kết quả từ các future và thêm vào danh sách data_main
+            for future in futures:
+                respond = future.result()
+                data_json_string = respond.content.decode('utf-8')
+                data = json.loads(data_json_string)
+                data["data"]["package_id"] = str(data["data"]["package_id"])
+                data_main.append(data)
 
         response_data = {
-            "data": data,
+            "data": data_main,
             "message": "Success",
         }
         return JsonResponse(response_data, status=200)
