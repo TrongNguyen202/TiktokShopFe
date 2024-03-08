@@ -13,7 +13,7 @@ import StoreDetailWareHouses from "../../components/stores/StoreDetailWareHouses
 import StoreDetailCategories from "../../components/stores/StoreDetailCategories";
 import StoreDetailProducts from "../../components/stores/StoreDetailProducts";
 import StoreDetailOrder from "../../components/stores/StoreDetailOrder";
-import Promotions from "../../components/stores/PromotionCard";
+import Promotions from "../../components/promotion/PromotionCard";
 import StoreDetailSectionTitle from "../../components/stores/StoreDetailSectionTitle";
 import { useNavigate } from "react-router-dom";
 

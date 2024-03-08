@@ -1,8 +1,7 @@
-import { useEffect } from "react";
 import { Card } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 
-import StoreDetailSectionTitle from "./StoreDetailSectionTitle";
+import StoreDetailSectionTitle from "../stores/StoreDetailSectionTitle";
 
 const StoreDetailOrder = ({ shopId }) => {
   const navigate = useNavigate();

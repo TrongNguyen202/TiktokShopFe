@@ -8,24 +8,32 @@ import {
   Row,
   Select,
   Tooltip,
+  Image,
+  Modal,
+  Checkbox,
+  Table,
+  Cascader,
 } from "antd";
+
 import dayjs from "dayjs";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ContentHeader from "../../components/content-header";
 import Loading from "../../components/loading";
 import { useVouchersStore } from "../../store/vouchersStore";
-import { getPathByIndex } from "../../utils";
+import { buildNestedArraysMenu, getPathByIndex } from "../../utils";
 import { alerts } from "../../utils/alerts";
-import PageTitle from "../../components/common/PageTitle";
+import { useCategoriesStore } from "../../store/categoriesStore";
+import { useProductsStore } from "../../store/productsStore";
+
+const { Search } = Input;
 
 export default function PromotionForm() {
+  const ShopId = getPathByIndex(2);
   const prdDiscountID = getPathByIndex(4);
   const navigate = useNavigate();
   const location = useLocation();
-  const { createVoucher, loading, updateVoucher } = useVouchersStore(
-    (state) => state
-  );
+  const { createVoucher, updateVoucher } = useVouchersStore((state) => state);
 
   const [discountType, setDiscountType] = useState(
     location?.state?.discount_type || 0
@@ -33,9 +41,19 @@ export default function PromotionForm() {
   const [limitTotal, setLimitTotal] = useState(
     location?.state ? location?.state?.set_limit_total : true
   );
-  const [limitDiscount, setLimitDiscount] = useState(
-    location?.state ? location?.state?.set_limit_value_discount : true
+  // categories zustand
+  const { categoriesIsLeaf, getAllCategoriesIsLeaf } = useCategoriesStore(
+    (state) => state
   );
+  const categoriesData = buildNestedArraysMenu(categoriesIsLeaf, 0);
+
+  // product zustand
+  const { products, getAllProducts, loading, infoTable } = useProductsStore(
+    (state) => state
+  );
+
+  //state
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const onSubmit = (value) => {
     const onSuccess = () => {
@@ -64,8 +82,132 @@ export default function PromotionForm() {
       );
   };
 
+  //logic datepicker
+  const onChangeRangePicker = (e) => {
+    console.log("hahahaha", e);
+  };
+
+  // modal logic
+  const showModal = () => {
+    setIsModalOpen(true);
+    const onSuccess = (res) => {
+      getAllCategoriesIsLeaf();
+    };
+    const onFail = (err) => {
+      alerts.error(err);
+    };
+
+    getAllProducts(ShopId, 1, onSuccess, onFail);
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+  // select catagory on modal
+  const handleChangeCategories = (value) => {
+    console.log(`selected ${value}`);
+  };
+  //logic checkbox modal
+
+  //logic table modal
+  const rowSelection = {
+    onChange: (_, selectedRows) => {
+      console.log("selectedRows: ", selectedRows);
+      const selectedRowsPackageId = selectedRows.map(
+        (item) => item.package_list[0].package_id
+      );
+      setOrderSelected(selectedRowsPackageId);
+    },
+    getCheckboxProps: (record) => {
+      const disabledStatus = [140, 130, 122, 121, 105, 100];
+      const disabledLabel = packageBought.map((item) => item.package_id);
+
+      const isDisabledStatus = disabledStatus.includes(record.order_status);
+      const isDisabledLabel = disabledLabel.includes(
+        record.package_list.length > 0 && record.package_list[0].package_id
+      );
+
+      return {
+        disabled: isDisabledStatus || isDisabledLabel,
+      };
+    },
+  };
+
+  // logic select in modal in table
+  const handleChangeCategoriesModal = (e) => {
+    const categoryId = e[e.length - 1];
+    const onSuccess = (res) => {
+      getAttributeValues(res.data.attributes);
+    };
+
+    const onFail = (err) => {
+      messageApi.open({
+        type: "error",
+        content: err,
+      });
+    };
+    getAttributeByCategory(shopId, categoryId, onSuccess, onFail);
+  };
+
+  // define table
+  const columns = [
+    {
+      title: "product name",
+      dataIndex: "shipping_provider",
+      key: "shipping_provider",
+    },
+    {
+      title: "original price",
+      dataIndex: "shipping_provider",
+      key: "shipping_provider",
+    },
+    {
+      title: "stock",
+      dataIndex: "shipping_provider",
+      key: "shipping_provider",
+    },
+  ];
+
+  // define UI row product discount requirements
+  const PrdDiscountReq = () => {
+    return (
+      <Row gutter={[30, 30]} className="bg-[#f5f5f5] p-10 mt-6">
+        <Row>
+          <h2>Product discount requirements</h2>
+        </Row>
+
+        <Row gutter={[160, 160]}>
+          <Col span={24} md={{ span: 12 }}>
+            <div className="align-middle">
+              <p className="text-sm">The biggest discount takes effect</p>
+              <p className="text-xs text-grey-400">
+                A product can be included in multiple discount promotions, but
+                only the biggest discount will take effect at any given time.
+              </p>
+            </div>
+          </Col>
+
+          <Col span={24} md={{ span: 12 }}>
+            <div className="align-middle">
+              <p className="text-sm">Flash deal prices are prioritized</p>
+              <p className="text-xs text-grey-400">
+                When a product has both a product discount and a flash deal
+                discount, only the flash deal price will be shown.
+              </p>
+            </div>
+          </Col>
+        </Row>
+      </Row>
+    );
+  };
+
   return (
-    <div className="relative">
+    <div>
       <div className="absolute top-[50%] left-[47%]">
         {loading ? <Loading /> : null}
       </div>
@@ -89,14 +231,17 @@ export default function PromotionForm() {
               : "Cập nhật product discount"
           }
         />
+        {/* top */}
         <Row className="p-10 pt-5 justify-between min-h-[465px]">
+          {/* left */}
           <Col span={11}>
+            <h2 className="my-4">Thông tin cơ bản </h2>
             <Form.Item
               label="Tên chương trình"
               name="name"
               labelAlign="left"
               className="font-medium"
-              sx={{ width: "100%" }}
+              sx={{ width: "50%" }}
               rules={[
                 {
                   required: true,
@@ -106,103 +251,101 @@ export default function PromotionForm() {
               initialValue={location?.state?.code}
             >
               <Input
+                className="w-2/3"
                 placeholder="Nhập tên chương trình"
                 defaultValue={location?.state?.name}
               />
             </Form.Item>
 
-            <Form.Item
-              label="Promotion period(PST)"
-              name="code"
-              labelAlign="left"
-              className="font-medium"
-              labelCol={{
-                span: 24,
-              }}
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng nhập mã giảm giá!",
-                },
-              ]}
-              initialValue={location?.state?.code}
-            >
+            <div className="flex align-middle">
+              <span className="text-sm font-semibold">
+                Promotion period(PST)
+              </span>
               <Tooltip
+                className="ml-2"
                 placement="top"
                 title="the maximum promotion period day is 30 days"
               >
-                <> !</>
+                <span className="rounded-full bg-gray-300 w-6 h-6 flex items-center justify-center border-2 border-gray-400 text-center mt-[2px] font-bold">
+                  !
+                </span>
               </Tooltip>
-              <Input
-                placeholder="Nhập mã giảm giá"
-                defaultValue={location?.state?.code}
-              />
-            </Form.Item>
+            </div>
 
-            <Row className="justify-between">
-              <Form.Item
-                label="Thời gian bắt đầu"
-                name="start_time"
-                labelAlign="left"
-                className="font-medium"
-                labelCol={{
-                  span: 24,
-                }}
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn ngày bắt đầu!",
-                  },
-                ]}
-                initialValue={
-                  location?.state?.start_time
-                    ? dayjs(location?.state?.start_time)
-                    : ""
-                }
-              >
-                <DatePicker
-                  format="DD-MM-YYYY"
-                  placeholder="Từ ngày"
-                  defaultValue={
+            <Row>
+              <Col span={24} md={{ span: 12 }}>
+                <Form.Item
+                  label="Thời gian bắt đầu"
+                  name="start_time"
+                  labelAlign="left"
+                  className="font-medium"
+                  labelCol={{
+                    span: 24,
+                  }}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn ngày bắt đầu!",
+                    },
+                  ]}
+                  initialValue={
                     location?.state?.start_time
-                      ? dayjs(location?.state?.start_time, "DD/MM/YYYY")
+                      ? dayjs(location?.state?.start_time)
                       : ""
                   }
-                />
-              </Form.Item>
-              <Form.Item
-                label="Thời gian kết thúc"
-                name="end_time"
-                labelAlign="left"
-                className="font-medium"
-                labelCol={{
-                  span: 24,
-                }}
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn ngày kết thúc!",
-                  },
-                ]}
-                initialValue={
-                  location?.state?.end_time
-                    ? dayjs(location?.state?.end_time)
-                    : ""
-                }
-              >
-                <DatePicker
-                  format="DD-MM-YYYY"
-                  placeholder="Đến ngày"
-                  defaultValue={
+                >
+                  <DatePicker
+                    format="DD-MM-YYYY HH:mm:ss"
+                    placeholder="Từ ngày"
+                    showTime
+                    defaultValue={
+                      location?.state?.start_time
+                        ? dayjs(
+                            location?.state?.start_time,
+                            "DD/MM/YYYY HH:mm:ss"
+                          )
+                        : ""
+                    }
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={24} md={{ span: 12 }}>
+                <Form.Item
+                  label="Thời gian kết thúc"
+                  name="end_time"
+                  labelAlign="left"
+                  className="font-medium"
+                  labelCol={{
+                    span: 24,
+                  }}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn ngày kết thúc!",
+                    },
+                  ]}
+                  initialValue={
                     location?.state?.end_time
                       ? dayjs(location?.state?.end_time)
                       : ""
                   }
-                />
-              </Form.Item>
+                >
+                  <DatePicker
+                    format="DD-MM-YYYY HH:mm:ss"
+                    placeholder="Đến ngày"
+                    showTime
+                    defaultValue={
+                      location?.state?.end_time
+                        ? dayjs(location?.state?.end_time)
+                        : ""
+                    }
+                  />
+                </Form.Item>
+              </Col>
             </Row>
+
             <Form.Item
-              label="Đơn tối thiểu"
+              label="Discount type"
               name="set_limit_total"
               className="font-medium mb-[11px]"
               labelAlign="left"
@@ -219,8 +362,8 @@ export default function PromotionForm() {
             >
               <Radio.Group
                 options={[
-                  { label: "Có", value: true },
-                  { label: "Không", value: false },
+                  { label: "Percentage Off", value: true },
+                  { label: "Fixed Price", value: false },
                 ]}
                 defaultValue={limitTotal}
                 className="font-normal"
@@ -228,179 +371,133 @@ export default function PromotionForm() {
                 buttonStyle="solid"
               />
             </Form.Item>
-            {limitTotal ? (
-              <Form.Item
-                label=""
-                name="value_limit_total"
-                className="font-medium"
-                labelAlign="left"
-                labelCol={{
-                  span: 24,
-                }}
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập giá trị tối thiểu!",
-                  },
-                ]}
-                initialValue={location?.state?.value_limit_total}
-              >
-                <Input
-                  formatter={(value) =>
-                    ` ${value}`
-                      .replace(/\./, ",")
-                      .replace(/\B(?=(\d{3})+(?!\d))/g, ".")
-                  }
-                  placeholder="Nhập giá trị tối thiểu của đơn hàng"
-                  defaultValue={location?.state?.value_limit_total}
-                  type="number"
-                />
-              </Form.Item>
-            ) : null}
           </Col>
-          <Col span={12}>
-            <Form.Item
-              label="Số lượng mã có thể sử dụng"
-              className="font-medium"
-              name="remain"
-              labelAlign="left"
-              labelCol={{
-                span: 24,
-              }}
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng nhập số lượng mã!",
-                },
-              ]}
-              initialValue={location?.state?.remain}
-            >
-              <Input
-                placeholder="Nhập số lượng"
-                autoComplete="false"
-                defaultValue={location?.state?.remain}
-                type="number"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Loại giảm giá"
-              name="discount_type"
-              labelAlign="left"
-              labelCol={{
-                span: 24,
-              }}
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn loại giảm giá!",
-                },
-              ]}
-              className="font-medium mb-3"
-              initialValue={discountType}
-            >
-              <Select
-                placeholder="Giảm giá cố định"
-                defaultValue={location?.state?.discount_type || 0}
-                onChange={(value) => setDiscountType(value)}
-              >
-                <Select.Option value={0}>Giảm giá cố định</Select.Option>
-                <Select.Option value={1}>Giảm giá theo %</Select.Option>
-              </Select>
-            </Form.Item>
-            <Form.Item
-              label=""
-              className="font-medium mb-[66px]"
-              name="value_discount"
-              labelAlign="left"
-              labelCol={{
-                span: 24,
-              }}
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng nhập giá trị giảm!",
-                },
-                {
-                  validator(_, value) {
-                    if (value <= 99) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(
-                      new Error("Giá trị phải từ 1 đến 99!")
-                    );
-                  },
-                },
-              ]}
-              initialValue={location?.state?.value_discount}
-            >
-              <Input
-                placeholder={`Nhập giá trị bạn muốn giảm (${
-                  discountType ? "%" : "đ"
-                })`}
-                autoComplete="false"
-                defaultValue={location?.state?.value_discount}
-                type="number"
-              />
-            </Form.Item>
 
-            {discountType ? (
-              <>
-                <Form.Item
-                  label="Giảm tối đa"
-                  className="font-medium mb-[11px]"
-                  name="set_limit_value_discount"
-                  labelAlign="left"
-                  labelCol={{
-                    span: 24,
-                  }}
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập giá trị giới hạn!",
-                    },
-                  ]}
-                  initialValue={limitDiscount}
-                >
-                  <Radio.Group
-                    options={[
-                      { label: "Chọn mức giảm", value: true },
-                      { label: "Không giới hạn", value: false },
-                    ]}
-                    defaultValue={limitDiscount}
-                    className="font-normal"
-                    onChange={(e) => setLimitDiscount(e.target.value)}
-                    buttonStyle="solid"
-                  />
-                </Form.Item>
-                {limitDiscount ? (
-                  <Form.Item
-                    label=""
-                    className="font-medium"
-                    name="max_value_discount"
-                    labelAlign="left"
-                    labelCol={{
-                      span: 24,
-                    }}
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập giá trị giới hạn!",
-                      },
-                    ]}
-                    initialValue={location?.state?.max_value_discount}
-                  >
-                    <Input
-                      placeholder="Nhập giá trị muốn giới hạn"
-                      autoComplete="false"
-                      defaultValue={location?.state?.max_value_discount}
-                    />
-                  </Form.Item>
-                ) : null}
-              </>
-            ) : null}
+          {/* right */}
+          <Col span={12}>
+            <Row gutter={[30, 300]}>
+              <Col span={12}>
+                <Image
+                  width={200}
+                  src="https://lf16-cdn-tos.tiktokcdn-us.com/obj/static-tx/i18n/ecom/TTS/normal/promotion/static/media/pdp.b940b71e.png"
+                />
+              </Col>
+              <Col span={12}>
+                <Image
+                  width={200}
+                  src="https://lf16-cdn-tos.tiktokcdn-us.com/obj/static-tx/i18n/ecom/TTS/normal/promotion/static/media/live-stream.3c747bf8.png"
+                />
+              </Col>
+            </Row>
           </Col>
         </Row>
-        <div className="w-[300px] ml-auto pr-10">
+        {/* space */}
+        <Row className="h-4 bg-[#f5f5f5]"></Row>
+        {/* bottom */}
+        <div className="p-10 pt-5 ">
+          <div>
+            <h2>Product</h2>
+            <p className="text-gray-400">
+              The discount can apply to either specific products or specific
+              variations.
+            </p>
+          </div>
+
+          <div className="mt-6">
+            <Form.Item
+              label="Something"
+              name="set_limit_total"
+              className="font-medium mb-[11px]"
+              labelAlign="left"
+              labelCol={{
+                span: 24,
+              }}
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng nhập giá trị tối thiểu!",
+                },
+              ]}
+              initialValue={limitTotal}
+            >
+              <Radio.Group
+                options={[
+                  { label: "Product-level", value: true },
+                  { label: "Variation-level", value: false },
+                ]}
+                className="font-normal"
+                onChange={(e) => setLimitTotal(e.target.value)}
+                buttonStyle="solid"
+              />
+            </Form.Item>
+          </div>
+
+          <div className="mt-6">
+            <Button type="primary" onClick={showModal}>
+              Chọn sản phẩm
+            </Button>
+
+            {1 & 1 ? <PrdDiscountReq /> : ""}
+
+            <Modal
+              title="Chọn sản phẩm"
+              open={isModalOpen}
+              onOk={handleOk}
+              onCancel={handleCancel}
+              width="900px"
+            >
+              {/* top */}
+              <Row className="mt-8">
+                <Col span={8}>
+                  <Cascader
+                    options={categoriesData}
+                    onChange={handleChangeCategoriesModal}
+                    placeholder="Please select"
+                    showSearch={(input, options) => {
+                      return (
+                        options.label
+                          .toLowerCase()
+                          .indexOf(input.toLowerCase()) >= 0 ||
+                        options.value
+                          .toLowerCase()
+                          .indexOf(input.toLowerCase()) >= 0
+                      );
+                    }}
+                  />
+                </Col>
+                <Col span={16}>
+                  <Search
+                    placeholder="Search by product ID or prd name"
+                    // onSearch={onSearch}
+                  />
+                </Col>
+                <div className="mt-4 ml-auto">
+                  <p className="text-red-400">
+                    Lưu ý! : Nếu sản phẩm đang trong 1 chương trình giảm giá
+                    khác thì sẽ ưu tiên chương trình nào giảm giá cao hơn
+                  </p>
+                </div>
+              </Row>
+
+              <div className="mt-8 pr-2">
+                <Table
+                  rowSelection={{
+                    type: "checkbox",
+                    ...rowSelection,
+                  }}
+                  columns={columns}
+                  // dataSource={products}
+                  dataSource={[]}
+                  loading={loading}
+                  bordered
+                  pagination={{ pageSize: 100 }}
+                  rowKey={(record) => record.package_list[0]?.package_id}
+                />
+              </div>
+            </Modal>
+          </div>
+        </div>
+        {/* <div className="w-[300px] ml-auto pr-10">
           <Button
             className="mt-4"
             block
@@ -411,7 +508,7 @@ export default function PromotionForm() {
           >
             {prdDiscountID === "create-prd-discount" ? "Tạo" : "Cập nhật"}
           </Button>
-        </div>
+        </div> */}
       </Form>
     </div>
   );

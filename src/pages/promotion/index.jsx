@@ -1,11 +1,120 @@
 import React from "react";
 
-import { Tabs, Row, Col, Card, Button } from "antd";
+import { Tabs, Row, Col, Card, Button, Select, Input, Table } from "antd";
 import PageTitle from "../../components/common/PageTitle";
 import { useNavigate } from "react-router-dom";
+import { getPathByIndex } from "../../utils";
 
-const Promotion = ({ shopId }) => {
+const { Search } = Input;
+
+// define table
+const columns = [
+  {
+    title: "Promotion name",
+    dataIndex: "shipping_provider",
+    key: "shipping_provider",
+  },
+  {
+    title: "Status",
+    dataIndex: "shipping_provider",
+    key: "shipping_provider",
+  },
+  {
+    title: "Start time(PST)",
+    dataIndex: "shipping_provider",
+    key: "shipping_provider",
+  },
+  {
+    title: "End time(PST)",
+    dataIndex: "shipping_provider",
+    key: "shipping_provider",
+  },
+  {
+    title: "Type",
+    dataIndex: "shipping_provider",
+    key: "shipping_provider",
+  },
+  {
+    title: " Action",
+    dataIndex: "shipping_provider",
+    key: "shipping_provider",
+  },
+];
+
+const Promotion = () => {
+  const shopId = getPathByIndex(2);
   const navigate = useNavigate();
+
+  const itemsManageTab = [
+    {
+      key: "1",
+      label: "Tab 1",
+      children: (
+        <div className="w-full">
+          <Row className="mt-8">
+            <Col span={8}>
+              <Select
+                defaultValue="lucy"
+                style={{
+                  width: "90%",
+                }}
+                // onChange={handleChangeCategories}
+                options={[
+                  {
+                    value: "jack",
+                    label: "All promotional tools",
+                  },
+                  {
+                    value: "lucy",
+                    label: "Coupon",
+                  },
+                  {
+                    value: "Yiminghe",
+                    label: "Flash Deal",
+                  },
+                  {
+                    label: "Shipping fee discount",
+                    value: "Yiminghe",
+                  },
+                  {
+                    label: "Product discount",
+                    value: "Yiminghe",
+                  },
+                ]}
+              />
+            </Col>
+            <Col span={16}>
+              <Search
+                placeholder="Enter promotion name"
+                // onSearch={onSearch}
+              />
+            </Col>
+          </Row>
+          <div className="mt-8 pr-2">
+            <Table
+              columns={columns}
+              // dataSource={sortByPackageId(orders)}
+              dataSource={[]}
+              // loading={loadin-g}
+              bordered
+              pagination={{ pageSize: 100 }}
+              //   rowKey={(record) => record.package_list[0]?.package_id}
+            />
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "2",
+      label: "Tab 2",
+      children: "Content of Tab Pane 2",
+    },
+    {
+      key: "3",
+      label: "Tab 3",
+      children: "Content of Tab Pane 3",
+    },
+  ];
 
   const items = [
     {
@@ -63,7 +172,11 @@ const Promotion = ({ shopId }) => {
     {
       key: "2",
       label: "Manage your promotions",
-      children: "Content of Tab Pane 2",
+      children: (
+        <div className="w-full">
+          <Tabs defaultActiveKey="1" items={itemsManageTab} />
+        </div>
+      ),
     },
   ];
 
