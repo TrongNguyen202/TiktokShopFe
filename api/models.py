@@ -46,15 +46,12 @@ class Shop(models.Model):
 
 
 class Image(models.Model):
-
     image_data = models.TextField()
 
 
 class AppKey(models.Model):
-    app_key = models.CharField(null=False, help_text='Appkey lấy từ tiktok app for developer',
-                               max_length=500, default='')
-    secret = models.CharField(null=False, help_text='app secret lấy từ tiktok app for developer',
-                              max_length=500, default='')
+    app_key = models.CharField(null=False, help_text='App key lấy từ tiktok app for developer', max_length=500, default='')
+    secret = models.CharField(null=False, help_text='App secret lấy từ tiktok app for developer', max_length=500, default='')
 
 
 class Categories(models.Model):
@@ -76,8 +73,7 @@ class Templates(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(null=False, max_length=500, default='')
     category_id = JSONField()
-    warehouse_id = models.CharField(null=False, max_length=500, default='')
-    description = models.TextField(null=False, max_length=500, default='')
+    description = models.TextField(null=False, max_length=50000, default='')
     is_cod_open = models.BooleanField(default=False)
     package_height = models.FloatField(default=1)
     package_length = models.FloatField(default=1)
@@ -87,7 +83,34 @@ class Templates(models.Model):
     colors = ArrayField(models.CharField(20), null=False, default=[])
     type = ArrayField(models.CharField(20), null=False, default=[])
     types = JSONField()
-    badWords = ArrayField(models.CharField(200), null=False, default=[])
-    suffixTitle = models.CharField(null=False, max_length=500, default='')
-
+    badWords = ArrayField(models.CharField(200), null=True, default=[])
+    suffixTitle = models.CharField(null=True, max_length=500, default='')
+    size_chart = models.TextField(null=True)
+    fixed_images = ArrayField(models.CharField(20000), null=True, default=[])
     objects = models.Manager()
+
+
+class Products(models.Model):
+    shop = models.ForeignKey(Shop, on_delete=models.SET_NULL,  null=True)
+    data = models.JSONField()
+
+
+class BuyedPackage(models.Model):
+    package_id = models.CharField(null=False, max_length=500, help_text='Package_id da duoc buy label')
+
+
+class DesignSku(models.Model):
+    sku_id = models.CharField(null=False, max_length=500, help_text='SKU ID')
+    product_name = models.CharField(null=False, max_length=500, help_text='product_name')
+    variation = models.CharField(null=False, max_length=500, help_text='variation')
+    image_front = models.CharField(null=True, max_length=500, help_text='image_front')
+    image_back = models.CharField(null=True, max_length=500, help_text='image_back')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL,  null=True)
+    department = models.ForeignKey(GroupCustom, on_delete=models.SET_NULL,  null=True)
+
+
+class DesignSkuChangeHistory(models.Model):
+    design_sku = models.ForeignKey(DesignSku, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    change_data = models.TextField(null=True)
+    changed_at = models.DateTimeField(auto_now_add=True)
