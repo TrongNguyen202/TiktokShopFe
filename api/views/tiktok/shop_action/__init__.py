@@ -11,7 +11,7 @@ class Shops(APIView):
 
     def get_user_group(self, user):
         """
-            Lấy thông tin group của user        
+            Lấy thông tin group (department) của user        
         """
         try:
             user_group = UserGroup.objects.get(user=user)

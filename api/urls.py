@@ -7,15 +7,15 @@ import api.views.google_trend as google_trend
 import api.views.tiktok as tiktok
 
 swagger_urls = [
-    path("schema", SpectacularAPIView.as_view(), name="schema"),
-    path("schema/swagger-ui", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    path("schema", SpectacularAPIView.as_view(), name="schema"),  # ok
+    path("schema/swagger-ui", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),  # ok
 ]
 
 auth_urls = [
-    path("login", TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("token/refresh", TokenRefreshView.as_view(), name="token_refresh"),
-    path("signup", tiktok.auth_action.SignUp.as_view(), name="signup"),
-    path("verify/<str:uidb64>/<str:token>", tiktok.auth_action.Verify.as_view(), name="verify"),
+    path("login", TokenObtainPairView.as_view(), name="token_obtain_pair"),  # ok
+    path("token/refresh", TokenRefreshView.as_view(), name="token_refresh"),  # ok
+    path("signup", tiktok.auth_action.SignUp.as_view(), name="signup"),  # ok
+    path("verify/<str:uidb64>/<str:token>", tiktok.auth_action.Verify.as_view(), name="verify"),  # ok
 ]
 
 shop_urls = [
