@@ -1,4 +1,7 @@
-from ....models import Shop
+from ....models import Shop, BuyedPackage, UserGroup, DesignSku, DesignSkuChangeHistory, GroupCustom
+from ....serializers import BuyedPackageSeri, DesignSkuSerializer, GroupCustomSerializer, DesignSkuPutSerializer
+
+from datetime import datetime
 
 from api.views import *
 
@@ -14,9 +17,7 @@ class ListOrder(APIView):
         shop = get_object_or_404(Shop, id=shop_id)
 
         response = order.callOrderList(access_token=shop.access_token)
-
         content = response.content
-
         logger.info(f'ListOrder response: {content}')
 
         return HttpResponse(content, content_type='application/json')
@@ -110,6 +111,108 @@ class ShippingService(APIView):
 
     def call_get_shipping_service(self, access_token, service_info):
         return order.callGetShippingService(access_token, service_info)
+
+
+class CreateLabel(APIView):
+    def post(self, request, shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        body_raw = request.body.decode('utf-8')
+        label_datas = json.loads(body_raw)
+
+        with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
+            futures = []
+            for label_data in label_datas:
+                futures.append(executor.submit(self.call_create_label, access_token, label_data))
+
+            datas = []
+            for future in futures:
+                datas.append(future.result())
+
+        return Response({"data": datas, "message": "Buy label successfully."}, status=201)
+
+    def call_create_label(self, access_token, label_data):
+        respond = order.callCreateLabel(access_token=access_token, body_raw_json=label_data)
+        data = json.loads(respond.content)
+
+        # Check if package_id already exists
+        try:
+            buyedPkg, created = BuyedPackage.objects.get_or_create(package_id=data["data"]["package_id"])
+            # If created is True, it means a new object was created
+            if created:
+                return json.loads(respond.content)
+            else:
+                return {"status": 404, "error": "Package is buyed label."}
+        except IntegrityError:
+            logger.error(f'Integrity error occurred when creating label', exc_info=True)
+            return {"error": "Integrity error occurred"}
+
+
+class ShippingDoc(APIView):
+    def post(self, request, shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        data = json.loads(request.body.decode('utf-8'))
+        doc_urls = []
+        package_ids = data.get('package_ids', [])
+
+        # Sử dụng ThreadPoolExecutor để thực hiện các cuộc gọi API đa luồng
+        with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
+            # Lặp qua từng package_id và gửi các công việc gọi API tới executor để thực hiện đồng thời
+            futures = []
+            for package_id in package_ids:
+                futures.append(executor.submit(order.callGetShippingDoc, package_id=package_id, access_token=access_token))
+
+            # Thu thập kết quả từ các future và thêm vào danh sách doc_urls
+            for future in futures:
+                doc_url = future.result()
+                doc_urls.append(doc_url)
+
+        # Tạo phản hồi JSON chứa danh sách các URL của shipping doc
+        response_data = {
+            'code': 0,
+            'data': {
+                'doc_urls': doc_urls
+            }
+        }
+        return JsonResponse(response_data)
+
+
+class PackageBought(APIView):
+    def get(self, request):
+        # Retrieve all instances of BuyedPackage
+        buyed_packages = BuyedPackage.objects.all()
+
+        # Serialize the queryset
+        serializer = BuyedPackageSeri(buyed_packages, many=True)
+
+        # Return serialized data as response
+        return Response(serializer.data)
+
+
+class PDFSearch(APIView):
+    def get(self, request):
+        PDF_DIRECTORY = constant.PDF_DIRECTORY_WINDOW if platform.system() == 'Windows' else constant.PDF_DIRECTORY_UNIX
+        query = request.query_params.get('query', '')
+        found_files = []
+
+        for filename in os.listdir(PDF_DIRECTORY):
+            if filename.endswith('.pdf') and query in filename:
+                found_files.append(filename)
+
+        return Response(found_files)
+
+
+class PDFDownload(APIView):
+    def get(self, request):
+        PDF_DIRECTORY = constant.PDF_DIRECTORY_WINDOW if platform.system() == 'Windows' else constant.PDF_DIRECTORY_UNIX
+        filename = request.query_params.get('filename', '')
+        file_path = os.path.join(PDF_DIRECTORY, filename)
+
+        if os.path.exists(file_path):
+            return FileResponse(open(file_path, 'rb'), as_attachment=True)
+        else:
+            return Response({'message': 'File not found'}, status=404)
 
 
 """Packages"""
@@ -209,3 +312,144 @@ class PackageDetail(APIView):
             "message": "Success",
         }
         return JsonResponse(response_data, status=200)
+
+
+"""Design Skus"""
+
+
+class CustomPagination(PageNumberPagination):
+    page_size = 100
+    page_size_query_param = 'page_size'
+
+
+class DesignSkuListCreateAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+    pagination_class = CustomPagination
+
+    def get_user_group(self, user):
+        user_group = UserGroup.objects.filter(user=user)
+        if user_group.exists():
+            return user_group[0].group_custom
+        return None
+
+    def get(self, request):
+        group_custom = self.get_user_group(request.user)
+        if group_custom:
+            designskus = DesignSku.objects.filter(department=group_custom).order_by('-id')
+            paginator = self.pagination_class()
+            result_page = paginator.paginate_queryset(designskus, request)
+            serializer = DesignSkuSerializer(result_page, many=True)
+            return paginator.get_paginated_response(serializer.data)
+        return Response("Người dùng không thuộc bất kỳ nhóm nào.", status=status.HTTP_404_NOT_FOUND)
+
+    def post(self, request):
+        group_custom = self.get_user_group(request.user)
+        user = request.user
+        if group_custom and user:
+            data = request.data
+            for item in data:
+                item['department'] = group_custom.pk
+                item['user'] = user.id
+            serializer = DesignSkuSerializer(data=data, many=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response("User does not belong to any group.", status=status.HTTP_404_NOT_FOUND)
+
+
+class DesignSkuDetailAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self, pk):
+        try:
+            return DesignSku.objects.get(pk=pk)
+        except DesignSku.DoesNotExist:
+            return None
+
+    def get(self, request, pk):
+        designsku = self.get_object(pk)
+        if designsku:
+            serializer = DesignSkuSerializer(designsku)
+            return Response(serializer.data)
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, pk):
+        designsku_data = request.data
+        designsku = self.get_object(pk)
+
+        if designsku:
+            old_data = DesignSkuPutSerializer(designsku).data
+            serializer = DesignSkuPutSerializer(designsku, data=designsku_data)
+            if serializer.is_valid():
+                serializer.save()
+
+                user = request.user if request.user.is_authenticated else None
+                changed_at = datetime.now()
+
+                DesignSkuChangeHistory.objects.create(
+                    design_sku=designsku,
+                    user=user,
+                    change_data=old_data,
+                    changed_at=changed_at
+                )
+                return Response("DesignSku updated successfully.", status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(f"DesignSku with ID {pk} does not exist.", status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, pk):
+        designsku = self.get_object(pk)
+        if designsku:
+            designsku.delete()
+            return Response({"message": "DesignSku deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"error": f"DesignSku with ID {pk} does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class DesignSkuDepartment(APIView):
+    permission_classes = (IsAuthenticated,)
+    pagination_class = CustomPagination
+
+    def get(self, request, group_id):
+        designskus = DesignSku.objects.filter(department=group_id).order_by('-id')
+        paginator = self.pagination_class()
+        result_page = paginator.paginate_queryset(designskus, request)
+        serializer = DesignSkuSerializer(result_page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+
+class DesignSkuSearch(APIView):
+    permission_classes = (IsAuthenticated,)
+    pagination_class = CustomPagination
+
+    def post(self, request):
+        data = json.loads(request.body.decode('utf-8'))
+        search_query = data.get('search_query', None)
+        group_id = data.get('group_id', None)
+
+        designskus = DesignSku.objects.all()
+
+        if group_id:
+            try:
+                group_id = int(group_id)
+            except ValueError:
+                return Response("Invalid group_id format", status=status.HTTP_400_BAD_REQUEST)
+            print(designskus)
+            designskus = designskus.filter(department_id=group_id)
+
+        if search_query:
+            designskus = designskus.filter(Q(sku_id__icontains=search_query) | Q(
+                product_name__icontains=search_query) | Q(variation__icontains=search_query))
+
+        paginator = self.pagination_class()
+        result_page = paginator.paginate_queryset(designskus, request)
+        serializer = DesignSkuSerializer(result_page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+
+class GroupCustomListAPIView(APIView):
+    def get(self, request):
+        group_customs = GroupCustom.objects.all().order_by('id')
+        serializer = GroupCustomSerializer(group_customs, many=True)
+        return Response(serializer.data)

@@ -1,3 +1,5 @@
+import os
+
 secret = "df329e59a6f78121409d77c33ee1decfbfa088a4"
 app_key = "6atknvel13hna"
 
@@ -67,10 +69,11 @@ class ProductCreateObject:
 
 
 class SKU:
-    def __init__(self, sales_attributes, original_price, stock_infos):
+    def __init__(self, sales_attributes, original_price, stock_infos, seller_sku):
         self.sales_attributes = [SalesAttribute(**attr) for attr in sales_attributes]
         self.original_price = original_price
         self.stock_infos = [StockInfo(**stock_info) for stock_info in stock_infos]
+        self.seller_sku = seller_sku
 
     def to_json(self):
         sales_attributes_json = [attr.to_json() for attr in self.sales_attributes]
@@ -78,7 +81,8 @@ class SKU:
         return {
             "sales_attributes": sales_attributes_json,
             "original_price": self.original_price,
-            "stock_infos": stock_infos_json
+            "stock_infos": stock_infos_json,
+            "seller_sku": self.seller_sku
         }
 
 
@@ -136,7 +140,7 @@ class StockInfo:
 class ProductCreateOneObject:
     def __init__(self, product_name, images, is_cod_open,
                  package_dimension_unit, package_height, package_length, package_weight, package_width,
-                 category_id, brand_id, description, skus, product_attributes):
+                 category_id, brand_id, description, skus, product_attributes, size_chart):
         self.product_name = product_name
         self.images = images
         self.is_cod_open = is_cod_open
@@ -150,6 +154,7 @@ class ProductCreateOneObject:
         self.description = description
         self.skus = [SKU(**sku_data) for sku_data in skus]
         self.product_attributes = [ProductAttribute(**attr) for attr in product_attributes]
+        self.size_chart = size_chart
 
     def to_json(self):
         skus_json = [sku.to_json() for sku in self.skus]
@@ -167,7 +172,8 @@ class ProductCreateOneObject:
             "brand_id": self.brand_id,
             "description": self.description,
             "skus": skus_json,
-            "product_attributes": attributes_json
+            "product_attributes": attributes_json,
+            "size_chart": self.size_chart
         }
 
 
@@ -178,4 +184,8 @@ ROLE_USERGROUP_CHOICES = (
 )
 ROLE_USERGROUP_DEFAULT = 2
 MAX_WORKER = 3
-DOWNLOAD_IMAGES_DIR = 'C:/anhtiktok'
+
+DOWNLOAD_IMAGES_DIR_WINDOW = 'C:/workspace/anhtiktok'
+DOWNLOAD_IMAGES_DIR_UNIX = '/home/folinas/workspace/anhtiktok'
+PDF_DIRECTORY_WINDOW = 'C:/workspace//pdf'
+PDF_DIRECTORY_UNIX = '/home/folinas/workspace/pdf'

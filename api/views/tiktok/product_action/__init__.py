@@ -88,6 +88,7 @@ class CreateOneProduct(APIView):
             images_id_size_chart = product.callUploadImage(access_token, base64_images_size_chart.get('img_id'))
         except Exception as e:
             logger.error(f'User {request.user}: Error when upload size chart image', exc_info=e)
+            images_id_size_chart = ''
 
         product_object = None
         try:
@@ -193,18 +194,15 @@ class ProcessExcel(View):
             package_width = data.get('package_width', 1)
             description = data.get('description', '')
             skus = data.get('skus', [])
+            size_chart = data.get('size_chart', '')
 
             shop = Shop.objects.get(id=shop_id)
 
-            with ThreadPoolExecutor() as executor:
+            with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
                 futures = []
                 for item in excel_data:
-                    row_data = {
-                        'title': item.get('title', ''),
-                        'images': item.get('images', {}),
-                    }
                     futures.append(executor.submit(self.process_item, item, shop, category_id, warehouse_id, is_cod_open,
-                                                   package_height, package_length, package_weight, package_width, description, skus))
+                                                   package_height, package_length, package_weight, package_width, description, skus, size_chart))
 
                 for future in futures:
                     future.result()
@@ -218,8 +216,7 @@ class ProcessExcel(View):
             return HttpResponse({'error': str(e)}, status=400)
 
     def process_item(self, item, shop, category_id, warehouse_id, is_cod_open, package_height, package_length,
-                     package_weight, package_width, description, skus):
-        title = item.get('title', '')
+                     package_weight, package_width, description, skus, size_chart):
         images = item.get('images', [])
 
         downloaded_image_paths = []
@@ -238,20 +235,11 @@ class ProcessExcel(View):
         base64_images = self.process_images(downloaded_image_paths)
         images_ids = self.upload_images(base64_images, shop)
         self.create_product_fun(shop, item, category_id, warehouse_id, is_cod_open, package_height, package_length,
-                                package_weight, package_width, images_ids, description, skus)
-
-    def convert_to_png(self, input_path, output_path):
-        try:
-            # Mở ảnh sử dụng PIL
-            img = Image.open(input_path)
-            # Chuyển đổi và lưu ảnh dưới dạng PNG
-            img.save(output_path, format='PNG')
-        except Exception as e:
-            logger.error(f"Lỗi khi chuyển đổi ảnh sang PNG", exc_info=e)
+                                package_weight, package_width, images_ids, description, skus, size_chart)
 
     def download_image(self, image_url, col):
         if image_url:
-            download_dir = 'C:/anhtiktok'  # Update with your desired directory
+            download_dir = constant.DOWNLOAD_IMAGES_DIR_WINDOW if platform.system() == 'Windows' else constant.DOWNLOAD_IMAGES_DIR_UNIX
             os.makedirs(download_dir, exist_ok=True)
             random_string = str(uuid.uuid4())[:8]
             image_filename = os.path.join(download_dir, f"_{col}_{random_string}.jpg")
@@ -263,8 +251,20 @@ class ProcessExcel(View):
 
                 return image_filename
             else:
-                print(f"Failed to download image: {image_url}, Status code: {response.status_code}")
+                logger.error(f"Failed to download image: {image_url}, Status code: {response.status_code}", exc_info=True)
                 return None
+
+    def convert_to_base64(self, image_path):
+        try:
+            with open(image_path, "rb") as img_file:
+                # Đọc dữ liệu từ tệp ảnh
+                img_data = img_file.read()
+                # Chuyển đổi dữ liệu ảnh thành chuỗi base64
+                base64_data = base64.b64encode(img_data).decode("utf-8")
+                return base64_data
+        except Exception as e:
+            logger.error(f"Error converting image to base64", exc_info=e)
+            return None
 
     def process_images(self, downloaded_image_paths):
         base64_images = []
@@ -273,31 +273,32 @@ class ProcessExcel(View):
                 img = Image.open(image_path)
                 if img is None:
                     continue
-
                 with open(image_path, 'rb') as img_file:
                     base64_image = base64.b64encode(img_file.read()).decode('utf-8')
                     base64_images.append(base64_image)
             except Exception as e:
-                print(f"Error processing image: {image_path}, {str(e)}")
+                logger.error(f"Error processing image: {image_path}", exc_info=e)
 
         return base64_images
 
     def upload_images(self, base64_images, shop):
-        # Tạo danh sách chứa id của các ảnh đã upload
-        images_ids = [product.callUploadImage(access_token=shop.access_token, img_data=img_data)
-                      for img_data in base64_images]
+        # Sử dụng ThreadPoolExecutor để thực hiện đa luồng cho các công việc upload ảnh
+        with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
+            futures = [executor.submit(product.callUploadImage, access_token=shop.access_token, img_data=img_data) for img_data in base64_images]
 
-        # Lọc ra những id hợp lệ
-        images_ids = [img_id for img_id in images_ids if img_id != ""]
+            # Chờ cho tất cả các future kết thúc và lấy kết quả
+            images_ids = [future.result() for future in futures if future.result()]
 
         return images_ids
 
     def create_product_fun(self, shop, item, category_id, warehouse_id, is_cod_open, package_height, package_length,
-                           package_weight, package_width, images_ids, description, skus):
-
+                           package_weight, package_width, images_ids, description, skus, size_chart):
         title = item.get('title', '')
+        seller_sku = item.get('sku', '')
+        for iteem in skus:
+            iteem["seller_sku"] = seller_sku
 
-        product_object = constant.ProductCreateObject(
+        product_object = objectcreate.ProductCreateMultiObject(
             is_cod_open=is_cod_open,
             package_dimension_unit="metric",
             package_height=package_height,
@@ -307,13 +308,14 @@ class ProcessExcel(View):
             category_id=category_id,
             warehouse_id=warehouse_id,
             description=description,
-            skus=skus
+            skus=skus,
+            size_chart=size_chart
         )
 
         product.createProduct(shop.access_token, title, images_ids, product_object)
 
 
-class EditProductAPIView(APIView):
+class EditProduct(APIView):
 
     def put(self, request, shop_id, product_id):
         shop = get_object_or_404(Shop, id=shop_id)
@@ -545,12 +547,11 @@ class UploadImage(APIView):
 
                 return HttpResponse(response.content, status=status.HTTP_201_CREATED)
             except Exception as e:
-                logger.error(
-                    f'User {request.user}: Error when encode image to base64', exc_info=e)
+                logger.error(f'User {request.user}: Error when encode image to base64', exc_info=e)
                 return Response(
                     {
                         'status': 'error',
-                        'message': 'Có lỗi xảy ra encode base64 hóa ảnh',
+                        'message': 'Có lỗi xảy ra encode base64 ảnh',
                         'data': str(e)
                     },
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR

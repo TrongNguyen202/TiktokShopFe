@@ -200,3 +200,53 @@ def callGetPackageDetail(access_token, package_id):
     logger.info(f'GetPackageDetail response: {response.text}')
 
     return HttpResponse(response)
+
+
+def callCreateLabel(access_token, body_raw_json):
+    url = TIKTOK_API_URL['url_create_label']
+    query_params = {
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp(),
+    }
+
+    bodyjson = body_raw_json
+    body = json.dumps(bodyjson)
+
+    sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body=body)
+    query_params["sign"] = sign
+
+    response = requests.post(url, params=query_params, json=json.loads(body))
+
+    return HttpResponse(response)
+
+
+def callGetShippingDoc(access_token,  package_id):
+    url = TIKTOK_API_URL['url_get_shipping_doc']
+
+    query_params = {
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp(),
+        "package_id": package_id,
+        "document_type": 1,
+        "document_size": 0
+    }
+
+    sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params)
+    query_params["sign"] = sign
+
+    response = requests.get(url, params=query_params)
+
+    try:
+        response_data = response.json()
+        doc_url = response_data["data"]["doc_url"]
+
+        if doc_url:
+            return doc_url
+        else:
+            logger.warning(f"No shipping label for package {package_id}")
+            return None
+    except Exception as e:
+        logger.error(f"Error when getting shipping label for package {package_id}", exc_info=e)
+        return None

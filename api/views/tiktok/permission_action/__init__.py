@@ -1,4 +1,5 @@
-from ....models import User, UserShop, UserGroup
+from ....models import User, UserShop, UserGroup, GroupCustom
+from ....serializers import GroupCustomSerializer
 
 from api.views import *
 
@@ -7,6 +8,7 @@ setup_logging(logger, is_root=False, level=logging.INFO)
 
 
 class PermissionRole(APIView):
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         data = request.data
@@ -17,15 +19,15 @@ class PermissionRole(APIView):
         user.last_name = data.get('last_name', user.last_name)
         user.username = data.get('username', user.username)
         user.email = data.get('email', user.email)
+        user.password = data.get('password', user.password)
         user.save()
 
-        stores = data.get('stores', [])
-
-        # Gán lại các store cho user
+        stores = data.get('shops', [])
+        # Do something with the stores list, for example, assign the user to the provided stores
         for store_id in stores:
-            UserShop.objects.get_or_create(user=user, store_id=store_id)
+            UserShop.objects.get_or_create(user=user, shop_id=store_id)
 
-        return Response({'message': 'User information has been updated successfully.'})
+        return Response({"message": "User information updated successfully"})
 
     def isManagerOrAdmin(self, user):
         user_group = get_object_or_404(UserGroup, user=user)
@@ -66,3 +68,58 @@ class UserInfo(APIView):
         }
 
         return Response(user_info)
+
+
+class AddUserToGroup(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        try:
+            user_current = request.user
+            user_group = UserGroup.objects.get(user=user_current)
+            if not user_group.role == 1:
+                return JsonResponse({"status": 404, "error": "you don't have permission to do this bro"}, status=404)
+            username = request.data.get('username')
+            password = request.data.get('password')
+            email = request.data.get('email')
+            firstname = request.data.get('first_name')
+            lastname = request.data.get('last_name')
+            shop_ids = request.data.get('shops')
+            new_user = User.objects.create_user(username=username, password=password, email=email, first_name=firstname, last_name=lastname)
+            group_custom = user_group.group_custom
+            UserGroup.objects.create(user=new_user, group_custom=group_custom, role=2)
+            for shop_id in shop_ids:
+                UserShop.objects.create(user=new_user, shop_id=shop_id)
+
+            return JsonResponse({"status": 201, "message": "User added to group successfully."}, status=201)
+        except ObjectDoesNotExist:
+            return JsonResponse({"status": 404, "error": "Object does not exist."}, status=404)
+        except Exception as e:
+            logger.error(f'Error when adding user to group', exc_info=e)
+            return JsonResponse({"status": 500, "error": str(e)}, status=500)
+
+
+class InforUserCurrent(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        user = request.user
+        user_groups = UserGroup.objects.filter(user=user)
+
+        user_info = {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'groups': [user_group.group_custom.group_name for user_group in user_groups],
+            'role': [user_group.role for user_group in user_groups]
+        }
+        return Response(user_info)
+
+
+class GroupCustomListAPIView(APIView):
+    def get(self, request):
+        group_customs = GroupCustom.objects.all().order_by('id')
+        serializer = GroupCustomSerializer(group_customs, many=True)
+        return Response(serializer.data)

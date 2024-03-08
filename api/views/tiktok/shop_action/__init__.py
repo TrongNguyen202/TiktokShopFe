@@ -202,11 +202,7 @@ class UserShopList(APIView):
         users_groups = get_object_or_404(UserGroup, user=user)
         group_custom = users_groups.group_custom
 
-        user_shops_data = {
-            "group_id": group_custom.id,
-            "group_name": group_custom.group_name,
-            "users": []
-        }
+        user_shops_data = {"group_id": group_custom.id, "group_name": group_custom.group_name, "users": []}
 
         users_filter = []
         for user_group in group_custom.usergroup_set.filter(role=1) | group_custom.usergroup_set.filter(role=2):
@@ -215,17 +211,37 @@ class UserShopList(APIView):
                 "user_name": user_group.user.username,
                 "first_name": user_group.user.first_name,
                 "last_name": user_group.user.last_name,
-                "password": user_group.user.password,
-                "email": user_group.user.email,
+                'password': user_group.user.password,
+                'email': user_group.user.email,
                 "shops": []
             }
 
             for user_shop in user_group.user.usershop_set.filter(shop__group_custom_id=group_custom.id):
-                user_data["shops"].append({
-                    "id": user_shop.shop.id,
-                    "name": user_shop.shop.shop_name
-                })
+                user_data["shops"].append({"id": user_shop.shop.id, "name": user_shop.shop.shop_name})
 
             user_shops_data["users"].append(user_data)
 
         return Response({"data": user_shops_data})
+
+
+class ShopList(APIView):
+    """
+        Get shop managed by specific user
+    """
+
+    def get(self, request):
+        user_shop = UserShop.objects.filter(user=request.user)
+        shops = Shop.objects.filter(id=user_shop.shop.id)
+        serializer = ShopSerializers(shops, many=True)
+        return Response(serializer.data)
+
+
+class ShopListAPI(APIView):
+    """
+        List all shops of all users
+    """
+
+    def get(self, request):
+        shops = Shop.objects.filter()
+        serializer = ShopSerializers(shops, many=True)
+        return Response(serializer.data)
