@@ -6,6 +6,7 @@ import * as XLSX from "xlsx";
 import { CloudUploadOutlined, DownloadOutlined } from "@ant-design/icons";
 import ModalUploadProduct from "./ModalUploadProduct";
 import TextArea from "antd/es/input/TextArea";
+import { senPrintsData } from "../../constants";
 
 const crawlerOptions = [
   {
@@ -49,7 +50,6 @@ export default function Crawl() {
     code: localStorage.getItem("licenseCode"),
     invalid: localStorage.getItem("licenseCode") ? false : true,
   });
-  console.log('licenseCode: ', licenseCode);
 
   useEffect(() => {
     setProductList(productListStorage);
@@ -285,16 +285,18 @@ export default function Crawl() {
       return imageObject;
     };
 
-    return selectedProducts.map((product) => {
-      return {
-        campaign_name: product.title,
-        campaign_desc: "",
-        collection: "",
-        product_sku: "",
-        colors: "",
-        price: product.price,
-        ...convertImageLink(product.images),
-      };
+    return selectedProducts.flatMap((product) => {
+      return senPrintsData.map((item) => {
+        return {
+          campaign_name: product.title,
+          campaign_desc: item.campaign_desc,
+          collection: "",
+          product_sku: item.product_sku,
+          colors: item.colors,
+          price: product.price,
+          ...convertImageLink(product.images),
+        };
+      });
     });
   };
 
@@ -319,7 +321,7 @@ export default function Crawl() {
   };
 
   const onSaveLicenseCode = () => {
-    localStorage.setItem("licenseCode", licenseCode.code)
+    localStorage.setItem("licenseCode", licenseCode.code);
     setLicenseCode((prev) => ({ ...prev, invalid: false }));
   };
 
@@ -370,7 +372,6 @@ export default function Crawl() {
             />{" "}
             <p className="font-semibold">Selected all</p>
           </div>
-          {/* <div>Đã chọn: <span className="font-semibold">{CountSelectedItems} sản phẩm</span></div> */}
           <div>
             Total:{" "}
             <span className="font-semibold">
