@@ -136,6 +136,7 @@ export const OrderPackageWeightSize = [
 export const permission = {
   ADMIN: 0, // Admin
   MANAGER: 1, // Manager
-  SELLER: 2 // Seller
+  SELLER: 2, // Seller
+  DESIGNER: 3, // Designer
 }
 

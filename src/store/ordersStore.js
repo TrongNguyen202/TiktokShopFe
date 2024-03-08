@@ -173,6 +173,28 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false })
   },
 
+  getDesignSkuByGroup: async (groupId, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.orders.getDesignSkuByGroup(groupId)
+      onSuccess(response.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  },
+
+  getDesignSkuByGroupSize: async (groupId, page, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.orders.getDesignSkuByGroupSize(groupId, page)
+      onSuccess(response.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  },
+
   postDesignSku: async (data, onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true })
@@ -201,6 +223,17 @@ export const useShopsOrder = create((set) => ({
       set({ loading: true })
       const response = await RepositoryRemote.orders.deleteDesignSku(DesignId)
       onSuccess(response)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  },
+
+  searchDesignSku: async (body, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.orders.searchDesignSku(body)
+      onSuccess(response.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }

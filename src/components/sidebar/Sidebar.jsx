@@ -10,7 +10,8 @@ import {
   UsergroupAddOutlined,
   MenuOutlined,
   CloseOutlined,
-  SearchOutlined
+  SearchOutlined,
+  AntDesignOutlined
 } from "@ant-design/icons";
 import { Menu } from "antd";
 import { useEffect } from "react";
@@ -31,10 +32,9 @@ import StartIcon from "../../assets/icons/StartIcon";
 import Logo from "../../assets/images/text_logo_FLN.png";
 import LogoCollapse from "../../assets/images/favicon.png"
 import { StyledLogo, StyledSidebar } from "./Sidebar.style";
-import { hasManagerPermission, hasSellerPermission } from "../../utils/permission";
+import { hasManagerPermission, hasSellerPermission, hasDesignerPermission } from "../../utils/permission";
 
 const Sidebar = ({ collapsed }) => {
-  // const badges = JSON.parse(localStorage.getItem('badges'))
   const path = window.location.pathname;
   const navigate = useNavigate();
   const [showMenuMobile, setShowMenuMobile] = useState(false)
@@ -47,10 +47,6 @@ const Sidebar = ({ collapsed }) => {
     };
   }, [navigate]);
 
-  useEffect(() => {
-    setMenuSidebar(initMenuSidebar)
-  }, [JSON.stringify(localStorage.getItem("user"))])
-
   const initMenuSidebar = [
     {
       key: "/",
@@ -60,18 +56,14 @@ const Sidebar = ({ collapsed }) => {
           Tổng quan
         </Link>
       ),
-      hasPer: hasManagerPermission() || hasSellerPermission()
+      hasPer: hasManagerPermission() || hasSellerPermission() || hasDesignerPermission()
     },
     {
       key: "/shops",
-      // icon: <StoreIcon classNstyle={{color: "#ff98aa"}}ame="w-[16px]"/>,
       icon: <ShopOutlined style={{ color: "red" }} />,
       label: (
         <Link className="flex justify-between" to="shops">
           Cửa hàng{" "}
-          <div>
-            {/* ( <span className='font-medium'>{total_stores}</span> ) */}
-          </div>
         </Link>
       ),
       hasPer: hasManagerPermission() || hasSellerPermission()
@@ -82,9 +74,6 @@ const Sidebar = ({ collapsed }) => {
       label: (
         <Link className="flex justify-between" to="templates">
           Quản lý template
-          <div>
-            {/* ( <span className='font-medium'>{total_identify_profile}</span> ) */}
-          </div>
         </Link>
       ),
       hasPer: hasManagerPermission() || hasSellerPermission()
@@ -112,6 +101,14 @@ const Sidebar = ({ collapsed }) => {
         <Link className="flex justify-between" to="/check-label">Kiếm tra Label đã mua</Link>
       ),
       hasPer: hasManagerPermission() || hasSellerPermission()
+    },
+    {
+      key: "/design-sku",
+      icon: <AntDesignOutlined style={{ color: "#0f2aff" }} className="w-[16px]" />,
+      label: (
+        <Link className="flex justify-between" to="/design-sku">Design Sku</Link>
+      ),
+      hasPer: hasDesignerPermission()
     },
     {
       key: "/transport",
@@ -311,7 +308,11 @@ const Sidebar = ({ collapsed }) => {
     },
   ];
 
-  if (!hasManagerPermission() && !hasSellerPermission()) {
+  useEffect(() => {
+    setMenuSidebar(initMenuSidebar)
+  }, [JSON.stringify(localStorage.getItem("user"))])
+
+  if (!hasManagerPermission() && !hasSellerPermission() && !hasDesignerPermission()) {
     return null
   }
 

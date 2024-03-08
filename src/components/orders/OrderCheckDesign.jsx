@@ -109,7 +109,7 @@ const OrderCheckDesign = ({ toShipInfoData }) => {
     }
 
     const handleEditDesign = (index) => {
-        form.setFieldsValue(designSku[index])
+        form.setFieldsValue(designSku.results[index])
         setOpenEditDesignModal(true)
     }
 
@@ -210,6 +210,7 @@ const OrderCheckDesign = ({ toShipInfoData }) => {
             {
                 title: 'Product name',
                 dataIndex: 'product_name',
+                width: '200px',
                 render: (_, record, index) => (
                     <>
                         {record.order_id ?
@@ -219,7 +220,7 @@ const OrderCheckDesign = ({ toShipInfoData }) => {
                                 </Form.Item>
                             </Tooltip>
                         : 
-                            record.product_name
+                            <p>{record.product_name}</p>
                         }
                     </>
                 )
@@ -249,7 +250,7 @@ const OrderCheckDesign = ({ toShipInfoData }) => {
                                 <Input/>
                             </Form.Item>
                         : 
-                            record.image_front
+                            <p>{record.image_front}</p>
                         }
                     </>
                 )
@@ -264,7 +265,7 @@ const OrderCheckDesign = ({ toShipInfoData }) => {
                                 <Input/>
                             </Form.Item>
                         : 
-                            record.image_back
+                            <p>{record.image_back}</p>
                         }
                     </>
                 )
@@ -358,7 +359,7 @@ const OrderCheckDesign = ({ toShipInfoData }) => {
                     <Form.Item name="id" label="Design ID:" className='mb-0 font-bold hidden'>
                         <Input className='border-none bg-transparent p-0'/>
                     </Form.Item>
-                    <Form.Item name="sku" label="Sku ID:" className='mb-0 font-bold'>
+                    <Form.Item name="sku_id" label="Sku ID:" className='mb-0 font-bold'>
                         <Input className='border-none bg-transparent p-0'/>
                     </Form.Item>
                     <Form.Item name="product_name" label="Product name:" className='mb-0 font-bold'>

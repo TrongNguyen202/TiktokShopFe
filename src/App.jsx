@@ -31,6 +31,7 @@ const CreateLabel = lazy(() => import("./pages/orders/CreateLabel.jsx"));
 const Fulfillment = lazy(() => import("./pages/orders/Fulfillment.jsx"));
 const OrderCheckBoughtLabel = lazy(() => import("./pages/orders/OrderCheckBoughtLabel.jsx"));
 const OrderCheckDesign= lazy(() => import("./pages/orders/OrderCheckDesign.jsx"));
+const DesignSku = lazy(() => import("./pages/designSku"));
 const Users = lazy(() => import("./pages/users"));
 const UserEdit = lazy(() => import("./pages/users/UserEdit.jsx"));
 const Account = lazy(() => import("./pages/account"));
@@ -96,22 +97,7 @@ const App = () => {
                   </Suspense>
                 }
               />
-              <Route
-                path="shops/:shop_id/orders"
-                element={
-                  <Suspense fallback={<Loading />}>
-                    <Order />
-                  </Suspense>
-                }
-              ></Route>
-              <Route
-                path="shops/:shop_id/order/:order_code"
-                element={
-                  <Suspense fallback={<Loading />}>
-                    <OrderDetail />
-                  </Suspense>
-                }
-              ></Route>
+              
               {/* Sellers */}
               <Route
                 path="/sellers"
@@ -210,6 +196,23 @@ const App = () => {
               />
 
               {/* orders */}
+              {/* <Route
+                path="shops/:shop_id/orders"
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <Order />
+                  </Suspense>
+                }
+              ></Route>
+              <Route
+                path="shops/:shop_id/order/:order_code"
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <OrderDetail />
+                  </Suspense>
+                }
+              ></Route> */}
+
               <Route
                 path="/shops/:id/orders"
                 element={
@@ -263,6 +266,16 @@ const App = () => {
                   </Suspense>
                 }
               />
+
+              {/* Design Sku */}
+              <Route
+                path="design-sku"
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <DesignSku />
+                  </Suspense>
+                }
+              ></Route>
 
               {/* Vouchers */}
               <Route
