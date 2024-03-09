@@ -15,8 +15,8 @@ export const useShopsOrder = create((set) => ({
     try {
       set({ loading: true })
       const response = await RepositoryRemote.orders.getAllOrders(id)
-      set({ orders: response.data })
-      onSuccess(response.data)
+      set({ orders: response.data.data })
+      onSuccess(response.data.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }

@@ -36,8 +36,7 @@ const Orders = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [dataCombineConfirm, setDataCombineConfirm] = useState([])
   const { orders, getAllOrders, getAllCombine, combineList, createLabel, shippingService, getPackageBought, packageBought, getShippingDoc, loading } = useShopsOrder((state) => state)
-
-  const orderList = orders?.map(order => order.data.order_list).flat()
+  const orderList = orders.length ? orders?.map(order => order?.data?.order_list).flat() : []
   function sortByPackageId(arr) {
     const grouped = arr.reduce((acc, item) => {
         const key = item.package_list.length > 0 ? item.package_list[0].package_id : null
@@ -226,6 +225,7 @@ const Orders = () => {
     const ordersHasPackageId = orderList.filter(order => order.package_list.length > 0)
     const orderBoughtLabel = packageBought.map(item => ordersHasPackageId.filter(order => item.package_id === order.package_list[0].package_id))
     const orderBoughtLabelUnique = packageBought.map(item => ordersHasPackageId.find(order => item.package_id === order.package_list[0].package_id))
+    console.log('orderBoughtLabelUnique: ', orderBoughtLabelUnique);
     const packageIds = {
       package_ids: orderBoughtLabelUnique.map(item => item.package_list[0].package_id)
     }
