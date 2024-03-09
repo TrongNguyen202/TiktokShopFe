@@ -15,37 +15,23 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v3
 
-    install-dependencies:
+    build-docker-image:
         runs-on: self-hosted
         needs: checkout-code
         steps:
-            - name: If virtualenv exists, remove it
+            - name: Kill the running container with name tiktokshop-folinas-fe
               run: |
-                  if [ -d ".venv" ]; then
-                      rm -rf .venv
-                  fi
-            - name: Create virtualenv and Setting up
+                  docker stop tiktokshop-folinas-be || true
+                  docker rm tiktokshop-folinas-be || true
+
+            - name: Build the Docker image
               run: |
-                  python -m venv .venv
-                  source .venv/bin/activate
-                  python -m pip install --upgrade pip
-                  pip install -r requirements.txt
+                  docker build -t tiktokshop-folinas-be .
 
-    deploy:
-        runs-on: self-hosted
-        needs: install-dependencies
-        steps:
-            - name: Deploy
+            - name: stop running container running on port 8000
               run: |
-                  if tmux has-session -t backend 2>/dev/null; then
-                      echo "Backend tmux session already exists. Killing it."
-                      tmux kill-session -t backend
-                  fi
-                  echo "Creating new backend tmux session."
-                  tmux new-session -d -s backend
-                  tmux set-option -p remain-on-exit
+                  docker stop $(docker ps | grep ':8000->' | awk '{ print $1 }') || true
 
-                  tmux send-keys -t backend "source .venv/bin/activate" C-m
-                  tmux send-keys -t backend "python manage.py runserver" C-m
-
-                  echo "Backend tmux session created and server started."
+            - name: Run Docker container
+              run: |
+                  docker run --name tiktokshop-folinas-be -p 8000:8000 -d tiktokshop-folinas-be
