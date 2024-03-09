@@ -24,14 +24,10 @@ jobs:
                   if [ -d ".venv" ]; then
                       rm -rf .venv
                   fi
-            - name: Create virtualenv
+            - name: Create virtualenv and Setting up
               run: |
                   python -m venv .venv
-            - name: Activate virtualenv
-              run: |
                   source .venv/bin/activate
-            - name: Install dependencies
-              run: |
                   python -m pip install --upgrade pip
                   pip install -r requirements.txt --no-cache-dir
 
@@ -41,6 +37,8 @@ jobs:
         steps:
             - name: Deploy
               run: |
+                  echo "Activating virtualenv"
+                  source .venv/bin/activate
                   echo "Deploying to production"
                   python manage.py runserver 0.0.0.0:8000
                   echo "Deployed successfully"
