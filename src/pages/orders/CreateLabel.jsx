@@ -430,6 +430,8 @@ const CreateLabel = () => {
         }
     ]
 
+    console.log('buyLabelSelected: ', buyLabelSelected)
+
     return (
         <div className='p-10'>
             {contextHolder}

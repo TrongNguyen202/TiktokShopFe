@@ -17,6 +17,8 @@ const OrdersLabel = ({changeNextStep, toShipInfoData}) => {
     const [messageApi, contextHolder] = message.useMessage();
     const { getToShipInfo, toShipInfo, uploadLabelToDriver, loading } = useShopsOrder((state) => state)
 
+    console.log('shippingDoc: ', shippingDoc);
+
     const columns = [
         {
             title: 'STT',

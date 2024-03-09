@@ -37,6 +37,7 @@ const Orders = () => {
   const [dataCombineConfirm, setDataCombineConfirm] = useState([])
   const { orders, getAllOrders, getAllCombine, combineList, createLabel, shippingService, getPackageBought, packageBought, getShippingDoc, loading } = useShopsOrder((state) => state)
 
+  const orderList = orders?.map(order => order.data.order_list).flat()
   function sortByPackageId(arr) {
     const grouped = arr.reduce((acc, item) => {
         const key = item.package_list.length > 0 ? item.package_list[0].package_id : null
@@ -222,7 +223,7 @@ const Orders = () => {
   };
 
   const handleStartFulfillment = () => {
-    const ordersHasPackageId = orders.filter(order => order.package_list.length > 0)
+    const ordersHasPackageId = orderList.filter(order => order.package_list.length > 0)
     const orderBoughtLabel = packageBought.map(item => ordersHasPackageId.filter(order => item.package_id === order.package_list[0].package_id))
     const orderBoughtLabelUnique = packageBought.map(item => ordersHasPackageId.find(order => item.package_id === order.package_list[0].package_id))
     const packageIds = {
@@ -282,7 +283,7 @@ const Orders = () => {
       align: 'center',
       render: (_, record) => record.package_list.length > 0 ? record.package_list[0].package_id : "Hiện chưa có package ID",
       onCell: (record, index) => {
-        const rowSpanData = orders.filter(item => item.package_list.length > 0 && record.package_list.length > 0 && item.package_list[0].package_id === record.package_list[0].package_id)
+        const rowSpanData = orderList.filter(item => item.package_list.length > 0 && record.package_list.length > 0 && item.package_list[0].package_id === record.package_list[0].package_id)
         const orderIdRowSpanData = rowSpanData.map(item => {
           return (
             {
@@ -394,7 +395,7 @@ const Orders = () => {
     };
 
     const onFail = (err) => {
-      console.log(err);
+      console.log(err)
     };
 
     getAllOrders(shopId, onSuccess, onFail);
@@ -404,7 +405,7 @@ const Orders = () => {
   return (
     <div className="p-3 md:p-10">
       {contextHolder}
-      <PageTitle title="Danh sách đơn hàng" showBack count={orders?.length ? orders?.length : '0'}/>
+      <PageTitle title="Danh sách đơn hàng" showBack count={orderList?.length ? orderList?.length : '0'}/>
       <Space className="mb-3">
         <Button type="primary" onClick={handleGetAllCombine}>Get All Combinable</Button>
         <Button type="primary" onClick={handleStartFulfillment}>
@@ -423,10 +424,10 @@ const Orders = () => {
         }}
         scroll={{ x: true }}
         columns={columns} 
-        dataSource={sortByPackageId(orders)} 
+        dataSource={sortByPackageId(orderList)} 
         loading={loading} 
         bordered
-        pagination={{ pageSize: 100}}
+        pagination={{ pageSize: 50}}
         rowKey={record => record.package_list[0]?.package_id}
       />
       <Modal
@@ -437,7 +438,7 @@ const Orders = () => {
         width={1000}
         footer={false}
       >
-        <OrderCombinable data={combineList} popOverContent={renderListItemProduct} dataOrderDetail={orders} isOpenModal={handleOpenModal} />
+        <OrderCombinable data={combineList} popOverContent={renderListItemProduct} dataOrderDetail={orderList} isOpenModal={handleOpenModal} />
       </Modal>
     </div>
   );
