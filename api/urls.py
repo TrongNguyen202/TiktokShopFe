@@ -33,7 +33,7 @@ shop_urls = [
     path("shops/<int:shop_id>/upload", tiktok.product_action.UploadImage.as_view(), name="upload_images"),
     path('shops/<int:shop_id>/brands', tiktok.product_action.GetAllBrands.as_view(), name='get_brands'),
     path("shops/<int:shop_id>/categories/is_leaf", tiktok.product_action.CategoriesIsLeaf.as_view(), name="categories_is_leaf"),
-    path('shops/<int:shop_id>/products/create_product_excel', tiktok.product_action.ProcessExcel.as_view(), name='process_excel_for_batch_create_products'),
+    path('shops/<int:shop_id>/products/create_product_excel3', tiktok.product_action.ProcessExcel.as_view(), name='process_excel_for_batch_create_products'),
 
     path('shops/<int:shop_id>/products/update_product/<int:product_id>', tiktok.product_action.EditProduct.as_view(), name='edit_product'),
     path('shops/<int:shop_id>/orders/list', tiktok.order_action.ListOrder.as_view(), name='order_list'),
