@@ -4,14 +4,13 @@ on:
     pull_request:
         branches:
             - develop
+    push:
+        branches:
+            - develop
 
 jobs:
     checkout-code:
         runs-on: self-hosted
-        strategy:
-            matrix:
-                python-version: [3.11]
-
         steps:
             - name: Checkout
               uses: actions/checkout@v3
