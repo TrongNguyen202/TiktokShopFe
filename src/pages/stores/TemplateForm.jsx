@@ -189,6 +189,7 @@ export default function TemplateForm({
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [dataPriceState, setDataPriceState] = useState([]);
+  console.log('dataPriceState: ', dataPriceState);
 
   const dataPrice = useRef(templateJson?.id ? templateJson.types : null);
 
@@ -267,7 +268,7 @@ export default function TemplateForm({
     };
 
     const onSuccess = () => {
-      message.success("Thêm template thành công");
+      message.success("Thành công");
       getAllTemplate(shopId);
       setShowModalAddTemplate(false);
     };
@@ -281,11 +282,9 @@ export default function TemplateForm({
     console.log("dataSubmit: ", dataSubmit);
   };
 
-  function sortByType(arr) {
+  function sortByType(arr, selectedType) {
     return arr.sort((a, b) => {
-      if (a.type > b.type) return 1;
-      if (a.type < b.type) return -1;
-      return 0;
+      return selectedType.indexOf(a.type) - selectedType.indexOf(b.type);
     });
   }
 
@@ -318,7 +317,7 @@ export default function TemplateForm({
         resultData.push(currentData[index]);
       }
     });
-    return sortByType(resultData);
+    return sortByType(resultData, selectedType);
   };
 
   const onSavePrice = (value) => {
