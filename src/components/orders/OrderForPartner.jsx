@@ -1,10 +1,29 @@
+import { useEffect, useState } from 'react';
 import { Divider, Table, Space, Button } from 'antd';
+
+import { useShopsOrder } from '../../store/ordersStore'
+import { getPathByIndex } from "../../utils";
 
 import SectionTitle from "../common/SectionTitle";
 
 const OrderForPartner = ({toShipInfoData}) => {
-    console.log('toShipInfoData: ', toShipInfoData);
-    const dataFlashShip = []
+    const shopId = getPathByIndex(2)
+    const FlashShipPODVariantList = []
+    const [ dataOCR, setDataOCR ] = useState([])
+    const {getToShipInfo, loadingGetInfo} = useShopsOrder(state => state)
+    const dataFlashShip = dataOCR.map((dataItem, index) => {
+        const itemList = dataItem.data.order_list.map(order => order.item_list).flat()
+        const variations = itemList.map(variation => variation.sku_name)
+        const checkFashShip = variations.map(item => {
+            const checkProductType = FlashShipPODVariantList.filter(variant => item.includes(variant.product_type))
+            if (checkProductType.length) {
+                const checkSku = checkProductType.find(variant => item.include(variant.variant_sku))
+            }
+
+            console.log('checkProductType: ', checkProductType);
+        })
+        console.log('checkFashShip: ', index, variations, checkFashShip)
+    })
     const dataPrintCare = []
     const column = [
         {
@@ -35,6 +54,27 @@ const OrderForPartner = ({toShipInfoData}) => {
             key: 'shipping_info'
         },
     ]
+
+    useEffect(() => {
+        const data = {
+            order_documents: toShipInfoData
+        }
+
+        const onSuccess = (res) => {
+            if (res) {
+                setDataOCR(res)
+            }
+        }
+
+        const onFail = (err) => {
+            console.log(err)
+        }
+
+        getToShipInfo(shopId, data, onSuccess, onFail)
+    }, [toShipInfoData])
+
+    console.log('dataOCR: ', dataOCR)
+
     return (
         <div className="p-10">
             <div>

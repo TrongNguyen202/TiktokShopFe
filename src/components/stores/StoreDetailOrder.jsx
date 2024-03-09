@@ -9,7 +9,7 @@ import StoreDetailSectionTitle from '../../components/stores/StoreDetailSectionT
 const StoreDetailOrder = ({shopId}) => {
     const navigate = useNavigate();
     const { orders, getAllOrders } = useShopsOrder((state) => state)
-
+    const orderList = orders.length ? orders?.map(order => order?.data?.order_list).flat() : []
     useEffect(() => {
         const onSuccess = (res) => {
         }
@@ -22,7 +22,7 @@ const StoreDetailOrder = ({shopId}) => {
 
     return (
         <Card className='cursor-pointer hover:shadow-md' onClick={() => navigate(`/shops/${shopId}/orders`)}>
-            <StoreDetailSectionTitle title='Đơn hàng' count={orders?.length > 0 ? orders?.length : '0'} isShowButton />
+            <StoreDetailSectionTitle title='Đơn hàng' count={orderList?.length > 0 ? orderList?.length : '0'} isShowButton />
             <Link to={`/shops/${shopId}/orders`}>Xem thêm</Link>
         </Card>
     );
