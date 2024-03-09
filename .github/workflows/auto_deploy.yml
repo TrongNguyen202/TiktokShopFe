@@ -37,7 +37,7 @@ jobs:
         steps:
             - name: Deploy
               run: |
-                  echo "Activating virtualenv"
+                  echo "Activating .venv"
                   source .venv/bin/activate
                   echo "Deploying to production"
                   python manage.py runserver 0.0.0.0:8000
