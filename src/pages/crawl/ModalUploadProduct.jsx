@@ -149,9 +149,11 @@ export default function ModalUploadProduct({
   function mergeArrays(obj1, arr2) {
     // Convert object to array
     const arr1 = Object.values(obj1);
+    const arr1Length = arr1.length || 0;
+    const arr2Length = arr2.length || 0;
 
     // Calculate the number of elements to take from arr1
-    const numElementsFromArr1 = Math.min(9 - arr2.length, arr1.length);
+    const numElementsFromArr1 = Math.min(9 - arr1Length, arr2Length);
 
     // Take the first numElementsFromArr1 elements from arr1
     const elementsFromArr1 = arr1.slice(0, numElementsFromArr1);
@@ -184,7 +186,7 @@ export default function ModalUploadProduct({
         title += ` ${suffixTitle}`;
       }
       doc.title = title.trim();
-      doc.images = mergeArrays(doc.images, templateJSON.fixed_images);
+      // doc.images = mergeArrays(doc.images, templateJSON.fixed_images);
       return doc;
     });
   };
@@ -259,15 +261,15 @@ export default function ModalUploadProduct({
       size_chart
     };
     console.log('dataSubmit: ', dataSubmit);
-    // const onSuccess = () => {
-    //   const nameShop = stores.find((item) => item.id === shopId)?.shop_name;
-    //   message.success(`Thêm sản phẩm vào shop ${nameShop} thành công`);
-    //   handleCancel();
-    // };
-    // const onFail = () => {
-    //   message.error("Thêm sản phẩm thất bại");
-    // };
-    // createProductList(shopId, dataSubmit, onSuccess, onFail);
+    const onSuccess = () => {
+      const nameShop = stores.find((item) => item.id === shopId)?.shop_name;
+      message.success(`Thêm sản phẩm vào shop ${nameShop} thành công`);
+      handleCancel();
+    };
+    const onFail = () => {
+      message.error("Thêm sản phẩm thất bại");
+    };
+    createProductList(shopId, dataSubmit, onSuccess, onFail);
   };
 
   return (
