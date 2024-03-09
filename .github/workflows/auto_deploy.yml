@@ -43,6 +43,7 @@ jobs:
                   fi
                   echo "Creating new backend tmux session."
                   tmux new-session -d -s backend
+                  tmux set-option -p remain-on-exit
 
                   tmux send-keys -t backend "source .venv/bin/activate" C-m
                   tmux send-keys -t backend "python manage.py runserver" C-m
