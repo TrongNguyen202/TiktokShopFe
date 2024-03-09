@@ -19,7 +19,7 @@ jobs:
         runs-on: self-hosted
         needs: checkout-code
         steps:
-            - name: Kill the running container with name tiktokshop-folinas-fe
+            - name: Kill the running container with name tiktokshop-folinas-be
               run: |
                   docker stop tiktokshop-folinas-be || true
                   docker rm tiktokshop-folinas-be || true
