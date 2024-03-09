@@ -47,7 +47,7 @@ shop_urls = [
 
 template_urls = [
     path('templates', tiktok.template_action.TemplateList.as_view(), name='template_list'),
-    # path('templates/<int:template_id>', tiktok.template_action.TemplateList.as_view(), name='template_detail'),
+    path('templates/<int:template_id>', tiktok.template_action.TemplateList.as_view(), name='template_detail'),
 ]
 
 global_urls = [
@@ -70,10 +70,11 @@ fulfillment_urls = [
     path('shops/<int:shop_id>/category_recommend', tiktok.product_action.CategoryRecommend.as_view(), name='category_recommend'),
     path('shops/<int:shop_id>/shipping_service', tiktok.order_action.ShippingService.as_view(), name='shipping_service'),
     path('shops/<int:shop_id>/search_package', tiktok.order_action.SearchPackage.as_view(), name='search_package'),
-    path('shops/<int:shop_id>/packages/<int:package_id>/package_detail', tiktok.order_action.PackageDetail.as_view(), name='package_detail'),
+    path('shops/<int:shop_id>/packages/package_detail', tiktok.order_action.PackageDetail.as_view(), name='package_detail'),
     path('shops/get_package_buyed', tiktok.order_action.PackageBought.as_view(), name='get_all_package_buyed'),
     path('pdf-search/', tiktok.order_action.PDFSearch.as_view(), name='pdf_search'),
     path('pdf-download/', tiktok.order_action.PDFDownload.as_view(), name='pdf_download'),
+    path('shops/<int:shop_id>/packages/buy_label', tiktok.order_action.CreateLabel.as_view(), name='buy_label'),  # oke
 
     path('designskus/', tiktok.order_action.DesignSkuListCreateAPIView.as_view(), name='designsku-list'),
     path('designskus/<int:pk>/', tiktok.order_action.DesignSkuDetailAPIView.as_view(), name='designsku-detail'),

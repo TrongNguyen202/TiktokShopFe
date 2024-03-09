@@ -1,3 +1,4 @@
+from asyncio import constants
 from ....models import Shop, BuyedPackage, UserGroup, DesignSku, DesignSkuChangeHistory, GroupCustom
 from ....serializers import BuyedPackageSeri, DesignSkuSerializer, GroupCustomSerializer, DesignSkuPutSerializer
 
@@ -64,7 +65,6 @@ class OrderDetail(APIView):
             }
 
         return JsonResponse(content, safe=False)
-
 
 
 """Labels"""
@@ -467,3 +467,39 @@ class GroupCustomListAPIView(APIView):
         group_customs = GroupCustom.objects.all().order_by('id')
         serializer = GroupCustomSerializer(group_customs, many=True)
         return Response(serializer.data)
+
+
+class CreateLabel(APIView):
+    def post(self, request, shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        body_raw = request.body.decode('utf-8')
+        label_datas = json.loads(body_raw)
+
+        with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
+            futures = []
+            for label_data in label_datas:
+                futures.append(executor.submit(self.call_create_label, access_token, label_data))
+
+            datas = []
+            for future in futures:
+                datas.append(future.result())
+
+        return Response({"data": datas, "message": "Buy label successfully."}, status=201)
+
+    def call_create_label(self, access_token, label_data):
+        respond = order.callCreateLabel(access_token=access_token, body_raw_json=label_data)
+        data = json.loads(respond.content)
+
+        print(data)
+
+        # Check if package_id already exists
+        try:
+            buyedPkg, created = BuyedPackage.objects.get_or_create(package_id=data["data"]["package_id"])
+            # If created is True, it means a new object was created
+            if created:
+                return json.loads(respond.content)
+            else:
+                return {"status": 404, "error": "Package is buyed label."}
+        except IntegrityError:
+            return {"error": "Integrity error occurred"}
