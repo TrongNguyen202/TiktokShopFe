@@ -3,7 +3,11 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import ProductItem from "./ProductItem";
 import * as XLSX from "xlsx";
-import { CloudUploadOutlined, DownloadOutlined } from "@ant-design/icons";
+import {
+  CloudUploadOutlined,
+  CopyOutlined,
+  DownloadOutlined,
+} from "@ant-design/icons";
 import ModalUploadProduct from "./ModalUploadProduct";
 import TextArea from "antd/es/input/TextArea";
 import { senPrintsData } from "../../constants";
@@ -325,6 +329,23 @@ export default function Crawl() {
     setLicenseCode((prev) => ({ ...prev, invalid: false }));
   };
 
+  const copyToClipboard = (content, key) => {
+    var tempInput = document.createElement("input");
+    tempInput.value = content;
+    document.body.appendChild(tempInput);
+
+    tempInput.select();
+    tempInput.setSelectionRange(0, 99999);
+
+    try {
+      document.execCommand("copy");
+      message.success(`copied`);
+    } catch (err) {
+      message.error(`${err} copy!`);
+    }
+
+    document.body.removeChild(tempInput);
+  };
   return (
     <div>
       <div className="p-5 bg-[#F7F8F9]">
@@ -344,7 +365,7 @@ export default function Crawl() {
         <div className="flex gap-2 items-center">
           <TextArea
             value={optionCrawl.url}
-            placeholder="Page URL"
+            placeholder="Paste URL"
             onChange={onChangeUrl}
             // onPressEnter={handleCrawl}
             rows={4}
@@ -361,6 +382,21 @@ export default function Crawl() {
             Crawl
           </Button>
         </div>
+        <p className="mt-2">
+          Maybe you need:{" "}
+          <span className="font-semibold">
+            https://www.etsy.com/search?q=shirt&ref=search_bar
+          </span>
+          <CopyOutlined
+            className="ml-1 cursor-pointer  text-blue-600"
+            onClick={() =>
+              copyToClipboard(
+                "https://www.etsy.com/search?q=shirt&ref=search_bar",
+                "link"
+              )
+            }
+          />
+        </p>
 
         <div className="flex items-center gap-4 mt-4">
           <div className="flex gap-2 items-center">

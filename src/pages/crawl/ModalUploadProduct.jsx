@@ -150,10 +150,10 @@ export default function ModalUploadProduct({
     // Convert object to array
     const arr1 = Object.values(obj1);
     const arr1Length = arr1.length || 0;
-    const arr2Length = arr2.length || 0;
+    const arr2Length = arr2?.length || 0;
 
     // Calculate the number of elements to take from arr1
-    const numElementsFromArr1 = Math.min(9 - arr1Length, arr2Length);
+    const numElementsFromArr1 = 9 - arr2Length;
 
     // Take the first numElementsFromArr1 elements from arr1
     const elementsFromArr1 = arr1.slice(0, numElementsFromArr1);
@@ -167,11 +167,17 @@ export default function ModalUploadProduct({
       return obj;
     }, {});
 
-    return result;
+    const result2 = Object.keys(result).reduce((obj, key) => {
+      if (result[key]) {
+        obj[key] = result[key];
+      }
+      return obj;
+    }, {});
+
+    return result2;
   }
 
   const sanitizeTitles = (documents) => {
-    console.log('documents: ', documents);
     const { badWords, suffixTitle } = templateJSON ?? {};
     return documents.map((doc) => {
       let title = doc.title;
@@ -186,7 +192,7 @@ export default function ModalUploadProduct({
         title += ` ${suffixTitle}`;
       }
       doc.title = title.trim();
-      // doc.images = mergeArrays(doc.images, templateJSON.fixed_images);
+      doc.images = mergeArrays(doc.images, templateJSON.fixed_images);
       return doc;
     });
   };
