@@ -11,7 +11,7 @@ def callOrderList(access_token: str):
     }
 
     body = json.dumps({
-        'page_size': 50
+        'page_size': 100
     })
 
     sign = SIGN.cal_sign(secret=secret, url=urllib.parse.urlparse(url), query_params=query_params, body=body)
