@@ -223,16 +223,23 @@ class ProcessExcel(View):
 
         with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
             image_futures = []
+            fixed_images =[]
+            base64_images=[]
 
             for key, image_url in images.items():
-                image_futures.append(executor.submit(self.download_image, image_url, key))
+                if image_url.startswith("https"):
+                    image_futures.append(executor.submit(self.download_image, image_url, key))
+                else:
+                    base64_images.append(image_url)
+
+                
 
             for future in image_futures:
                 result = future.result()
                 if result:
                     downloaded_image_paths.append(result)
 
-        base64_images = self.process_images(downloaded_image_paths)
+        base64_images.insert(0, self.process_images(downloaded_image_paths))
         images_ids = self.upload_images(base64_images, shop)
         self.create_product_fun(shop, item, category_id, warehouse_id, is_cod_open, package_height, package_length,
                                 package_weight, package_width, images_ids, description, skus, size_chart)

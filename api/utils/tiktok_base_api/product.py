@@ -1,7 +1,8 @@
 from api.utils.tiktok_base_api import *
 
 
-def callProductList(access_token: str, page_number: str) -> requests.Response:  # Liệt kê danh sách sản phẩm của shop
+# Liệt kê danh sách sản phẩm của shop
+def callProductList(access_token: str, page_number: str) -> requests.Response:
     url = TIKTOK_API_URL['url_product_list']
 
     query_params = {
@@ -38,7 +39,8 @@ def callProductList(access_token: str, page_number: str) -> requests.Response:  
     return response
 
 
-def callProductDetail(access_token: str, product_id: int) -> requests.Response:  # Lấy thông tin chi tiết sản phẩm
+# Lấy thông tin chi tiết sản phẩm
+def callProductDetail(access_token: str, product_id: int) -> requests.Response:
     url = TIKTOK_API_URL['url_detail_product']
 
     query_params = {
@@ -67,7 +69,8 @@ def callProductDetail(access_token: str, product_id: int) -> requests.Response: 
     return response
 
 
-def callGlobalCategories(access_token: str) -> requests.Response:  # Lấy danh sách danh mục toàn cầu
+# Lấy danh sách danh mục toàn cầu
+def callGlobalCategories(access_token: str) -> requests.Response:
     url = TIKTOK_API_URL['url_global_categories']
 
     query_params = {
@@ -95,7 +98,8 @@ def callGlobalCategories(access_token: str) -> requests.Response:  # Lấy danh 
     return response
 
 
-def getCategories(access_token: str) -> requests.Response:  # Lấy danh sách danh mục của shop
+# Lấy danh sách danh mục của shop
+def getCategories(access_token: str) -> requests.Response:
     url = TIKTOK_API_URL['url_get_categories']
 
     query_params = {
@@ -264,6 +268,7 @@ def createProduct(access_token: str, title: str, images_ids: list, product_objec
 
     logger.info(f'Create product status code: {response.status_code}')
     # logger.info(f'Create product response: {response.text}')
+    print(response.text)
 
     return HttpResponse(response)
 
@@ -511,7 +516,8 @@ def callEditProduct(access_token, product_object, imgBase64) -> requests.Respons
 
     body = json.dumps(bodyjson)
 
-    sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
+    sign = SIGN.cal_sign(
+        secret, urllib.parse.urlparse(url), query_params, body)
     query_params["sign"] = sign
 
     response = requests.put(url, params=query_params, json=json.loads(body))
@@ -614,7 +620,8 @@ def callCreateOneProductDraf(access_token, product_object):
 
     body = json.dumps(bodyjson)
 
-    sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
+    sign = SIGN.cal_sign(
+        secret, urllib.parse.urlparse(url), query_params, body)
     query_params["sign"] = sign
 
     response = requests.post(url, params=query_params, json=json.loads(body))
@@ -638,7 +645,8 @@ def categoryRecommend(access_token, product_title):
 
     body = json.dumps(bodyjson)
 
-    sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
+    sign = SIGN.cal_sign(
+        secret, urllib.parse.urlparse(url), query_params, body)
     query_params["sign"] = sign
 
     response = requests.post(url, params=query_params, json=json.loads(body))
