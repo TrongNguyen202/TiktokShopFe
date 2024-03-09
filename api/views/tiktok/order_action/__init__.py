@@ -29,28 +29,42 @@ class OrderDetail(APIView):
         shop = get_object_or_404(Shop, id=shop_id)
         access_token = shop.access_token
         responseOrderList = order.callOrderList(access_token=access_token)
+        data = []
 
         if responseOrderList.json()['data']['total'] == 0:
-            orderIds = []
             content = {
                 'code': 200,
                 'data': {
                     'order_list': []
-                }
+                },
+                'message': 'Success'
             }
-
-            return JsonResponse(content, content_type='application/json')
         else:
             orders = responseOrderList.json()['data']['order_list']
             orderIds = [order['order_id'] for order in orders]
 
-        response = order.callOrderDetail(access_token=access_token, orderIds=orderIds)
+            for i in range(0, len(orderIds), 50):
+                chunk_ids = orderIds[i:i+50]
+                response = order.callOrderDetail(access_token=access_token, orderIds=chunk_ids)
+                data.append(response.json())
 
-        logger.info(f'OrderDetail response: {response.content}')
+        if not data:
+            content = {
+                'code': 200,
+                'data': {
+                    'order_list': []
+                },
+                'message': 'Success'
+            }
+        else:
+            content = {
+                'code': 200,
+                'data': data,
+                'message': 'Success'
+            }
 
-        content = response.content
+        return JsonResponse(content, safe=False)
 
-        return HttpResponse(content=content, content_type='application/json')
 
 
 """Labels"""
