@@ -86,6 +86,13 @@ class DesignSkuChangeHistoryAdmin(admin.ModelAdmin):
     readonly_fields = ('design_sku', 'user', 'change_data', 'changed_at')
 
 
+class FlashShipPODVariantListAdmin(admin.ModelAdmin):
+    list_display = ('variant_id', 'color', 'size', 'product_type')
+    list_filter = ('product_type',)
+    search_fields = ('variant_id', 'color', 'size')
+
+
+admin.site.register(FlashShipPODVariantList, FlashShipPODVariantListAdmin)
 # Đăng ký các lớp admin mới được tạo
 admin.site.register(Categories, CategoriesAdmin)
 admin.site.register(UserGroup, UserGroupAdmin)

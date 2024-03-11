@@ -200,23 +200,25 @@ class UserShopList(APIView):
     def get(self, request):
         user = request.user
         users_groups = get_object_or_404(UserGroup, user=user)
-        group_custom = users_groups.group_custom
+        if users_groups is None:
+            return Response({"message": "User does not belong to any group."}, status=404)
 
+        group_custom = users_groups.group_custom
         user_shops_data = {"group_id": group_custom.id, "group_name": group_custom.group_name, "users": []}
 
-        users_filter = []
-        for user_group in group_custom.usergroup_set.filter(role=1) | group_custom.usergroup_set.filter(role=2):
+        for user_group in group_custom.usergroup_set.filter(role__in=[1, 2]):
             user_data = {
                 "user_id": user_group.user.id,
                 "user_name": user_group.user.username,
                 "first_name": user_group.user.first_name,
                 "last_name": user_group.user.last_name,
-                'password': user_group.user.password,
-                'email': user_group.user.email,
+                "password": user_group.user.password,
+                "email": user_group.user.email,
                 "shops": []
             }
 
-            for user_shop in user_group.user.usershop_set.filter(shop__group_custom_id=group_custom.id):
+            user_shops = UserShop.objects.filter(user=user_group.user, shop__group_custom_id=group_custom.id)
+            for user_shop in user_shops:
                 user_data["shops"].append({"id": user_shop.shop.id, "name": user_shop.shop.shop_name})
 
             user_shops_data["users"].append(user_data)

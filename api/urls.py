@@ -5,6 +5,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 # Import các views module
 import api.views.google_trend as google_trend
 import api.views.tiktok as tiktok
+from api.utils.flashship import flashshipapi
 
 swagger_urls = [
     path("schema", SpectacularAPIView.as_view(), name="schema"),
@@ -75,11 +76,14 @@ fulfillment_urls = [
     path('pdf-search/', tiktok.order_action.PDFSearch.as_view(), name='pdf_search'),
     path('pdf-download/', tiktok.order_action.PDFDownload.as_view(), name='pdf_download'),
     path('shops/<int:shop_id>/packages/buy_label', tiktok.order_action.CreateLabel.as_view(), name='buy_label'),  # oke
+    path('shops/<int:shop_id>/get_shipping_doc_package_ids', tiktok.order_action.ShippingDoc.as_view(), name='get_shipping_doc_package_ids'),  # oke
 
     path('designskus/', tiktok.order_action.DesignSkuListCreateAPIView.as_view(), name='designsku-list'),
     path('designskus/<int:pk>/', tiktok.order_action.DesignSkuDetailAPIView.as_view(), name='designsku-detail'),
     path('designskus/find_by_group/<int:group_id>', tiktok.order_action.DesignSkuDepartment.as_view(), name='designsku-find-by-group'),
     path('designskus/search/', tiktok.order_action.DesignSkuSearch.as_view(), name='designsku_search'),
+    path('flashship/create', flashshipapi.SaveVariantDataFromExcel.as_view(), name='flashship_create'),
+    path('flashship/all', flashshipapi.FlashShipPODVariantListView.as_view(), name='flashship_getall')
 ]
 
 

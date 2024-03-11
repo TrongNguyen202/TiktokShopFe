@@ -126,6 +126,7 @@ class GroupCustomListAPIView(APIView):
         serializer = GroupCustomSerializer(group_customs, many=True)
         return Response(serializer.data)
 
+
 class PermissionRole(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -142,8 +143,10 @@ class PermissionRole(APIView):
         user.save()
 
         stores = data.get('shops', [])
+
         # Do something with the stores list, for example, assign the user to the provided stores
         for store_id in stores:
+            print(store_id)
             UserShop.objects.get_or_create(user=user, shop_id=store_id)
 
         return Response({"message": "User information updated successfully."})

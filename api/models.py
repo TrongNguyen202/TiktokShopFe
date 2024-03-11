@@ -114,3 +114,23 @@ class DesignSkuChangeHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     change_data = models.TextField(null=True)
     changed_at = models.DateTimeField(auto_now_add=True)
+
+
+class FlashShipPODVariantList(models.Model):
+    SHIRT = 'SHIRT'
+    HOODIE = 'HOODIE'
+    SWEATSHIRT = 'SWEATSHIRT'
+
+    PRODUCT_TYPE_CHOICES = [
+        (SHIRT, 'Shirt'),
+        (HOODIE, 'Hoodie'),
+        (SWEATSHIRT, 'Sweatshirt'),
+    ]
+
+    variant_id = models.IntegerField()
+    color = models.CharField(max_length=500)
+    size = models.CharField(max_length=200)
+    product_type = models.CharField(max_length=20, choices=PRODUCT_TYPE_CHOICES)
+
+    def __str__(self):
+        return f"{self.variant_id} - {self.color} - {self.size} - {self.product_type}"

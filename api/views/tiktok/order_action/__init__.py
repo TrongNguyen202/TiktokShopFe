@@ -503,3 +503,34 @@ class CreateLabel(APIView):
                 return {"status": 404, "error": "Package is buyed label."}
         except IntegrityError:
             return {"error": "Integrity error occurred"}
+
+
+class ShippingDoc(APIView):
+    def post(self, request, shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        data = json.loads(request.body.decode('utf-8'))
+        doc_urls = []
+        package_ids = data.get('package_ids', [])
+
+        # Sử dụng ThreadPoolExecutor để thực hiện các cuộc gọi API đa luồng
+        with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
+            # Lặp qua từng package_id và gửi các công việc gọi API tới executor
+            # để thực hiện đồng thời
+            futures = []
+            for package_id in package_ids:
+                futures.append(executor.submit(order.callGetShippingDoc, package_id=package_id, access_token=access_token))
+
+            # Thu thập kết quả từ các future và thêm vào danh sách doc_urls
+            for future in futures:
+                doc_url = future.result()
+                doc_urls.append(doc_url)
+
+        # Tạo phản hồi JSON chứa danh sách các URL của shipping doc
+        response_data = {
+            'code': 0,
+            'data': {
+                'doc_urls': doc_urls
+            }
+        }
+        return JsonResponse(response_data)
