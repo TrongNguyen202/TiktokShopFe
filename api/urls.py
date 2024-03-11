@@ -83,7 +83,9 @@ fulfillment_urls = [
     path('designskus/find_by_group/<int:group_id>', tiktok.order_action.DesignSkuDepartment.as_view(), name='designsku-find-by-group'),
     path('designskus/search/', tiktok.order_action.DesignSkuSearch.as_view(), name='designsku_search'),
     path('flashship/create', flashshipapi.SaveVariantDataFromExcel.as_view(), name='flashship_create'),
-    path('flashship/all', flashshipapi.FlashShipPODVariantListView.as_view(), name='flashship_getall')
+    path('flashship/all', flashshipapi.FlashShipPODVariantListView.as_view(), name='flashship_getall'),
+    path('shops/upload_driver', tiktok.order_action.UploadDriver.as_view(), name='upload_driver'),
+    path('shops/<int:shop_id>/orders/toship_infor', tiktok.order_action.ToShipOrderAPI.as_view(), name='to_ship_order'),
 ]
 
 
