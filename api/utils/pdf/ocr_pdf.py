@@ -12,10 +12,12 @@ path_to_poppler_exe = Path(r"C:\Library\bin")
 out_directory = Path(r"C:\output").expanduser()
 text_file = out_directory / Path("out_text.txt")
 
+
 def remove_special_characters(text):
     # Thay thế các kí tự đặc biệt bằng chuỗi trống
-    special_characters = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '+', '=', '[', ']', '{', '}', ';', ':', ',', '.', '<', '>', '/', '?', '\\', '|']
-    
+    special_characters = ['!', '@', '#', '$', '%', '^', '&', '*',
+                          '(', ')', '-', '_', '+', '=', '[', ']', '{', '}', ';', ':', ',', '.', '<', '>', '/', '?', '\\', '|']
+
     # Xóa kí tự đặc biệt ở đầu
     for char in special_characters:
         if text.startswith(char):
@@ -29,6 +31,8 @@ def remove_special_characters(text):
             break
 
     return text.strip()
+
+
 def process_pdf(pdf_path):
     with TemporaryDirectory() as tempdir:
         if platform.system() == "Windows":
@@ -50,7 +54,7 @@ def process_pdf(pdf_path):
             lines = text.split('\n')
             lines = [line for line in lines if line != ""]
             lines = [remove_special_characters(line) for line in lines]
-            
+            print(lines)
 
             entry_data = {}
             for i, line in enumerate(lines):
@@ -74,14 +78,10 @@ def process_pdf(pdf_path):
 
                     # Còn lại là city
                     city = wrong_city_state_zipcode[:-13].strip()
+                    city = city[2:]
 
                     entry_data["city"] = city
                     entry_data["state"] = state
                     entry_data["zip_code"] = zip_code
 
     return json.dumps(entry_data, indent=2)
-
-
-
-
-
