@@ -78,7 +78,6 @@ def process_pdf(pdf_path):
 
                     # Còn lại là city
                     city = wrong_city_state_zipcode[:-13].strip()
-                    city = city[2:]
 
                     entry_data["city"] = city
                     entry_data["state"] = state
