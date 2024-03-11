@@ -11,14 +11,15 @@ import { useShopsOrder } from "../../store/ordersStore"
 const CreateLabel = () => {
     const location = useLocation()
     const navigate = useNavigate();
-    const { combine } = location.state
+    const { dataCombine } = location.state
     const shopId = getPathByIndex(2)
     const [open, setOpen] = useState(false)
     const [startFulfillment, setStartFulfillment] = useState(false)
+    const [tableData, setTableData] = useState([])
     const [shippingServiceData, setShippingServiceData] = useState([])
     const [dataSizeChart, setDataSizeChart] = useState(OrderPackageWeightSize)
     const [buyLabelSelected, setBuyLabelSelected] = useState([])
-    const { buyLabel, shippingService, getShippingDoc, loading } = useShopsOrder(state => state)
+    const { buyLabel, shippingService, getShippingDoc, getPackageBought, packageBought, loading } = useShopsOrder(state => state)
     const [messageApi, contextHolder] = message.useMessage();
     const dataSizeChartConvert = dataSizeChart.map(sizeChart => (
         sizeChart.items.map((item, index) => (
@@ -29,11 +30,15 @@ const CreateLabel = () => {
             }
         ))
     )).flat()
+    const dataCombineConvert = dataCombine.map((item, index) => ({ 
+        key: index+1, 
+        ...item
+    }))
 
-    const dataTableWeightSize = (data) => {
-        const labelItems = data.map((label, index) => {
+    const dataTableWeightSize = (dataInput) => {
+        const labelItems = dataInput.map((label, index) => {
             const orderList = label.data.order_info_list.map(order => {
-                const productList = order.sku_list.map(product => {
+                const productList = order.item_list.map(product => {
                     let orderPackageList = dataSizeChart.find(orderPackage => product.sku_name.includes(orderPackage.name))
                     
                     if (orderPackageList === undefined) {
@@ -50,7 +55,7 @@ const CreateLabel = () => {
                 })
                 
                 const sumWeight = productList.map(product => parseFloat(product.orderPackageWeight)).reduce((partialSum, current) => partialSum + current, 0).toFixed(1)
-                const sumSize = order.sku_list.length > 1 ? "10x10x3".split('x') : productList[0]?.orderPackageSize?.split('x')
+                const sumSize = order.item_list.length > 1 ? "10x10x3".split('x') : productList[0]?.orderPackageSize?.split('x')
                 return {sumWeight, sumSize}  
             })
             
@@ -69,16 +74,18 @@ const CreateLabel = () => {
         })
         return labelItems
     }
-    const dataTableConvert = dataTableWeightSize(combine)
-    const [tableData, setTableData] = useState(dataTableConvert)
+
+    console.log('tableData: ', tableData);
+    
     useEffect(() => {
-        const updatedTableData = dataTableWeightSize(combine)
+        const updatedTableData = dataTableWeightSize(dataCombineConvert)
         setTableData(updatedTableData)
-    }, [combine, dataSizeChart]);
+        getPackageBought()
+    }, [dataCombine, dataSizeChart]);
 
 
     const renderListItemProduct = (data) => {
-        const skuList = data.order_info_list.map(item => item.sku_list)
+        const skuList = data.order_info_list.map(item => item.item_list)
         return skuList.map((skuItem, index) => {
             return (
                 <>
@@ -255,19 +262,21 @@ const CreateLabel = () => {
 
     const handleStartFulfillment = () => {
         const packageIds = {
-            package_ids: buyLabelSelected.map(item => item.data.package_id)
+          package_ids: buyLabelSelected.map(label => label.data.package_id)
         }
-
+        
         const onSuccess = (res) => {
           if (res) {
             const shippingDocData = buyLabelSelected.map((item, index) => (
-                {
-                    order_list: item.data,
-                    label: res.doc_urls[index]
+                {    
+                  order_list: item.data.order_info_list,
+                  label: res.doc_urls[index],
+                  package_id: item.data.package_id
                 }
             ))
-
-            navigate(`/shops/${shopId}/orders/fulfillment`, { state: { shippingDoc: shippingDocData } });
+            console.log('shippingDocData: ', shippingDocData)
+    
+            navigate(`/shops/${shopId}/orders/fulfillment`, { state: { shippingDoc: shippingDocData } })
           }
         }
     
@@ -277,10 +286,9 @@ const CreateLabel = () => {
     const columns = [
         {
             title: "STT",
-            dataIndex: "index",
-            key: "index",
-            align: 'center',
-            render: (_, record, i) => <p>{i + 1}</p>,
+            dataIndex: "key",
+            key: "key",
+            align: 'center'
         },
         {
           title: "Đơn hàng",
@@ -293,7 +301,7 @@ const CreateLabel = () => {
             dataIndex: "items",
             key: "items",
             render: (_, record) => {
-                const sumItem = record.data.order_info_list.map(item => item.sku_list.length).reduce((partialSum, a) => partialSum + a, 0)
+                const sumItem = record.data.order_info_list.map(item => item.item_list.length).reduce((partialSum, a) => partialSum + a, 0)
                 return (
                     <Popover 
                         content={renderListItemProduct(record.data)}
@@ -306,7 +314,7 @@ const CreateLabel = () => {
                                 <p>{sumItem} items</p>
                                 <ul className='text-ellipsis whitespace-nowrap overflow-hidden w-[180px]'>
                                     {record.data.order_info_list.map(item => (
-                                            item.sku_list.map(prItem => (
+                                            item.item_list.map(prItem => (
                                                 <li key={prItem.sku_id} className='inline-block mr-3 w-10 h-10 [&:nth-child(3+n)]:hidden'>
                                                     <img className="w-full h-full object-cover" width={30} height={30} src={prItem.sku_image} />
                                                 </li>

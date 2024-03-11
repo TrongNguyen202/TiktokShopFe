@@ -47,19 +47,19 @@ const OrdersLabel = ({changeNextStep, toShipInfoData}) => {
     const rowSelection = {
         onChange: (_, selectedRows) => {
             setLabelSelected(selectedRows)
-            if (selectedRows.length) changeNextStep(true)
-            else changeNextStep(false)
         },
         getCheckboxProps: (record) => ({
             disabled: record.label === null
         })
     }
 
+    console.log('labelSelected: ', labelSelected)
+
     const handlePushToDriver = () => {
         const dataLabelProcess = {
             order_documents: labelSelected?.map(item => (
                 {
-                    package_id: item.order_list.package_list[0].package_id,
+                    package_id: item.package_id,
                     doc_url: item.label
                 }
             ))
@@ -67,17 +67,12 @@ const OrdersLabel = ({changeNextStep, toShipInfoData}) => {
 
         const onSuccess = (res) => {
             if (res) {
-                const onSuccess = (res) => {
-                    if (res) {
-                        messageApi.open({
-                            type: 'success',
-                            content: 'Đã đẩy label lên Server thành công',
-                        })
-                        setDataGetToShipInfo(toShipInfo)
-                    }
-                }
-        
-                getToShipInfo(shopId, dataLabelProcess, onSuccess, (err) => console.log(err))   
+                messageApi.open({
+                    type: 'success',
+                    content: 'Đã đẩy label lên Server thành công',
+                })
+    
+                changeNextStep(true)
             }
         }
 
@@ -94,7 +89,7 @@ const OrdersLabel = ({changeNextStep, toShipInfoData}) => {
             {contextHolder}
             <div className="mb-3 text-start">
                 <SectionTitle title='Danh sách label' count={shippingDoc.length ? shippingDoc.length : "0"}/>
-                <p><i>(Vui lòng tick vào ô để chọn label muốn Fulfillment)</i></p>
+                <p><i>(Vui lòng tick vào ô để chọn label Lưu trữ vào Server và Fulfillment)</i></p>
                 <Button type="primary" onClick={handlePushToDriver} className="mt-3" disabled={!labelSelected.length}>
                     Lưu file Label đã mua vào Server &nbsp;
                     <span>({labelSelected.length})</span>

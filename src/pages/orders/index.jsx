@@ -1,5 +1,5 @@
 import { DownOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
-import { Button, Image, Popover, Space, Spin, Table, Tag, Tooltip, Modal, message } from "antd";
+import { Button, Image, Popover, Space, Spin, Table, Tag, Tooltip, Modal, message, Checkbox } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
@@ -30,6 +30,7 @@ const Orders = () => {
   const location = useLocation()
   const searchInput = useRef(null);
   const [open, setOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchText, setSearchText] = useState('');
   const [orderSelected, setOrderSelected] = useState([])
   const [searchedColumn, setSearchedColumn] = useState('');
@@ -37,10 +38,11 @@ const Orders = () => {
   const [dataCombineConfirm, setDataCombineConfirm] = useState([])
   const { orders, getAllOrders, getAllCombine, combineList, createLabel, shippingService, getPackageBought, packageBought, getShippingDoc, loading } = useShopsOrder((state) => state)
   const orderList = orders.length ? orders?.map(order => order?.data?.order_list).flat() : []
-  function sortByPackageId(arr) {
+  
+  const sortByPackageId = (arr) => {
     const grouped = arr.reduce((acc, item) => {
-        const key = item.package_list.length > 0 ? item.package_list[0].package_id : null
-        if (!acc[key]) {
+      const key = item.package_list.length > 0 ? item.package_list[0].package_id : null
+      if (!acc[key]) {
             acc[key] = [];
         }
         acc[key].push(item);
@@ -56,6 +58,12 @@ const Orders = () => {
     const sortedArray = [].concat(...sortedGroups);      
     return sortedArray;
   }
+
+  const orderDataTable = sortByPackageId(orderList).map((item, index) => ({
+    key: index + 1,
+    package_id: item.package_list.length ? item.package_list[0].package_id : null,
+    ...item
+  }))
 
   const renderListItemProduct = (record) => {
     const { item_list } = record;
@@ -187,18 +195,29 @@ const Orders = () => {
   const handleCreateLabels = () => {
     const onSuccess = (res) => {
       if (res) {
-        let dataUpdate = [...res];
-        const promises = dataUpdate.map((item, index) => {
+        let dataUpdate
+        const promises = res.map((item, index) => {
           return new Promise((resolve, reject) => {
             const packageId = {
               package_id: item.data.package_id
             };
             const onSuccessShipping = (resShipping) => {
               if (resShipping) {
-                const dataCreateLabel = dataUpdate.find(resItem => resItem.data.package_id === packageId.package_id);
-                dataCreateLabel.data.shipping_provider = resShipping.data[0].name;
-                dataCreateLabel.data.shipping_provider_id = resShipping.data[0].id;
-                dataUpdate[index] = dataCreateLabel;
+                const dataOrderCombine = res.map(itemCombine => ({
+                  data: {
+                    ...itemCombine.data,
+                    order_info_list: itemCombine.data.order_info_list.map(itemCombineOrder => (
+                      orderDataTable.find(order => order.order_id === itemCombineOrder.order_id)
+                    ))
+                  }
+                })).flat()
+
+                dataUpdate = [...dataOrderCombine];
+                
+                const dataCreateLabel = dataUpdate.find(resItem => resItem.data.package_id === packageId.package_id)
+                dataCreateLabel.data.shipping_provider = resShipping.data[0].name
+                dataCreateLabel.data.shipping_provider_id = resShipping.data[0].id
+                dataUpdate[index] = dataCreateLabel
                 resolve();
               }
             };
@@ -211,7 +230,7 @@ const Orders = () => {
   
         Promise.all(promises)
         .then(() => {
-          navigate(`/shops/${shopId}/orders/create-label`, { state: { combine: dataUpdate } });
+          navigate(`/shops/${shopId}/orders/create-label`, { state: { dataCombine: dataUpdate } });
         })
         .catch((error) => {
           console.error('Error updating data:', error);
@@ -223,25 +242,27 @@ const Orders = () => {
 
   const handleStartFulfillment = () => {
     const ordersHasPackageId = orderList.filter(order => order.package_list.length > 0)
-    const orderBoughtLabel = packageBought.map(item => ordersHasPackageId.filter(order => item.package_id === order.package_list[0].package_id))
-    const orderBoughtLabelUnique = packageBought.map(item => ordersHasPackageId.find(order => item.package_id === order.package_list[0].package_id))
-    console.log('orderBoughtLabelUnique: ', orderBoughtLabelUnique);
+    const orderBoughtLabel = packageBought.map(item =>
+      ordersHasPackageId.filter(order => item.package_id === order.package_list[0].package_id)
+    ).filter(item => item.length)
+
+    const orderBoughtLabelUnique = packageBought.map(item =>
+      ordersHasPackageId.find(order => item.package_id === order.package_list[0].package_id)
+    ).filter(item => item !== undefined)
+
     const packageIds = {
       package_ids: orderBoughtLabelUnique.map(item => item.package_list[0].package_id)
     }
     
     const onSuccess = (res) => {
       if (res) {
-        console.log(res)
         const shippingDocData = orderBoughtLabel.map((item, index) => (
           {
-
             order_list: item,
             label: res.doc_urls[index],
             package_id: item[0].package_list[0].package_id
           }
         ))
-
         navigate(`/shops/${shopId}/orders/fulfillment`, { state: { shippingDoc: shippingDocData } })
       }
     }
@@ -271,24 +292,24 @@ const Orders = () => {
   const columns = [
     {
       title: "STT",
-      dataIndex: "index",
-      key: "index",
-      align: 'center',
-      render: (_, item, i) => <p>{i + 1}</p>,
+      dataIndex: "key",
+      key: "key",
+      align: 'center'
     },
     {
       title: "Package ID",
-      dataIndex: ["package_list", "package_id"],
+      dataIndex: "package_id",
       key: "package_id",
       align: 'center',
       render: (_, record) => record.package_list.length > 0 ? record.package_list[0].package_id : "Hiện chưa có package ID",
       onCell: (record, index) => {
-        const rowSpanData = orderList.filter(item => item.package_list.length > 0 && record.package_list.length > 0 && item.package_list[0].package_id === record.package_list[0].package_id)
+        const rowSpanData = orderDataTable.filter(item => item.package_id === record.package_id)
         const orderIdRowSpanData = rowSpanData.map(item => {
           return (
             {
               ...item,
-              order_position: item.order_id === record.order_id ? index : null
+              order_position: item.order_id === record.order_id ? index : null,
+              key: item.order_id === record.order_id ? item.key : ''
             }
           )
         })
@@ -384,7 +405,7 @@ const Orders = () => {
       dataIndex: "shipping_provider",
       key: "shipping_provider"
     }
-  ];
+  ]
 
   useEffect(() => {
     if (location.state) {
@@ -424,12 +445,16 @@ const Orders = () => {
         }}
         scroll={{ x: true }}
         columns={columns} 
-        dataSource={sortByPackageId(orderList)} 
+        dataSource={orderDataTable}
         loading={loading} 
         bordered
-        pagination={{ pageSize: 50}}
-        rowKey={record => record.package_list[0]?.package_id}
+        pagination={{
+          pageSize: 20,
+          total: orderDataTable.length
+        }}
+        // rowKey={record => record.package_list[0]?.package_id}
       />
+      
       <Modal
         title="Combine"
         centered
