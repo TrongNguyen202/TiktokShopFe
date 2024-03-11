@@ -13,6 +13,7 @@ import {
   Checkbox,
   Table,
   Cascader,
+  message,
 } from "antd";
 
 import dayjs from "dayjs";
@@ -21,7 +22,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import ContentHeader from "../../components/content-header";
 import Loading from "../../components/loading";
 import { useVouchersStore } from "../../store/vouchersStore";
-import { buildNestedArraysMenu, getPathByIndex } from "../../utils";
+import {
+  IntlNumberFormat,
+  buildNestedArraysMenu,
+  getPathByIndex,
+  removeDuplicates,
+} from "../../utils";
 import { alerts } from "../../utils/alerts";
 import { useCategoriesStore } from "../../store/categoriesStore";
 import { useProductsStore } from "../../store/productsStore";
@@ -42,9 +48,8 @@ export default function PromotionForm() {
     location?.state ? location?.state?.set_limit_total : true
   );
   // categories zustand
-  const { categoriesIsLeaf, getAllCategoriesIsLeaf } = useCategoriesStore(
-    (state) => state
-  );
+  const { categoriesIsLeaf, getAllCategoriesIsLeaf, getAttributeByCategory } =
+    useCategoriesStore((state) => state);
   const categoriesData = buildNestedArraysMenu(categoriesIsLeaf, 0);
 
   // product zustand
@@ -54,6 +59,8 @@ export default function PromotionForm() {
 
   //state
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [prdSelected, setPrdSelected] = useState([]);
+  const [messageApi, contextHolder] = message.useMessage();
 
   const onSubmit = (value) => {
     const onSuccess = () => {
@@ -83,9 +90,6 @@ export default function PromotionForm() {
   };
 
   //logic datepicker
-  const onChangeRangePicker = (e) => {
-    console.log("hahahaha", e);
-  };
 
   // modal logic
   const showModal = () => {
@@ -114,33 +118,34 @@ export default function PromotionForm() {
   };
   //logic checkbox modal
 
-  //logic table modal
+  //logic table modal selected row
+  const onSelectChange = (newSelectedRowKeys) => {
+    setPrdSelected(newSelectedRowKeys);
+    console.log("selected prdddddddddd", prdSelected);
+  };
+
+  //logic table modal selected row
   const rowSelection = {
-    onChange: (_, selectedRows) => {
-      console.log("selectedRows: ", selectedRows);
-      const selectedRowsPackageId = selectedRows.map(
-        (item) => item.package_list[0].package_id
-      );
-      setOrderSelected(selectedRowsPackageId);
-    },
-    getCheckboxProps: (record) => {
-      const disabledStatus = [140, 130, 122, 121, 105, 100];
-      const disabledLabel = packageBought.map((item) => item.package_id);
+    prdSelected,
+    onChange: onSelectChange,
+    // getCheckboxProps: (record) => {
+    //   const disabledStatus = [140, 130, 122, 121, 105, 100];
+    //   const disabledLabel = packageBought?.map((item) => item.package_id);
 
-      const isDisabledStatus = disabledStatus.includes(record.order_status);
-      const isDisabledLabel = disabledLabel.includes(
-        record.package_list.length > 0 && record.package_list[0].package_id
-      );
+    //   const isDisabledStatus = disabledStatus.includes(record?.order_status);
+    //   const isDisabledLabel = disabledLabel.includes(
+    //     record.package_list.length > 0 && record?.package_list[0].package_id
+    //   );
 
-      return {
-        disabled: isDisabledStatus || isDisabledLabel,
-      };
-    },
+    //   return {
+    //     disabled: isDisabledStatus || isDisabledLabel,
+    //   };
+    // },
   };
 
   // logic select in modal in table
   const handleChangeCategoriesModal = (e) => {
-    const categoryId = e[e.length - 1];
+    const categoryId = e[e?.length - 1];
     const onSuccess = (res) => {
       getAttributeValues(res.data.attributes);
     };
@@ -151,25 +156,52 @@ export default function PromotionForm() {
         content: err,
       });
     };
-    getAttributeByCategory(shopId, categoryId, onSuccess, onFail);
+    getAttributeByCategory(ShopId, categoryId, onSuccess, onFail);
   };
 
-  // define table
+  // define table colums
   const columns = [
     {
       title: "product name",
-      dataIndex: "shipping_provider",
-      key: "shipping_provider",
+      dataIndex: "name",
+      key: "name",
     },
     {
       title: "original price",
-      dataIndex: "shipping_provider",
-      key: "shipping_provider",
-    },
-    {
-      title: "stock",
-      dataIndex: "shipping_provider",
-      key: "shipping_provider",
+      dataIndex: ["skus", "price"],
+      key: "price",
+      align: "center",
+      render: (_, record) => {
+        const listPrice = record?.skus?.map(
+          (item) => item?.price?.original_price || 0
+        );
+        const current = removeDuplicates(
+          record?.skus?.map((item) => item?.price?.currency || "USD"),
+          "currency"
+        );
+        const minPrice = IntlNumberFormat(
+          current,
+          "currency",
+          3,
+          Math.min(...listPrice)
+        );
+        const maxPrice = IntlNumberFormat(
+          current,
+          "currency",
+          3,
+          Math.max(...listPrice)
+        );
+        return (
+          <>
+            {minPrice === maxPrice && <span>{minPrice}</span>}
+            {minPrice !== maxPrice && (
+              <span>
+                {minPrice} - {maxPrice}
+              </span>
+            )}
+          </>
+        );
+      },
     },
   ];
 
@@ -486,12 +518,10 @@ export default function PromotionForm() {
                     ...rowSelection,
                   }}
                   columns={columns}
-                  // dataSource={products}
-                  dataSource={[]}
+                  dataSource={products}
                   loading={loading}
                   bordered
-                  pagination={{ pageSize: 100 }}
-                  rowKey={(record) => record.package_list[0]?.package_id}
+                  rowKey={(record) => record?.products?.id}
                 />
               </div>
             </Modal>
@@ -510,6 +540,7 @@ export default function PromotionForm() {
           </Button>
         </div> */}
       </Form>
+      {contextHolder}
     </div>
   );
 }
