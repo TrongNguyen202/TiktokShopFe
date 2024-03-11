@@ -6,6 +6,7 @@ logger = logging.getLogger('api.views.tiktok.template')
 setup_logging(logger, is_root=False, level=logging.INFO)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class TemplateList(APIView):  # đổi tên thành TemplateList
     permission_classes = (IsAuthenticated,)
 

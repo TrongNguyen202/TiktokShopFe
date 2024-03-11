@@ -28,7 +28,8 @@ TIKTOK_API_URL = {
     'url_search_package': 'https://open-api.tiktokglobalshop.com/api/fulfillment/search',
     'url_get_shipping_service': 'https://open-api.tiktokglobalshop.com/api/fulfillment/shipping_service/get',
     'url_get_package_detail': 'https://open-api.tiktokglobalshop.com/api/fulfillment/detail',
-    'url_get_category_recommend': 'https://open-api.tiktokglobalshop.com/api/product/category_recommend'
+    'url_get_category_recommend': 'https://open-api.tiktokglobalshop.com/api/product/category_recommend',
+    'url_get_shipping_doc': 'https://open-api.tiktokglobalshop.com/api/fulfillment/shipping_document'
 
 
 }

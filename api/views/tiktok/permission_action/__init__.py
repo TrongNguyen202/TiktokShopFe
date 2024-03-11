@@ -7,31 +7,33 @@ logger = logging.getLogger('api.views.tiktok.permission_action')
 setup_logging(logger, is_root=False, level=logging.INFO)
 
 
-class PermissionRole(APIView):
+class AddUsertoGroup(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        data = request.data
-        user_id = data.get('user_id')
-        user = get_object_or_404(User, id=user_id)
+        try:
+            user_current = request.user
+            user_group = UserGroup.objects.get(user=user_current)
+            if not user_group.role == 1:
+                return JsonResponse({"status": 404, "error": "you don't have permission to do this bro"}, status=404)
+            username = request.data.get('username')
+            password = request.data.get('password')
+            email = request.data.get('email')
+            firstname = request.data.get('first_name')
+            lastname = request.data.get('last_name')
+            shop_ids = request.data.get('shops')
+            new_user = User.objects.create_user(username=username, password=password, email=email, first_name=firstname, last_name=lastname)
+            group_custom = user_group.group_custom
+            UserGroup.objects.create(user=new_user, group_custom=group_custom, role=2)
+            if shop_ids:  # Check if shop_ids is provided and not empty
+                for shop_id in shop_ids:
+                    UserShop.objects.create(user=new_user, shop_id=shop_id)
 
-        user.first_name = data.get('first_name', user.first_name)
-        user.last_name = data.get('last_name', user.last_name)
-        user.username = data.get('username', user.username)
-        user.email = data.get('email', user.email)
-        user.password = data.get('password', user.password)
-        user.save()
-
-        stores = data.get('shops', [])
-        # Do something with the stores list, for example, assign the user to the provided stores
-        for store_id in stores:
-            UserShop.objects.get_or_create(user=user, shop_id=store_id)
-
-        return Response({"message": "User information updated successfully"})
-
-    def isManagerOrAdmin(self, user):
-        user_group = get_object_or_404(UserGroup, user=user)
-        return user_group.role
+            return JsonResponse({"status": 201, "message": "User added to group successfully."}, status=201)
+        except ObjectDoesNotExist:
+            return JsonResponse({"status": 404, "error": "Object does not exist."}, status=404)
+        except Exception as e:
+            return JsonResponse({"status": 500, "error": str(e)}, status=500)
 
 
 class InforUserCurrent(APIView):
@@ -123,3 +125,32 @@ class GroupCustomListAPIView(APIView):
         group_customs = GroupCustom.objects.all().order_by('id')
         serializer = GroupCustomSerializer(group_customs, many=True)
         return Response(serializer.data)
+
+
+class PermissionRole(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        data = request.data
+        user_id = data.get('user_id')
+        user = get_object_or_404(User, id=user_id)
+
+        user.first_name = data.get('first_name', user.first_name)
+        user.last_name = data.get('last_name', user.last_name)
+        user.username = data.get('username', user.username)
+        user.email = data.get('email', user.email)
+        user.password = data.get('password', user.password)
+        user.save()
+
+        stores = data.get('shops', [])
+
+        # Do something with the stores list, for example, assign the user to the provided stores
+        for store_id in stores:
+            print(store_id)
+            UserShop.objects.get_or_create(user=user, shop_id=store_id)
+
+        return Response({"message": "User information updated successfully."})
+
+    def isManagerOrAdmin(self, user):
+        user_group = get_object_or_404(UserGroup, user=user)
+        return user_group.role

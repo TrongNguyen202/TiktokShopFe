@@ -1,3 +1,4 @@
+from asyncio import constants
 from ....models import Shop, BuyedPackage, UserGroup, DesignSku, DesignSkuChangeHistory, GroupCustom
 from ....serializers import BuyedPackageSeri, DesignSkuSerializer, GroupCustomSerializer, DesignSkuPutSerializer
 
@@ -29,28 +30,41 @@ class OrderDetail(APIView):
         shop = get_object_or_404(Shop, id=shop_id)
         access_token = shop.access_token
         responseOrderList = order.callOrderList(access_token=access_token)
+        data = []
 
         if responseOrderList.json()['data']['total'] == 0:
-            orderIds = []
             content = {
                 'code': 200,
                 'data': {
                     'order_list': []
-                }
+                },
+                'message': 'Success'
             }
-
-            return JsonResponse(content, content_type='application/json')
         else:
             orders = responseOrderList.json()['data']['order_list']
             orderIds = [order['order_id'] for order in orders]
 
-        response = order.callOrderDetail(access_token=access_token, orderIds=orderIds)
+            for i in range(0, len(orderIds), 50):
+                chunk_ids = orderIds[i:i+50]
+                response = order.callOrderDetail(access_token=access_token, orderIds=chunk_ids)
+                data.append(response.json())
 
-        logger.info(f'OrderDetail response: {response.content}')
+        if not data:
+            content = {
+                'code': 200,
+                'data': {
+                    'order_list': []
+                },
+                'message': 'Success'
+            }
+        else:
+            content = {
+                'code': 200,
+                'data': data,
+                'message': 'Success'
+            }
 
-        content = response.content
-
-        return HttpResponse(content=content, content_type='application/json')
+        return JsonResponse(content, safe=False)
 
 
 """Labels"""
@@ -453,3 +467,70 @@ class GroupCustomListAPIView(APIView):
         group_customs = GroupCustom.objects.all().order_by('id')
         serializer = GroupCustomSerializer(group_customs, many=True)
         return Response(serializer.data)
+
+
+class CreateLabel(APIView):
+    def post(self, request, shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        body_raw = request.body.decode('utf-8')
+        label_datas = json.loads(body_raw)
+
+        with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
+            futures = []
+            for label_data in label_datas:
+                futures.append(executor.submit(self.call_create_label, access_token, label_data))
+
+            datas = []
+            for future in futures:
+                datas.append(future.result())
+
+        return Response({"data": datas, "message": "Buy label successfully."}, status=201)
+
+    def call_create_label(self, access_token, label_data):
+        respond = order.callCreateLabel(access_token=access_token, body_raw_json=label_data)
+        data = json.loads(respond.content)
+
+        print(data)
+
+        # Check if package_id already exists
+        try:
+            buyedPkg, created = BuyedPackage.objects.get_or_create(package_id=data["data"]["package_id"])
+            # If created is True, it means a new object was created
+            if created:
+                return json.loads(respond.content)
+            else:
+                return {"status": 404, "error": "Package is buyed label."}
+        except IntegrityError:
+            return {"error": "Integrity error occurred"}
+
+
+class ShippingDoc(APIView):
+    def post(self, request, shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        data = json.loads(request.body.decode('utf-8'))
+        doc_urls = []
+        package_ids = data.get('package_ids', [])
+
+        # Sử dụng ThreadPoolExecutor để thực hiện các cuộc gọi API đa luồng
+        with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
+            # Lặp qua từng package_id và gửi các công việc gọi API tới executor
+            # để thực hiện đồng thời
+            futures = []
+            for package_id in package_ids:
+                futures.append(executor.submit(order.callGetShippingDoc, package_id=package_id, access_token=access_token))
+
+            # Thu thập kết quả từ các future và thêm vào danh sách doc_urls
+            for future in futures:
+                doc_url = future.result()
+                doc_urls.append(doc_url)
+
+        # Tạo phản hồi JSON chứa danh sách các URL của shipping doc
+        response_data = {
+            'code': 0,
+            'data': {
+                'doc_urls': doc_urls
+            }
+        }
+        return JsonResponse(response_data)

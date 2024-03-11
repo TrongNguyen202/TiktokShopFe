@@ -135,3 +135,9 @@ class GroupCustomSerializer(serializers.ModelSerializer):
     class Meta:
         model = GroupCustom
         fields = ['id', 'group_name']
+
+
+class FlashShipPODVariantListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FlashShipPODVariantList
+        fields = ['variant_id', 'color', 'size', 'product_type']
