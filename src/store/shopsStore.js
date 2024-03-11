@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { RepositoryRemote } from '../services'
 
 export const useShopsStore = create((set) => ({
-  stores: {},
+  stores: [],
   storeById: {},
   infoTable: {},
   loading: false,

@@ -3,9 +3,14 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import ProductItem from "./ProductItem";
 import * as XLSX from "xlsx";
-import { CloudUploadOutlined, DownloadOutlined } from "@ant-design/icons";
+import {
+  CloudUploadOutlined,
+  CopyOutlined,
+  DownloadOutlined,
+} from "@ant-design/icons";
 import ModalUploadProduct from "./ModalUploadProduct";
 import TextArea from "antd/es/input/TextArea";
+import { senPrintsData } from "../../constants";
 
 const crawlerOptions = [
   {
@@ -49,7 +54,6 @@ export default function Crawl() {
     code: localStorage.getItem("licenseCode"),
     invalid: localStorage.getItem("licenseCode") ? false : true,
   });
-  console.log('licenseCode: ', licenseCode);
 
   useEffect(() => {
     setProductList(productListStorage);
@@ -285,16 +289,18 @@ export default function Crawl() {
       return imageObject;
     };
 
-    return selectedProducts.map((product) => {
-      return {
-        campaign_name: product.title,
-        campaign_desc: "",
-        collection: "",
-        product_sku: "",
-        colors: "",
-        price: product.price,
-        ...convertImageLink(product.images),
-      };
+    return selectedProducts.flatMap((product) => {
+      return senPrintsData.map((item) => {
+        return {
+          campaign_name: product.title,
+          campaign_desc: item.campaign_desc,
+          collection: "",
+          product_sku: item.product_sku,
+          colors: item.colors,
+          price: product.price,
+          ...convertImageLink(product.images),
+        };
+      });
     });
   };
 
@@ -319,10 +325,27 @@ export default function Crawl() {
   };
 
   const onSaveLicenseCode = () => {
-    localStorage.setItem("licenseCode", licenseCode.code)
+    localStorage.setItem("licenseCode", licenseCode.code);
     setLicenseCode((prev) => ({ ...prev, invalid: false }));
   };
 
+  const copyToClipboard = (content, key) => {
+    var tempInput = document.createElement("input");
+    tempInput.value = content;
+    document.body.appendChild(tempInput);
+
+    tempInput.select();
+    tempInput.setSelectionRange(0, 99999);
+
+    try {
+      document.execCommand("copy");
+      message.success(`copied`);
+    } catch (err) {
+      message.error(`${err} copy!`);
+    }
+
+    document.body.removeChild(tempInput);
+  };
   return (
     <div>
       <div className="p-5 bg-[#F7F8F9]">
@@ -342,7 +365,7 @@ export default function Crawl() {
         <div className="flex gap-2 items-center">
           <TextArea
             value={optionCrawl.url}
-            placeholder="Page URL"
+            placeholder="Paste URL"
             onChange={onChangeUrl}
             // onPressEnter={handleCrawl}
             rows={4}
@@ -359,6 +382,21 @@ export default function Crawl() {
             Crawl
           </Button>
         </div>
+        <p className="mt-2">
+          Maybe you need:{" "}
+          <span className="font-semibold">
+            https://www.etsy.com/search?q=shirt&ref=search_bar
+          </span>
+          <CopyOutlined
+            className="ml-1 cursor-pointer  text-blue-600"
+            onClick={() =>
+              copyToClipboard(
+                "https://www.etsy.com/search?q=shirt&ref=search_bar",
+                "link"
+              )
+            }
+          />
+        </p>
 
         <div className="flex items-center gap-4 mt-4">
           <div className="flex gap-2 items-center">
@@ -370,7 +408,6 @@ export default function Crawl() {
             />{" "}
             <p className="font-semibold">Selected all</p>
           </div>
-          {/* <div>Đã chọn: <span className="font-semibold">{CountSelectedItems} sản phẩm</span></div> */}
           <div>
             Total:{" "}
             <span className="font-semibold">

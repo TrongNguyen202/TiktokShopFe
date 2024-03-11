@@ -61,6 +61,14 @@ const getDesignSkuSize = (page) => {
   return callApi(`/designskus/?page=${page}`, 'get')
 }
 
+const getDesignSkuByGroup = (groupId) => {
+  return callApi(`/designskus/find_by_group/${groupId}`, 'get')
+}
+
+const getDesignSkuByGroupSize = (groupId, page) => {
+  return callApi(`/designskus/find_by_group/${groupId}?page=${page}`, 'get')
+}
+
 const postDesignSku = (body) => {
   return callApi('/designskus/', 'post', body)
 }
@@ -71,6 +79,10 @@ const putDesignSku = (body, DesignId) => {
 
 const deleteDesignSku = (DesignId) => {
   return callApi(`/designskus/${DesignId}/`, 'delete')
+}
+
+const searchDesignSku = (body) => {
+  return callApi(`/designskus/search/`, 'post', body)
 }
 
 export const orders = {
@@ -89,7 +101,10 @@ export const orders = {
     pdfLabelDownload,
     getDesignSku,
     getDesignSkuSize,
+    getDesignSkuByGroup,
+    getDesignSkuByGroupSize,
     postDesignSku,
     putDesignSku,
     deleteDesignSku,
+    searchDesignSku
 }

@@ -51,5 +51,14 @@ export const useUsersStore = create((set, get) => ({
       onFail(error?.response?.data.error || 'Có lỗi xảy ra khi lấy dữ liệu user!')
     }
     set({ loading: false })
+  },
+
+  getGroupUser: async (onSuccess = () => { }, onFail = () => { }) => {
+    try {
+      const response = await RepositoryRemote.users.getGroupUser()
+      onSuccess(response.data)
+    } catch (error) {
+      onFail(error?.response?.data.error || 'Có lỗi xảy ra khi lấy dữ liệu user!')
+    }
   }
 }))

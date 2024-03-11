@@ -55,13 +55,13 @@ const Products = () => {
         const minPrice = IntlNumberFormat(
           current,
           "currency",
-          3,
+          6,
           Math.min(...listPrice)
         );
         const maxPrice = IntlNumberFormat(
           current,
           "currency",
-          3,
+          6,
           Math.max(...listPrice)
         );
         return (

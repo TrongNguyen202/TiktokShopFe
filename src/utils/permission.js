@@ -13,3 +13,10 @@ export const hasSellerPermission = () => {
   if (user.role[0] === permission.SELLER) return true;
   return false
 }
+
+export const hasDesignerPermission = () => {
+  const user = JSON.parse(localStorage.getItem('user'));
+  if (!user || !Array.isArray(user.role)) return false;
+  if (user.role[0] === permission.DESIGNER) return true;
+  return false
+}

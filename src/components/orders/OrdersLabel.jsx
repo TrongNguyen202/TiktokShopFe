@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom"
 import { Table, Tag, Button, Space, Input, Form, message, Card, Spin, Modal } from 'antd';
-import { DownloadOutlined } from "@ant-design/icons"
 
 import { getPathByIndex } from '../../utils'
 import { useShopsOrder } from "../../store/ordersStore";
@@ -17,6 +16,8 @@ const OrdersLabel = ({changeNextStep, toShipInfoData}) => {
     const [labelSelected, setLabelSelected] = useState([])
     const [messageApi, contextHolder] = message.useMessage();
     const { getToShipInfo, toShipInfo, uploadLabelToDriver, loading } = useShopsOrder((state) => state)
+
+    console.log('shippingDoc: ', shippingDoc);
 
     const columns = [
         {
@@ -92,7 +93,7 @@ const OrdersLabel = ({changeNextStep, toShipInfoData}) => {
         <div className="p-3 md:p-10">
             {contextHolder}
             <div className="mb-3 text-start">
-                <SectionTitle title='Danh sách label' count={shippingDoc.length}/>
+                <SectionTitle title='Danh sách label' count={shippingDoc.length ? shippingDoc.length : "0"}/>
                 <p><i>(Vui lòng tick vào ô để chọn label muốn Fulfillment)</i></p>
                 <Button type="primary" onClick={handlePushToDriver} className="mt-3" disabled={!labelSelected.length}>
                     Lưu file Label đã mua vào Server &nbsp;

@@ -10,7 +10,8 @@ import {
   UsergroupAddOutlined,
   MenuOutlined,
   CloseOutlined,
-  SearchOutlined
+  SearchOutlined,
+  AntDesignOutlined
 } from "@ant-design/icons";
 import { Menu } from "antd";
 import { useEffect } from "react";
@@ -31,25 +32,21 @@ import StartIcon from "../../assets/icons/StartIcon";
 import Logo from "../../assets/images/text_logo_FLN.png";
 import LogoCollapse from "../../assets/images/favicon.png"
 import { StyledLogo, StyledSidebar } from "./Sidebar.style";
-import { hasManagerPermission, hasSellerPermission } from "../../utils/permission";
+import { hasManagerPermission, hasSellerPermission, hasDesignerPermission } from "../../utils/permission";
 
 const Sidebar = ({ collapsed }) => {
-  // const badges = JSON.parse(localStorage.getItem('badges'))
   const path = window.location.pathname;
   const navigate = useNavigate();
   const [showMenuMobile, setShowMenuMobile] = useState(false)
   const [menuSidebar, setMenuSidebar] = useState([])
+  // const { stores, loading, getAllStores, refreshToken } = useShopsStore((state) => state)
 
   useEffect(() => {
-    window.addEventListener("beforeunload", () => {});
+    window.addEventListener("beforeunload", () => { });
     return () => {
-      window.removeEventListener("beforeunload", () => {});
+      window.removeEventListener("beforeunload", () => { });
     };
   }, [navigate]);
-
-  useEffect(() => {
-    setMenuSidebar(initMenuSidebar)
-  }, [JSON.stringify(localStorage.getItem("user"))])
 
   const initMenuSidebar = [
     {
@@ -60,21 +57,19 @@ const Sidebar = ({ collapsed }) => {
           Tổng quan
         </Link>
       ),
-      hasPer: hasManagerPermission() || hasSellerPermission()
+      hasPer: hasManagerPermission() || hasSellerPermission() || hasDesignerPermission()
     },
     {
       key: "/shops",
-      // icon: <StoreIcon classNstyle={{color: "#ff98aa"}}ame="w-[16px]"/>,
       icon: <ShopOutlined style={{ color: "red" }} />,
-      label: (
-        <Link className="flex justify-between" to="shops">
-          Cửa hàng{" "}
-          <div>
-            {/* ( <span className='font-medium'>{total_stores}</span> ) */}
-          </div>
-        </Link>
-      ),
-      hasPer: hasManagerPermission() || hasSellerPermission()
+      label:
+        (
+          <Link className="flex justify-between" to="shops">
+            Cửa hàng{" "}
+          </Link>
+        ),
+      hasPer: hasManagerPermission() || hasSellerPermission(),
+      // children: initialChildrenShopTab()
     },
     {
       key: "/templates",
@@ -82,9 +77,6 @@ const Sidebar = ({ collapsed }) => {
       label: (
         <Link className="flex justify-between" to="templates">
           Quản lý template
-          <div>
-            {/* ( <span className='font-medium'>{total_identify_profile}</span> ) */}
-          </div>
         </Link>
       ),
       hasPer: hasManagerPermission() || hasSellerPermission()
@@ -101,7 +93,7 @@ const Sidebar = ({ collapsed }) => {
       key: "/crawl",
       icon: <FinanceIcon style={{ color: "#230fff" }} className="w-[16px]" />,
       label: (
-        <Link className="flex justify-between" to="crawl">Listings</Link>
+        <Link className="flex justify-between" to="crawl">Crawl products</Link>
       ),
       hasPer: hasManagerPermission() || hasSellerPermission()
     },
@@ -114,204 +106,20 @@ const Sidebar = ({ collapsed }) => {
       hasPer: hasManagerPermission() || hasSellerPermission()
     },
     {
-      key: "/transport",
-      icon: <CarOutlined style={{ color: "#0c5f20" }} />,
+      key: "/design-sku",
+      icon: <AntDesignOutlined style={{ color: "#0f2aff" }} className="w-[16px]" />,
       label: (
-        <Link className="flex justify-between" to={path}>
-          Vận chuyển
-        </Link>
+        <Link className="flex justify-between" to="/design-sku">Design Sku</Link>
       ),
-      children: [
-        {
-          key: "subTransport1",
-          label: (
-            <Link className="flex justify-between" to="/#">
-              Đơn vị vẫn chuyển
-            </Link>
-          ),
-        },
-        {
-          key: "subTransport2",
-          label: (
-            <Link className="flex justify-between" to="/#">
-              Cài đặt vận chuyển
-            </Link>
-          ),
-        },
-      ],
-      hasPer: hasManagerPermission() || hasSellerPermission()
-    },
-    {
-      key: "/supplierWarehouse",
-      icon: <HomeOutlined style={{ color: "#2d72aa" }} />,
-      label: (
-        <Link className="flex justify-between" to={path}>
-          Kho NCC
-        </Link>
-      ),
-      children: [
-        {
-          key: "subSupplierWarehouse1",
-          label: (
-            <Link className="flex justify-between" to="/#">
-              Thống kê
-            </Link>
-          ),
-        },
-        {
-          key: "subSupplierWarehouse2",
-          label: (
-            <Link className="flex justify-between" to="/#">
-              Cài đặt kho
-            </Link>
-          ),
-        },
-        {
-          key: "subSupplierWarehouse3",
-          label: (
-            <Link className="flex justify-between" to="/#">
-              Quy tắc kho
-            </Link>
-          ),
-        },
-      ],
-      hasPer: hasManagerPermission() || hasSellerPermission()
-    },
-    {
-      key: "/productReviews",
-      icon: <StartIcon style={{ color: "#F0AD00" }} className="w-[16px]" />,
-      label: (
-        <Link className="flex justify-between" to={path}>
-          Đánh giá sản phẩm
-        </Link>
-      ),
-      children: [
-        {
-          key: "subProductReviews1",
-          label: (
-            <Link className="flex justify-between" to="/#">
-              Tổng quan đánh giá
-            </Link>
-          ),
-        },
-        {
-          key: "subProductReviews2",
-          label: (
-            <Link className="flex justify-between" to="/#">
-              Quy tắc đánh giá
-            </Link>
-          ),
-        },
-        {
-          key: "subProductReviews3",
-          label: (
-            <Link className="flex justify-between" to="/#">
-              Làm nhiệm vụ cải thiện
-            </Link>
-          ),
-        },
-      ],
-      hasPer: hasManagerPermission() || hasSellerPermission()
-    },
-    {
-      key: "/news",
-      icon: <NewsIcon style={{ color: "#f78b0c" }} className="w-[16px]" />,
-      label: (
-        <Link className="flex justify-between" to={path}>
-          Tin tức
-        </Link>
-      ),
-      children: [
-        {
-          key: "subNews1",
-          label: (
-            <Link className="flex justify-between" to="/#">
-              Danh mục
-            </Link>
-          ),
-        },
-        {
-          key: "subNews2",
-          label: (
-            <Link className="flex justify-between" to="/#">
-              Bài đăng
-            </Link>
-          ),
-        },
-      ],
-      hasPer: hasManagerPermission() || hasSellerPermission()
-    },
-    {
-      key: "/settings",
-      icon: <SettingIcon style={{ color: "#3341da" }} className="w-[16px]" />,
-      label: (
-        <Link className="flex justify-between" to={path}>
-          Cài đặt chung
-        </Link>
-      ),
-      children: [
-        {
-          key: "/theme",
-          label: (
-            <Link className="flex justify-between" to="/theme">
-              Cài đặt giao diện
-            </Link>
-          ),
-        },
-        {
-          key: "subSettings1",
-          label: (
-            <Link className="flex justify-between" to="/#">
-              Ngôn ngữ
-            </Link>
-          ),
-        },
-        {
-          key: "subSettings2",
-          label: (
-            <Link className="flex justify-between" to="/#">
-              Tiền tệ
-            </Link>
-          ),
-        },
-        {
-          key: "subSettings3",
-          label: (
-            <Link className="flex justify-between" to="/#">
-              Phân quyền
-            </Link>
-          ),
-        },
-        {
-          key: "subSettings4",
-          label: (
-            <Link className="flex justify-between" to="/#">
-              Hình thức vận chuyển
-            </Link>
-          ),
-        },
-        {
-          key: "subSettings5",
-          label: (
-            <Link className="flex justify-between" to="/#">
-              Hình thức thanh toán
-            </Link>
-          ),
-        },
-        {
-          key: "subSettings6",
-          label: (
-            <Link className="flex justify-between" to="/#">
-              Danh mục sản phẩm
-            </Link>
-          ),
-        },
-      ],
-      hasPer: hasManagerPermission() || hasSellerPermission()
+      hasPer: hasDesignerPermission()
     },
   ];
 
-  if (!hasManagerPermission() && !hasSellerPermission()) {
+  useEffect(() => {
+    setMenuSidebar(initMenuSidebar)
+  }, [JSON.stringify(localStorage.getItem("user"))])
+
+  if (!hasManagerPermission() && !hasSellerPermission() && !hasDesignerPermission()) {
     return null
   }
 
@@ -325,24 +133,24 @@ const Sidebar = ({ collapsed }) => {
       className="!w-full !max-w-full md:w-[300px] !static"
     >
       <span className="inline-block w-[30px] h-[30px] leading-[28px] border-[1px] border-[#d9d9d9] border-solid text-center text-lg md:hidden absolute top-[19px] left-[15px] z-20" onClick={() => setShowMenuMobile(!showMenuMobile)}>
-        {showMenuMobile ?  <CloseOutlined /> : <MenuOutlined/>}
+        {showMenuMobile ? <CloseOutlined /> : <MenuOutlined />}
       </span>
       <div className={`${showMenuMobile ? 'block absolute top-[60px] left-[0] right-[0] z-20 bg-white pb-10 md:pb-0 md:static' : 'hidden'} md:block`}>
         <StyledLogo className="!hidden md:!flex">
           {collapsed ?
-            <img 
+            <img
               src={Logo}
               alt="logo cms"
               width={200}
             />
-          :
-            <img 
+            :
+            <img
               src={LogoCollapse}
               alt="logo cms"
               width={35}
             />
           }
-        
+
         </StyledLogo>
         <Scrollbars
           style={{ height: "calc(100vh - 64px)" }}

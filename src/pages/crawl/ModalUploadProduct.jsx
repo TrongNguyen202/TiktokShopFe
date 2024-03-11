@@ -23,6 +23,7 @@ export default function ModalUploadProduct({
   const { getWarehousesByShopId, warehousesById, loadingWarehouse } = useWareHousesStore();
 
   const [productsJSON, setProductsJSON] = useState(productList);
+  console.log('productsJSON: ', productsJSON);
   const [templateJSON, setTemplateJSON] = useState();
   const [warehouseId, setWarehouseId] = useState();
   const [shopId, setShopId] = useState();
@@ -145,6 +146,37 @@ export default function ModalUploadProduct({
     return true;
   };
 
+  function mergeArrays(obj1, arr2) {
+    // Convert object to array
+    const arr1 = Object.values(obj1);
+    const arr1Length = arr1.length || 0;
+    const arr2Length = arr2?.length || 0;
+
+    // Calculate the number of elements to take from arr1
+    const numElementsFromArr1 = 9 - arr2Length;
+
+    // Take the first numElementsFromArr1 elements from arr1
+    const elementsFromArr1 = arr1.slice(0, numElementsFromArr1);
+
+    // Concatenate elementsFromArr1 and arr2
+    const mergedArray = elementsFromArr1.concat(arr2);
+
+    // Convert array back to object
+    const result = mergedArray.reduce((obj, value, index) => {
+      obj[`image${index + 1}`] = value;
+      return obj;
+    }, {});
+
+    const result2 = Object.keys(result).reduce((obj, key) => {
+      if (result[key]) {
+        obj[key] = result[key];
+      }
+      return obj;
+    }, {});
+
+    return result2;
+  }
+
   const sanitizeTitles = (documents) => {
     const { badWords, suffixTitle } = templateJSON ?? {};
     return documents.map((doc) => {
@@ -160,6 +192,7 @@ export default function ModalUploadProduct({
         title += ` ${suffixTitle}`;
       }
       doc.title = title.trim();
+      doc.images = mergeArrays(doc.images, templateJSON.fixed_images);
       return doc;
     });
   };
@@ -238,7 +271,6 @@ export default function ModalUploadProduct({
       const nameShop = stores.find((item) => item.id === shopId)?.shop_name;
       message.success(`Thêm sản phẩm vào shop ${nameShop} thành công`);
       handleCancel();
-      // navigate(`/shops/${shopId}/products`);
     };
     const onFail = () => {
       message.error("Thêm sản phẩm thất bại");

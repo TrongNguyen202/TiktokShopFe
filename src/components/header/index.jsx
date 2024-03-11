@@ -44,7 +44,7 @@ const Header = ({ collapsed, changeCollapsed }) => {
           {React.createElement(
             collapsed ? MenuUnfoldOutlined : MenuFoldOutlined,
             {
-              onClick: () => changeCollapsed(),
+              onClick: () => {changeCollapsed()},
             }
           )}
         </Col>

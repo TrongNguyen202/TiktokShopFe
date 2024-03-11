@@ -25,6 +25,9 @@ import { useWareHousesStore } from "../../store/warehousesStore";
 import { useTemplateStore } from "../../store/templateStore";
 import { useShopsBrand } from "../../store/brandStore";
 import ProductSectionTitle from "../../components/products/ProuctSectionTitle";
+import { DndContext, PointerSensor, useSensor } from "@dnd-kit/core";
+import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from '@dnd-kit/utilities';
 
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -33,6 +36,28 @@ const getBase64 = (file) =>
     reader.onload = () => resolve(reader.result);
     reader.onerror = (error) => reject(error);
   });
+
+const DraggableUploadListItem = ({ originNode, file }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: file.uid,
+  });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    cursor: 'move',
+  };
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={isDragging ? 'is-dragging h-[100%] w-[100%]' : ' h-[100%] w-[100%]'}
+      {...attributes}
+      {...listeners}
+    >
+      {file.status === 'error' && isDragging ? originNode.props.children : originNode}
+    </div>
+  );
+};
 
 const initColorOptions = [
   {
@@ -150,9 +175,21 @@ export default function TemplateForm({
       ]
       : []
   );
+  const [fixedImages, setFixedImages] = useState(
+    templateJson?.id && Array.isArray(templateJson.fixed_images)
+      ? templateJson.fixed_images.map((item, index) => {
+        return {
+          uid: index,
+          status: "done",
+          thumbUrl: `data:image/jpeg;base64,${item}`,
+        };
+      })
+      : []
+  );
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [dataPriceState, setDataPriceState] = useState([]);
+  console.log('dataPriceState: ', dataPriceState);
 
   const dataPrice = useRef(templateJson?.id ? templateJson.types : null);
 
@@ -224,11 +261,14 @@ export default function TemplateForm({
           /^data:image\/(png|jpg|jpeg);base64,/,
           ""
         ) || "",
+      fixed_images: fixedImages.map((item) =>
+        item.thumbUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, "")
+      ),
       // brand_id: brand_id,
     };
 
     const onSuccess = () => {
-      message.success("Thêm template thành công");
+      message.success("Thành công");
       getAllTemplate(shopId);
       setShowModalAddTemplate(false);
     };
@@ -242,17 +282,17 @@ export default function TemplateForm({
     console.log("dataSubmit: ", dataSubmit);
   };
 
-  function sortByType(arr) {
+  function sortByType(arr, selectedType) {
     return arr.sort((a, b) => {
-      if (a.type > b.type) return 1;
-      if (a.type < b.type) return -1;
-      return 0;
+      return selectedType.indexOf(a.type) - selectedType.indexOf(b.type);
     });
   }
 
   const convertDataTable = (selectedType, selectedSize) => {
     const newData = [];
-    const currentData = templateJson?.id ? [...templateJson?.types] : [...dataPriceState]
+    const currentData = templateJson?.id
+      ? [...templateJson?.types]
+      : [...dataPriceState];
     const resultData = [];
 
     if (!selectedType || !selectedType.length) return [];
@@ -270,16 +310,14 @@ export default function TemplateForm({
     }
 
     newData.forEach((item) => {
-      const index = currentData.findIndex(
-        (el) => el.id == item.id
-      );
+      const index = currentData.findIndex((el) => el.id == item.id);
       if (index == -1) {
         resultData.push(item);
       } else {
         resultData.push(currentData[index]);
       }
     });
-    return sortByType(resultData);
+    return sortByType(resultData, selectedType);
   };
 
   const onSavePrice = (value) => {
@@ -287,35 +325,40 @@ export default function TemplateForm({
     setDataPriceState(value);
   };
 
-  const handleChangeCategories = (e) => {
-    const categoryId = e[e.length - 1];
-    // const onSuccess = (res) => {
-    //     getAttributeValues(res.data.attributes)
-    // }
-
-    // const onFail = (err) => {
-    //     messageApi.open({
-    //         type: 'error',
-    //         content: err,
-    //     });
-    // }
-    // getAttributeByCategory(shopId, categoryId, onSuccess, onFail)
-  };
-
   const handlePreview = async (file) => {
     if (!file.url && !file.preview)
       file.preview = await getBase64(file.originFileObj);
     setPreviewImage(file.url || file.preview);
     setPreviewOpen(true);
-    setPreviewTitle(
-      file.name || file.url.substring(file.url.lastIndexOf("/") + 1)
-    );
+    // setPreviewTitle(
+    //   file.name || file.url.substring(file.url.lastIndexOf("/") + 1)
+    // );
   };
 
   const onChangeSizeChart = ({ fileList: newFileList }) => {
     console.log("newFileList: ", newFileList);
     setSizeChart(newFileList);
   };
+
+  const sensor = useSensor(PointerSensor, {
+    activationConstraint: {
+      distance: 10,
+    },
+  });
+
+  const onDragEnd = ({ active, over }) => {
+    if (active.id !== over?.id) {
+      setFixedImages((prev) => {
+        const activeIndex = prev.findIndex((i) => i.uid === active.id);
+        const overIndex = prev.findIndex((i) => i.uid === over?.id);
+        return arrayMove(prev, activeIndex, overIndex);
+      });
+    }
+  };
+
+  const handleChangeFixedImages = ({ fileList: newFileList }) => {
+    setFixedImages(newFileList);
+  }
 
   return (
     <div>
@@ -366,7 +409,7 @@ export default function TemplateForm({
               >
                 <Cascader
                   options={categoriesData}
-                  onChange={handleChangeCategories}
+                  // onChange={handleChangeCategories}
                   placeholder="Chọn danh mục"
                   showSearch={(input, options) => {
                     return (
@@ -559,6 +602,58 @@ export default function TemplateForm({
                       </button>
                     )}
                   </Upload>
+                  {/* <input type='file'/> */}
+                  <Modal
+                    open={previewOpen}
+                    title={""}
+                    footer={null}
+                    onCancel={() => setPreviewOpen(false)}
+                  >
+                    <img
+                      alt={""}
+                      style={{ width: "100%" }}
+                      src={previewImage}
+                    />
+                  </Modal>
+                </Form.Item>
+
+                <Form.Item
+                  name="fixedImages"
+                  label="Ảnh cố định"
+                  className="mt-3"
+                >
+                  <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
+                    <SortableContext
+                      items={fixedImages?.map((i) => i.uid)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <Upload
+                        listType="picture-card"
+                        fileList={fixedImages}
+                        onPreview={handlePreview}
+                        onChange={handleChangeFixedImages}
+                        beforeUpload={() => false}
+                        previewFile={getBase64}
+                        multiple
+                        itemRender={(originNode, file) => (
+                          <DraggableUploadListItem
+                            originNode={originNode}
+                            file={file}
+                          />
+                        )}
+                      >
+                        {fixedImages?.length >= 2 ? null : (
+                          <button
+                            style={{ border: 0, background: "none" }}
+                            type="button"
+                          >
+                            <PlusOutlined />
+                            <div style={{ marginTop: 8 }}> Upload</div>
+                          </button>
+                        )}
+                      </Upload>
+                    </SortableContext>
+                  </DndContext>
                   {/* <input type='file'/> */}
                   <Modal
                     open={previewOpen}
