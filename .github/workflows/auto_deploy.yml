@@ -1,0 +1,37 @@
+name: Backend CI/CD
+
+on:
+    pull_request:
+        branches:
+            - develop
+    push:
+        branches:
+            - develop
+
+jobs:
+    checkout-code:
+        runs-on: self-hosted
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+
+    build-docker-image:
+        runs-on: self-hosted
+        needs: checkout-code
+        steps:
+            - name: Kill the running container with name tiktokshop-folinas-be
+              run: |
+                  docker stop tiktokshop-folinas-be || true
+                  docker rm tiktokshop-folinas-be || true
+
+            - name: Build the Docker image
+              run: |
+                  docker build -t tiktokshop-folinas-be .
+
+            - name: stop running container running on port 8000
+              run: |
+                  docker stop $(docker ps | grep ':8000->' | awk '{ print $1 }') || true
+
+            - name: Run Docker container
+              run: |
+                  docker run --name tiktokshop-folinas-be -p 8000:8000 -d tiktokshop-folinas-be

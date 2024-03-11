@@ -1,13 +1,11 @@
 
 from rest_framework import serializers
-import datetime
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ObjectDoesNotExist
-from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
-from .helpers import check_token, GenerateSign
-from .models import Shop
+from .helpers import check_token
+from .models import *
+
 
 class SignUpSerializers(serializers.ModelSerializer):
     username = serializers.CharField(
@@ -85,14 +83,61 @@ class VerifySerializers(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
 class ShopSerializers(serializers.ModelSerializer):
     class Meta:
         model = Shop
         fields = '__all__'
 
+
 class ShopRequestSerializers(serializers.ModelSerializer):
     class Meta:
         model = Shop
-        fields = ["shop_name","auth_code"]
+        fields = ["shop_name", "auth_code"]
 
 
+class TemplateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Templates
+        fields = '__all__'
+
+
+class TemplatePutSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Templates
+        fields = ['name', 'category_id', 'description', 'is_cod_open', 'package_height', 'package_length',
+                  'package_weight', 'package_width', 'sizes', 'colors', 'type', 'types', 'badWords', 'suffixTitle', 'size_chart', 'fixed_images']
+
+
+class BuyedPackageSeri(serializers.ModelSerializer):
+    class Meta:
+        model = BuyedPackage
+        fields = '__all__'
+
+
+class DesignSkuSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DesignSku
+        fields = '__all__'
+
+
+class DesignSkuPutSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DesignSku
+        fields = ['image_front', 'image_back']
+        extra_kwargs = {
+            'image_front': {'required': False},
+            'image_back': {'required': False},
+        }
+
+
+class GroupCustomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GroupCustom
+        fields = ['id', 'group_name']
+
+
+class FlashShipPODVariantListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FlashShipPODVariantList
+        fields = ['variant_id', 'color', 'size', 'product_type']
