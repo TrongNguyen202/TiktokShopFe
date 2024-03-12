@@ -591,6 +591,7 @@ class ToShipOrderAPI(APIView):
             order_list = order_document.get("order_list")
             doc_url = order_document.get('label')
             package_id = order_document.get("package_id")
+
             response = requests.get(doc_url)
 
             if response.status_code == 200:
@@ -604,6 +605,7 @@ class ToShipOrderAPI(APIView):
 
             try:
                 order_detail = order.callOrderDetail(access_token=access_token, orderIds=order_ids).json()
+
             except Exception as e:
                 print("Error when calling OrderDetail API:", e)
 
@@ -618,5 +620,4 @@ class ToShipOrderAPI(APIView):
 
             data.append(order_detail)
 
-        # Trả về kết quả sau khi loop hoàn thành
         return JsonResponse(data, status=200, safe=False)

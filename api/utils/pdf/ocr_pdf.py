@@ -54,7 +54,6 @@ def process_pdf(pdf_path):
             lines = text.split('\n')
             lines = [line for line in lines if line != ""]
             lines = [remove_special_characters(line) for line in lines]
-            print(lines)
 
             entry_data = {}
             for i, line in enumerate(lines):
