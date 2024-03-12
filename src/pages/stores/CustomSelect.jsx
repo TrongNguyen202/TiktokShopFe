@@ -74,6 +74,7 @@ export default function CustomSelect({ optionsSelect, type, onChange, selectedDe
 
   const handleChangeSelect = (value) => {
     const convertValue = value && value.length ? value.map((item) => item.key) : []
+    console.log('convertValue: ', convertValue);
     onChange(convertValue)
   }
 
