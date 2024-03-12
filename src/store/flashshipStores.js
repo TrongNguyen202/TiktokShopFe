@@ -2,7 +2,6 @@ import { create } from 'zustand'
 import { RepositoryRemote } from '../services'
 
 export const useFlashShipStores = create((set) => ({
-  ordersFlashShip: [],
   loading: false,
   getFlashShipPODVariant: async (onSuccess = () => { }, onFail = () => { }) => {
     try {
@@ -27,8 +26,7 @@ export const useFlashShipStores = create((set) => ({
   createOrderFlashShip: async (body, onSuccess = () => { }, onFail = () => { }) => {
     try {
       set({ loading: true })
-      const response = await RepositoryRemote.google.createOrderFlashShip(body)
-      set({ ordersFlashShip: response.data})
+      const response = await RepositoryRemote.flashShip.createOrderFlashShip(body)
       onSuccess(response.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')

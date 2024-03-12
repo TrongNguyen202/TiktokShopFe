@@ -13,7 +13,6 @@ const Fulfillment = () => {
     const [current, setCurrent] = useState(0);
     const [enableNextStep, setEnableNextStep] = useState(false);
     const [toShipInfoData, setToShipInfoData] = useState([]);
-    const { getAllSheetInfo, sheets } = useGoogleStore()
     const changeNextStep = (value) => {
         setEnableNextStep(value)
     }
@@ -32,8 +31,8 @@ const Fulfillment = () => {
             content: <OrderCheckDesign changeNextStep={changeNextStep} toShipInfoData={toShipInfoData} />,
         },
         {
-            title: 'Tạo và xử lý đơn hàng',
-            content: <OrderForPartner toShipInfoData={toShipInfoData}/>,
+            title: 'Xử lý và tạo đơn hàng',
+            content: <OrderForPartner toShipInfoData={toShipInfoData} />,
         }
     ];
 

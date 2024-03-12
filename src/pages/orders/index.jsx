@@ -276,17 +276,17 @@ const Orders = () => {
       const selectedRowsPackageId = selectedRows.map(item => item.package_list[0].package_id)
       setOrderSelected(selectedRowsPackageId)
     },
-    getCheckboxProps: (record) => {
-      const disabledStatus = [140, 130, 122, 121, 105, 100]
-      const disabledLabel = packageBought.map(item => item.package_id)
+    // getCheckboxProps: (record) => {
+    //   const disabledStatus = [140, 130, 122, 121, 105, 100]
+    //   const disabledLabel = packageBought.map(item => item.package_id)
 
-      const isDisabledStatus = disabledStatus.includes(record.order_status);
-      const isDisabledLabel = disabledLabel.includes(record.package_list.length > 0 && record.package_list[0].package_id);
+    //   const isDisabledStatus = disabledStatus.includes(record.order_status);
+    //   const isDisabledLabel = disabledLabel.includes(record.package_list.length > 0 && record.package_list[0].package_id);
 
-      return {
-        disabled: isDisabledStatus || isDisabledLabel
-      }
-    }
+    //   return {
+    //     disabled: isDisabledStatus || isDisabledLabel
+    //   }
+    // }
   }
 
   const columns = [
@@ -333,7 +333,7 @@ const Orders = () => {
       key: "order_code",
       render: (_, record) => (
         <Link
-          to={`/shops/${shopId}/order/${record?.order_id}`}
+          to={`/shops/${shopId}/orders/${record?.order_id}`}
           state={{ orderData: record }}
           className="font-medium"
         >

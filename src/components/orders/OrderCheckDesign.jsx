@@ -12,7 +12,7 @@ import OrdersAddImageDesignByExcel from '../../components/orders/OrdersAddImageD
 import SectionTitle from '../common/SectionTitle';
 import OrderProductProver from './OrderProductProver';
 
-const OrderCheckDesign = ({ toShipInfoData }) => {
+const OrderCheckDesign = ({ toShipInfoData, DesignSKU }) => {
     const [form] = Form.useForm()
     const [messageApi, contextHolder] = message.useMessage()
     const [openNewDesignModal, setOpenNewDesignModal] = useState(false)
@@ -27,7 +27,25 @@ const OrderCheckDesign = ({ toShipInfoData }) => {
         }
     }
 
-    console.log('toShipInfoData: ', designSku);
+    const handAddDesignToShipInfoData = () => {
+        toShipInfoData.map(item => (
+            item.order_list.map(order => {
+                order.item_list.map(product => {
+                    const design = designSku?.results?.find(skuItem => skuItem.sku_id === product.sku_id)
+                    if (design) {
+                        product.image_front = design.image_front
+                        product.image_back = design.image_back
+                    }
+                    return product
+                })
+            })
+
+        ))
+
+        return toShipInfoData
+    }
+
+    console.log('toShipInfoData: ', toShipInfoData);
     
     const handleCheckDesign = () => {
         const dataCheck = toShipInfoData.map(order => {
@@ -303,6 +321,7 @@ const OrderCheckDesign = ({ toShipInfoData }) => {
             setDesignSku(res)
         }
         getDesignSku(onSuccess, (err) => console.log('Design Sku: ',err))
+        handAddDesignToShipInfoData()
     }, [])
 
     return (

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { constants as c } from '../constants'
-import { getToken, removeToken } from '../utils/auth'
+import { getToken, getTokenKey, removeToken } from '../utils/auth'
 import { alerts } from '../utils/alerts'
 // import { DeviceUUID } from "device-uuid";
 // const uuid = new DeviceUUID().get();
@@ -70,3 +70,39 @@ export const callApi = (endPoint, method, body) => {
     }
   }
 }
+
+export const callApiFlashShip = async (endPoint, method, body) => {
+  if (checkEndPoint(endPoint) === false) {
+    const tokenFlashShip = getTokenKey('flash-ship-tk');
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+
+    if (tokenFlashShip) {
+      headers['Authorization'] = `Bearer ${tokenFlashShip}`;
+    }
+
+    try {
+      const response = await fetch(`${c.API_FLASH_SHIP}${endPoint}`, {
+        method,
+        headers,
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        const responseData = await response.json();
+        if (responseData.code === 12052700) {
+          return Promise.reject(responseData);
+        } else if (responseData.code === 401) {
+          removeToken();
+        }
+        return Promise.reject(responseData);
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error('Error:', error);
+      throw error;
+    }
+  }
+};
