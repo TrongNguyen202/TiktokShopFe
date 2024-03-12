@@ -96,7 +96,8 @@ CORS_ORIGIN_WHITELIST = (
     'https://app.folinas.com',
     "http://app.folinas.com",
     'https://folinas.vercel.app/',
-    'https://folinas.vercel.app'
+    'https://folinas.vercel.app',
+    'http://localhost:3000'
 
 
 
