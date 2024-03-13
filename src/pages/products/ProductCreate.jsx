@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Form, Spin, message } from "antd";
 
@@ -19,6 +19,7 @@ import ProductShipping from "../../components/products/ProductShipping";
 const ProductCreate = () => {
   const navigate = useNavigate();
   const shopId = getPathByIndex(2);
+  const timeoutRef = useRef(null);
   const [form] = Form.useForm();
   const [skusData, setSkusData] = useState([]);
   const [imgBase64, setImgBase64] = useState([]);
@@ -26,10 +27,8 @@ const ProductCreate = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [fileList, setFileList] = useState([]);
   const [sizeChart, setSizeChart] = useState([]);
-  console.log('sizeChart: 111111111', sizeChart);
-  const { getAllCategoriesIsLeaf, categoriesIsLeaf } = useCategoriesStore(
-    (state) => state
-  );
+  const { getAllCategoriesIsLeaf, categoriesIsLeaf, recommendCategory } =
+    useCategoriesStore((state) => state);
   const { productById, createOneProduct, createOneProductDraff, loading } =
     useProductsStore((state) => state);
   const { warehousesById, getWarehousesByShopId } = useWareHousesStore(
@@ -52,7 +51,12 @@ const ProductCreate = () => {
         item.thumbUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, "")
       ),
       size_chart: {
-        img_id: sizeChart.length ? sizeChart[0].thumbUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, "") : "",
+        img_id: sizeChart.length
+          ? sizeChart[0].thumbUrl.replace(
+            /^data:image\/(png|jpg|jpeg);base64,/,
+            ""
+          )
+          : "",
       },
       package_dimension_unit: "imperial",
       package_height: values.package_height ? values.package_height : "",
@@ -133,6 +137,31 @@ const ProductCreate = () => {
     setAttributeValues(data);
   };
 
+  const onValuesChange = (changedValues) => {
+    if ("product_name" in changedValues) {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      timeoutRef.current = setTimeout(() => {
+        const onSuccess = (res) => {
+          const categories = res.category.data.categories;
+          if (categories && categories.length) {
+            form.setFieldsValue({
+              category_id: categories.map((item) => item.id),
+            });
+          }
+        };
+        if (changedValues.product_name)
+          recommendCategory(
+            shopId,
+            { product_name: changedValues.product_name },
+            onSuccess
+          );
+      }, 500);
+    }
+  };
+
   // if (loading) return <Loading/>
   return (
     <>
@@ -146,6 +175,7 @@ const ProductCreate = () => {
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
           form={form}
+          onValuesChange={onValuesChange}
         >
           <div className="p-3 md:px-20 pb-5">
             <ProductInformation
@@ -153,6 +183,7 @@ const ProductCreate = () => {
               categories={categoriesIsLeaf}
               brands={brands}
               getAttributeValues={getAttributesByCategory}
+              form={form}
             />
           </div>
 

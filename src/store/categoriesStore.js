@@ -75,5 +75,15 @@ export const useCategoriesStore = create((set) => ({
     set({ categoriesById: {} })
     set({ infoTable: {} })
     set({ attributes: [] })
+  },
+  recommendCategory: async (shopId, data, onSuccess = () => { }, onFail = () => { }) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.categories.recommendCategory(shopId, data)
+      onSuccess(response.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi khi gợi ý danh mục')
+    }
+    set({ loading: false })
   }
 }))
