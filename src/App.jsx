@@ -31,18 +31,12 @@ const Brands = lazy(() => import("./pages/brands"));
 const Orders = lazy(() => import("./pages/orders"));
 const CreateLabel = lazy(() => import("./pages/orders/CreateLabel.jsx"));
 const Fulfillment = lazy(() => import("./pages/orders/Fulfillment.jsx"));
-<<<<<<< HEAD
 const OrderCheckBoughtLabel = lazy(
   () => import("./pages/orders/OrderCheckBoughtLabel.jsx")
 );
 const OrderCheckDesign = lazy(
   () => import("./pages/orders/OrderCheckDesign.jsx")
 );
-=======
-const OrderCheckBoughtLabel = lazy(() => import("./pages/orders/OrderCheckBoughtLabel.jsx"));
-const OrderCheckDesign= lazy(() => import("./pages/orders/OrderCheckDesign.jsx"));
-const DesignSku = lazy(() => import("./pages/designSku"));
->>>>>>> ca0a98ccec4a2c46fa568b8d1abfae7abd856a04
 const Users = lazy(() => import("./pages/users"));
 const UserEdit = lazy(() => import("./pages/users/UserEdit.jsx"));
 const Account = lazy(() => import("./pages/account"));
@@ -108,7 +102,7 @@ const App = () => {
                   </Suspense>
                 }
               />
-              
+
               {/* Sellers */}
               <Route
                 path="/sellers"
@@ -279,7 +273,6 @@ const App = () => {
                 }
               />
 
-<<<<<<< HEAD
               <Route
                 path="/shops/:id/promotions"
                 element={
@@ -297,17 +290,6 @@ const App = () => {
                   </Suspense>
                 }
               />
-=======
-              {/* Design Sku */}
-              <Route
-                path="design-sku"
-                element={
-                  <Suspense fallback={<Loading />}>
-                    <DesignSku />
-                  </Suspense>
-                }
-              ></Route>
->>>>>>> ca0a98ccec4a2c46fa568b8d1abfae7abd856a04
 
               {/* Vouchers */}
               <Route

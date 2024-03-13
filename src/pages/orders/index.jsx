@@ -49,7 +49,6 @@ const Orders = () => {
   const [orderSelected, setOrderSelected] = useState([]);
   const [searchedColumn, setSearchedColumn] = useState("");
   const [messageApi, contextHolder] = message.useMessage();
-<<<<<<< HEAD
   const [dataCombineConfirm, setDataCombineConfirm] = useState([]);
   const {
     orders,
@@ -63,12 +62,9 @@ const Orders = () => {
     getShippingDoc,
     loading,
   } = useShopsOrder((state) => state);
-
-=======
-  const [dataCombineConfirm, setDataCombineConfirm] = useState([])
-  const { orders, getAllOrders, getAllCombine, combineList, createLabel, shippingService, getPackageBought, packageBought, getShippingDoc, loading } = useShopsOrder((state) => state)
-  const orderList = orders.length ? orders?.map(order => order?.data?.order_list).flat() : []
->>>>>>> ca0a98ccec4a2c46fa568b8d1abfae7abd856a04
+  const orderList = orders.length
+    ? orders?.map((order) => order?.data?.order_list).flat()
+    : [];
   function sortByPackageId(arr) {
     const grouped = arr.reduce((acc, item) => {
       const key =
@@ -297,8 +293,7 @@ const Orders = () => {
   };
 
   const handleStartFulfillment = () => {
-<<<<<<< HEAD
-    const ordersHasPackageId = orders.filter(
+    const ordersHasPackageId = orderList.filter(
       (order) => order.package_list.length > 0
     );
     const orderBoughtLabel = packageBought.map((item) =>
@@ -311,12 +306,7 @@ const Orders = () => {
         (order) => item.package_id === order.package_list[0].package_id
       )
     );
-=======
-    const ordersHasPackageId = orderList.filter(order => order.package_list.length > 0)
-    const orderBoughtLabel = packageBought.map(item => ordersHasPackageId.filter(order => item.package_id === order.package_list[0].package_id))
-    const orderBoughtLabelUnique = packageBought.map(item => ordersHasPackageId.find(order => item.package_id === order.package_list[0].package_id))
-    console.log('orderBoughtLabelUnique: ', orderBoughtLabelUnique);
->>>>>>> ca0a98ccec4a2c46fa568b8d1abfae7abd856a04
+    console.log("orderBoughtLabelUnique: ", orderBoughtLabelUnique);
     const packageIds = {
       package_ids: orderBoughtLabelUnique.map(
         (item) => item.package_list[0].package_id
@@ -382,8 +372,7 @@ const Orders = () => {
           ? record.package_list[0].package_id
           : "Hiện chưa có package ID",
       onCell: (record, index) => {
-<<<<<<< HEAD
-        const rowSpanData = orders.filter(
+        const rowSpanData = orderList.filter(
           (item) =>
             item.package_list.length > 0 &&
             record.package_list.length > 0 &&
@@ -396,17 +385,6 @@ const Orders = () => {
             order_position: item.order_id === record.order_id ? index : null,
           };
         });
-=======
-        const rowSpanData = orderList.filter(item => item.package_list.length > 0 && record.package_list.length > 0 && item.package_list[0].package_id === record.package_list[0].package_id)
-        const orderIdRowSpanData = rowSpanData.map(item => {
-          return (
-            {
-              ...item,
-              order_position: item.order_id === record.order_id ? index : null
-            }
-          )
-        })
->>>>>>> ca0a98ccec4a2c46fa568b8d1abfae7abd856a04
 
         if (rowSpanData.length > 1) {
           if (index === orderIdRowSpanData[0].order_position) {
@@ -517,7 +495,7 @@ const Orders = () => {
     };
 
     const onFail = (err) => {
-      console.log(err)
+      console.log(err);
     };
 
     getAllOrders(shopId, onSuccess, onFail);
@@ -527,15 +505,11 @@ const Orders = () => {
   return (
     <div className="p-3 md:p-10">
       {contextHolder}
-<<<<<<< HEAD
       <PageTitle
         title="Danh sách đơn hàng"
         showBack
-        count={orders?.length ? orders?.length : "0"}
+        count={orderList?.length ? orderList?.length : "0"}
       />
-=======
-      <PageTitle title="Danh sách đơn hàng" showBack count={orderList?.length ? orderList?.length : '0'}/>
->>>>>>> ca0a98ccec4a2c46fa568b8d1abfae7abd856a04
       <Space className="mb-3">
         <Button type="primary" onClick={handleGetAllCombine}>
           Get All Combinable
@@ -563,21 +537,12 @@ const Orders = () => {
           ...rowSelection,
         }}
         scroll={{ x: true }}
-<<<<<<< HEAD
         columns={columns}
-        dataSource={sortByPackageId(orders)}
+        dataSource={sortByPackageId(orderList)}
         loading={loading}
         bordered
-        pagination={{ pageSize: 100 }}
+        pagination={{ pageSize: 50 }}
         rowKey={(record) => record.package_list[0]?.package_id}
-=======
-        columns={columns} 
-        dataSource={sortByPackageId(orderList)} 
-        loading={loading} 
-        bordered
-        pagination={{ pageSize: 50}}
-        rowKey={record => record.package_list[0]?.package_id}
->>>>>>> ca0a98ccec4a2c46fa568b8d1abfae7abd856a04
       />
       <Modal
         title="Combine"
@@ -587,16 +552,12 @@ const Orders = () => {
         width={1000}
         footer={false}
       >
-<<<<<<< HEAD
         <OrderCombinable
           data={combineList}
           popOverContent={renderListItemProduct}
-          dataOrderDetail={orders}
+          dataOrderDetail={orderList}
           isOpenModal={handleOpenModal}
         />
-=======
-        <OrderCombinable data={combineList} popOverContent={renderListItemProduct} dataOrderDetail={orderList} isOpenModal={handleOpenModal} />
->>>>>>> ca0a98ccec4a2c46fa568b8d1abfae7abd856a04
       </Modal>
     </div>
   );
