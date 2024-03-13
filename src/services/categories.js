@@ -24,11 +24,16 @@ const getAttributeByCategory = (shopId, categoryId) => {
   return callApi(`/shops/${shopId}/categories/${categoryId}/products/get_attribute`, 'get')
 }
 
+const recommendCategory = (shopId, data) => {
+  return callApi(`/shops/${shopId}/category_recommend`, 'post', data)
+}
+
 export const categories = {
   getAllCategories,
   getCategoriesById,
   getCustomerById,
   getAllCategoriesIsLeaf,
   getAllCategoriesIsLeafType2,
-  getAttributeByCategory
+  getAttributeByCategory,
+  recommendCategory
 }

@@ -15,6 +15,7 @@ const ProductInformation = ({
   categories,
   brands,
   getAttributeValues,
+  form,
 }) => {
   const [valueDescription, setValueDescription] = useState("");
   const [messageApi, contextHolder] = message.useMessage();
