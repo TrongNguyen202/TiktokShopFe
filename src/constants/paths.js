@@ -8,4 +8,4 @@ export const PATH = {
   FORGOT_PASSWORD: '/forgot-password',
   ERROR_403: '/forbidden',
   ANY: '*',
-}
+};

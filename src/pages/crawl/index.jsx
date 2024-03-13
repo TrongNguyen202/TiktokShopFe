@@ -1,47 +1,43 @@
-import { Button, Col, Input, Row, Select, message } from "antd";
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import ProductItem from "./ProductItem";
-import * as XLSX from "xlsx";
-import {
-  CloudUploadOutlined,
-  CopyOutlined,
-  DownloadOutlined,
-} from "@ant-design/icons";
-import ModalUploadProduct from "./ModalUploadProduct";
-import TextArea from "antd/es/input/TextArea";
-import { senPrintsData } from "../../constants";
+import { Button, Col, Input, Row, Select, message } from 'antd';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import * as XLSX from 'xlsx';
+import { CloudUploadOutlined, CopyOutlined, DownloadOutlined } from '@ant-design/icons';
+import TextArea from 'antd/es/input/TextArea';
+import ModalUploadProduct from './ModalUploadProduct';
+import ProductItem from './ProductItem';
+import { senPrintsData } from '../../constants';
 
 const crawlerOptions = [
   {
-    value: "Etsy",
-    label: "Etsy",
+    value: 'Etsy',
+    label: 'Etsy',
   },
   {
-    value: "Woo",
-    label: "Woo",
+    value: 'Woo',
+    label: 'Woo',
   },
   {
-    value: "Shopify",
-    label: "Shopify",
+    value: 'Shopify',
+    label: 'Shopify',
   },
   {
-    value: "Shopbase",
-    label: "Shopbase",
+    value: 'Shopbase',
+    label: 'Shopbase',
   },
   {
-    value: "Amazone",
-    label: "Amazone",
+    value: 'Amazone',
+    label: 'Amazone',
   },
 ];
 
 const initialCrawl = {
-  url: "",
-  crawler: "Etsy",
+  url: '',
+  crawler: 'Etsy',
 };
 
 export default function Crawl() {
-  const productListStorage = JSON.parse(localStorage.getItem("productList"));
+  const productListStorage = JSON.parse(localStorage.getItem('productList'));
 
   const [productList, setProductList] = useState(productListStorage);
   const [checkedItems, setCheckedItems] = useState([]);
@@ -51,8 +47,8 @@ export default function Crawl() {
   const [isShowModalUpload, setShowModalUpload] = useState(false);
   const [showSkeleton, setShowSkeleton] = useState(false);
   const [licenseCode, setLicenseCode] = useState({
-    code: localStorage.getItem("licenseCode"),
-    invalid: localStorage.getItem("licenseCode") ? false : true,
+    code: localStorage.getItem('licenseCode'),
+    invalid: !localStorage.getItem('licenseCode'),
   });
 
   useEffect(() => {
@@ -61,9 +57,7 @@ export default function Crawl() {
 
   useEffect(() => {
     if (checkedItems && checkedItems.length === 0) return;
-    const CountSelectedItems = Object.values(checkedItems).filter(
-      (value) => value === true
-    ).length;
+    const CountSelectedItems = Object.values(checkedItems).filter((value) => value === true).length;
     if (CountSelectedItems === productList.length) {
       setIsAllChecked(true);
     } else setIsAllChecked(false);
@@ -99,9 +93,7 @@ export default function Crawl() {
     setCheckedItems(newCheckedItems);
   };
 
-  const CountSelectedItems = Object.values(checkedItems).filter(
-    (value) => value === true
-  ).length;
+  const CountSelectedItems = Object.values(checkedItems).filter((value) => value === true).length;
 
   const renderProductList = () => {
     return (
@@ -142,44 +134,42 @@ export default function Crawl() {
   const fetchInfoProducts = async (ids, productData) => {
     setLoading(true);
     const headers = {
-      accept: "application/json",
-      authority: "vk1ng.com",
-      "accept-language": "vi,vi-VN;q=0.9,en-US;q=0.8,en;q=0.7",
-      "content-type": "application/json",
+      accept: 'application/json',
+      authority: 'vk1ng.com',
+      'accept-language': 'vi,vi-VN;q=0.9,en-US;q=0.8,en;q=0.7',
+      'content-type': 'application/json',
       authorization: `Bearer ${licenseCode.code}`,
-      referer: "https://www.etsy.com/",
-      "sec-ch-ua-mobile": "?0",
-      "sec-fetch-dest": "empty",
-      "sec-fetch-mode": "cors",
-      "sec-fetch-site": "cross-site",
-      "sec-ch-ua-platform": "Windows",
-      "user-agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36",
+      referer: 'https://www.etsy.com/',
+      'sec-ch-ua-mobile': '?0',
+      'sec-fetch-dest': 'empty',
+      'sec-fetch-mode': 'cors',
+      'sec-fetch-site': 'cross-site',
+      'sec-ch-ua-platform': 'Windows',
+      'user-agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
     };
     fetch(`https://vk1ng.com/api/bulk/listings/${ids}`, {
-      method: "GET",
-      headers: headers,
+      method: 'GET',
+      headers,
     })
       .then((response) => {
         return response.json();
       })
       .then((data) => {
-        if (data.message === "Unauthenticated.") {
-          message.error("Please enter the correct lincense code!");
-          setLicenseCode({ code: "", invalid: true });
+        if (data.message === 'Unauthenticated.') {
+          message.error('Please enter the correct lincense code!');
+          setLicenseCode({ code: '', invalid: true });
           return;
         }
         const combineProducts = productData.map((item) => {
-          const product = data.data.find(
-            (product) => item.id.split(".")[0] == product.listing_id
-          );
+          const product = data.data.find((product) => item.id.split('.')[0] == product.listing_id);
           return {
             ...item,
             ...product,
           };
         });
         setProductList(combineProducts);
-        localStorage.setItem("productList", JSON.stringify(combineProducts));
+        localStorage.setItem('productList', JSON.stringify(combineProducts));
       })
       .catch((error) => {
         message.error(error.data.message);
@@ -195,42 +185,36 @@ export default function Crawl() {
     // lấy danh sách url từ textarea và split theo dòng
     const urlsList = url
       .trim()
-      .split("\n")
-      .filter((line) => line.trim() !== "");
+      .split('\n')
+      .filter((line) => line.trim() !== '');
 
     // nếu url không bắt đầu bằng http thì là id sản phẩm -> thêm đầu link etsy
-    const urls = urlsList.map((url) =>
-      url.startsWith("http") ? url : `https://www.etsy.com/listing/${url}`
-    );
+    const urls = urlsList.map((url) => (url.startsWith('http') ? url : `https://www.etsy.com/listing/${url}`));
     const params = {
-      crawler: crawler,
+      crawler,
     };
     const fetchProductList = async (url) => {
       return axios({
-        method: "post",
+        method: 'post',
         url: `https://kaa.iamzic.com/api/v1/crawl.json?crawlURL=${url}`,
         data: params,
       }).catch((error) => ({ error }));
     };
 
     // gọi đồng thời các request lấy dữ liệu sản phẩm
-    const responses = await Promise.allSettled(
-      urls.map((url) => fetchProductList(url))
-    );
+    const responses = await Promise.allSettled(urls.map((url) => fetchProductList(url)));
 
     // concat các sản phẩm vào chung 1 mảng
     const productData = responses
-      .filter(
-        (response) => response.status === "fulfilled" && response.value.data
-      )
+      .filter((response) => response.status === 'fulfilled' && response.value.data)
       .reduce((acc, response) => {
         const { data } = response.value;
         return [...acc, ...data.data];
       }, []);
 
     // lấy danh sách id của sản phẩm để get thông tin sản phẩm
-    const ids = productData.map((item) => item.id.split(".")[0]).join(",");
-    localStorage.setItem("productList", JSON.stringify(productData));
+    const ids = productData.map((item) => item.id.split('.')[0]).join(',');
+    localStorage.setItem('productList', JSON.stringify(productData));
     setCheckedItems([]);
     setIsAllChecked(false);
     setShowSkeleton(true);
@@ -243,9 +227,7 @@ export default function Crawl() {
   };
 
   const convertDataProducts = (isCreateProduct) => {
-    const selectedProducts = productList.filter(
-      (product) => checkedItems[product.id]
-    );
+    const selectedProducts = productList.filter((product) => checkedItems[product.id]);
 
     const convertImageLink = (images) => {
       const imageObject = images.reduce((obj, link, index) => {
@@ -261,24 +243,22 @@ export default function Crawl() {
         return {
           sku: product.sku,
           title: product.title,
-          warehouse: "",
+          warehouse: '',
           images: { ...convertImageLink(product.images) },
         };
       }
       return {
-        sku: "",
+        sku: '',
         title: product.title,
-        warehouse: "",
+        warehouse: '',
         ...convertImageLink(product.images),
       };
     });
   };
 
   const convertDataProductsToSenPrints = () => {
-    const selectedProducts = productList.filter(
-      (product) => checkedItems[product.id]
-    );
-    console.log("selectedProducts: ", selectedProducts);
+    const selectedProducts = productList.filter((product) => checkedItems[product.id]);
+    console.log('selectedProducts: ', selectedProducts);
 
     const convertImageLink = (images) => {
       const imageObject = images.reduce((obj, link, index) => {
@@ -294,7 +274,7 @@ export default function Crawl() {
         return {
           campaign_name: product.title,
           campaign_desc: item.campaign_desc,
-          collection: "",
+          collection: '',
           product_sku: item.product_sku,
           colors: item.colors,
           price: product.price,
@@ -308,8 +288,8 @@ export default function Crawl() {
     const data = convertDataProducts();
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-    XLSX.writeFile(wb, "productList.xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    XLSX.writeFile(wb, 'productList.xlsx');
     setCheckedItems([]);
     setIsAllChecked(false);
   };
@@ -318,19 +298,19 @@ export default function Crawl() {
     const data = convertDataProductsToSenPrints();
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-    XLSX.writeFile(wb, "senprints.xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    XLSX.writeFile(wb, 'senprints.xlsx');
     setCheckedItems([]);
     setIsAllChecked(false);
   };
 
   const onSaveLicenseCode = () => {
-    localStorage.setItem("licenseCode", licenseCode.code);
+    localStorage.setItem('licenseCode', licenseCode.code);
     setLicenseCode((prev) => ({ ...prev, invalid: false }));
   };
 
   const copyToClipboard = (content, key) => {
-    var tempInput = document.createElement("input");
+    const tempInput = document.createElement('input');
     tempInput.value = content;
     document.body.appendChild(tempInput);
 
@@ -338,7 +318,7 @@ export default function Crawl() {
     tempInput.setSelectionRange(0, 99999);
 
     try {
-      document.execCommand("copy");
+      document.execCommand('copy');
       message.success(`copied`);
     } catch (err) {
       message.error(`${err} copy!`);
@@ -353,9 +333,7 @@ export default function Crawl() {
           <div className="flex gap-2 mb-3">
             <Input
               placeholder="Enter your license code"
-              onChange={(e) =>
-                setLicenseCode((prev) => ({ ...prev, code: e.target.value }))
-              }
+              onChange={(e) => setLicenseCode((prev) => ({ ...prev, code: e.target.value }))}
             />
             <Button type="primary" onClick={onSaveLicenseCode}>
               Save
@@ -383,36 +361,20 @@ export default function Crawl() {
           </Button>
         </div>
         <p className="mt-2">
-          Maybe you need:{" "}
-          <span className="font-semibold">
-            https://www.etsy.com/search?q=shirt&ref=search_bar
-          </span>
+          Maybe you need: <span className="font-semibold">https://www.etsy.com/search?q=shirt&ref=search_bar</span>
           <CopyOutlined
             className="ml-1 cursor-pointer  text-blue-600"
-            onClick={() =>
-              copyToClipboard(
-                "https://www.etsy.com/search?q=shirt&ref=search_bar",
-                "link"
-              )
-            }
+            onClick={() => copyToClipboard('https://www.etsy.com/search?q=shirt&ref=search_bar', 'link')}
           />
         </p>
 
         <div className="flex items-center gap-4 mt-4">
           <div className="flex gap-2 items-center">
-            <input
-              type="checkbox"
-              onChange={handleCheckAllChange}
-              checked={isAllChecked}
-              className="w-6 h-6"
-            />{" "}
+            <input type="checkbox" onChange={handleCheckAllChange} checked={isAllChecked} className="w-6 h-6" />{' '}
             <p className="font-semibold">Selected all</p>
           </div>
           <div>
-            Total:{" "}
-            <span className="font-semibold">
-              {productList ? productList.length : 0} products
-            </span>
+            Total: <span className="font-semibold">{productList ? productList.length : 0} products</span>
           </div>
         </div>
         <div className="flex gap-2 items-center mt-5">

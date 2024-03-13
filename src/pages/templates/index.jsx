@@ -1,38 +1,23 @@
-import {
-  DeleteOutlined,
-  DownloadOutlined,
-  EditOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
-import {
-  Button,
-  Layout,
-  Modal,
-  Popconfirm,
-  Space,
-  Table,
-  Tooltip,
-  Upload,
-} from "antd";
-import Search from "antd/es/transfer/search";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from '@ant-design/icons';
+import { Button, Layout, Modal, Popconfirm, Space, Table, Tooltip, Upload } from 'antd';
+import Search from 'antd/es/transfer/search';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { useTemplateStore } from "../../store/templateStore";
-import { alerts } from "../../utils/alerts";
-import TemplateForm from "../stores/TemplateForm";
+import { useTemplateStore } from '../../store/templateStore';
+import { alerts } from '../../utils/alerts';
+import TemplateForm from '../stores/TemplateForm';
 
-const Template = () => {
+function Template() {
   const navigate = useNavigate();
-  const { getAllTemplate, templates, loading, deleteTemplate } =
-    useTemplateStore();
+  const { getAllTemplate, templates, loading, deleteTemplate } = useTemplateStore();
 
   const [templateSelected, setTemplateSelected] = useState(null);
   const [isShowModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const onSuccess = (res) => {
-      console.log("res: ", res);
+      console.log('res: ', res);
     };
     const onFail = (err) => {
       alerts.error(err);
@@ -42,7 +27,7 @@ const Template = () => {
 
   const handleDeleteTemplate = (id) => {
     const onSuccess = (res) => {
-      alerts.success("Xoá template thành công");
+      alerts.success('Xoá template thành công');
       getAllTemplate();
     };
     const onFail = (err) => {
@@ -56,10 +41,10 @@ const Template = () => {
     const dataTemplate = { ...template, isFromFile: true };
     console.log('dataTemplate: ', dataTemplate);
     const json = JSON.stringify(dataTemplate);
-    const blob = new Blob([json], { type: "application/json" });
+    const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.download = "template.json";
+    const link = document.createElement('a');
+    link.download = 'template.json';
     link.href = url;
     link.click();
   };
@@ -79,16 +64,16 @@ const Template = () => {
 
   const storesTable = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
-      fixed: "left",
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      fixed: 'left',
       sorter: (store1, store2) => +store1.id - +store2.id,
     },
     {
-      title: "Tên",
-      dataIndex: "name",
-      key: "name",
+      title: 'Tên',
+      dataIndex: 'name',
+      key: 'name',
       render: (name, store) => (
         <p
           className="text-[#0e2482] font-medium cursor-pointer"
@@ -102,9 +87,9 @@ const Template = () => {
       ),
     },
     {
-      title: "Mô tả",
-      dataIndex: "description",
-      key: "description",
+      title: 'Mô tả',
+      dataIndex: 'description',
+      key: 'description',
     },
     // {
     //   title: "Cân nặng",
@@ -112,10 +97,10 @@ const Template = () => {
     //   key: "package_weight",
     // },
     {
-      title: "",
-      key: "action",
+      title: '',
+      key: 'action',
       // fixed: "right",
-      align: "center",
+      align: 'center',
       render: (banner) => {
         return (
           <Space size="middle">
@@ -194,11 +179,9 @@ const Template = () => {
         bordered
         dataSource={templates && templates.length ? templates : []}
         loading={loading}
-        pagination={
-          {
-            pageSize: 20,
-          }
-        }
+        pagination={{
+          pageSize: 20,
+        }}
       />
       {isShowModal && (
         <Modal
@@ -221,6 +204,6 @@ const Template = () => {
       )}
     </Layout.Content>
   );
-};
+}
 
 export default Template;

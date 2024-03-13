@@ -1,19 +1,10 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import {
-  Col,
-  ConfigProvider,
-  DatePicker,
-  Input,
-  Row,
-  Select,
-  Space,
-  Table,
-} from "antd";
-import { useOrderStore } from "../../store/orderStore.js";
-import { alerts } from "../../utils/alerts.js";
-import { formatNumber, getPathByIndex } from "../../utils/index.js";
-import dayjs from "dayjs";
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Col, ConfigProvider, DatePicker, Input, Row, Select, Space, Table } from 'antd';
+import dayjs from 'dayjs';
+import { useOrderStore } from '../../store/orderStore';
+import { alerts } from '../../utils/alerts';
+import { formatNumber, getPathByIndex } from '../../utils/index';
 // import viVN from "antd/locale/vi_VN";
 const { Search } = Input;
 
@@ -28,29 +19,28 @@ const { RangePicker } = DatePicker;
 //   { label: "1 năm trước", value: [dayjs().add(-365, "d"), dayjs()] },
 // ];
 
-export const Order = () => {
-  console.log("order");
+export function Order() {
+  console.log('order');
   // LOGIC UI
   const customerId = getPathByIndex(2);
   const shopId = getPathByIndex(2);
   const navigate = useNavigate();
-  const { orders, getAllOrders, loading, tableInfo, totalRevenue } =
-    useOrderStore();
+  const { orders, getAllOrders, loading, tableInfo, totalRevenue } = useOrderStore();
   const [searchParam, setSearchparam] = useSearchParams();
-  const page = searchParam.get("page");
+  const page = searchParam.get('page');
 
   // table param
   const [tableParams, setTableParams] = useState({
     pagination: {
-      current: parseInt(page ? page : 1),
+      current: parseInt(page || 1),
       pageSize: 20,
     },
-    keyword: "",
-    status: "",
-    start_date: "",
-    end_date: "",
-    payment_status_code: "",
-    order_status_code: "",
+    keyword: '',
+    status: '',
+    start_date: '',
+    end_date: '',
+    payment_status_code: '',
+    order_status_code: '',
   });
 
   useEffect(() => {
@@ -88,9 +78,9 @@ export const Order = () => {
 
   const onRangeChange = (dates, dateStrings) => {
     if (dates) {
-      fetchApi("", dateStrings[0], dateStrings[1]);
+      fetchApi('', dateStrings[0], dateStrings[1]);
     } else {
-      fetchApi("", "", "");
+      fetchApi('', '', '');
     }
   };
 
@@ -495,14 +485,10 @@ export const Order = () => {
           </Space> */}
 
           {/* total order */}
-          <span className="text-[#CF5763] text-[16px] font-medium">
-            {tableInfo?.total} đơn
-          </span>
+          <span className="text-[#CF5763] text-[16px] font-medium">{tableInfo?.total} đơn</span>
           <span>
-            Tổng doanh thu:{" "}
-            <span className="text-[#CF5763] text-[16px] font-medium">
-              {/* {formatNumber(totalRevenue)}đ */}
-            </span>
+            Tổng doanh thu:{' '}
+            <span className="text-[#CF5763] text-[16px] font-medium">{/* {formatNumber(totalRevenue)}đ */}</span>
           </span>
         </div>
       </div>
@@ -533,4 +519,4 @@ export const Order = () => {
       </Row> */}
     </div>
   );
-};
+}

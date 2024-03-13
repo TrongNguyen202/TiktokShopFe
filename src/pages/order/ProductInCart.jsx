@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
-import styled from "styled-components";
+import { useEffect, useState } from 'react';
+import styled from 'styled-components';
 
-import { useDebounced } from "../../hooks/useDebounce";
-import { formatPrice } from "../../utils";
-import DefaultProduct from "../../assets/images/image-default.jpg";
-import { DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined } from '@ant-design/icons';
+import { useDebounced } from '../../hooks/useDebounce';
+import { formatPrice } from '../../utils';
+import DefaultProduct from '../../assets/images/image-default.jpg';
 // import DeleteIcon from "../../assets/images/zin/delete-icon.svg";
 
 const ProductInCartStyle = styled.div`
@@ -23,7 +23,7 @@ export default function ProductInCart(props) {
   useEffect(() => {
     if (quantity !== v.quantity) {
       handleUpdateCart({
-        quantity: quantity,
+        quantity,
         product_id: v.product.id,
         line_item_id: v.id,
         branch_id: branchId,
@@ -38,53 +38,46 @@ export default function ProductInCart(props) {
           <div className="product-image-container">
             <div className="product-image gap-[15px]">
               <img
-                src={
-                  v.product.images.length > 0
-                    ? v.product.images[0].image_url
-                    : DefaultProduct
-                }
+                src={v.product.images.length > 0 ? v.product.images[0].image_url : DefaultProduct}
                 alt="cart_accessibility_product_image"
                 className="rounded-[6px] w-[80px] h-[80px]"
               />
               <div className="flex flex-1 flex-col justify-between gap-[5px]">
-                <p className="font-medium text-[15px] xs:line-clamp-1">
-                  {v.product.name}
-                </p>
+                <p className="font-medium text-[15px] xs:line-clamp-1">{v.product.name}</p>
                 <div className="total text-[#CF5763]">
-                  <span>
-                    {formatPrice(v.product.retail_price * v.quantity)}
-                  </span>
+                  <span>{formatPrice(v.product.retail_price * v.quantity)}</span>
                 </div>
                 <div className="input-quantity flex justify-between">
                   <div>
                     <button
+                      type="button"
                       onClick={() => {
                         setQuantity(quantity - 1);
                       }}
                       style={{
-                        cursor: v.quantity === 1 ? "not-allowed" : "pointer",
-                        width: "2em",
-                        border: "1px solid #ECECEC",
-                        padding: "3px 0",
-                        borderTopLeftRadius: "4px",
-                        backgroundColor: "#fff",
-                        borderBottomLeftRadius: "4px",
+                        cursor: v.quantity === 1 ? 'not-allowed' : 'pointer',
+                        width: '2em',
+                        border: '1px solid #ECECEC',
+                        padding: '3px 0',
+                        borderTopLeftRadius: '4px',
+                        backgroundColor: '#fff',
+                        borderBottomLeftRadius: '4px',
                       }}
                     >
                       -
                     </button>
                     <input
                       style={{
-                        width: "3em",
-                        textAlign: "center",
-                        border: "none",
-                        borderTop: "1px solid #ECECEC",
-                        borderBottom: "1px solid #ECECEC",
-                        padding: "3px 0",
+                        width: '3em',
+                        textAlign: 'center',
+                        border: 'none',
+                        borderTop: '1px solid #ECECEC',
+                        borderBottom: '1px solid #ECECEC',
+                        padding: '3px 0',
                       }}
                       value={quantity}
                       onChange={(e) => {
-                        let value = e.target.value.replace(/[^0-9]/g, "");
+                        let value = e.target.value.replace(/[^0-9]/g, '');
                         if (!value) {
                           value = 1;
                         }
@@ -92,15 +85,16 @@ export default function ProductInCart(props) {
                       }}
                     />
                     <button
+                      type="button"
                       onClick={() => setQuantity(quantity + 1)}
                       style={{
-                        cursor: "pointer",
-                        width: "2em",
-                        border: "1px solid #ECECEC",
-                        padding: "3px 0",
-                        borderTopRightRadius: "4px",
-                        borderBottomRightRadius: "4px",
-                        backgroundColor: "#fff",
+                        cursor: 'pointer',
+                        width: '2em',
+                        border: '1px solid #ECECEC',
+                        padding: '3px 0',
+                        borderTopRightRadius: '4px',
+                        borderBottomRightRadius: '4px',
+                        backgroundColor: '#fff',
                       }}
                     >
                       +
@@ -138,7 +132,7 @@ export default function ProductInCart(props) {
                         branch_id: branchId,
                         quantity: 0,
                         product_id: v.product.id,
-                        code_voucher: "",
+                        code_voucher: '',
                         line_item_id: v.id,
                         distributes: [
                           {

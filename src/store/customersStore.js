@@ -1,5 +1,5 @@
-import { create } from 'zustand'
-import { RepositoryRemote } from '../services'
+import { create } from 'zustand';
+import { RepositoryRemote } from '../services';
 
 export const useCustomersStore = create((set) => ({
   customers: {},
@@ -9,25 +9,25 @@ export const useCustomersStore = create((set) => ({
   loadingById: false,
   getAllCustomers: async (keyword, onSuccess = () => {}, onFail = () => {}) => {
     try {
-      set({ loading: true })
-      const response = await RepositoryRemote.customers.getAllCustomers(keyword)
-      set({ customers: response.data.data.data })
-      set({ infoTable: response.data.data })
-      onSuccess(response.data.data)
+      set({ loading: true });
+      const response = await RepositoryRemote.customers.getAllCustomers(keyword);
+      set({ customers: response.data.data.data });
+      set({ infoTable: response.data.data });
+      onSuccess(response.data.data);
     } catch (error) {
-      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
     }
-    set({ loading: false })
+    set({ loading: false });
   },
   getCustomerById: async (id, onSuccess = () => {}, onFail = () => {}) => {
     try {
-      set({ loadingById: true })
-      const response = await RepositoryRemote.customers.getCustomerById(id)
-      set({ customerById: response.data.data })
-      onSuccess(response.data.data)
+      set({ loadingById: true });
+      const response = await RepositoryRemote.customers.getCustomerById(id);
+      set({ customerById: response.data.data });
+      onSuccess(response.data.data);
     } catch (error) {
-      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
     }
-    set({ loadingById: false })
+    set({ loadingById: false });
   },
-}))
+}));

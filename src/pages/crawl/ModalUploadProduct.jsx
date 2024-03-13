@@ -1,24 +1,18 @@
-import { PlusOutlined } from "@ant-design/icons";
-import { Button, Modal, Select, Spin, message } from "antd";
-import React, { useEffect, useState } from "react";
-import { useTemplateStore } from "../../store/templateStore";
-import { useProductsStore } from "../../store/productsStore";
-import { useWareHousesStore } from "../../store/warehousesStore";
-import { getPathByIndex } from "../../utils";
-import { useShopsStore } from "../../store/shopsStore";
-import { alerts } from "../../utils/alerts";
+import { PlusOutlined } from '@ant-design/icons';
+import { Button, Modal, Select, Spin, message } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { useTemplateStore } from '../../store/templateStore';
+import { useProductsStore } from '../../store/productsStore';
+import { useWareHousesStore } from '../../store/warehousesStore';
+import { getPathByIndex } from '../../utils';
+import { useShopsStore } from '../../store/shopsStore';
+import { alerts } from '../../utils/alerts';
 
-export default function ModalUploadProduct({
-  isShowModalUpload,
-  setShowModalUpload,
-  productList,
-}) {
+export default function ModalUploadProduct({ isShowModalUpload, setShowModalUpload, productList }) {
   // const shopId = getPathByIndex(2);
 
   const { getAllTemplate, templates } = useTemplateStore();
-  const { stores, getAllStores, refreshToken } = useShopsStore(
-    (state) => state
-  );
+  const { stores, getAllStores, refreshToken } = useShopsStore((state) => state);
   const { createProductList, loading } = useProductsStore();
   const { getWarehousesByShopId, warehousesById, loadingWarehouse } = useWareHousesStore();
 
@@ -63,12 +57,14 @@ export default function ModalUploadProduct({
   const convertDataWarehouse = (data) => {
     if (!data || !Array.isArray(data) || !data.length) return [];
     const result = [];
-    data?.filter((item) => item.warehouse_type === 1).forEach((item) => {
-      result.push({
-        label: item.warehouse_name,
-        value: item.warehouse_id,
+    data
+      ?.filter((item) => item.warehouse_type === 1)
+      .forEach((item) => {
+        result.push({
+          label: item.warehouse_name,
+          value: item.warehouse_id,
+        });
       });
-    });
     return result;
   };
 
@@ -78,11 +74,10 @@ export default function ModalUploadProduct({
   };
 
   const onSelectShop = (value) => {
-    const onSuccess = (res) => {
-    };
+    const onSuccess = (res) => {};
     const onFail = (err) => {
       alerts.error(err);
-    }
+    };
     setShopId(value);
     getWarehousesByShopId(value, onSuccess, onFail);
   };
@@ -96,11 +91,11 @@ export default function ModalUploadProduct({
     const titles = [];
 
     if (!Array.isArray(productsJSON)) {
-      message.error("No products found. Please upload excel file.");
+      message.error('No products found. Please upload excel file.');
       return false;
     }
 
-    for (let item of productsJSON) {
+    for (const item of productsJSON) {
       const { sku, title, warehouse, images } = item;
       // if (!sku || !title || !warehouse || !images) {
       // if (!title || !image1) {
@@ -112,7 +107,7 @@ export default function ModalUploadProduct({
 
       // if (!sku?.trim() || !title?.trim() || !warehouse?.trim()) {
       if (!title?.trim()) {
-        message.error("title cannot be empty");
+        message.error('title cannot be empty');
         return false;
       }
 
@@ -140,7 +135,7 @@ export default function ModalUploadProduct({
     });
 
     if (duplicateTitles.length > 0) {
-      message.error("Duplicate titles found: " + duplicateTitles.join("; "));
+      message.error(`Duplicate titles found: ${duplicateTitles.join('; ')}`);
       return false;
     }
     return true;
@@ -180,12 +175,12 @@ export default function ModalUploadProduct({
   const sanitizeTitles = (documents) => {
     const { badWords, suffixTitle } = templateJSON ?? {};
     return documents.map((doc) => {
-      let title = doc.title;
+      let { title } = doc;
 
       if (badWords && badWords.length > 0) {
         badWords.forEach((word) => {
           const regex = new RegExp(word, 'gi');
-          title = title.replace(regex, "");
+          title = title.replace(regex, '');
         });
       }
       if (suffixTitle) {
@@ -205,24 +200,22 @@ export default function ModalUploadProduct({
         const obj = {};
         obj.sales_attributes = [
           {
-            attribute_name: "Color",
+            attribute_name: 'Color',
             custom_value: color,
-            attribute_id: "100000",
+            attribute_id: '100000',
           },
           {
-            attribute_name: "Size",
+            attribute_name: 'Size',
             custom_value: item.id,
-            attribute_id: "7322572932260136746",
+            attribute_id: '7322572932260136746',
           },
         ];
         obj.original_price = item.price;
-        obj.stock_infos = [
-          { warehouse_id: warehouseId, available_stock: item.quantity },
-        ];
-        obj.seller_sku = productsJSON.sku || ""
+        obj.stock_infos = [{ warehouse_id: warehouseId, available_stock: item.quantity }];
+        obj.seller_sku = productsJSON.sku || '';
         result.push(obj);
-      })
-    })
+      });
+    });
 
     return result;
   };
@@ -230,15 +223,15 @@ export default function ModalUploadProduct({
   const onSubmit = () => {
     if (!handleValidateJsonForm()) return;
     if (!shopId) {
-      message.warning("Please select shop");
+      message.warning('Please select shop');
       return;
     }
     if (!templateJSON?.id) {
-      message.warning("Please select template");
+      message.warning('Please select template');
       return;
     }
     if (!warehouseId) {
-      message.warning("Please select warehouse");
+      message.warning('Please select warehouse');
       return;
     }
     const {
@@ -251,7 +244,7 @@ export default function ModalUploadProduct({
       package_width,
       description,
       types,
-      size_chart
+      size_chart,
     } = templateJSON ?? {};
     const dataSubmit = {
       excel: sanitizeTitles(productsJSON),
@@ -264,7 +257,7 @@ export default function ModalUploadProduct({
       is_cod_open,
       skus: convertDataSku(),
       description,
-      size_chart
+      size_chart,
     };
     console.log('dataSubmit: ', dataSubmit);
     const onSuccess = () => {
@@ -273,7 +266,7 @@ export default function ModalUploadProduct({
       handleCancel();
     };
     const onFail = () => {
-      message.error("Thêm sản phẩm thất bại");
+      message.error('Thêm sản phẩm thất bại');
     };
     createProductList(shopId, dataSubmit, onSuccess, onFail);
   };
@@ -300,13 +293,9 @@ export default function ModalUploadProduct({
               }}
               placeholder="Select shop"
               optionFilterProp="children"
-              filterOption={(input, option) =>
-                (option?.label ?? "").includes(input)
-              }
+              filterOption={(input, option) => (option?.label ?? '').includes(input)}
               filterSort={(optionA, optionB) =>
-                (optionA?.label ?? "")
-                  .toLowerCase()
-                  .localeCompare((optionB?.label ?? "").toLowerCase())
+                (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
               }
               options={convertShopOption()}
               onChange={(e) => onSelectShop(e)}
@@ -321,13 +310,9 @@ export default function ModalUploadProduct({
               }}
               placeholder="Select template"
               optionFilterProp="children"
-              filterOption={(input, option) =>
-                (option?.label ?? "").includes(input)
-              }
+              filterOption={(input, option) => (option?.label ?? '').includes(input)}
               filterSort={(optionA, optionB) =>
-                (optionA?.label ?? "")
-                  .toLowerCase()
-                  .localeCompare((optionB?.label ?? "").toLowerCase())
+                (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
               }
               options={convertTemplateOption()}
               onChange={onSelectTemplate}
@@ -354,13 +339,9 @@ export default function ModalUploadProduct({
               }}
               placeholder="Select warehouse"
               optionFilterProp="children"
-              filterOption={(input, option) =>
-                (option?.label ?? "").includes(input)
-              }
+              filterOption={(input, option) => (option?.label ?? '').includes(input)}
               filterSort={(optionA, optionB) =>
-                (optionA?.label ?? "")
-                  .toLowerCase()
-                  .localeCompare((optionB?.label ?? "").toLowerCase())
+                (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
               }
               options={convertDataWarehouse(warehousesById.warehouse_list)}
               onChange={(e) => setWarehouseId(e)}

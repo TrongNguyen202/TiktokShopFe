@@ -1,12 +1,12 @@
-import { PlusOutlined } from "@ant-design/icons";
-import { Button, Divider, Input, Select, Space } from "antd";
-import React, { useRef, useState } from "react";
+import { PlusOutlined } from '@ant-design/icons';
+import { Button, Divider, Input, Select, Space } from 'antd';
+import React, { useRef, useState } from 'react';
 
 let indexOption = 0;
 
-const ProductEditCustomSelect = ({ optionsSelect, type, onChange, selectedDefault }) => {
+function ProductEditCustomSelect({ optionsSelect, type, onChange, selectedDefault }) {
   const [options, setOptions] = useState(optionsSelect);
-  const [valueInput, setValueInput] = useState("");
+  const [valueInput, setValueInput] = useState('');
   const inputRef = useRef(null);
 
   const onChangeName = (event) => {
@@ -15,7 +15,7 @@ const ProductEditCustomSelect = ({ optionsSelect, type, onChange, selectedDefaul
 
   const addItem = (e) => {
     e.preventDefault();
-    indexOption = indexOption + 1;
+    indexOption += 1;
     setOptions([
       ...options,
       {
@@ -23,18 +23,16 @@ const ProductEditCustomSelect = ({ optionsSelect, type, onChange, selectedDefaul
         value: `${Math.floor(Math.random() * 10000000000000000000)}`,
       },
     ]);
-    setValueInput("");
+    setValueInput('');
     setTimeout(() => {
       inputRef.current?.focus();
     }, 0);
   };
 
   const handleChangeSelect = (value) => {
-    const selectedOption = value?.map((item) => (
-      options.find(option => option.value === item)
-    ))
-    onChange(selectedOption)
-  }
+    const selectedOption = value?.map((item) => options.find((option) => option.value === item));
+    onChange(selectedOption);
+  };
 
   return (
     <Select
@@ -47,7 +45,7 @@ const ProductEditCustomSelect = ({ optionsSelect, type, onChange, selectedDefaul
       dropdownRender={(menu) => (
         <>
           {menu}
-          <Divider className="mx-[8px]"/>
+          <Divider className="mx-[8px]" />
           <Space className="px-[8px] pb-[4px]">
             <Input
               placeholder={`Thêm ${type}`}
@@ -56,12 +54,7 @@ const ProductEditCustomSelect = ({ optionsSelect, type, onChange, selectedDefaul
               onChange={onChangeName}
               onKeyDown={(e) => e.stopPropagation()}
             />
-            <Button
-              type="primary"
-              ghost
-              icon={<PlusOutlined />}
-              onClick={addItem}
-            >
+            <Button type="primary" ghost icon={<PlusOutlined />} onClick={addItem}>
               Thêm
             </Button>
           </Space>
@@ -72,4 +65,4 @@ const ProductEditCustomSelect = ({ optionsSelect, type, onChange, selectedDefaul
   );
 }
 
-export default ProductEditCustomSelect
+export default ProductEditCustomSelect;

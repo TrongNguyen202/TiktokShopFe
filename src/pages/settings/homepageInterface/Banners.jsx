@@ -1,29 +1,30 @@
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
-import { Button, Col, Form, Image, Input, Modal, Row, Space, Table, Tooltip } from 'antd'
-import { useEffect, useState } from 'react'
-import ImageDefault from '../../../assets/images/image-default.jpg'
-import Upload from '../../../components/upload'
-import { useBannersStore } from '../../../store/bannersStore'
-import { alerts } from '../../../utils/alerts'
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { Button, Col, Form, Image, Input, Modal, Row, Space, Table, Tooltip } from 'antd';
+import { useEffect, useState } from 'react';
+import ImageDefault from '../../../assets/images/image-default.jpg';
+import Upload from '../../../components/upload';
+import { useBannersStore } from '../../../store/bannersStore';
+import { alerts } from '../../../utils/alerts';
 
 export default function Banners() {
-  const { banners, loading, getAllBanners, deleteBanner, createBanner, updateBanner } =
-    useBannersStore((state) => state)
-  const [isShowModal, setShowModal] = useState(false)
-  const [image, setImage] = useState('')
-  const [selectedBanner, setSelectedBanner] = useState(null)
+  const { banners, loading, getAllBanners, deleteBanner, createBanner, updateBanner } = useBannersStore(
+    (state) => state,
+  );
+  const [isShowModal, setShowModal] = useState(false);
+  const [image, setImage] = useState('');
+  const [selectedBanner, setSelectedBanner] = useState(null);
 
   useEffect(() => {
-    fetchDataTable()
-  }, [])
+    fetchDataTable();
+  }, []);
 
   const fetchDataTable = () => {
-    const onSuccess = () => {}
+    const onSuccess = () => {};
     const onFail = (err) => {
-      alerts.error(err)
-    }
-    getAllBanners(onSuccess, onFail)
-  }
+      alerts.error(err);
+    };
+    getAllBanners(onSuccess, onFail);
+  };
 
   const bannersTable = [
     {
@@ -46,14 +47,7 @@ export default function Banners() {
       align: 'center',
       dataIndex: 'image_url',
       render: (_, banner) => {
-        return (
-          <Image
-            width='70%'
-            height='150px'
-            className='object-cover'
-            src={banner.image_url || ImageDefault}
-          />
-        )
+        return <Image width="70%" height="150px" className="object-cover" src={banner.image_url || ImageDefault} />;
       },
     },
     {
@@ -63,73 +57,63 @@ export default function Banners() {
       align: 'center',
       render: (banner) => {
         return (
-          <Space size='middle'>
-            <Tooltip title='Sửa' color='blue'>
+          <Space size="middle">
+            <Tooltip title="Sửa" color="blue">
               <Button
-                size='small'
+                size="small"
                 icon={<EditOutlined />}
                 onClick={() => {
-                  setShowModal(true)
-                  setSelectedBanner(banner)
-                  setImage(banner.image_url)
+                  setShowModal(true);
+                  setSelectedBanner(banner);
+                  setImage(banner.image_url);
                 }}
               />
             </Tooltip>
-            <Tooltip title='Xóa' color='red'>
-              <Button
-                size='small'
-                icon={<DeleteOutlined />}
-                danger
-                onClick={() => handleDeleteBanner(banner.id)}
-              />
+            <Tooltip title="Xóa" color="red">
+              <Button size="small" icon={<DeleteOutlined />} danger onClick={() => handleDeleteBanner(banner.id)} />
             </Tooltip>
           </Space>
-        )
+        );
       },
     },
-  ]
+  ];
 
   const onSubmit = (value) => {
     const onSuccess = () => {
-      alerts.success(!selectedBanner ? 'Tạo thành công' : 'Cập nhật thành công')
-      setShowModal(false)
-      fetchDataTable()
-    }
+      alerts.success(!selectedBanner ? 'Tạo thành công' : 'Cập nhật thành công');
+      setShowModal(false);
+      fetchDataTable();
+    };
     const onFail = (err) => {
-      alerts.error(err)
-    }
+      alerts.error(err);
+    };
     if (!selectedBanner) {
-      createBanner({ ...value, image_url: image, is_show: true }, onSuccess, onFail)
+      createBanner({ ...value, image_url: image, is_show: true }, onSuccess, onFail);
     } else {
-      updateBanner(
-        selectedBanner.id,
-        { ...value, image_url: image, is_show: true },
-        onSuccess,
-        onFail,
-      )
+      updateBanner(selectedBanner.id, { ...value, image_url: image, is_show: true }, onSuccess, onFail);
     }
-  }
+  };
 
   const handleDeleteBanner = (id) => {
     const onSuccess = () => {
-      alerts.success('Xóa thành công')
-    }
+      alerts.success('Xóa thành công');
+    };
     const onFail = (err) => {
-      alerts.error(err)
-    }
-    deleteBanner(id, onSuccess, onFail)
-  }
+      alerts.error(err);
+    };
+    deleteBanner(id, onSuccess, onFail);
+  };
 
   return (
     <div>
-      <div className='flex justify-between items-center'>
-        <p className='my-4 font-semibold text-[20px]'>Danh sách Banners</p>
+      <div className="flex justify-between items-center">
+        <p className="my-4 font-semibold text-[20px]">Danh sách Banners</p>
         <Button
-          type='primary'
+          type="primary"
           onClick={() => {
-            setShowModal(true)
-            setSelectedBanner(null)
-            setImage(null)
+            setShowModal(true);
+            setSelectedBanner(null);
+            setImage(null);
           }}
         >
           Tạo banner mới
@@ -139,7 +123,7 @@ export default function Banners() {
       <Table
         columns={bannersTable}
         scroll={{ x: true }}
-        size='middle'
+        size="middle"
         bordered
         dataSource={banners.length ? banners : []}
         loading={loading}
@@ -149,15 +133,15 @@ export default function Banners() {
           title={!selectedBanner ? 'Thêm banner mới' : 'Cập nhật banner'}
           open={isShowModal}
           onCancel={() => {
-            setShowModal(false)
+            setShowModal(false);
           }}
           footer={false}
           centered
-          okText='Đồng ý'
-          cancelText='Hủy'
+          okText="Đồng ý"
+          cancelText="Hủy"
         >
           <Form
-            name='basic'
+            name="basic"
             labelCol={{
               span: 6,
             }}
@@ -165,16 +149,16 @@ export default function Banners() {
               span: 24,
             }}
             onFinish={onSubmit}
-            autoComplete='off'
-            layout='vertical'
+            autoComplete="off"
+            layout="vertical"
           >
-            <Row className='px-1 justify-between'>
+            <Row className="px-1 justify-between">
               <Col span={24}>
                 <Form.Item
-                  label='Tên tiêu đề'
-                  name='title'
-                  labelAlign='left'
-                  className='font-medium'
+                  label="Tên tiêu đề"
+                  name="title"
+                  labelAlign="left"
+                  className="font-medium"
                   sx={{ width: '100%' }}
                   labelCol={{
                     span: 24,
@@ -187,17 +171,17 @@ export default function Banners() {
                   ]}
                   initialValue={selectedBanner?.title}
                 >
-                  <Input placeholder='Nhập tiêu đề' defaultValue={selectedBanner?.title} />
+                  <Input placeholder="Nhập tiêu đề" defaultValue={selectedBanner?.title} />
                 </Form.Item>
               </Col>
             </Row>
-            <div className='px-1 justify-between h-[150px] w-full rounded-lg mb-10'>
+            <div className="px-1 justify-between h-[150px] w-full rounded-lg mb-10">
               <Col span={24}>
                 <Form.Item
-                  label='Hình ảnh'
-                  name='image_url'
-                  labelAlign='left'
-                  className='font-medium'
+                  label="Hình ảnh"
+                  name="image_url"
+                  labelAlign="left"
+                  className="font-medium"
                   labelCol={{
                     span: 24,
                   }}
@@ -205,30 +189,25 @@ export default function Banners() {
                     {
                       validator() {
                         if (image) {
-                          return Promise.resolve()
+                          return Promise.resolve();
                         }
-                        return Promise.reject(new Error('Vui lòng chọn hình ảnh'))
+                        return Promise.reject(new Error('Vui lòng chọn hình ảnh'));
                       },
                     },
                   ]}
                   initialValue={selectedBanner?.image_url}
                 >
-                  <Upload
-                    image={image || selectedBanner?.image_url}
-                    setImage={setImage}
-                    width='100%'
-                    height='150px'
-                  />
+                  <Upload image={image || selectedBanner?.image_url} setImage={setImage} width="100%" height="150px" />
                 </Form.Item>
               </Col>
             </div>
-            <Row className='pt-3 px-1 justify-between'>
+            <Row className="pt-3 px-1 justify-between">
               <Col span={24}>
                 <Form.Item
-                  label='URL trang đích'
-                  name='action_link'
-                  labelAlign='left'
-                  className='font-medium'
+                  label="URL trang đích"
+                  name="action_link"
+                  labelAlign="left"
+                  className="font-medium"
                   sx={{ width: '100%' }}
                   labelCol={{
                     span: 24,
@@ -241,22 +220,12 @@ export default function Banners() {
                   ]}
                   initialValue={selectedBanner?.action_link}
                 >
-                  <Input
-                    placeholder='VD: https://admin-hihihi.vn'
-                    defaultValue={selectedBanner?.action_link}
-                  />
+                  <Input placeholder="VD: https://admin-hihihi.vn" defaultValue={selectedBanner?.action_link} />
                 </Form.Item>
               </Col>
             </Row>
-            <div className='w-[300px] mx-auto'>
-              <Button
-                className='mt-4'
-                block
-                type='primary'
-                htmlType='submit'
-                disabled={loading}
-                width={200}
-              >
+            <div className="w-[300px] mx-auto">
+              <Button className="mt-4" block type="primary" htmlType="submit" disabled={loading} width={200}>
                 {!selectedBanner ? 'Tạo' : 'Cập nhật'}
               </Button>
             </div>
@@ -264,5 +233,5 @@ export default function Banners() {
         </Modal>
       )}
     </div>
-  )
+  );
 }
