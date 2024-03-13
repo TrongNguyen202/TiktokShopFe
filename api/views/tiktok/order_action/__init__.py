@@ -1,10 +1,23 @@
 from asyncio import constants
-from ....models import Shop, BuyedPackage, UserGroup, DesignSku, DesignSkuChangeHistory, GroupCustom
-from ....serializers import BuyedPackageSeri, DesignSkuSerializer, GroupCustomSerializer, DesignSkuPutSerializer
-
 from datetime import datetime
-from api.utils.pdf.ocr_pdf import *
+
+from api.utils.pdf.ocr_pdf import process_pdf_to_info
 from api.views import *
+
+from ....models import (
+    BuyedPackage,
+    DesignSku,
+    DesignSkuChangeHistory,
+    GroupCustom,
+    Shop,
+    UserGroup,
+)
+from ....serializers import (
+    BuyedPackageSeri,
+    DesignSkuPutSerializer,
+    DesignSkuSerializer,
+    GroupCustomSerializer,
+)
 
 logger = logging.getLogger('views.tiktok.order_action')
 setup_logging(logger, is_root=False, level=logging.INFO)
@@ -175,7 +188,8 @@ class ShippingDoc(APIView):
             # Lặp qua từng package_id và gửi các công việc gọi API tới executor để thực hiện đồng thời
             futures = []
             for package_id in package_ids:
-                futures.append(executor.submit(order.callGetShippingDoc, package_id=package_id, access_token=access_token))
+                futures.append(executor.submit(order.callGetShippingDoc,
+                               package_id=package_id, access_token=access_token))
 
             # Thu thập kết quả từ các future và thêm vào danh sách doc_urls
             for future in futures:
@@ -519,7 +533,8 @@ class ShippingDoc(APIView):
             # để thực hiện đồng thời
             futures = []
             for package_id in package_ids:
-                futures.append(executor.submit(order.callGetShippingDoc, package_id=package_id, access_token=access_token))
+                futures.append(executor.submit(order.callGetShippingDoc,
+                               package_id=package_id, access_token=access_token))
 
             # Thu thập kết quả từ các future và thêm vào danh sách doc_urls
             for future in futures:
@@ -576,10 +591,6 @@ class UploadDriver(APIView):
 
 
 class ToShipOrderAPI(APIView):
-    def ocr_infor(self, pdf_path):
-        result_json_user = process_pdf(pdf_path=pdf_path)
-        return json.loads(result_json_user)
-
     def post(self, request, shop_id):
         data = []
         shop = get_object_or_404(Shop, id=shop_id)
@@ -594,8 +605,12 @@ class ToShipOrderAPI(APIView):
             response = requests.get(doc_url)
 
             if response.status_code == 200:
-                file_name = f"{package_id}.pdf"
-                file_path = os.path.join("C:\pdflabel", file_name)
+                file_name = f"{package_id}.pdf"  # TODO: Phải cập nhật lại tên file để có thể search theo Order ID
+                if platform.system() == "Windows":
+                    file_path = os.path.join("C:\pdflabel", file_name)
+                else:
+                    os.makedirs('./.temp/labels', exist_ok=True)
+                    file_path = os.path.join('./.temp/labels', file_name)
 
                 with open(file_path, 'wb') as file:
                     file.write(response.content)
@@ -605,16 +620,25 @@ class ToShipOrderAPI(APIView):
             try:
                 order_detail = order.callOrderDetail(access_token=access_token, orderIds=order_ids).json()
             except Exception as e:
-                print("Error when calling OrderDetail API:", e)
+                logger.error(f"Error when calling OrderDetail API", exc_info=e)
 
-            infor_user = self.ocr_infor(file_path)
+                error_response = {
+                    'status': 'error',
+                    'message': 'Có lỗi xảy ra khi gọi API OrderDetail',
+                    'data': None
+                }
 
-            order_detail['tracking_id'] = infor_user.get('tracking_id', '')
-            order_detail['name_buyer'] = infor_user.get('name_buyer', '')
-            order_detail['street'] = infor_user.get('real_street', '')
-            order_detail['city'] = infor_user.get('city', '')
-            order_detail['state'] = infor_user.get('state', '')
-            order_detail['zip_code'] = infor_user.get('zip_code', '')
+                return JsonResponse(error_response, status=500, safe=False)
+
+            # OCR user info
+            order_detail['ocr_result'] = process_pdf_to_info(file_path)
+
+            # order_detail['tracking_id'] = info_user.get('tracking_id', '')
+            # order_detail['name_buyer'] = info_user.get('name_buyer', '')
+            # order_detail['street'] = info_user.get('real_street', '')
+            # order_detail['city'] = info_user.get('city', '')
+            # order_detail['state'] = info_user.get('state', '')
+            # order_detail['zip_code'] = info_user.get('zip_code', '')
 
             data.append(order_detail)
 
