@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { useShopsBrand } from '../../store/brandStore';
 
 import StoreDetailSectionTitle from './StoreDetailSectionTitle';
-import alerts from '../../utils/alerts';
+import { alerts } from '../../utils/alerts';
 
 function StoreDetailBrands({ shopId }) {
   const { brands, getAllBrand } = useShopsBrand((state) => state);
