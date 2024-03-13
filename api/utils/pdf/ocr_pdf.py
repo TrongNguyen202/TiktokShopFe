@@ -16,7 +16,7 @@ text_file = out_directory / Path("out_text.txt")
 def remove_special_characters(text):
     # Thay thế các kí tự đặc biệt bằng chuỗi trống
     special_characters = ['!', '@', '#', '$', '%', '^', '&', '*',
-                          '(', ')', '-', '_', '+', '=', '[', ']', '{', '}', ';', ':', ',', '.', '<', '>', '/', '?', '\\', '|']
+                          '(', ')', '-', '_', '+', '=', '[', ']', '{', '}', ';', ':', ',', '.', '<', '>', '/', '?', '\\', '|', '~', '©']
 
     # Xóa kí tự đặc biệt ở đầu
     for char in special_characters:
