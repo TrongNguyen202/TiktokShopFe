@@ -27,7 +27,7 @@ export const useFlashShipStores = create((set) => ({
     try {
       set({ loading: true })
       const response = await RepositoryRemote.flashShip.createOrderFlashShip(body)
-      onSuccess(response.data)
+      onSuccess(response)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }

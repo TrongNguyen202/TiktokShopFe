@@ -12,7 +12,7 @@ import OrdersAddImageDesignByExcel from '../../components/orders/OrdersAddImageD
 import SectionTitle from '../common/SectionTitle';
 import OrderProductProver from './OrderProductProver';
 
-const OrderCheckDesign = ({ toShipInfoData, DesignSKU }) => {
+const OrderCheckDesign = ({ toShipInfoData }) => {
     const [form] = Form.useForm()
     const [messageApi, contextHolder] = message.useMessage()
     const [openNewDesignModal, setOpenNewDesignModal] = useState(false)
@@ -26,26 +26,6 @@ const OrderCheckDesign = ({ toShipInfoData, DesignSKU }) => {
             span: 4
         }
     }
-
-    const handAddDesignToShipInfoData = () => {
-        toShipInfoData.map(item => (
-            item.order_list.map(order => {
-                order.item_list.map(product => {
-                    const design = designSku?.results?.find(skuItem => skuItem.sku_id === product.sku_id)
-                    if (design) {
-                        product.image_front = design.image_front
-                        product.image_back = design.image_back
-                    }
-                    return product
-                })
-            })
-
-        ))
-
-        return toShipInfoData
-    }
-
-    console.log('toShipInfoData: ', toShipInfoData);
     
     const handleCheckDesign = () => {
         const dataCheck = toShipInfoData.map(order => {
@@ -321,7 +301,6 @@ const OrderCheckDesign = ({ toShipInfoData, DesignSKU }) => {
             setDesignSku(res)
         }
         getDesignSku(onSuccess, (err) => console.log('Design Sku: ',err))
-        handAddDesignToShipInfoData()
     }, [])
 
     return (
@@ -387,24 +366,10 @@ const OrderCheckDesign = ({ toShipInfoData, DesignSKU }) => {
                     <Form.Item name="variation" label="Product variation:" className='font-bold'>
                         <Input className='border-none bg-transparent p-0'/>
                     </Form.Item>
-                    <Form.Item name="image_front" label="Image front:" className='font-bold'
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please input this field!',
-                            },
-                        ]}
-                    >
+                    <Form.Item name="image_front" label="Image front:" className='font-bold'>
                         <Input/>
                     </Form.Item>
-                    <Form.Item name="image_back" label="Image back:" className='font-bold' 
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please input this field!',
-                            },
-                        ]}
-                    >
+                    <Form.Item name="image_back" label="Image back:" className='font-bold'>
                         <Input/>
                     </Form.Item>
                     <Form.Item className='flex flex-wrap items-center justify-end mt-5'>

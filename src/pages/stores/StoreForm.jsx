@@ -33,24 +33,6 @@ const StoreForm = ({app_key, code}) => {
   }
 
   const onSubmit = (value) => {
-    axios({
-      method: 'get',
-      url: `${c.API_TIKTOK_SHOP}/v2/token/get`,
-      params: {
-        app_key: app_key,
-        auth_code: value.auth_code,
-        app_secret: c.APP_SECRET,
-        grant_type: c.GRANT_TYPE,
-        user_id: value.user_id
-      }
-    })
-    .then(response => {
-      console.log(">>> Success:", response);
-    })
-    .catch(error => {
-      console.log(">>> Error:", error);
-    })
-
     const onSuccess = (res) => {
       navigate('/shops');
       console.log('res: ', res)

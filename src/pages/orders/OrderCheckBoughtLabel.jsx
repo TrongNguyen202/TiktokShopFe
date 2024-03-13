@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Table, Tag, Button, Space, Input, Form, message, Card, Spin, Modal } from 'antd';
+import { Button, Input, Form, message, Card } from 'antd';
 import { DownloadOutlined } from "@ant-design/icons"
 
 import { useShopsOrder } from "../../store/ordersStore";
@@ -10,11 +10,18 @@ import PageTitle from '../../components/common/PageTitle';
 
 const OrderCheckBoughtLabel = () => {
     const [labelSearch, setLabelSearch] = useState([])
+    const [messageApi, contextHolder] = message.useMessage();
     const { loading, pdfLabelSearch, pdfLabelDownload } = useShopsOrder((state) => state)
 
     const onSearch = (values) => {
         const onSuccess = (res) => {
             if (res) {
+                if (res.length === 0) {
+                    messageApi.open({
+                        type: 'success',
+                        content: 'Không tìm thấy kết quả',
+                    })
+                }
                 setLabelSearch(res)
             }
         }
@@ -38,6 +45,7 @@ const OrderCheckBoughtLabel = () => {
     
     return (
         <div className="p-10">
+            {contextHolder}
             <PageTitle title="Kiểm tra Label đã mua theo Package ID" showBack />
             <Form onFinish={onSearch} onFinishFailed={() => { }} className='md:w-[400px] relative border-[1px] border-solid border-[#d9d9d9] rounded-[6px] pr-[90px]'>
                     <Form.Item name="package_id" className="mb-0">

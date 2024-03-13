@@ -90,7 +90,7 @@ export const callApiFlashShip = async (endPoint, method, body) => {
       });
 
       if (!response.ok) {
-        const responseData = await response.json();
+        const responseData = await response.json();                             
         if (responseData.code === 12052700) {
           return Promise.reject(responseData);
         } else if (responseData.code === 401) {
