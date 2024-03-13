@@ -598,10 +598,13 @@ class ToShipOrderAPI(APIView):
         data_post = json.loads(request.body.decode('utf-8'))
         order_documents = data_post.get('order_documents', [])
 
+        # TODO: Sử dụng ThreadPoolExecutor để thực hiện các cuộc gọi API đa luồng
         for order_document in order_documents:
             order_list = order_document.get("order_list")
             doc_url = order_document.get('label')
             package_id = order_document.get("package_id")
+            
+            # Tải file PDF từ doc_url 
             response = requests.get(doc_url)
 
             if response.status_code == 200:
@@ -618,7 +621,7 @@ class ToShipOrderAPI(APIView):
             order_ids = [item.get("order_id") for item in order_list] if order_list else []
 
             try:
-                order_detail = order.callOrderDetail(access_token=access_token, orderIds=order_ids).json()
+                order_detail: dict = order.callOrderDetail(access_token=access_token, orderIds=order_ids).json()
             except Exception as e:
                 logger.error(f"Error when calling OrderDetail API", exc_info=e)
 
@@ -629,6 +632,9 @@ class ToShipOrderAPI(APIView):
                 }
 
                 return JsonResponse(error_response, status=500, safe=False)
+            
+            # TODO: Nên kiểm soát thông tin trả về từ API OrderDetail để đảm bảo rằng thông tin trả về là hợp lệ
+            logger.info(f"OrderDetail response: {order_detail}")
 
             # OCR user info
             order_detail['ocr_result'] = process_pdf_to_info(file_path)
