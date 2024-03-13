@@ -207,6 +207,7 @@ class PackageBought(APIView):
 class PDFSearch(APIView):
     def get(self, request):
         PDF_DIRECTORY = constant.PDF_DIRECTORY_WINDOW if platform.system() == 'Windows' else constant.PDF_DIRECTORY_UNIX
+        os.makedirs(PDF_DIRECTORY, exist_ok=True)
         query = request.query_params.get('query', '')
         found_files = []
 
@@ -575,10 +576,43 @@ class UploadDriver(APIView):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 
-class ToShipOrderAPI(APIView):
+class ToShipOrderAPI(View):
     def ocr_infor(self, pdf_path):
         result_json_user = process_pdf(pdf_path=pdf_path)
         return json.loads(result_json_user)
+
+    def process_order_document(self, order_document, access_token):
+        order_list = order_document.get("order_list")
+        doc_url = order_document.get('label')
+        package_id = order_document.get("package_id")
+
+        response = requests.get(doc_url)
+
+        if response.status_code == 200:
+            file_name = f"{package_id}.pdf"
+            file_path = os.path.join("C:\pdflabel", file_name)
+
+            with open(file_path, 'wb') as file:
+                file.write(response.content)
+
+        order_ids = [item.get("order_id") for item in order_list] if order_list else []
+
+        try:
+            order_detail = order.callOrderDetail(access_token=access_token, orderIds=order_ids).json()
+
+        except Exception as e:
+            print("Error when calling OrderDetail API:", e)
+
+        infor_user = self.ocr_infor(file_path)
+
+        order_detail['tracking_id'] = infor_user.get('tracking_id', '')
+        order_detail['name_buyer'] = infor_user.get('name_buyer', '')
+        order_detail['street'] = infor_user.get('real_street', '')
+        order_detail['city'] = infor_user.get('city', '')
+        order_detail['state'] = infor_user.get('state', '')
+        order_detail['zip_code'] = infor_user.get('zip_code', '')
+
+        return order_detail
 
     def post(self, request, shop_id):
         data = []
@@ -587,37 +621,14 @@ class ToShipOrderAPI(APIView):
         data_post = json.loads(request.body.decode('utf-8'))
         order_documents = data_post.get('order_documents', [])
 
-        for order_document in order_documents:
-            order_list = order_document.get("order_list")
-            doc_url = order_document.get('label')
-            package_id = order_document.get("package_id")
+        with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
+            futures = []
+            for order_document in order_documents:
+                future = executor.submit(self.process_order_document, order_document, access_token)
+                futures.append(future)
 
-            response = requests.get(doc_url)
-
-            if response.status_code == 200:
-                file_name = f"{package_id}.pdf"
-                file_path = os.path.join("C:\pdflabel", file_name)
-
-                with open(file_path, 'wb') as file:
-                    file.write(response.content)
-
-            order_ids = [item.get("order_id") for item in order_list] if order_list else []
-
-            try:
-                order_detail = order.callOrderDetail(access_token=access_token, orderIds=order_ids).json()
-
-            except Exception as e:
-                print("Error when calling OrderDetail API:", e)
-
-            infor_user = self.ocr_infor(file_path)
-
-            order_detail['tracking_id'] = infor_user.get('tracking_id', '')
-            order_detail['name_buyer'] = infor_user.get('name_buyer', '')
-            order_detail['street'] = infor_user.get('real_street', '')
-            order_detail['city'] = infor_user.get('city', '')
-            order_detail['state'] = infor_user.get('state', '')
-            order_detail['zip_code'] = infor_user.get('zip_code', '')
-
-            data.append(order_detail)
+            for future in futures:
+                order_detail = future.result()
+                data.append(order_detail)
 
         return JsonResponse(data, status=200, safe=False)
