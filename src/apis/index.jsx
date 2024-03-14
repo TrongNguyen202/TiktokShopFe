@@ -2,8 +2,6 @@ import axios from 'axios'
 import { constants as c } from '../constants'
 import { getToken, getTokenKey, removeToken } from '../utils/auth'
 import { alerts } from '../utils/alerts'
-// import { DeviceUUID } from "device-uuid";
-// const uuid = new DeviceUUID().get();
 const exceptPrefix = ['/login', '/register']
 const checkEndPoint = (endpoint) => {
   for (const prefix of exceptPrefix) {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'
-import { Space, Table, Tooltip, Button, Input } from 'antd';
+import { Space, Table, Tooltip, Button, Input, Tag } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
 
 import { useUsersStore } from '../../store/usersStore'
@@ -44,6 +44,14 @@ const Users = () => {
         <>{index !== 0 && ', '}<Link to={`/shops/${item.id}`} key={index} target='_blank'>{item.name}</Link></>
       )),
     },
+    // {
+    //   title: 'Trạng thái',
+    //   dataIndex: 'is_active',
+    //   key: 'is_active',
+    //   render: (text, record) => (
+    //     <Tag color={record.is_active ? 'green' : 'red'}>{record.is_active ? 'Hoạt động' : 'Không hoạt động'}</Tag>
+    //   )
+    // },
     {
       dataIndex: 'Actions',
       key: 'actions',

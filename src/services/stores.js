@@ -12,6 +12,10 @@ const getStoreById = (id) => {
   return callApi(`/shops/${id}`, 'get')
 }
 
+const updateStore = (id, params) => {
+  return callApi(`/shops/${id}`, 'put', params)
+}
+
 const searchStores = (query) => {
   return callApi(`/shops?${query}`, 'get')
 }
@@ -25,5 +29,6 @@ export const stores = {
   getStoreById,
   searchStores,
   createStore,
-  refreshToken
+  refreshToken,
+  updateStore
 }
