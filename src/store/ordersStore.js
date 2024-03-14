@@ -239,4 +239,49 @@ export const useShopsOrder = create((set) => ({
     }
     set({ loading: false })
   },
+
+  getDesignSkuById: async (skuId, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.orders.getDesignSkuById(skuId)
+      onSuccess(response.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  },
+
+  PackageCreateFlashShip: async (body, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.orders.PackageCreateFlashShip(body)
+      onSuccess(response.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  },
+
+  PackageCreatePrintCare: async (body, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.orders.PackageCreatePrintCare(body)
+      onSuccess(response.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  },
+
+  testOCR: async (shopId, body, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.orders.testOCR(shopId, body)
+      onSuccess(response.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  },
+
 }))

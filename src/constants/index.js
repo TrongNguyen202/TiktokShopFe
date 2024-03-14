@@ -16,8 +16,8 @@ export const constants = {
   DEFAULT_COLOR: "#e62e04",
   LOADING_WHEN_SUBMIT_REGISTER: "LOADING_WHEN_SUBMIT_REGISTER",
   // STATUS
-  // API_URL: "http://app.folinas.com:9999" + "/api",
-  API_URL: "https://app.folinas.com:8080" + "/api",
+  API_URL: "http://app.folinas.com:9999" + "/api",
+  // API_URL: "https://app.folinas.com:8080" + "/api",
   // API_URL: 'http://127.0.0.1:8000' + '/api',
   API_TIKTOK_SHOP: "https://auth.tiktok-shops.com/api",
   // STORE_CODE: store_code,

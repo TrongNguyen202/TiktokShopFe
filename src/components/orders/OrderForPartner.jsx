@@ -4,24 +4,28 @@ import { DownOutlined, WarningOutlined } from "@ant-design/icons"
 import * as XLSX from 'xlsx';
 
 import { useShopsOrder } from '../../store/ordersStore'
-import { useFlashShipStores } from '../../store/flashshipStores'
+import { useFlashShipStores } from '../../store/flashShipStores'
 import { getPathByIndex } from "../../utils";
 import { setToken } from "../../utils/auth"
 
 import SectionTitle from "../common/SectionTitle";
-import { Link } from 'react-router-dom';
+import DesignEdit from '../design-sku/DesignEdit';
 4                                             
 const OrderForPartner = ({toShipInfoData}) => {
     const shopId = getPathByIndex(2)
     const [ messageApi, contextHolder ] = message.useMessage();
     const [api, notificationContextHolder] = notification.useNotification();
     const [designSku, setDesignSku] = useState([])
+    const [designSkuById, setDesignSkuById] = useState({})
+    const [openEditModal, setOpenEditModal] = useState(false)
     const [ dataOCRCheck, setDataOCRCheck ] = useState([])
+    const [ tableFlashShipSelected, setTableFlashShipSelected ] = useState([])
+    const [ tablePrintCareSelected, setTablePrintCareSelected ] = useState([])
     const [ flashShipTable, setFlashShipTable ] = useState([])
     const [ printCareTable, setPrintCareTable ] = useState([])
     const [ flashShipVariants, setFlashShipVariants ] = useState([])
     const [ openLoginFlashShip, setOpenLoginFlashShip ] = useState(false)
-    const { getToShipInfo, loadingGetInfo, getDesignSku } = useShopsOrder(state => state)
+    const { getToShipInfo, loadingGetInfo, getDesignSku, getDesignSkuById, PackageCreateFlashShip, PackageCreatePrintCare, testOCR } = useShopsOrder(state => state)
     const { getFlashShipPODVariant, LoginFlashShip, createOrderFlashShip } = useFlashShipStores(state => state)
 
     const checkDataPartner = (data) => {
@@ -82,10 +86,22 @@ const OrderForPartner = ({toShipInfoData}) => {
         if (dataFlashShip.length) setFlashShipTable(dataFlashShip)
         if (dataPrintCare.length) setPrintCareTable(dataPrintCare)
     }
+
+    const handleEditDesignSku = (skuId) => {
+        setOpenEditModal(true)
+        const onSuccess = (res) => {
+            setDesignSkuById(res)
+        }
+
+        const onFail = (err) => {
+            console.log('getDesignSkuById: ', err)
+        }
+        getDesignSkuById(skuId, onSuccess, onFail)
+    }
     
     const renderListItemProduct = (data) => {
         return data?.map((item, index) => (
-            <div key={index}>
+            <div key={index} onClick={() => handleEditDesignSku(item.sku_id)} className='cursor-pointer'>
                 <div className="flex justify-between items-center gap-3 mt-3 w-[400px]">
                     <div className="flex items-center gap-2">
                         <div className="flex-1">
@@ -94,7 +110,7 @@ const OrderForPartner = ({toShipInfoData}) => {
                         <div>
                             <p className="text-[12px] text-gray-500">{item.sku_name}</p>
                             <Tooltip placement="top" title={`Click vào đây để thêm design cho ${item.sku_id}`}>
-                                <Link to={`/design-sku/edit/${item.sku_id}`} target='_blank' className="text-[12px]">{item.sku_id}</Link>
+                                <span className="text-[12px]">{item.sku_id}</span>
                             </Tooltip>
                         </div>
                     </div>
@@ -124,12 +140,41 @@ const OrderForPartner = ({toShipInfoData}) => {
         })
     }
 
+    const handleConvertDataPackageCreate = (data, key) => {
+        const result = data.map(item => ({
+            order_id: item.package_id,
+            buyer_first_name: item.name_buyer?.split(' ')[0] || "",
+            buyer_last_name: item.name_buyer?.split(' ')[1] || "",
+            buyer_email: item.buyer_email,
+            buyer_phone: "",
+            buyer_address1: item.street.trim(),
+            buyer_address2: "",
+            buyer_city: item.city,
+            buyer_province_code: item.state.trim(),
+            buyer_zip: item.zip_code,
+            buyer_country_code: "US",
+            shipment: 1,
+            linkLabel: item.label,
+            products: item.order_list.map(product => {                                
+                return ({
+                    variant_id: key === 'PrintCare' ? 'POD097' : product.variant_id,
+                    printer_design_front_url: product.image_design_front || null,
+                    printer_design_back_url: product.image_design_back || null,
+                    quantity: product.quantity,
+                    note: ""
+                })
+            })
+        }))
+
+        return result
+    }
+
     const handleLoginFlashShip = (values) => { 
         const onSuccess = (res) => {
             if (res) {
                 setToken('flash-ship-tk', res.data.access_token)
                 setOpenLoginFlashShip(false)
-                const handAddDesignToShipInfoData = flashShipTable.map(item => {
+                const handAddDesignToShipInfoData = tableFlashShipSelected.map(item => {
                     const orderItem = item.order_list.map(order => {
                         const design = designSku?.results?.find(skuItem => skuItem.sku_id === order.sku_id)
                         if (design) {
@@ -157,32 +202,7 @@ const OrderForPartner = ({toShipInfoData}) => {
                         icon: <WarningOutlined style={{ color: 'red' }} />
                     })
                 } else {
-                    const dataSubmitFlashShip = handAddDesignToShipInfoData.map(item => {
-                        return ({
-                            order_id: item.package_id,
-                            buyer_first_name: item.name_buyer?.split(' ')[0] || "",
-                            buyer_last_name: item.name_buyer?.split(' ')[1] || "",
-                            buyer_email: item.buyer_email,
-                            buyer_phone: "",
-                            buyer_address1: item.street.trim(),
-                            buyer_address2: "",
-                            buyer_city: item.city,
-                            buyer_province_code: item.state.trim(),
-                            buyer_zip: item.zip_code,
-                            buyer_country_code: "US",
-                            shipment: 1,
-                            linkLabel: item.label,
-                            products: item.order_list.map(product => {                                
-                                return ({
-                                    variant_id: product.variant_id,
-                                    printer_design_front_url: product.image_design_front || null,
-                                    printer_design_back_url: product.image_design_back || null,
-                                    quantity: product.quantity,
-                                    note: ""
-                                })
-                            })
-                        })
-                    })
+                    const dataSubmitFlashShip = handleConvertDataPackageCreate(handAddDesignToShipInfoData, 'FlashShip')
                         
                     dataSubmitFlashShip.map(item => {
                         const onCreateSuccess = (resCreate) => {
@@ -191,6 +211,16 @@ const OrderForPartner = ({toShipInfoData}) => {
                                 description: resCreate.err,
                                 icon: <WarningOutlined style={{ color: 'red' }} />
                             })
+
+                            const onSuccessPackageCreate = (resPackage) => {
+                                console.log('resPackage: ', resPackage);
+                            }
+
+                            const onFailPackageCreate = (errPackage) => {
+                                console.log('errPackage: ', errPackage);
+                            }
+
+                            PackageCreateFlashShip(item, onSuccessPackageCreate, onFailPackageCreate)
                         }
                 
                         const onCreateFail = (errCreate) => {
@@ -217,15 +247,24 @@ const OrderForPartner = ({toShipInfoData}) => {
         LoginFlashShip(values, onSuccess, onFail)
     }
 
-    const ExportExcelFile = (data, fileName) => {
+    const ExportExcelFile = (data, fileName, dataPackageCreate) => {
         const worksheet = XLSX.utils.json_to_sheet(data)
         const workbook = XLSX.utils.book_new()
         XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1")
         XLSX.writeFile(workbook, `${fileName}-${Date.now()}.xlsx`)
+
+        const dataPackageCreateConvert = handleConvertDataPackageCreate(dataPackageCreate, fileName)
+        dataPackageCreateConvert.map(item => {
+            if (fileName === 'PrintCare') {
+                PackageCreatePrintCare(item, (res) => console.log(res), (err) => console.log(err))
+            } else {
+                PackageCreateFlashShip(item, (res) => console.log(res), (err) => console.log(err))
+            }
+        })
+
     }
 
     const handleExportExcelFile = (data, key) => {
-        console.log('key: ', key)
         const dataConvert = handAddDesignToShipInfoData(data)
         const productItem = dataConvert.map(item => (
             item.order_list.map(product => ({
@@ -243,8 +282,7 @@ const OrderForPartner = ({toShipInfoData}) => {
         )).flat()
 
         const dataExport = productItem.map(product => {
-            console.log('product: ', key === 'PrintCare' ? product.sku_name : product.package_id)
-            return ({
+            const result  = {
                 "External ID": key === 'PrintCare' ? "POD097" : product.variant_id,
                 "Order Id": key === 'PrintCare' ? product.product_id: product.package_id,
                 "Shipping method": 1,
@@ -264,30 +302,37 @@ const OrderForPartner = ({toShipInfoData}) => {
                 "Back Design URL": product.image_design_back,
                 "Mockup Front": "",
                 "Mockup Back": "",
-                "Link label": product.label,
-                "Tracking ID": key === 'PrintCare' ? product.tracking_id: null
-            })
+                "Link label": product.label
+            }
+
+            if (key === 'PrintCare') {
+                result["Tracking ID"] = product.tracking_id;
+            }
+
+            return result
         })
 
-        console.log('dataExport: ', dataExport)
-        ExportExcelFile(dataExport, key)
+        ExportExcelFile(dataExport, key, dataConvert)
     }
 
-    const rowSelection = {
+    const handleRefreshDesign = (newData) => {
+        setDesignSku(newData)
+        const data = {
+            order_documents: toShipInfoData
+        }
+        getToShipInfo(shopId, data, onSuccess, onFail)
+    }
+
+    const rowSelectionFlashShip = {
         onChange: (_,selectedRows) => {
-          console.log('selectedRows: ', selectedRows)
-        },
-        // getCheckboxProps: (record) => {
-        //   const disabledStatus = [140, 130, 122, 121, 105, 100]
-        //   const disabledLabel = packageBought.map(item => item.package_id)
-    
-        //   const isDisabledStatus = disabledStatus.includes(record.order_status);
-        //   const isDisabledLabel = disabledLabel.includes(record.package_list.length > 0 && record.package_list[0].package_id);
-    
-        //   return {
-        //     disabled: isDisabledStatus || isDisabledLabel
-        //   }
-        // }
+            setTableFlashShipSelected(selectedRows)
+        }
+    }
+
+    const rowSelectionPrintCare = {
+        onChange: (_,selectedRows) => {
+            setTablePrintCareSelected(selectedRows)
+        }
     }
     
     const column = [
@@ -395,13 +440,16 @@ const OrderForPartner = ({toShipInfoData}) => {
         )
         getFlashShipPODVariant(onSuccessVariant, onFailVariant)
         getToShipInfo(shopId, data, onSuccess, onFail)
+        testOCR(shopId, data)
     }, [shopId, toShipInfoData])
 
     useEffect(() => {
         if (dataOCRCheck && flashShipVariants.length > 0) {
             checkDataPartner(dataOCRCheck);
         }
-    }, [dataOCRCheck, flashShipVariants]);
+    }, [dataOCRCheck, flashShipVariants])
+
+    console.log('tableSelected: ', tableFlashShipSelected, tablePrintCareSelected);
 
     return (
         <div className="p-10">
@@ -411,15 +459,16 @@ const OrderForPartner = ({toShipInfoData}) => {
                 <div className='flex flex-wrap items-center mb-3'>
                     <div className="flex-1"><SectionTitle title="Create Order in FlashShip" count={flashShipTable.length ? flashShipTable.length : '0'} /></div>
                     <Space>
-                        <Button type='primary' onClick={() => setOpenLoginFlashShip(true)}>Create Order with FlashShip</Button>
-                        <Button type='primary' onClick={() => handleExportExcelFile(flashShipTable, 'FlashShip')}>Export to excel file</Button>
+                        <Button type='primary' onClick={() => setOpenLoginFlashShip(true)} disabled={!tableFlashShipSelected.length}>Create Order with FlashShip</Button>
+                        <Button type='primary' onClick={() => handleExportExcelFile(tableFlashShipSelected, 'FlashShip')} disabled={!tableFlashShipSelected.length}>Export to excel file</Button>
                     </Space>
                 </div>
                 <Table columns={column} dataSource={flashShipTable} bordered loading={loadingGetInfo}
                     rowSelection={{
                         type: 'checkbox',
-                        ...rowSelection,
+                        ...rowSelectionFlashShip,
                     }}
+                    rowKey={(record) => record.package_id}
                 />
             </div>
 
@@ -427,13 +476,14 @@ const OrderForPartner = ({toShipInfoData}) => {
             <div>            
                 <div className='flex flex-wrap items-center mb-3'>
                     <div className="flex-1"><SectionTitle title="Create Order in PrintCare" count={printCareTable.length ? printCareTable.length : '0'} /></div>
-                    <Button type='primary' onClick={() => handleExportExcelFile(printCareTable, 'PrintCare')}>Export to excel file</Button>
+                    <Button type='primary' onClick={() => handleExportExcelFile(tablePrintCareSelected, 'PrintCare')} disabled={!tablePrintCareSelected.length}>Export to excel file</Button>
                 </div>             
                 <Table columns={column} dataSource={printCareTable} bordered loading={loadingGetInfo} 
                     rowSelection={{
                         type: 'checkbox',
-                        ...rowSelection,
+                        ...rowSelectionPrintCare,
                     }}
+                    rowKey={(record) => record.package_id}
                 />
             </div>
 
@@ -462,6 +512,7 @@ const OrderForPartner = ({toShipInfoData}) => {
                     </Form.Item>
                 </Form>
             </Modal>
+            <DesignEdit openModal={[openEditModal, setOpenEditModal]} initData={designSkuById} refreshDesign={handleRefreshDesign} />
         </div>
     );
 }

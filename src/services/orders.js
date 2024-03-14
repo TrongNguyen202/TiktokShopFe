@@ -1,4 +1,5 @@
 import { callApi } from '../apis'
+import axios from 'axios'
 
 const getAllOrders = (id) => {
   return callApi(
@@ -85,6 +86,26 @@ const searchDesignSku = (body) => {
   return callApi(`/designskus/search/`, 'post', body)
 }
 
+const getDesignSkuById = (skuId) => {
+  return callApi(`/designskus/${skuId}`, 'get')
+}
+
+const PackageCreateFlashShip = (body) => {
+  return callApi(`/packages/create_flash`, 'post', body)
+}
+
+const PackageCreatePrintCare = (body) => {
+  return callApi(`/packages/create_print`, 'post', body)
+}
+
+const testOCR = (shopId, body) => {
+  return axios({
+    method: "post",
+    url: `https://xbn3j33g-8000.asse.devtunnels.ms/api/shops/${shopId}/orders/toship_infor`,
+    data: body
+  })
+}
+
 export const orders = {
     getAllOrders,
     getLabelsById,
@@ -106,5 +127,9 @@ export const orders = {
     postDesignSku,
     putDesignSku,
     deleteDesignSku,
-    searchDesignSku
+    searchDesignSku,
+    getDesignSkuById,
+    PackageCreateFlashShip,
+    PackageCreatePrintCare,
+    testOCR
 }

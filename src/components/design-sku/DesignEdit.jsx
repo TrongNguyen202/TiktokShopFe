@@ -7,7 +7,8 @@ const DesignEdit = ({openModal, initData, refreshDesign, groupId}) => {
     const [form] = Form.useForm()
     const [messageApi, contextHolder] = message.useMessage()
     const [openEditModal, setOpenEditModal] = openModal;
-    const { getDesignSkuByGroup, putDesignSku, loading } = useShopsOrder(state => state)
+
+    const { getDesignSkuByGroup, getDesignSku, putDesignSku } = useShopsOrder(state => state)
 
     const handleUpdateDesign = (values) => {        
         let updateItem = {
@@ -27,11 +28,19 @@ const DesignEdit = ({openModal, initData, refreshDesign, groupId}) => {
                         type: 'success',
                         content: 'Cập nhật design thành công',
                     })
-                    getDesignSkuByGroup(
-                        groupId,
-                        (newRes) => refreshDesign(newRes),
-                        (err) => console.log('Error when fetching design SKU: ', err)
-                    )
+
+                    if (groupId) {
+                        getDesignSkuByGroup(
+                            groupId,
+                            (newRes) => refreshDesign(newRes),
+                            (err) => console.log('Error when fetching design SKU: ', err)
+                        )                        
+                    } else {
+                        getDesignSku(
+                            (newRes) => refreshDesign(newRes),
+                            (err) => console.log('Error when fetching design SKU: ', err)
+                        ) 
+                    }
                     setOpenEditModal(false)
                 }
             }
@@ -39,7 +48,7 @@ const DesignEdit = ({openModal, initData, refreshDesign, groupId}) => {
             const onFail = (err) => {
                 messageApi.open({
                     type: 'error',
-                    content: err,
+                    content: `cập nhật sữ liệu: ${err}`,
                 })
                 setOpenEditModal(false)
             }
