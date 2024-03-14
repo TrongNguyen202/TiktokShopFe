@@ -1,56 +1,44 @@
-import React, { Suspense, lazy, useEffect, useState } from "react";
-import {
-  BrowserRouter,
-  Navigate,
-  Outlet,
-  Route,
-  Routes,
-} from "react-router-dom";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { PATH } from "./constants/paths";
-import MainLayout from "./layouts/mainLayout/MainLayout";
-import Login from "./pages/login/index.jsx";
-import ForgotPassword from "./pages/login/ForgotPassword";
-import Template from "./pages/templates/index.jsx";
-import VoucherForm from "./pages/vouchers/VoucherForm";
-import { useBadgesStore } from "./store/badgesStore";
-import { getToken } from "./utils/auth";
-import Loading from "./components/loading";
+import React, { Suspense, lazy, useEffect, useState } from 'react';
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { PATH } from './constants/paths';
+import MainLayout from './layouts/mainLayout/MainLayout';
+import Login from './pages/login/index';
+import ForgotPassword from './pages/login/ForgotPassword';
+import Template from './pages/templates/index';
+import VoucherForm from './pages/vouchers/VoucherForm';
+import { useBadgesStore } from './store/badgesStore';
+import { getToken } from './utils/auth';
+import Loading from './components/loading';
 
-const Sellers = lazy(() => import("./pages/sellers/index.jsx"));
-const Home = lazy(() => import("./pages/home/index.jsx"));
-const Stores = lazy(() => import("./pages/stores/index"));
-const Vouchers = lazy(() => import("./pages/vouchers"));
-const Products = lazy(() => import("./pages/products"));
-const ProductDetail = lazy(() => import("./pages/products/ProductDetail.jsx"));
-const ProductEdit = lazy(() => import("./pages/products/ProductEdit.jsx"));
-const Brands = lazy(() => import("./pages/brands"));
-const Orders = lazy(() => import("./pages/orders"));
-const CreateLabel = lazy(() => import("./pages/orders/CreateLabel.jsx"));
-const Fulfillment = lazy(() => import("./pages/orders/Fulfillment.jsx"));
-const OrderCheckBoughtLabel = lazy(() => import("./pages/orders/OrderCheckBoughtLabel.jsx"));
-const OrderCheckDesign= lazy(() => import("./pages/orders/OrderCheckDesign.jsx"));
-const DesignSku = lazy(() => import("./pages/designSku"));
-const DesignSkuEdit = lazy(() => import("./pages/designSku/DesignSkuEdit.jsx"));
-const Users = lazy(() => import("./pages/users"));
-const UserEdit = lazy(() => import("./pages/users/UserEdit.jsx"));
-const Account = lazy(() => import("./pages/account"));
-const Categories = lazy(() => import("./pages/categories"));
-const HomepageInterface = lazy(
-  () => import("./pages/settings/homepageInterface")
-);
-const IdentityRequest = lazy(() => import("./pages/identityRequest/index.jsx"));
-const StoreDetail = lazy(() => import("./pages/stores/StoreDetail.jsx"));
-const MultiAddProducts = lazy(
-  () => import("./pages/stores/MultiAddProducts.jsx")
-);
-const Order = lazy(() => import("./pages/orders/index.jsx"));
-const OrderDetail = lazy(() => import("./pages/orders/OrderDetail.jsx"));
-const ProductCreate = lazy(() => import ('./pages/products/ProductCreate.jsx'))
-const Crawl = lazy(() => import('./pages/crawl/index.jsx'))
+const Sellers = lazy(() => import('./pages/sellers/index'));
+const Home = lazy(() => import('./pages/home/index'));
+const Stores = lazy(() => import('./pages/stores/index'));
+const Vouchers = lazy(() => import('./pages/vouchers'));
+const Products = lazy(() => import('./pages/products'));
+const ProductDetail = lazy(() => import('./pages/products/ProductDetail'));
+const ProductEdit = lazy(() => import('./pages/products/ProductEdit'));
+const Brands = lazy(() => import('./pages/brands'));
+const Orders = lazy(() => import('./pages/orders'));
+const CreateLabel = lazy(() => import('./pages/orders/CreateLabel'));
+const Fulfillment = lazy(() => import('./pages/orders/Fulfillment'));
+const OrderCheckBoughtLabel = lazy(() => import('./pages/orders/OrderCheckBoughtLabel'));
+const OrderCheckDesign = lazy(() => import('./pages/orders/OrderCheckDesign'));
+const DesignSku = lazy(() => import('./pages/designSku'));
+const Users = lazy(() => import('./pages/users'));
+const UserEdit = lazy(() => import('./pages/users/UserEdit'));
+const Account = lazy(() => import('./pages/account'));
+const Categories = lazy(() => import('./pages/categories'));
+const HomepageInterface = lazy(() => import('./pages/settings/homepageInterface'));
+const StoreDetail = lazy(() => import('./pages/stores/StoreDetail'));
+const MultiAddProducts = lazy(() => import('./pages/stores/MultiAddProducts'));
+const OrderDetail = lazy(() => import('./pages/orders/OrderDetail'));
+const ProductCreate = lazy(() => import('./pages/products/ProductCreate'));
+const Crawl = lazy(() => import('./pages/crawl/index'));
+const DesignSkuEdit = lazy(() => import('./pages/designSku/DesignSkuEdit'));
 
-const PrivateRoute = () => {
+function PrivateRoute() {
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -73,9 +61,9 @@ const PrivateRoute = () => {
   }
 
   return <Outlet />;
-};
+}
 
-const App = () => {
+function App() {
   return (
     <>
       <BrowserRouter>
@@ -98,7 +86,7 @@ const App = () => {
                   </Suspense>
                 }
               />
-              
+
               {/* Sellers */}
               <Route
                 path="/sellers"
@@ -178,7 +166,7 @@ const App = () => {
               />
 
               <Route
-                path='/shops/:id/products/create'
+                path="/shops/:id/products/create"
                 element={
                   <Suspense fallback={<Loading />}>
                     <ProductCreate />
@@ -277,7 +265,7 @@ const App = () => {
                     <DesignSku />
                   </Suspense>
                 }
-              ></Route>
+              />
 
               <Route
                 path="design-sku/edit/:id"
@@ -286,7 +274,7 @@ const App = () => {
                     <DesignSkuEdit />
                   </Suspense>
                 }
-              ></Route>
+              />
 
               {/* Vouchers */}
               <Route
@@ -355,5 +343,5 @@ const App = () => {
       <ToastContainer />
     </>
   );
-};
+}
 export default App;

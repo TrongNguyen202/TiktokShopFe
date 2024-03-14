@@ -1,41 +1,41 @@
-import { Spin } from 'antd'
-import axios from 'axios'
-import { useRef, useState } from 'react'
-import { CameraOutlined } from '@ant-design/icons'
-import PropTypes from 'prop-types'
-import { alerts } from '../../utils/alerts'
+import { Spin } from 'antd';
+import axios from 'axios';
+import { useRef, useState } from 'react';
+import { CameraOutlined } from '@ant-design/icons';
+import PropTypes from 'prop-types';
+import { alerts } from '../../utils/alerts';
 
-const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif']
+const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
 
 export default function Upload({ image, setImage, width, height }) {
-  const inputRef = useRef(null)
-  const [loading, setLoading] = useState(false)
+  const inputRef = useRef(null);
+  const [loading, setLoading] = useState(false);
 
   const handleImageClick = () => {
-    inputRef.current.click()
-  }
+    inputRef.current.click();
+  };
 
   const handleImageChange = (event) => {
-    const file = event.target.files[0]
+    const file = event.target.files[0];
     if (file) {
       if (!allowedImageTypes.includes(file.type)) {
-        alerts.error('Vui lòng chọn ảnh')
-        return
+        alerts.error('Vui lòng chọn ảnh');
+        return;
       }
-      const formData = new FormData()
-      formData.append('image', file)
-      setLoading(true)
+      const formData = new FormData();
+      formData.append('image', file);
+      setLoading(true);
       axios
         .post('https://api-dev.hihihi.vn/api/images', formData)
         .then((response) => {
-          setImage(response.data.data)
+          setImage(response.data.data);
         })
         .catch((error) => {
-          alerts.error(error.response.data.msg || 'Có lỗi, vui lòng thử lại')
+          alerts.error(error.response.data.msg || 'Có lỗi, vui lòng thử lại');
         })
-        .finally(() => setLoading(false))
+        .finally(() => setLoading(false));
     }
-  }
+  };
   return (
     <Spin spinning={loading}>
       <div
@@ -44,27 +44,17 @@ export default function Upload({ image, setImage, width, height }) {
         style={{ height }}
       >
         {!image && (
-          <p className='text-[#21409A]'>
+          <p className="text-[#21409A]">
             <CameraOutlined /> Thêm ảnh
           </p>
         )}
         {image && (
-          <img
-            src={image}
-            alt=''
-            style={{ height }}
-            className={`w-[${width}] h-[${height}] object-cover rounded-md`}
-          />
+          <img src={image} alt="" style={{ height }} className={`w-[${width}] h-[${height}] object-cover rounded-md`} />
         )}
-        <input
-          type='file'
-          ref={inputRef}
-          onChange={handleImageChange}
-          style={{ display: 'none' }}
-        />
+        <input type="file" ref={inputRef} onChange={handleImageChange} style={{ display: 'none' }} />
       </div>
     </Spin>
-  )
+  );
 }
 
 Upload.propTypes = {
@@ -72,4 +62,4 @@ Upload.propTypes = {
   setImage: PropTypes.func,
   height: PropTypes.string,
   width: PropTypes.string,
-}
+};

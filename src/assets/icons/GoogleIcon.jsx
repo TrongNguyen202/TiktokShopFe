@@ -11,7 +11,7 @@ export default function GoogleIcon({ className, ...rest }) {
       className={`${className}`}
       {...rest}
     >
-      <g clip-path="url(#clip0_106_289)">
+      <g clipPath="url(#clip0_106_289)">
         <path
           d="M29.7078 15.3456C29.7078 14.3259 29.6251 13.3007 29.4488 12.2976H15.3003V18.0738H23.4025C23.0662 19.9368 21.986 21.5848 20.4041 22.632V26.3799H25.2378C28.0764 23.7674 29.7078 19.9092 29.7078 15.3456Z"
           fill="#4285F4"

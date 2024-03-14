@@ -4,11 +4,11 @@ import {
   SettingOutlined,
   UnorderedListOutlined,
   UserSwitchOutlined,
-} from '@ant-design/icons'
-import { Tabs } from 'antd'
-import Banners from './Banners'
-import BannersAds from './BannersAds'
-import ButtonMenu from './ButtonMenu'
+} from '@ant-design/icons';
+import { Tabs } from 'antd';
+import Banners from './Banners';
+import BannersAds from './BannersAds';
+import ButtonMenu from './ButtonMenu';
 
 export default function HomepageInterface() {
   const tabs = [
@@ -72,16 +72,16 @@ export default function HomepageInterface() {
       key: 7,
       children: <BannersAds />,
     },
-  ]
+  ];
 
   const onChange = (key) => {
-    console.log(key)
-  }
+    console.log(key);
+  };
 
   return (
     <div>
-      <p className='mt-5 ml-5 font-medium text-[20px]'>Chỉnh sửa giao diện khách hàng</p>
-      <Tabs onChange={onChange} type='card' className='px-5 mt-8' items={tabs} />
+      <p className="mt-5 ml-5 font-medium text-[20px]">Chỉnh sửa giao diện khách hàng</p>
+      <Tabs onChange={onChange} type="card" className="px-5 mt-8" items={tabs} />
     </div>
-  )
+  );
 }

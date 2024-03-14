@@ -1,4 +1,4 @@
-import { EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import {
   Button,
   Cascader,
@@ -14,20 +14,20 @@ import {
   Switch,
   Upload,
   message,
-} from "antd";
-import React, { useEffect, useRef, useState } from "react";
-import CustomSelect from "./CustomSelect";
-import EditPriceForm from "./EditPriceForm";
-import TextArea from "antd/es/input/TextArea";
-import { useCategoriesStore } from "../../store/categoriesStore";
-import { buildNestedArraysMenu, getPathByIndex } from "../../utils";
-import { useWareHousesStore } from "../../store/warehousesStore";
-import { useTemplateStore } from "../../store/templateStore";
-import { useShopsBrand } from "../../store/brandStore";
-import ProductSectionTitle from "../../components/products/ProuctSectionTitle";
-import { DndContext, PointerSensor, useSensor } from "@dnd-kit/core";
-import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+} from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import TextArea from 'antd/es/input/TextArea';
+import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
+import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import CustomSelect from './CustomSelect';
+import EditPriceForm from './EditPriceForm';
+import { useCategoriesStore } from '../../store/categoriesStore';
+import { buildNestedArraysMenu, getPathByIndex } from '../../utils';
+import { useWareHousesStore } from '../../store/warehousesStore';
+import { useTemplateStore } from '../../store/templateStore';
+import { useShopsBrand } from '../../store/brandStore';
+import ProductSectionTitle from '../../components/products/ProuctSectionTitle';
 
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -37,7 +37,7 @@ const getBase64 = (file) =>
     reader.onerror = (error) => reject(error);
   });
 
-const DraggableUploadListItem = ({ originNode, file }) => {
+function DraggableUploadListItem({ originNode, file }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: file.uid,
   });
@@ -57,137 +57,124 @@ const DraggableUploadListItem = ({ originNode, file }) => {
       {file.status === 'error' && isDragging ? originNode.props.children : originNode}
     </div>
   );
-};
+}
 
 const initColorOptions = [
   {
-    label: "Black",
-    value: "Black",
+    label: 'Black',
+    value: 'Black',
   },
   {
-    label: "Red",
-    value: "Red",
+    label: 'Red',
+    value: 'Red',
   },
   {
-    label: "Yellow",
-    value: "Yellow",
+    label: 'Yellow',
+    value: 'Yellow',
   },
   {
-    label: "White",
-    value: "White",
+    label: 'White',
+    value: 'White',
   },
   {
-    label: "Navy",
-    value: "Navy",
+    label: 'Navy',
+    value: 'Navy',
   },
   {
-    label: "Grey",
-    value: "Grey",
+    label: 'Grey',
+    value: 'Grey',
   },
   {
-    label: "Light Pink",
-    value: "Light Pink",
+    label: 'Light Pink',
+    value: 'Light Pink',
   },
 ];
 
 const initSizeOptions = [
   {
-    label: "S",
-    value: "S",
+    label: 'S',
+    value: 'S',
   },
   {
-    label: "M",
-    value: "M",
+    label: 'M',
+    value: 'M',
   },
   {
-    label: "L",
-    value: "L",
+    label: 'L',
+    value: 'L',
   },
   {
-    label: "XL",
-    value: "XL",
+    label: 'XL',
+    value: 'XL',
   },
   {
-    label: "2XL",
-    value: "2XL",
+    label: '2XL',
+    value: '2XL',
   },
   {
-    label: "3XL",
-    value: "3XL",
+    label: '3XL',
+    value: '3XL',
   },
   {
-    label: "4XL",
-    value: "4XL",
+    label: '4XL',
+    value: '4XL',
   },
   {
-    label: "5XL",
-    value: "5XL",
+    label: '5XL',
+    value: '5XL',
   },
 ];
 
 const initBadWordOptions = [
   {
-    label: "Tiktok",
-    value: "Tiktok",
+    label: 'Tiktok',
+    value: 'Tiktok',
   },
   {
-    label: "Test",
-    value: "Test",
+    label: 'Test',
+    value: 'Test',
   },
   {
-    label: "Demo",
-    value: "Demo",
+    label: 'Demo',
+    value: 'Demo',
   },
 ];
 
-export default function TemplateForm({
-  onSaveTemplate,
-  setShowModalAddTemplate,
-  templateJson,
-}) {
+export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, templateJson }) {
   const { getAllBrand, brands } = useShopsBrand();
   const { getAllCategoriesIsLeaf, categoriesIsLeaf } = useCategoriesStore();
-  const { createTemplate, templates, loading, getAllTemplate, updateTemplate } =
-    useTemplateStore();
+  const { createTemplate, templates, loading, getAllTemplate, updateTemplate } = useTemplateStore();
   const shopId = getPathByIndex(2);
 
-  const [selectedColor, setSelectedColor] = useState(
-    templateJson?.id ? templateJson.colors : []
-  );
-  const [selectedSize, setSelectedSize] = useState(
-    templateJson?.id ? templateJson.sizes : []
-  );
-  const [selectedType, setSelectedType] = useState(
-    templateJson?.id ? templateJson.type : []
-  );
-  const [selectedBadWord, setSelectedBadWord] = useState(
-    templateJson?.id ? templateJson.badWords : []
-  );
+  const [selectedColor, setSelectedColor] = useState(templateJson?.id ? templateJson.colors : []);
+  const [selectedSize, setSelectedSize] = useState(templateJson?.id ? templateJson.sizes : []);
+  const [selectedType, setSelectedType] = useState(templateJson?.id ? templateJson.type : []);
+  const [selectedBadWord, setSelectedBadWord] = useState(templateJson?.id ? templateJson.badWords : []);
   const [isShowModalPrice, setShowModalPrice] = useState(false);
   const [sizeChart, setSizeChart] = useState(
     templateJson?.id && templateJson.size_chart
       ? [
-        {
-          uid: templateJson.size_chart?.id || 123,
-          status: "done",
-          thumbUrl: `data:image/jpeg;base64,${templateJson.size_chart}`,
-        },
-      ]
-      : []
+          {
+            uid: templateJson.size_chart?.id || 123,
+            status: 'done',
+            thumbUrl: `data:image/jpeg;base64,${templateJson.size_chart}`,
+          },
+        ]
+      : [],
   );
   const [fixedImages, setFixedImages] = useState(
     templateJson?.id && Array.isArray(templateJson.fixed_images)
       ? templateJson.fixed_images.map((item, index) => {
-        return {
-          uid: index,
-          status: "done",
-          thumbUrl: `data:image/jpeg;base64,${item}`,
-        };
-      })
-      : []
+          return {
+            uid: index,
+            status: 'done',
+            thumbUrl: `data:image/jpeg;base64,${item}`,
+          };
+        })
+      : [],
   );
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState("");
+  const [previewImage, setPreviewImage] = useState('');
   const [dataPriceState, setDataPriceState] = useState([]);
   console.log('dataPriceState: ', dataPriceState);
 
@@ -197,7 +184,7 @@ export default function TemplateForm({
     value: item.id,
     label: item.name,
   }));
-  const categoriesData = buildNestedArraysMenu(categoriesIsLeaf, "0");
+  const categoriesData = buildNestedArraysMenu(categoriesIsLeaf, '0');
 
   useEffect(() => {
     getAllCategoriesIsLeaf();
@@ -242,11 +229,11 @@ export default function TemplateForm({
     } = value;
     const dataSubmit = {
       name: template,
-      colors: colors,
-      sizes: sizes,
-      type: type,
+      colors,
+      sizes,
+      type,
       types: dataPrice.current,
-      description: description,
+      description,
       category_id: category,
       warehouse_id: warehouse,
       is_cod_open: is_cod_open || false,
@@ -256,30 +243,25 @@ export default function TemplateForm({
       package_width,
       badWords: bad_word,
       suffixTitle: suffix_title,
-      size_chart:
-        sizeChart[0]?.thumbUrl?.replace(
-          /^data:image\/(png|jpg|jpeg);base64,/,
-          ""
-        ) || "",
-      fixed_images: fixedImages.map((item) =>
-        item.thumbUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, "")
-      ),
+      size_chart: sizeChart[0]?.thumbUrl?.replace(/^data:image\/(png|jpg|jpeg);base64,/, '') || '',
+      fixed_images: fixedImages.map((item) => item.thumbUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, '')),
       // brand_id: brand_id,
     };
 
     const onSuccess = () => {
-      message.success("Thành công");
+      message.success('Thành công');
       getAllTemplate(shopId);
       setShowModalAddTemplate(false);
     };
     const onFail = (err) => {
       message.error(err);
     };
+    // eslint-disable-next-line no-unused-expressions
     templateJson?.id && !templateJson?.isFromFile
       ? updateTemplate(templateJson?.id, dataSubmit, onSuccess, onFail)
       : createTemplate(dataSubmit, onSuccess, onFail);
     onSaveTemplate(dataSubmit);
-    console.log("dataSubmit: ", dataSubmit);
+    console.log('dataSubmit: ', dataSubmit);
   };
 
   function sortByType(arr, selectedType) {
@@ -290,9 +272,7 @@ export default function TemplateForm({
 
   const convertDataTable = (selectedType, selectedSize) => {
     const newData = [];
-    const currentData = templateJson?.id
-      ? [...templateJson?.types]
-      : [...dataPriceState];
+    const currentData = templateJson?.id ? [...templateJson.types] : [...dataPriceState];
     const resultData = [];
 
     if (!selectedType || !selectedType.length) return [];
@@ -303,8 +283,8 @@ export default function TemplateForm({
           id: `${selectedType[j]}-${selectedSize[i]}`,
           size: selectedSize[i],
           type: selectedType[j],
-          quantity: "",
-          price: "",
+          quantity: '',
+          price: '',
         });
       }
     }
@@ -326,8 +306,7 @@ export default function TemplateForm({
   };
 
   const handlePreview = async (file) => {
-    if (!file.url && !file.preview)
-      file.preview = await getBase64(file.originFileObj);
+    if (!file.url && !file.preview) file.preview = await getBase64(file.originFileObj);
     setPreviewImage(file.url || file.preview);
     setPreviewOpen(true);
     // setPreviewTitle(
@@ -336,7 +315,7 @@ export default function TemplateForm({
   };
 
   const onChangeSizeChart = ({ fileList: newFileList }) => {
-    console.log("newFileList: ", newFileList);
+    console.log('newFileList: ', newFileList);
     setSizeChart(newFileList);
   };
 
@@ -358,7 +337,7 @@ export default function TemplateForm({
 
   const handleChangeFixedImages = ({ fileList: newFileList }) => {
     setFixedImages(newFileList);
-  }
+  };
 
   return (
     <div>
@@ -383,28 +362,24 @@ export default function TemplateForm({
             rules={[
               {
                 required: true,
-                message: "Vui lòng nhập tên template!",
+                message: 'Vui lòng nhập tên template!',
               },
             ]}
-            sx={{ justifyContent: "space-between" }}
+            sx={{ justifyContent: 'space-between' }}
             className="w-full"
-            initialValue={templateJson?.id ? templateJson.name : ""}
+            initialValue={templateJson?.id ? templateJson.name : ''}
           >
             <Input placeholder="Nhập tên template" />
           </Form.Item>
           <div className="flex gap-20">
             <div className="flex-1">
-              <p className="font-semibold text-[#0e2482] text-[16px]">
-                1. Các thông số chung
-              </p>
+              <p className="font-semibold text-[#0e2482] text-[16px]">1. Các thông số chung</p>
 
               <Form.Item
                 label="Danh mục:"
                 name="category"
-                rules={[
-                  { required: true, message: "Danh mục không được để trống" },
-                ]}
-                initialValue={templateJson?.id ? templateJson.category_id : ""}
+                rules={[{ required: true, message: 'Danh mục không được để trống' }]}
+                initialValue={templateJson?.id ? templateJson.category_id : ''}
                 // initialValue={["824328", "839944", "601226"]}
               >
                 <Cascader
@@ -413,12 +388,8 @@ export default function TemplateForm({
                   placeholder="Chọn danh mục"
                   showSearch={(input, options) => {
                     return (
-                      options.label
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0 ||
-                      options.value
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
+                      options.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
+                      options.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
                     );
                   }}
                   onSearch={(value) => console.log(value)}
@@ -452,11 +423,11 @@ export default function TemplateForm({
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng nhập mô tả!",
+                    message: 'Vui lòng nhập mô tả!',
                   },
                 ]}
-                sx={{ justifyContent: "space-between" }}
-                initialValue={templateJson?.id ? templateJson.description : ""}
+                sx={{ justifyContent: 'space-between' }}
+                initialValue={templateJson?.id ? templateJson.description : ''}
               >
                 <TextArea placeholder="Nhập mô tả" rows={4} />
               </Form.Item>
@@ -469,12 +440,10 @@ export default function TemplateForm({
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng nhập cân nặng!",
+                      message: 'Vui lòng nhập cân nặng!',
                     },
                   ]}
-                  initialValue={
-                    templateJson?.id ? templateJson.package_weight : ""
-                  }
+                  initialValue={templateJson?.id ? templateJson.package_weight : ''}
                 >
                   <Input
                     placeholder="nhập vào(pound)"
@@ -489,27 +458,22 @@ export default function TemplateForm({
                   />
                 </Form.Item>
 
-                <Row
-                  gutter={[15, 15]}
-                  className="items-center gap-2 justify-start break-words flex-nowrap"
-                >
+                <Row gutter={[15, 15]} className="items-center gap-2 justify-start break-words flex-nowrap">
                   <Col>
                     <div className="flex justify-between items-center h-[30px]">
                       <Form.Item
                         name="package_width"
                         className="break-words flex-nowrap mb-0"
-                        initialValue={
-                          templateJson?.id ? templateJson.package_width : ""
-                        }
+                        initialValue={templateJson?.id ? templateJson.package_width : ''}
                         rules={[
                           {
                             required: true,
-                            message: "Vui lòng nhập chiều rộng!",
+                            message: 'Vui lòng nhập chiều rộng!',
                           },
                         ]}
                       >
                         <Input
-                          style={{ height: "30px", width: "150px" }}
+                          style={{ height: '30px', width: '150px' }}
                           placeholder="Width"
                           suffix={
                             <span className="text-[#ccc] border-l-[1px] border-solid border-t-0 border-r-0 border-b-0 pl-1">
@@ -524,18 +488,16 @@ export default function TemplateForm({
                       <Form.Item
                         name="package_length"
                         className="break-words flex-nowrap mb-0"
-                        initialValue={
-                          templateJson?.id ? templateJson.package_length : ""
-                        }
+                        initialValue={templateJson?.id ? templateJson.package_length : ''}
                         rules={[
                           {
                             required: true,
-                            message: "Vui lòng nhập chiều dài!",
+                            message: 'Vui lòng nhập chiều dài!',
                           },
                         ]}
                       >
                         <Input
-                          style={{ height: "30px", width: "150px" }}
+                          style={{ height: '30px', width: '150px' }}
                           placeholder="Length"
                           suffix={
                             <span className="text-[#ccc] border-l-[1px] border-solid border-t-0 border-r-0 border-b-0 pl-1">
@@ -550,18 +512,16 @@ export default function TemplateForm({
                       <Form.Item
                         name="package_height"
                         className="break-words flex-nowrap mb-0"
-                        initialValue={
-                          templateJson?.id ? templateJson.package_height : ""
-                        }
+                        initialValue={templateJson?.id ? templateJson.package_height : ''}
                         rules={[
                           {
                             required: true,
-                            message: "Vui lòng nhập chiều cao!",
+                            message: 'Vui lòng nhập chiều cao!',
                           },
                         ]}
                       >
                         <Input
-                          style={{ height: "30px", width: "150px" }}
+                          style={{ height: '30px', width: '150px' }}
                           placeholder="height"
                           suffix={
                             <span className="text-[#ccc] border-l-[1px] border-solid border-t-0 border-r-0 border-b-0 pl-1">
@@ -575,11 +535,7 @@ export default function TemplateForm({
                     </div>
                   </Col>
                 </Row>
-                <Form.Item
-                  name="sizeChart"
-                  label="Ảnh Size Chart"
-                  className="mt-3"
-                >
+                <Form.Item name="sizeChart" label="Ảnh Size Chart" className="mt-3">
                   <Upload
                     listType="picture-card"
                     fileList={sizeChart}
@@ -593,40 +549,21 @@ export default function TemplateForm({
                     // )}
                   >
                     {sizeChart.length ? null : (
-                      <button
-                        style={{ border: 0, background: "none" }}
-                        type="button"
-                      >
+                      <button style={{ border: 0, background: 'none' }} type="button">
                         <PlusOutlined />
                         <div style={{ marginTop: 8 }}> Upload</div>
                       </button>
                     )}
                   </Upload>
                   {/* <input type='file'/> */}
-                  <Modal
-                    open={previewOpen}
-                    title={""}
-                    footer={null}
-                    onCancel={() => setPreviewOpen(false)}
-                  >
-                    <img
-                      alt={""}
-                      style={{ width: "100%" }}
-                      src={previewImage}
-                    />
+                  <Modal open={previewOpen} title="" footer={null} onCancel={() => setPreviewOpen(false)}>
+                    <img alt="" style={{ width: '100%' }} src={previewImage} />
                   </Modal>
                 </Form.Item>
 
-                <Form.Item
-                  name="fixedImages"
-                  label="Ảnh cố định"
-                  className="mt-3"
-                >
+                <Form.Item name="fixedImages" label="Ảnh cố định" className="mt-3">
                   <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
-                    <SortableContext
-                      items={fixedImages?.map((i) => i.uid)}
-                      strategy={verticalListSortingStrategy}
-                    >
+                    <SortableContext items={fixedImages?.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
                       <Upload
                         listType="picture-card"
                         fileList={fixedImages}
@@ -636,17 +573,11 @@ export default function TemplateForm({
                         previewFile={getBase64}
                         multiple
                         itemRender={(originNode, file) => (
-                          <DraggableUploadListItem
-                            originNode={originNode}
-                            file={file}
-                          />
+                          <DraggableUploadListItem originNode={originNode} file={file} />
                         )}
                       >
                         {fixedImages?.length >= 2 ? null : (
-                          <button
-                            style={{ border: 0, background: "none" }}
-                            type="button"
-                          >
+                          <button style={{ border: 0, background: 'none' }} type="button">
                             <PlusOutlined />
                             <div style={{ marginTop: 8 }}> Upload</div>
                           </button>
@@ -655,17 +586,8 @@ export default function TemplateForm({
                     </SortableContext>
                   </DndContext>
                   {/* <input type='file'/> */}
-                  <Modal
-                    open={previewOpen}
-                    title={""}
-                    footer={null}
-                    onCancel={() => setPreviewOpen(false)}
-                  >
-                    <img
-                      alt={""}
-                      style={{ width: "100%" }}
-                      src={previewImage}
-                    />
+                  <Modal open={previewOpen} title="" footer={null} onCancel={() => setPreviewOpen(false)}>
+                    <img alt="" style={{ width: '100%' }} src={previewImage} />
                   </Modal>
                 </Form.Item>
               </div>
@@ -696,9 +618,7 @@ export default function TemplateForm({
               </Form.Item> */}
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-[#0e2482] text-[16px]">
-                2. Các thông số riêng cho mỗi hàng
-              </p>
+              <p className="font-semibold text-[#0e2482] text-[16px]">2. Các thông số riêng cho mỗi hàng</p>
               <Form.Item
                 label="Màu"
                 name="colors"
@@ -706,15 +626,15 @@ export default function TemplateForm({
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng lựa chọn màu!",
+                    message: 'Vui lòng lựa chọn màu!',
                   },
                 ]}
-                sx={{ justifyContent: "space-between" }}
+                sx={{ justifyContent: 'space-between' }}
                 initialValue={selectedColor}
               >
                 <CustomSelect
                   optionsSelect={initColorOptions}
-                  type={"màu"}
+                  type="màu"
                   onChange={setSelectedColor}
                   selectedDefault={selectedColor}
                 />
@@ -727,14 +647,14 @@ export default function TemplateForm({
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng chọn size!",
+                    message: 'Vui lòng chọn size!',
                   },
                 ]}
                 initialValue={selectedSize}
               >
                 <CustomSelect
                   optionsSelect={initSizeOptions}
-                  type={"size"}
+                  type="size"
                   onChange={setSelectedSize}
                   selectedDefault={selectedSize}
                 />
@@ -747,14 +667,14 @@ export default function TemplateForm({
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng chọn size!",
+                    message: 'Vui lòng chọn size!',
                   },
                 ]}
                 initialValue={selectedType}
               >
                 <CustomSelect
                   optionsSelect={[]}
-                  type={"loại"}
+                  type="loại"
                   onChange={setSelectedType}
                   selectedDefault={selectedType}
                 />
@@ -768,7 +688,7 @@ export default function TemplateForm({
               >
                 <CustomSelect
                   optionsSelect={initBadWordOptions}
-                  type={"bad word"}
+                  type="bad word"
                   selectedDefault={selectedBadWord}
                   onChange={setSelectedBadWord}
                 />
@@ -778,7 +698,7 @@ export default function TemplateForm({
                 label="Suffix of product title"
                 name="suffix_title"
                 labelAlign="left"
-                initialValue={templateJson?.id ? templateJson.suffixTitle : ""}
+                initialValue={templateJson?.id ? templateJson.suffixTitle : ''}
               >
                 <Input placeholder="Thêm suffix" />
               </Form.Item>
@@ -827,15 +747,8 @@ export default function TemplateForm({
             </div>
           </div>
           <div className="w-[400px] mx-auto">
-            <Button
-              className="mt-4 w-[200px]"
-              block
-              type="primary"
-              htmlType="submit"
-            >
-              {templateJson?.id && !templateJson?.isFromFile
-                ? "Cập nhật"
-                : "Thêm"}
+            <Button className="mt-4 w-[200px]" block type="primary" htmlType="submit">
+              {templateJson?.id && !templateJson?.isFromFile ? 'Cập nhật' : 'Thêm'}
             </Button>
           </div>
         </Spin>

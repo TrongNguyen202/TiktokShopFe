@@ -1,17 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { PlusOutlined } from "@ant-design/icons";
-import { Modal, Upload, Form } from "antd";
+import React, { useEffect, useState } from 'react';
+import { PlusOutlined } from '@ant-design/icons';
+import { Modal, Upload, Form } from 'antd';
 
-import { removeDuplicates } from "../../utils";
-import ProductSectionTitle from "./ProuctSectionTitle";
 import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import ProductSectionTitle from './ProuctSectionTitle';
+import { removeDuplicates } from '../../utils';
 
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -21,7 +16,7 @@ const getBase64 = (file) =>
     reader.onerror = (error) => reject(error);
   });
 
-const DraggableUploadListItem = ({ originNode, file }) => {
+function DraggableUploadListItem({ originNode, file }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: file.uid,
   });
@@ -41,55 +36,49 @@ const DraggableUploadListItem = ({ originNode, file }) => {
       {file.status === 'error' && isDragging ? originNode.props.children : originNode}
     </div>
   );
-};
+}
 
-const ProductMedia = ({
-  productData,
-  imgBase64,
-  isProductCreate,
-  setFileList,
-  fileList,
-  sizeChart,
-  setSizeChart,
-}) => {
+function ProductMedia({ productData, imgBase64, isProductCreate, setFileList, fileList, sizeChart, setSizeChart }) {
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState("");
-  const [previewTitle, setPreviewTitle] = useState("");
+  const [previewImage, setPreviewImage] = useState('');
+  const [previewTitle, setPreviewTitle] = useState('');
   // const [fileList, setFileList] = useState([]);
   const mediaData = productData?.images?.map((item) =>
     item?.url_list?.map((image) => ({
       uid: item.id,
       name: productData?.product_name,
-      status: "done",
+      status: 'done',
       url: image,
-    }))
+    })),
   );
   const mediaConcat = mediaData && [].concat(...mediaData);
-  const mediaUpload = mediaConcat && removeDuplicates(mediaConcat, "uid");
+  const mediaUpload = mediaConcat && removeDuplicates(mediaConcat, 'uid');
 
   useEffect(() => {
     if (!isProductCreate) {
-      setFileList(mediaUpload || [])
-      setSizeChart(productData?.size_chart ? [{
-        uid: productData?.size_chart?.id,
-        status: "done",
-        url: productData?.size_chart?.url_list[0],
-
-      }] : [])
-    };
+      setFileList(mediaUpload || []);
+      setSizeChart(
+        productData?.size_chart
+          ? [
+              {
+                uid: productData?.size_chart?.id,
+                status: 'done',
+                url: productData?.size_chart?.url_list[0],
+              },
+            ]
+          : [],
+      );
+    }
     // imgBase64(productData?.images)
   }, [productData]);
 
   const handleCancel = () => setPreviewOpen(false);
 
   const handlePreview = async (file) => {
-    if (!file.url && !file.preview)
-      file.preview = await getBase64(file.originFileObj);
+    if (!file.url && !file.preview) file.preview = await getBase64(file.originFileObj);
     setPreviewImage(file.url || file.preview);
     setPreviewOpen(true);
-    setPreviewTitle(
-      file.name || file.url.substring(file.url.lastIndexOf("/") + 1)
-    );
+    setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
   };
 
   const handleChange = ({ fileList: newFileList }) => {
@@ -132,12 +121,10 @@ const ProductMedia = ({
               beforeUpload={() => false}
               previewFile={getBase64}
               multiple
-              itemRender={(originNode, file) => (
-                <DraggableUploadListItem originNode={originNode} file={file} />
-              )}
+              itemRender={(originNode, file) => <DraggableUploadListItem originNode={originNode} file={file} />}
             >
               {fileList?.length >= 8 ? null : (
-                <button style={{ border: 0, background: "none" }} type="button">
+                <button style={{ border: 0, background: 'none' }} type="button">
                   <PlusOutlined />
                   <div style={{ marginTop: 8 }}> Upload</div>
                 </button>
@@ -146,17 +133,8 @@ const ProductMedia = ({
           </SortableContext>
         </DndContext>
         {/* <input type='file'/> */}
-        <Modal
-          open={previewOpen}
-          title={previewTitle}
-          footer={null}
-          onCancel={handleCancel}
-        >
-          <img
-            alt={previewTitle}
-            style={{ width: "100%" }}
-            src={previewImage}
-          />
+        <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
+          <img alt={previewTitle} style={{ width: '100%' }} src={previewImage} />
         </Modal>
       </Form.Item>
 
@@ -169,13 +147,13 @@ const ProductMedia = ({
           onChange={onChangeSizeChart}
           beforeUpload={() => false}
           previewFile={getBase64}
-        // multiple
-        // itemRender={(originNode, file) => (
-        //   <DraggableUploadListItem originNode={originNode} file={file} />
-        // )}
+          // multiple
+          // itemRender={(originNode, file) => (
+          //   <DraggableUploadListItem originNode={originNode} file={file} />
+          // )}
         >
           {sizeChart.length ? null : (
-            <button style={{ border: 0, background: "none" }} type="button">
+            <button style={{ border: 0, background: 'none' }} type="button">
               <PlusOutlined />
               <div style={{ marginTop: 8 }}> Upload</div>
             </button>
@@ -197,5 +175,5 @@ const ProductMedia = ({
       </Form.Item>
     </>
   );
-};
+}
 export default ProductMedia;

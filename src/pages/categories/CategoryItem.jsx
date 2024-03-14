@@ -1,10 +1,10 @@
-import { Tooltip } from 'antd'
-import PropTypes from 'prop-types'
-import { IconChevronRight } from '../../assets/icons'
+import { Tooltip } from 'antd';
+import PropTypes from 'prop-types';
+import { IconChevronRight } from '../../assets/icons';
 
 export default function CategoryItem({ category, selectedId, setSelectedId }) {
-  const { display_name, id } = category
-  const hasChildren = !!(category && category.children?.length)
+  const { display_name, id } = category;
+  const hasChildren = !!(category && category.children?.length);
   return (
     <div>
       <div
@@ -15,11 +15,9 @@ export default function CategoryItem({ category, selectedId, setSelectedId }) {
       >
         {display_name}{' '}
         {hasChildren ? (
-          <Tooltip title='Xem danh mục con' color='blue'>
+          <Tooltip title="Xem danh mục con" color="blue">
             <IconChevronRight
-              className={`w-[18px] group-hover:text-[#21409A] ${
-                selectedId === id ? 'text-[#21409A]' : 'text-[#888]'
-              }`}
+              className={`w-[18px] group-hover:text-[#21409A] ${selectedId === id ? 'text-[#21409A]' : 'text-[#888]'}`}
             />
           </Tooltip>
         ) : null}
@@ -35,11 +33,11 @@ export default function CategoryItem({ category, selectedId, setSelectedId }) {
         ) */}
       {selectedId === id ? <abc /> : null}
     </div>
-  )
+  );
 }
 
 CategoryItem.propTypes = {
   category: PropTypes.object,
   selectedId: PropTypes.number,
   setSelectedId: PropTypes.func,
-}
+};

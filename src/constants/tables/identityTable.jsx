@@ -1,7 +1,7 @@
-import { Tooltip } from 'antd'
-import { Link } from 'react-router-dom'
-import { statusIdentity, stepIdentityStatus } from '..'
-import { CircleCheck, CircleClose, CircleThreeDot } from '../../assets/icons'
+import { Tooltip } from 'antd';
+import { Link } from 'react-router-dom';
+import { statusIdentity, stepIdentityStatus } from '..';
+import { CircleCheck, CircleClose, CircleThreeDot } from '../../assets/icons';
 
 export const identityTable = [
   {
@@ -18,7 +18,7 @@ export const identityTable = [
     sorter: (identity1, identity2) => identity1.company_name.localeCompare(identity2.company_name),
     fixed: 'left',
     render: (name, identity) => (
-      <p className='text-[#0e2482] font-medium cursor-pointer'>
+      <p className="text-[#0e2482] font-medium cursor-pointer">
         <Link to={`/identity-request/${identity.user_id}`}>{name}</Link>
       </p>
     ),
@@ -46,46 +46,45 @@ export const identityTable = [
     key: 'status',
     align: 'center',
     render: (_, identity) => {
-      const { status_account_payment, status_shop, status_supplier, status_warehouse, status } =
-        identity
+      const { status_account_payment, status_shop, status_supplier, status_warehouse, status } = identity;
 
       const handleStepStatus = (stepStatus) => {
         switch (stepStatus) {
           case stepIdentityStatus.APPROVED:
             return (
-              <Tooltip title='Đồng ý' color='#27AE60'>
-                <CircleCheck className='w-[16px] h-[16px] text-[#27AE60]' />
+              <Tooltip title="Đồng ý" color="#27AE60">
+                <CircleCheck className="w-[16px] h-[16px] text-[#27AE60]" />
               </Tooltip>
-            )
+            );
           case stepIdentityStatus.UNAPPROVED:
             return (
-              <Tooltip title='Từ chối' color='#E83A2F'>
-                <CircleClose className='w-[16px] h-[16px] text-[#E83A2F]' />
+              <Tooltip title="Từ chối" color="#E83A2F">
+                <CircleClose className="w-[16px] h-[16px] text-[#E83A2F]" />
               </Tooltip>
-            )
+            );
           case stepIdentityStatus.PROGRESSING:
             return (
-              <Tooltip title='Đang chờ' color='#F0AD00'>
-                <CircleThreeDot className='w-[16px] h-[16px] text-[#F0AD00]' />
+              <Tooltip title="Đang chờ" color="#F0AD00">
+                <CircleThreeDot className="w-[16px] h-[16px] text-[#F0AD00]" />
               </Tooltip>
-            )
+            );
           default:
             return (
-              <Tooltip title='chưa có dữ liệu' color='#ccc'>
-                <CircleThreeDot className='w-[16px] h-[16px] text-[#ccc]' />
+              <Tooltip title="chưa có dữ liệu" color="#ccc">
+                <CircleThreeDot className="w-[16px] h-[16px] text-[#ccc]" />
               </Tooltip>
-            )
+            );
         }
-      }
+      };
       return (
-        <div className='flex gap-[4px] justify-center'>
+        <div className="flex gap-[4px] justify-center">
           {handleStepStatus(status_supplier)}
           {handleStepStatus(status_shop)}
           {handleStepStatus(status_warehouse)}
           {handleStepStatus(status_account_payment)}
           {handleStepStatus(status)}
         </div>
-      )
+      );
     },
   },
-]
+];

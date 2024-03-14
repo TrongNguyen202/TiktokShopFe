@@ -1,7 +1,7 @@
-import styled from 'styled-components'
-import { Layout } from 'antd'
+import styled from 'styled-components';
+import { Layout } from 'antd';
 
-const { Header } = Layout
+const { Header } = Layout;
 
 export const StyledHeader = styled(Header)`
   z-index: 10;
@@ -10,4 +10,4 @@ export const StyledHeader = styled(Header)`
   box-shadow: 0 2px 8px #f0f1f2;
   position: sticky;
   top: 0;
-`
+`;

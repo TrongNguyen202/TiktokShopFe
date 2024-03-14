@@ -1,14 +1,12 @@
-import React, { useEffect } from "react";
-import { Button, Col, Form, Input, Row, Select, Spin, message } from "antd";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { Button, Col, Form, Input, Row, Select, Spin, message } from 'antd';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { useShopsStore } from "../../store/shopsStore";
-import { alerts } from "../../utils/alerts";
-import { constants as c } from "../../constants";
-import { useUsersStore } from "../../store/usersStore";
+import { useShopsStore } from '../../store/shopsStore';
+import { useUsersStore } from '../../store/usersStore';
+import { alerts } from '../../utils/alerts';
 
-const StoreForm = ({ app_key, code, storeSelected, setShowModal }) => {
+function StoreForm({ app_key, code, storeSelected, setShowModal }) {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const { createStore, loading, updateStore } = useShopsStore();
@@ -42,8 +40,8 @@ const StoreForm = ({ app_key, code, storeSelected, setShowModal }) => {
 
   const onSubmit = (value) => {
     const onSuccess = (res) => {
-      navigate("/shops");
-      message.success("thành công");
+      navigate('/shops');
+      message.success('thành công');
       setShowModal(false);
     };
     const onFail = (err) => {
@@ -52,7 +50,7 @@ const StoreForm = ({ app_key, code, storeSelected, setShowModal }) => {
     const paramsUpdate = {
       ...value,
       access_token: storeSelected.access_token,
-    }
+    };
 
     storeSelected?.id
       ? updateStore(storeSelected.id, paramsUpdate, onSuccess, onFail)
@@ -82,7 +80,7 @@ const StoreForm = ({ app_key, code, storeSelected, setShowModal }) => {
               name="auth_code"
               labelAlign="left"
               className="font-medium"
-              sx={{ width: "100%" }}
+              sx={{ width: '100%' }}
               labelCol={{
                 span: 24,
               }}
@@ -98,14 +96,14 @@ const StoreForm = ({ app_key, code, storeSelected, setShowModal }) => {
               name="shop_name"
               labelAlign="left"
               className="font-medium"
-              sx={{ width: "100%" }}
+              sx={{ width: '100%' }}
               labelCol={{
                 span: 24,
               }}
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng nhập Shop name",
+                  message: 'Vui lòng nhập Shop name',
                 },
               ]}
             // initialValue={selectedBanner?.action_link}
@@ -122,14 +120,14 @@ const StoreForm = ({ app_key, code, storeSelected, setShowModal }) => {
               name="shop_code"
               labelAlign="left"
               className="font-medium"
-              sx={{ width: "100%" }}
+              sx={{ width: '100%' }}
               labelCol={{
                 span: 24,
               }}
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng nhập Shop code",
+                  message: 'Vui lòng nhập Shop code',
                 },
               ]}
             >
@@ -146,7 +144,7 @@ const StoreForm = ({ app_key, code, storeSelected, setShowModal }) => {
                 name="user_id"
                 labelAlign="left"
                 className="font-medium"
-                sx={{ width: "100%" }}
+                sx={{ width: '100%' }}
                 labelCol={{
                   span: 24,
                 }}
@@ -159,12 +157,8 @@ const StoreForm = ({ app_key, code, storeSelected, setShowModal }) => {
                   className="w-full"
                   filterOption={(input, options) => {
                     return (
-                      options.label
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0 ||
-                      options.value
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
+                      options.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
+                      options.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
                     );
                   }}
                 />
@@ -175,12 +169,12 @@ const StoreForm = ({ app_key, code, storeSelected, setShowModal }) => {
 
         <div className="w-full mt-4">
           <Button block type="primary" htmlType="submit">
-            {storeSelected?.id ? "Cập nhật" : "Thêm cửa hàng"}
+            {storeSelected?.id ? 'Cập nhật' : 'Thêm cửa hàng'}
           </Button>
         </div>
       </Spin>
     </Form>
   );
-};
+}
 
 export default StoreForm;

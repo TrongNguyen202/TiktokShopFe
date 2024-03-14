@@ -1,22 +1,21 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button, Form, Spin, message } from "antd";
+import { Button, Form, Spin, message } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { useCategoriesStore } from "../../store/categoriesStore";
-import { useProductsStore } from "../../store/productsStore";
-import { useWareHousesStore } from "../../store/warehousesStore";
-import { useShopsBrand } from "../../store/brandStore";
-import { getPathByIndex, ConvertProductAttribute } from "../../utils";
+import { useShopsBrand } from '../../store/brandStore';
+import { useCategoriesStore } from '../../store/categoriesStore';
+import { useProductsStore } from '../../store/productsStore';
+import { useWareHousesStore } from '../../store/warehousesStore';
+import { ConvertProductAttribute, getPathByIndex } from '../../utils';
 
-import Loading from "../../components/loading";
-import PageTitle from "../../components/common/PageTitle";
-import ProductMedia from "../../components/products/ProductMedia";
-import ProductInformation from "../../components/products/ProductInformation";
-import ProductSale from "../../components/products/ProductSale";
-import ProductVariation from "../../components/products/ProductVariation";
-import ProductShipping from "../../components/products/ProductShipping";
+import PageTitle from '../../components/common/PageTitle';
+import ProductInformation from '../../components/products/ProductInformation';
+import ProductMedia from '../../components/products/ProductMedia';
+import ProductSale from '../../components/products/ProductSale';
+import ProductShipping from '../../components/products/ProductShipping';
+import ProductVariation from '../../components/products/ProductVariation';
 
-const ProductCreate = () => {
+function ProductCreate() {
   const navigate = useNavigate();
   const shopId = getPathByIndex(2);
   const timeoutRef = useRef(null);
@@ -27,44 +26,30 @@ const ProductCreate = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [fileList, setFileList] = useState([]);
   const [sizeChart, setSizeChart] = useState([]);
-  const { getAllCategoriesIsLeaf, categoriesIsLeaf, recommendCategory } =
-    useCategoriesStore((state) => state);
-  const { productById, createOneProduct, createOneProductDraff, loading } =
-    useProductsStore((state) => state);
-  const { warehousesById, getWarehousesByShopId } = useWareHousesStore(
-    (state) => state
-  );
+  const { getAllCategoriesIsLeaf, categoriesIsLeaf, recommendCategory } = useCategoriesStore((state) => state);
+  const { productById, createOneProduct, createOneProductDraff, loading } = useProductsStore((state) => state);
+  const { warehousesById, getWarehousesByShopId } = useWareHousesStore((state) => state);
   const { getAllBrand, brands } = useShopsBrand((state) => state);
 
   const onFinish = async (values) => {
-    const category_id = values?.category_id[values?.category_id.length - 1];
-    const product_attributes = ConvertProductAttribute(
-      values.product_attributes,
-      attributeValues
-    );
+    const category_id = values?.category_id[values.category_id.length - 1];
+    const product_attributes = ConvertProductAttribute(values.product_attributes, attributeValues);
 
     const dataFormSubmit = {
       product_name: values.product_name,
-      description: values.description ? values.description : "",
-      category_id: category_id ? category_id : "",
-      images: imgBase64?.map((item) =>
-        item.thumbUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, "")
-      ),
+      description: values.description ? values.description : '',
+      category_id: category_id || '',
+      images: imgBase64?.map((item) => item.thumbUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, '')),
       size_chart: {
-        img_id: sizeChart.length
-          ? sizeChart[0].thumbUrl.replace(
-            /^data:image\/(png|jpg|jpeg);base64,/,
-            ""
-          )
-          : "",
+        img_id: sizeChart.length ? sizeChart[0].thumbUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, '') : '',
       },
-      package_dimension_unit: "imperial",
-      package_height: values.package_height ? values.package_height : "",
-      package_length: values.package_length ? values.package_length : "",
-      package_weight: values.package_weight ? values.package_weight : "",
-      package_width: values.package_width ? values.package_width : "",
+      package_dimension_unit: 'imperial',
+      package_height: values.package_height ? values.package_height : '',
+      package_length: values.package_length ? values.package_length : '',
+      package_weight: values.package_weight ? values.package_weight : '',
+      package_width: values.package_width ? values.package_width : '',
       is_cod_open: false,
-      brand_id: values.brand_id ? values.brand_id : "",
+      brand_id: values.brand_id ? values.brand_id : '',
       skus: skusData.length
         ? skusData?.map((item) => ({
           sales_attributes: item.variations?.map((attr) => ({
@@ -74,25 +59,25 @@ const ProductCreate = () => {
           })),
           original_price: item.price,
           stock_infos: [item.stock_infos],
-          seller_sku: item?.seller_sku || "",
+          seller_sku: item?.seller_sku || '',
         }))
         : [
           {
             sales_attributes: [],
             original_price: values.price,
             stock_infos: [values.stock_infos],
-            seller_sku: values?.seller_sku || "",
+            seller_sku: values?.seller_sku || '',
           },
         ],
-      product_attributes: product_attributes ? product_attributes : [],
+      product_attributes: product_attributes || [],
     };
 
-    console.log("dataFormSubmit: ", dataFormSubmit);
+    console.log('dataFormSubmit: ', dataFormSubmit);
     const CreateSuccess = (res) => {
-      if (res.message === "Success") {
+      if (res.message === 'Success') {
         messageApi.open({
-          type: "success",
-          content: "Đã thêm sản phẩm thành công!",
+          type: 'success',
+          content: 'Đã thêm sản phẩm thành công!',
         });
         form.resetFields();
         navigate(`/shops/${shopId}/products`);
@@ -101,7 +86,7 @@ const ProductCreate = () => {
 
     const CreateFail = (err) => {
       messageApi.open({
-        type: "error",
+        type: 'error',
         content: err,
       });
     };
@@ -115,7 +100,7 @@ const ProductCreate = () => {
     const onSuccess = (res) => { };
     const onFail = (err) => {
       messageApi.open({
-        type: "error",
+        type: 'error',
         content: err,
       });
     };
@@ -138,7 +123,7 @@ const ProductCreate = () => {
   };
 
   const onValuesChange = (changedValues) => {
-    if ("product_name" in changedValues) {
+    if ('product_name' in changedValues) {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
@@ -153,11 +138,7 @@ const ProductCreate = () => {
           }
         };
         if (changedValues.product_name)
-          recommendCategory(
-            shopId,
-            { product_name: changedValues.product_name },
-            onSuccess
-          );
+          recommendCategory(shopId, { product_name: changedValues.product_name }, onSuccess);
       }, 500);
     }
   };
@@ -207,11 +188,7 @@ const ProductCreate = () => {
 
           <div className="h-[10px] bg-[#f5f5f5]" />
           <div className="px-3 md:px-20 p-3 md:py-10">
-            <ProductVariation
-              shopId={shopId}
-              variationsDataTable={variationsDataTable}
-              isProductCreate
-            />
+            <ProductVariation shopId={shopId} variationsDataTable={variationsDataTable} isProductCreate />
           </div>
 
           <div className="h-[10px] bg-[#f5f5f5]" />
@@ -231,34 +208,23 @@ const ProductCreate = () => {
                   form
                     .validateFields()
                     .then((values) => {
-                      const product_attributes = ConvertProductAttribute(
-                        values.product_attributes,
-                        attributeValues
-                      );
-                      const categoryId =
-                        values?.category_id[values?.category_id?.length - 1];
+                      const product_attributes = ConvertProductAttribute(values.product_attributes, attributeValues);
+                      const categoryId = values?.category_id[values.category_id.length - 1];
                       const dataSend = {
                         ...values,
                         category_id: String(categoryId),
                         images: imgBase64?.map((item) =>
-                          item.thumbUrl.replace(
-                            /^data:image\/(png|jpg|jpeg);base64,/,
-                            ""
-                          )
+                          item.thumbUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, ''),
                         ),
-                        product_attributes: product_attributes,
-                        is_cod_open: values?.is_cod_open
-                          ? values?.is_cod_open
-                          : "false",
+                        product_attributes,
+                        is_cod_open: values?.is_cod_open ? values?.is_cod_open : 'false',
                         skus: skusData.length
                           ? skusData?.map((item) => ({
-                            sales_attributes: item.variations?.map(
-                              (attr) => ({
-                                attribute_id: attr.id,
-                                attribute_name: attr.name,
-                                custom_value: attr.value_name,
-                              })
-                            ),
+                            sales_attributes: item.variations?.map((attr) => ({
+                              attribute_id: attr.id,
+                              attribute_name: attr.name,
+                              custom_value: attr.value_name,
+                            })),
                             original_price: item.price,
                             stock_infos: [item.stock_infos],
                           }))
@@ -274,18 +240,13 @@ const ProductCreate = () => {
                       const CreateProductDraffSuccess = (res) => {
                         if (res) {
                           messageApi.open({
-                            type: "success",
-                            content: "Đã thêm sản phẩm nháp!",
+                            type: 'success',
+                            content: 'Đã thêm sản phẩm nháp!',
                           });
                           navigate(`/shops/${shopId}/products`);
                         }
                       };
-                      createOneProductDraff(
-                        shopId,
-                        dataSend,
-                        CreateProductDraffSuccess,
-                        (err) => console.log(err)
-                      );
+                      createOneProductDraff(shopId, dataSend, CreateProductDraffSuccess, (err) => console.log(err));
                     })
                     .catch((info) => {
                       console.log(info);
@@ -303,6 +264,6 @@ const ProductCreate = () => {
       </Spin>
     </>
   );
-};
+}
 
 export default ProductCreate;

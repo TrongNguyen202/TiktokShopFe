@@ -10,17 +10,17 @@ import { setToken } from "../../utils/auth"
 
 import SectionTitle from "../common/SectionTitle";
 import { Link } from 'react-router-dom';
-4                                             
-const OrderForPartner = ({toShipInfoData}) => {
+4
+const OrderForPartner = ({ toShipInfoData }) => {
     const shopId = getPathByIndex(2)
-    const [ messageApi, contextHolder ] = message.useMessage();
+    const [messageApi, contextHolder] = message.useMessage();
     const [api, notificationContextHolder] = notification.useNotification();
     const [designSku, setDesignSku] = useState([])
-    const [ dataOCRCheck, setDataOCRCheck ] = useState([])
-    const [ flashShipTable, setFlashShipTable ] = useState([])
-    const [ printCareTable, setPrintCareTable ] = useState([])
-    const [ flashShipVariants, setFlashShipVariants ] = useState([])
-    const [ openLoginFlashShip, setOpenLoginFlashShip ] = useState(false)
+    const [dataOCRCheck, setDataOCRCheck] = useState([])
+    const [flashShipTable, setFlashShipTable] = useState([])
+    const [printCareTable, setPrintCareTable] = useState([])
+    const [flashShipVariants, setFlashShipVariants] = useState([])
+    const [openLoginFlashShip, setOpenLoginFlashShip] = useState(false)
     const { getToShipInfo, loadingGetInfo, getDesignSku } = useShopsOrder(state => state)
     const { getFlashShipPODVariant, LoginFlashShip, createOrderFlashShip } = useFlashShipStores(state => state)
 
@@ -31,11 +31,11 @@ const OrderForPartner = ({toShipInfoData}) => {
             let isFlashShip = true
             const variations = itemList.map((variation, itemListIndex) => {
                 if (!isFlashShip) return variation
-    
+
                 let variationObject = {}
                 let result = { ...variation }
                 const variationSplit = variation?.sku_name?.split(', ')
-    
+
                 if (variationSplit.length === 3) {
                     variationObject = {
                         color: variationSplit[0],
@@ -47,13 +47,13 @@ const OrderForPartner = ({toShipInfoData}) => {
                         size: variationSplit[1]
                     }
                 }
-    
+
                 const checkProductType = flashShipVariants?.filter(variant => variationObject?.size?.toUpperCase().includes(variant.product_type.toUpperCase()))
-    
+
                 if (!checkProductType.length) {
                     isFlashShip = false
                 }
-    
+
                 if (checkProductType.length) {
                     const checkColor = checkProductType.filter(color => color.color.toUpperCase() === variationObject?.color?.toUpperCase())
                     if (checkColor.length) {
@@ -67,29 +67,29 @@ const OrderForPartner = ({toShipInfoData}) => {
                         isFlashShip = false
                     }
                 }
-    
+
                 return result
             })
-    
+
             orderPartner.buyer_email = dataItem.order_list[0].buyer_email
             orderPartner.order_list = variations
             orderPartner.is_FlashShip = isFlashShip
             return orderPartner
         })
-    
+
         const dataFlashShip = orderPartnerResult?.filter(item => item.is_FlashShip)
         const dataPrintCare = orderPartnerResult?.filter(item => !item.is_FlashShip)
         if (dataFlashShip.length) setFlashShipTable(dataFlashShip)
         if (dataPrintCare.length) setPrintCareTable(dataPrintCare)
     }
-    
+
     const renderListItemProduct = (data) => {
         return data?.map((item, index) => (
             <div key={index}>
                 <div className="flex justify-between items-center gap-3 mt-3 w-[400px]">
                     <div className="flex items-center gap-2">
                         <div className="flex-1">
-                            <Image src={item.sku_image} className="object-cover mt-1 flex-1" width={50} height={50}  />
+                            <Image src={item.sku_image} className="object-cover mt-1 flex-1" width={50} height={50} />
                         </div>
                         <div>
                             <p className="text-[12px] text-gray-500">{item.sku_name}</p>
@@ -114,17 +114,17 @@ const OrderForPartner = ({toShipInfoData}) => {
                 }
                 return order
             })
-    
+
             const DesignSkuItem = {
                 ...item,
                 order_list: orderItem
-    
+
             }
             return DesignSkuItem
         })
     }
 
-    const handleLoginFlashShip = (values) => { 
+    const handleLoginFlashShip = (values) => {
         const onSuccess = (res) => {
             if (res) {
                 setToken('flash-ship-tk', res.data.access_token)
@@ -138,11 +138,11 @@ const OrderForPartner = ({toShipInfoData}) => {
                         }
                         return order
                     })
-            
+
                     const flashShipItem = {
                         ...item,
                         order_list: orderItem
-            
+
                     }
                     return flashShipItem
                 })
@@ -172,7 +172,7 @@ const OrderForPartner = ({toShipInfoData}) => {
                             buyer_country_code: "US",
                             shipment: 1,
                             linkLabel: item.label,
-                            products: item.order_list.map(product => {                                
+                            products: item.order_list.map(product => {
                                 return ({
                                     variant_id: product.variant_id,
                                     printer_design_front_url: product.image_design_front || null,
@@ -183,7 +183,7 @@ const OrderForPartner = ({toShipInfoData}) => {
                             })
                         })
                     })
-                        
+
                     dataSubmitFlashShip.map(item => {
                         const onCreateSuccess = (resCreate) => {
                             api.open({
@@ -192,7 +192,7 @@ const OrderForPartner = ({toShipInfoData}) => {
                                 icon: <WarningOutlined style={{ color: 'red' }} />
                             })
                         }
-                
+
                         const onCreateFail = (errCreate) => {
                             console.log(errCreate)
                             messageApi.open({
@@ -200,7 +200,7 @@ const OrderForPartner = ({toShipInfoData}) => {
                                 content: `Đơn hàng ${item.order_id} có lỗi : ${errCreate.err}`
                             });
                         }
-                
+
                         createOrderFlashShip(item, onCreateSuccess, onCreateFail)
                     })
                 }
@@ -246,7 +246,7 @@ const OrderForPartner = ({toShipInfoData}) => {
             console.log('product: ', key === 'PrintCare' ? product.sku_name : product.package_id)
             return ({
                 "External ID": key === 'PrintCare' ? "POD097" : product.variant_id,
-                "Order Id": key === 'PrintCare' ? product.product_id: product.package_id,
+                "Order Id": key === 'PrintCare' ? product.product_id : product.package_id,
                 "Shipping method": 1,
                 "First Name": product.name_buyer.split(' ')[0],
                 "Last Name": product.name_buyer.split(' ')[1],
@@ -265,7 +265,7 @@ const OrderForPartner = ({toShipInfoData}) => {
                 "Mockup Front": "",
                 "Mockup Back": "",
                 "Link label": product.label,
-                "Tracking ID": key === 'PrintCare' ? product.tracking_id: null
+                "Tracking ID": key === 'PrintCare' ? product.tracking_id : null
             })
         })
 
@@ -274,22 +274,22 @@ const OrderForPartner = ({toShipInfoData}) => {
     }
 
     const rowSelection = {
-        onChange: (_,selectedRows) => {
-          console.log('selectedRows: ', selectedRows)
+        onChange: (_, selectedRows) => {
+            console.log('selectedRows: ', selectedRows)
         },
         // getCheckboxProps: (record) => {
         //   const disabledStatus = [140, 130, 122, 121, 105, 100]
         //   const disabledLabel = packageBought.map(item => item.package_id)
-    
+
         //   const isDisabledStatus = disabledStatus.includes(record.order_status);
         //   const isDisabledLabel = disabledLabel.includes(record.package_list.length > 0 && record.package_list[0].package_id);
-    
+
         //   return {
         //     disabled: isDisabledStatus || isDisabledLabel
         //   }
         // }
     }
-    
+
     const column = [
         {
             title: 'Package ID',
@@ -303,7 +303,7 @@ const OrderForPartner = ({toShipInfoData}) => {
             render: (_, record) => {
                 // console.log('record: ', record);
                 return (
-                    <Popover 
+                    <Popover
                         content={renderListItemProduct(record?.order_list)}
                         trigger="click"
                         placement="bottom"
@@ -317,7 +317,7 @@ const OrderForPartner = ({toShipInfoData}) => {
                                         <li key={item.sku_id} className='inline-block mr-3 w-10 h-10 [&:nth-child(3+n)]:hidden'>
                                             <img className="w-full h-full object-cover" width={30} height={30} src={item.sku_image} />
                                         </li>
-                                    ))} 
+                                    ))}
                                 </ul>
                             </div>
                             <DownOutlined />
@@ -352,8 +352,8 @@ const OrderForPartner = ({toShipInfoData}) => {
 
     useEffect(() => {
         const data = {
-            order_documents: toShipInfoData
-        }
+            order_documents: toShipInfoData,
+        };
 
         const onSuccess = (res) => {
             if (res) {
@@ -371,19 +371,19 @@ const OrderForPartner = ({toShipInfoData}) => {
                         name_buyer: item.name_buyer
                     }
                 })
-                setDataOCRCheck(dataCheck)                
+                setDataOCRCheck(dataCheck)
             }
         }
 
         const onSuccessVariant = (res) => {
             if (res) {
-                setFlashShipVariants(res)  
+                setFlashShipVariants(res)
             }
         }
 
         const onFail = (err) => {
-            console.log(err)
-        }
+            console.log(err);
+        };
 
         const onFailVariant = (err) => {
             console.log(err)
@@ -404,6 +404,7 @@ const OrderForPartner = ({toShipInfoData}) => {
     }, [dataOCRCheck, flashShipVariants]);
 
     return (
+        <div>
         <div className="p-10">
             {contextHolder}
             {notificationContextHolder}
@@ -463,7 +464,21 @@ const OrderForPartner = ({toShipInfoData}) => {
                 </Form>
             </Modal>
         </div>
-    );
+        <Table columns={column} dataSource={dataFlashShip} bordered />
+      </div>
+
+      <Divider className="my-10" />
+      <div>
+        <div className="flex flex-wrap items-center mb-3">
+          <div className="flex-1">
+            <SectionTitle title="Create Order in PrintCare" className="flex-1" />
+          </div>
+          <Button type="primary">Export to excel file</Button>
+        </div>
+        <Table columns={column} dataSource={dataPrintCare} bordered />
+      </div>
+    </div >
+  );
 }
- 
+
 export default OrderForPartner;

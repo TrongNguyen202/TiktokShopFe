@@ -1,15 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { PlusOutlined } from "@ant-design/icons";
-import { Modal, Upload, Form, Input, Button } from "antd";
+import React, { useEffect, useState } from 'react';
+import { PlusOutlined } from '@ant-design/icons';
+import { Modal, Upload, Form, Input, Button } from 'antd';
 
-import { DndContext, PointerSensor, useSensor } from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -19,64 +14,42 @@ const getBase64 = (file) =>
     reader.onerror = (error) => reject(error);
   });
 
-const DraggableUploadListItem = ({ originNode, file }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
+function DraggableUploadListItem({ originNode, file }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: file.uid,
   });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    cursor: "move",
+    cursor: 'move',
   };
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={
-        isDragging ? "is-dragging h-[100%] w-[100%]" : " h-[100%] w-[100%]"
-      }
+      className={isDragging ? 'is-dragging h-[100%] w-[100%]' : ' h-[100%] w-[100%]'}
       {...attributes}
       {...listeners}
     >
-      {file.status === "error" && isDragging
-        ? originNode.props.children
-        : originNode}
+      {file.status === 'error' && isDragging ? originNode.props.children : originNode}
     </div>
   );
-};
+}
 
-export default function ModalProductDetail({
-  product,
-  setIsOpenModal,
-  isOpenModal,
-  imgBase64,
-  handleChangeProduct,
-}) {
+export default function ModalProductDetail({ product, setIsOpenModal, isOpenModal, imgBase64, handleChangeProduct }) {
   const [fileList, setFileList] = useState(product.images);
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState("");
-  const [previewTitle, setPreviewTitle] = useState("");
-  const [imageLink, setImageLink] = useState("");
+  const [previewImage, setPreviewImage] = useState('');
+  const [previewTitle, setPreviewTitle] = useState('');
+  const [imageLink, setImageLink] = useState('');
   const [productTitle, setProductTitle] = useState(product.title);
-  const [productDescription, setProductDescription] = useState(
-    product.description
-  );
+  const [productDescription, setProductDescription] = useState(product.description);
 
   const handlePreview = async (file) => {
-    if (!file.url && !file.preview)
-      file.preview = await getBase64(file.originFileObj);
+    if (!file.url && !file.preview) file.preview = await getBase64(file.originFileObj);
     setPreviewImage(file.url || file.preview);
     setPreviewOpen(true);
-    setPreviewTitle(
-      file.name || file.url.substring(file.url.lastIndexOf("/") + 1)
-    );
+    setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
   };
 
   const handleChange = ({ fileList: newFileList }) => {
@@ -111,7 +84,7 @@ export default function ModalProductDetail({
         url: imageLink,
       },
     ]);
-    setImageLink("");
+    setImageLink('');
   };
 
   const handleOK = () => {
@@ -137,10 +110,7 @@ export default function ModalProductDetail({
         width="50vw"
       >
         <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
-          <SortableContext
-            items={fileList?.map((i) => i.uid)}
-            strategy={verticalListSortingStrategy}
-          >
+          <SortableContext items={fileList?.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
             <Upload
               listType="picture-card"
               fileList={fileList}
@@ -149,9 +119,7 @@ export default function ModalProductDetail({
               beforeUpload={() => false}
               previewFile={getBase64}
               multiple
-              itemRender={(originNode, file) => (
-                <DraggableUploadListItem originNode={originNode} file={file} />
-              )}
+              itemRender={(originNode, file) => <DraggableUploadListItem originNode={originNode} file={file} />}
             >
               {/* {fileList?.length >= 8 ? null : (
                 <button style={{ border: 0, background: "none" }} type="button">
@@ -177,10 +145,7 @@ export default function ModalProductDetail({
         </Form.Item>
 
         <Form.Item label="Title:" labelCol={{ span: 24 }}>
-          <Input
-            value={productTitle}
-            onChange={(e) => setProductTitle(e.target.value)}
-          />
+          <Input value={productTitle} onChange={(e) => setProductTitle(e.target.value)} />
         </Form.Item>
         <Form.Item label="Description" wrapperCol={{ span: 24 }}>
           <Input.TextArea
@@ -191,17 +156,8 @@ export default function ModalProductDetail({
           />
         </Form.Item>
         {/* <input type='file'/> */}
-        <Modal
-          open={previewOpen}
-          title={previewTitle}
-          footer={null}
-          onCancel={handleCancel}
-        >
-          <img
-            alt={previewTitle}
-            style={{ width: "100%" }}
-            src={previewImage}
-          />
+        <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
+          <img alt={previewTitle} style={{ width: '100%' }} src={previewImage} />
         </Modal>
       </Modal>
     </div>

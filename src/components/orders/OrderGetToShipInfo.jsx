@@ -1,69 +1,78 @@
-import { Table, Tag } from 'antd'
+import { Table, Tag } from 'antd';
 
-import { IntlNumberFormat } from '../../utils'
-import { statusOrder } from '../../constants'
+import { IntlNumberFormat } from '../../utils';
+import { statusOrder } from '../../constants';
 
-const OrderGetToShipInfo = ({data, loading}) => {
-    const columns = [
-        {
-            title: 'STT',
-            dataIndex: 'stt',
-            align: 'center',
-            render: (_, record, index) => index + 1
-        },
-        {
-            title: 'Order ID',
-            dataIndex: 'order_id',
-            render: (_, record) => record.data.order_list[0].order_id
-        },
-        {
-            title: 'Tracking ID',
-            dataIndex: 'tracking_id'
-        },
-        {
-            title: 'Người mua',
-            dataIndex: 'name_buyer'
-        },       
-        {
-            title: 'Địa chỉ nhận hàng',
-            dataIndex: 'shipping_address',
-            render: (_, record) => `${record.street.replace(' - ', '')}, ${record.city}, ${record.state}, ${record.zip_code}`,
-        },
-        {
-            title: 'Tình trạng',
-            dataIndex: 'order_status',
-            render: (_, record) => statusOrder.map(item => item.value === record.data.order_list[0].order_status && <Tag color={item.color}>{item.title}</Tag>),
-        },
-        {
-            title: 'Tổng giá',
-            dataIndex: "sub_total",
-            align: 'center',
-            render: (_, record) => IntlNumberFormat(record.data.order_list[0].payment_info.currency, 'currency', 4, record.data.order_list[0].payment_info.sub_total)
-        }
-    ]
+function OrderGetToShipInfo({ data, loading }) {
+  const columns = [
+    {
+      title: 'STT',
+      dataIndex: 'stt',
+      align: 'center',
+      render: (_, record, index) => index + 1,
+    },
+    {
+      title: 'Order ID',
+      dataIndex: 'order_id',
+      render: (_, record) => record.data.order_list[0].order_id,
+    },
+    {
+      title: 'Tracking ID',
+      dataIndex: 'tracking_id',
+    },
+    {
+      title: 'Người mua',
+      dataIndex: 'name_buyer',
+    },
+    {
+      title: 'Địa chỉ nhận hàng',
+      dataIndex: 'shipping_address',
+      render: (_, record) => `${record.street.replace(' - ', '')}, ${record.city}, ${record.state}, ${record.zip_code}`,
+    },
+    {
+      title: 'Tình trạng',
+      dataIndex: 'order_status',
+      render: (_, record) =>
+        statusOrder.map(
+          (item) => item.value === record.data.order_list[0].order_status && <Tag color={item.color}>{item.title}</Tag>,
+        ),
+    },
+    {
+      title: 'Tổng giá',
+      dataIndex: 'sub_total',
+      align: 'center',
+      render: (_, record) =>
+        IntlNumberFormat(
+          record.data.order_list[0].payment_info.currency,
+          'currency',
+          4,
+          record.data.order_list[0].payment_info.sub_total,
+        ),
+    },
+  ];
 
-    const checkDataTable = (value) => {
-        if (value.length === 0) {
-            return []
-        }
-        let data = []
-        value.forEach(item => {
-            if (item.data) {
-                data.push(item)
-            }
-        })
-        return data
+  const checkDataTable = (value) => {
+    if (value.length === 0) {
+      return [];
     }
-    return (
-        <Table
-            columns={columns}
-            dataSource={checkDataTable(data).length ? checkDataTable(data) : []}
-            bordered
-            pagination={{ position: ['none'] }}
-            loading={loading}
-            rowKey="order_id"
-        />
-    )
+    const data = [];
+    value.forEach((item) => {
+      if (item.data) {
+        data.push(item);
+      }
+    });
+    return data;
+  };
+  return (
+    <Table
+      columns={columns}
+      dataSource={checkDataTable(data).length ? checkDataTable(data) : []}
+      bordered
+      pagination={{ position: ['none'] }}
+      loading={loading}
+      rowKey="order_id"
+    />
+  );
 }
- 
+
 export default OrderGetToShipInfo;

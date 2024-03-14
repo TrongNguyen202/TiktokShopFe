@@ -1,44 +1,28 @@
-import { useEffect, useState } from "react";
-import {
-  CopyOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  EyeOutlined,
-} from "@ant-design/icons";
-import {
-  Button,
-  Input,
-  Layout,
-  Modal,
-  Popconfirm,
-  Table,
-  Tooltip,
-  message,
-} from "antd";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from 'react';
+import { CopyOutlined, DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
+import { Button, Input, Layout, Modal, Popconfirm, Table, Tooltip, message } from 'antd';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { useShopsStore } from "../../store/shopsStore";
-import { constants as c } from "../../constants";
+import { useShopsStore } from '../../store/shopsStore';
+import { constants as c } from '../../constants';
 
-import StoreAuthorization from "./StoreAuthorization";
-import StoreForm from "./StoreForm";
+import StoreAuthorization from './StoreAuthorization';
+import StoreForm from './StoreForm';
 
 const { Search } = Input;
-const Stores = () => {
+function Stores() {
   const navigate = useNavigate();
-  const { stores, loading, getAllStores, refreshToken, updateStore } =
-    useShopsStore((state) => state);
-  const [searchParams] = useSearchParams();
-  const app_key = searchParams.get("app_key");
-  const code = searchParams.get("code");
-
   const [isShowModal, setShowModal] = useState(false);
   const [shopData, setShopData] = useState([]);
   const [messageApi, contextHolder] = message.useMessage();
+  const { stores, loading, getAllStores, refreshToken, updateStore } = useShopsStore((state) => state);
+  const [searchParams] = useSearchParams();
+  const app_key = searchParams.get('app_key');
+  const code = searchParams.get('code');
   const [storeSelected, setStoreSelected] = useState({});
 
   const copyToClipboard = (content, key) => {
-    var tempInput = document.createElement("input");
+    const tempInput = document.createElement('input');
     tempInput.value = content;
     document.body.appendChild(tempInput);
 
@@ -46,7 +30,7 @@ const Stores = () => {
     tempInput.setSelectionRange(0, 99999);
 
     try {
-      document.execCommand("copy");
+      document.execCommand('copy');
       message.success(`Đã sao chép ${key}`);
     } catch (err) {
       message.error(`${err} Sao chép ${key} thất bại!`);
@@ -59,8 +43,8 @@ const Stores = () => {
     const onSuccess = (res) => {
       if (res) {
         messageApi.open({
-          type: "success",
-          content: "Gia hạn cửa hàng thành công",
+          type: 'success',
+          content: 'Gia hạn cửa hàng thành công',
         });
       }
     };
@@ -70,14 +54,14 @@ const Stores = () => {
   const deleteShop = (store) => {
     const onSuccess = (res) => {
       messageApi.open({
-        type: "success",
-        content: "Xoá cửa hàng thành công",
+        type: 'success',
+        content: 'Xoá cửa hàng thành công',
       });
       setShopData(shopData.filter((item) => item.id !== store.id));
     };
     const onFail = (err) => {
       messageApi.open({
-        type: "error",
+        type: 'error',
         content: err,
       });
     };
@@ -90,23 +74,23 @@ const Stores = () => {
         shop_name: store.shop_name,
       },
       onSuccess,
-      onFail
+      onFail,
     );
   };
 
   const storesTable = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
-      fixed: "left",
-      align: "center",
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      fixed: 'left',
+      align: 'center',
       sorter: (store1, store2) => +store1.id - +store2.id,
     },
     {
-      title: "Tên cửa hàng",
-      dataIndex: "shop_name",
-      key: "shop_name",
+      title: 'Tên cửa hàng',
+      dataIndex: 'shop_name',
+      key: 'shop_name',
       render: (name, store) => (
         <p
           className="text-[#0e2482] font-medium cursor-pointer"
@@ -119,9 +103,9 @@ const Stores = () => {
       ),
     },
     {
-      title: "Shop code",
-      dataIndex: "shop_code",
-      key: "shop_code",
+      title: 'Shop code',
+      dataIndex: 'shop_code',
+      key: 'shop_code',
       render: (code, store) => (
         <p
           className="text-[#0e2482] font-medium cursor-pointer"
@@ -134,22 +118,18 @@ const Stores = () => {
       ),
     },
     {
-      title: "Mô tả",
-      dataIndex: "description",
-      key: "description",
+      title: 'Mô tả',
+      dataIndex: 'description',
+      key: 'description',
     },
     {
-      title: "",
-      key: "action",
+      title: '',
+      key: 'action',
       // fixed: 'right',
-      align: "center",
+      align: 'center',
       render: (_, store) => (
         <div className="flex gap-2 justify-center">
-          <Button
-            size="small"
-            icon={<EyeOutlined />}
-            onClick={() => handleRefreshToken(store.id)}
-          >
+          <Button size="small" icon={<EyeOutlined />} onClick={() => handleRefreshToken(store.id)}>
             Gia hạn
           </Button>
           <Tooltip title="Sửa" color="blue">
@@ -178,16 +158,14 @@ const Stores = () => {
 
   const onSearch = (e) => {
     const storesFilter = stores?.filter((item) => {
-      return item.shop_name
-        .toLowerCase()
-        .includes(e.target.value.toLowerCase());
+      return item.shop_name.toLowerCase().includes(e.target.value.toLowerCase());
     });
     setShopData(storesFilter);
   };
 
   const handleAddStore = () => {
     setShowModal(true);
-    copyToClipboard(c.LINK_STORE_CODE, "link uỷ quyền");
+    copyToClipboard(c.LINK_STORE_CODE, 'link uỷ quyền');
   };
 
   useEffect(() => {
@@ -228,11 +206,7 @@ const Stores = () => {
         scroll={{ x: true }}
         size="middle"
         bordered
-        dataSource={
-          shopData && shopData.length
-            ? shopData.sort((a, b) => a.id - b.id)
-            : []
-        }
+        dataSource={shopData && shopData.length ? shopData.sort((a, b) => a.id - b.id) : []}
         loading={loading}
       />
 
@@ -249,16 +223,11 @@ const Stores = () => {
         {!app_key && !code && !storeSelected?.id ? (
           <StoreAuthorization />
         ) : (
-          <StoreForm
-            app_key={app_key}
-            code={code}
-            storeSelected={storeSelected}
-            setShowModal={setShowModal}
-          />
+          <StoreForm app_key={app_key} code={code} storeSelected={storeSelected} setShowModal={setShowModal} />
         )}
       </Modal>
     </Layout.Content>
   );
-};
+}
 
 export default Stores;
