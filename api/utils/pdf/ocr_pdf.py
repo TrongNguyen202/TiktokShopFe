@@ -19,8 +19,8 @@ setup_logging(logger=logger, level=logging.INFO)
 if platform.system() == "Windows":
     pytesseract.pytesseract.tesseract_cmd = r'C:\Tesseract-OCR\tesseract.exe'
     path_to_poppler_exe = Path(r"C:\Library\bin")
-
-
+    
+ 
 def __parse_info(info: str) -> Optional[dict]:
     try:
         info = info.strip()

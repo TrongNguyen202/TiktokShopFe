@@ -17,6 +17,7 @@ from ....serializers import (
     DesignSkuPutSerializer,
     DesignSkuSerializer,
     GroupCustomSerializer,
+    PackageSerializer
 )
 
 logger = logging.getLogger('views.tiktok.order_action')
@@ -221,6 +222,7 @@ class PackageBought(APIView):
 class PDFSearch(APIView):
     def get(self, request):
         PDF_DIRECTORY = constant.PDF_DIRECTORY_WINDOW if platform.system() == 'Windows' else constant.PDF_DIRECTORY_UNIX
+        os.makedirs(PDF_DIRECTORY, exist_ok=True)
         query = request.query_params.get('query', '')
         found_files = []
 
@@ -433,6 +435,17 @@ class DesignSkuDetailAPIView(APIView):
             designsku.delete()
             return Response({"message": "DesignSku deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
         return Response({"error": f"DesignSku with ID {pk} does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class DesignSkuBySkuId(APIView):
+    def get(self, request, sku_id):
+        user = request.user
+        print(user.username)  # In ra tên người dùng để kiểm tra
+        user_group = UserGroup.objects.get(user=user)
+        group_custom = user_group.group_custom
+        design_skus = DesignSku.objects.get(department=group_custom, sku_id=sku_id)
+        serializer = DesignSkuSerializer(design_skus)
+        return Response(serializer.data)
 
 
 class DesignSkuDepartment(APIView):
@@ -651,7 +664,6 @@ class ToShipOrderAPI(APIView):
             }
             return error_response
                 
-    
     def post(self, request, shop_id):
         data = []
         self.shop = get_object_or_404(Shop, id=shop_id)
@@ -670,3 +682,24 @@ class ToShipOrderAPI(APIView):
                 data.append(result)
         
         return JsonResponse(data, status=200, safe=False)
+
+
+class PackageCreateForFlash(APIView):
+    def post(self, request, format=None):
+ 
+        request.data['fulfillment_name'] = 'FlashShip'
+        serializer = PackageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class PackageCreateForPrint(APIView):
+    def post(self, request, format=None):
+
+        request.data['fulfillment_name'] = 'PrintCare'
+        serializer = PackageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

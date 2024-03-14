@@ -96,7 +96,8 @@ CORS_ORIGIN_WHITELIST = (
     'https://app.folinas.com',
     "http://app.folinas.com",
     'https://folinas.vercel.app',
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'https://auth.tiktok-shops.com'
 
 
 
