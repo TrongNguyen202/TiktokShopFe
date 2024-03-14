@@ -1,13 +1,24 @@
 from asyncio import constants
-
-from click import group
-from yaml import serialize
-from ....models import Shop, BuyedPackage, UserGroup, DesignSku, DesignSkuChangeHistory, GroupCustom
-from ....serializers import BuyedPackageSeri, DesignSkuSerializer, GroupCustomSerializer, DesignSkuPutSerializer, PackageSerializer
-
 from datetime import datetime
-from api.utils.pdf.ocr_pdf import *
+
+from api.utils.pdf.ocr_pdf import process_pdf_to_info
 from api.views import *
+
+from ....models import (
+    BuyedPackage,
+    DesignSku,
+    DesignSkuChangeHistory,
+    GroupCustom,
+    Shop,
+    UserGroup,
+)
+from ....serializers import (
+    BuyedPackageSeri,
+    DesignSkuPutSerializer,
+    DesignSkuSerializer,
+    GroupCustomSerializer,
+    PackageSerializer
+)
 
 logger = logging.getLogger('views.tiktok.order_action')
 setup_logging(logger, is_root=False, level=logging.INFO)
@@ -178,7 +189,8 @@ class ShippingDoc(APIView):
             # Lặp qua từng package_id và gửi các công việc gọi API tới executor để thực hiện đồng thời
             futures = []
             for package_id in package_ids:
-                futures.append(executor.submit(order.callGetShippingDoc, package_id=package_id, access_token=access_token))
+                futures.append(executor.submit(order.callGetShippingDoc,
+                               package_id=package_id, access_token=access_token))
 
             # Thu thập kết quả từ các future và thêm vào danh sách doc_urls
             for future in futures:
@@ -534,7 +546,8 @@ class ShippingDoc(APIView):
             # để thực hiện đồng thời
             futures = []
             for package_id in package_ids:
-                futures.append(executor.submit(order.callGetShippingDoc, package_id=package_id, access_token=access_token))
+                futures.append(executor.submit(order.callGetShippingDoc,
+                               package_id=package_id, access_token=access_token))
 
             # Thu thập kết quả từ các future và thêm vào danh sách doc_urls
             for future in futures:
@@ -590,61 +603,84 @@ class UploadDriver(APIView):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 
-class ToShipOrderAPI(View):
-    def ocr_infor(self, pdf_path):
-        result_json_user = process_pdf(pdf_path=pdf_path)
-        return json.loads(result_json_user)
-
-    def process_order_document(self, order_document, access_token):
-        order_list = order_document.get("order_list")
+class ToShipOrderAPI(APIView):
+    def get_order_detail(self, order_document) -> dict:
+        order_list = order_document.get('order_list')
         doc_url = order_document.get('label')
-        package_id = order_document.get("package_id")
-
+        package_id = order_document.get('package_id')
+        
+        # Tải file PDF từ doc_url
         response = requests.get(doc_url)
-
+        
         if response.status_code == 200:
-            file_name = f"{package_id}.pdf"
-            file_path = os.path.join("C:\pdflabel", file_name)
-
+            file_name = f'{package_id}.pdf'
+            
+            platform_name = platform.system()
+            parent_dir = 'C:\pdflabel' if platform_name == 'Windows' else './.temp/labels'
+            os.makedirs(parent_dir, exist_ok=True)
+            file_path = os.path.join(parent_dir, file_name)
+            
             with open(file_path, 'wb') as file:
                 file.write(response.content)
+            
+            order_ids = [item.get('order_id') for item in order_list] if order_list else []
+            
+            # Call OrderDetail API
+            try:
+                order_details: dict = order.callOrderDetail(access_token=self.access_token, orderIds=order_ids).json()
+            except Exception as e:
+                logger.error(f'Error when calling OrderDetail API', exc_info=e)
+                error_response = {
+                    'status': 'error',
+                    'message': 'Có lỗi xảy ra khi gọi API OrderDetail',
+                    'data': None
+                }
+                return error_response
+            
+            logger.info(f'OrderDetail response: {order_details}')
 
-        order_ids = [item.get("order_id") for item in order_list] if order_list else []
-
-        try:
-            order_detail = order.callOrderDetail(access_token=access_token, orderIds=order_ids).json()
-
-        except Exception as e:
-            print("Error when calling OrderDetail API:", e)
-
-        infor_user = self.ocr_infor(file_path)
-
-        order_detail['tracking_id'] = infor_user.get('tracking_id', '')
-        order_detail['name_buyer'] = infor_user.get('name_buyer', '')
-        order_detail['street'] = infor_user.get('real_street', '')
-        order_detail['city'] = infor_user.get('city', '')
-        order_detail['state'] = infor_user.get('state', '')
-        order_detail['zip_code'] = infor_user.get('zip_code', '')
-
-        return order_detail
-
+            # Check the response from TikTok API
+            if order_details.get('data') is None:
+                error_response = {
+                    'status': 'error',
+                    'message': f'Có lỗi xảy ra khi gọi API OrderDetail: {order_details.get("message")}',
+                    'data': None
+                }
+                return error_response
+            else:
+                order_details['ocr_result'] = process_pdf_to_info(file_path)
+                success_response = {
+                    'status': 'success',
+                    'message': 'Thành công',
+                    'data': order_details
+                }
+                
+                return success_response
+        else:
+            error_response = {
+                'status': 'error',
+                'message': 'Có lỗi xảy ra khi tải file PDF',
+                'data': response.text
+            }
+            return error_response
+                
     def post(self, request, shop_id):
         data = []
-        shop = get_object_or_404(Shop, id=shop_id)
-        access_token = shop.access_token
+        self.shop = get_object_or_404(Shop, id=shop_id)
+        self.access_token = self.shop.access_token
         data_post = json.loads(request.body.decode('utf-8'))
         order_documents = data_post.get('order_documents', [])
 
         with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
             futures = []
             for order_document in order_documents:
-                future = executor.submit(self.process_order_document, order_document, access_token)
-                futures.append(future)
+                futures.append(executor.submit(self.get_order_detail, order_document))
 
             for future in futures:
-                order_detail = future.result()
-                data.append(order_detail)
-
+                result = future.result()
+                logger.info(f'User {request.user}: Order detail and OCR label result: {result}')
+                data.append(result)
+        
         return JsonResponse(data, status=200, safe=False)
 
 
@@ -667,4 +703,3 @@ class PackageCreateForPrint(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
