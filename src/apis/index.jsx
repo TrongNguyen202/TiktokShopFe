@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { constants as c } from '../constants';
-import { getToken, removeToken } from '../utils/auth';
+import { getToken, getTokenKey, removeToken } from '../utils/auth';
 
 const exceptPrefix = ['/login', '/register'];
 const checkEndPoint = (endpoint) => {
@@ -53,6 +53,8 @@ export const callApi = (endPoint, method, body) => {
       data: body,
       headers: {
         'Content-Type': 'application/json',
+        // "device-id": `${c.STORE_CODE}-${uuid}`,
+        // "device-id": `ikidemo-2750bc42-702e-4cbe-bae5-798f171389e1`,
       },
     });
   } catch (error) {
@@ -63,8 +65,6 @@ export const callApi = (endPoint, method, body) => {
     } else {
       console.error('Error setting up request:', error.message);
     }
-
-    throw error;
   }
 };
 

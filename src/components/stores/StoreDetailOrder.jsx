@@ -1,9 +1,7 @@
 import { useEffect } from 'react';
 import { Card } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
-
 import { useShopsOrder } from '../../store/ordersStore';
-
 import StoreDetailSectionTitle from './StoreDetailSectionTitle';
 
 function StoreDetailOrder({ shopId }) {
@@ -11,7 +9,7 @@ function StoreDetailOrder({ shopId }) {
   const { orders, getAllOrders } = useShopsOrder((state) => state);
   const orderList = orders.length ? orders?.map((order) => order?.data?.order_list).flat() : [];
   useEffect(() => {
-    const onSuccess = (res) => {};
+    const onSuccess = () => { };
 
     const onFail = (err) => {
       console.log(err);

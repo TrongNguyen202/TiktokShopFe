@@ -1,12 +1,11 @@
-import { EyeOutlined } from '@ant-design/icons';
-import { Button, Drawer, Image, Layout, Space, Table } from 'antd';
+import { Drawer, Image, Layout, Table } from 'antd';
 import { useEffect, useState } from 'react';
 import ImageDefault from '../../assets/images/image-default.jpg';
+import SearchInput from '../../components/search-input';
 import { useCustomersStore } from '../../store/customersStore';
 import { formatNumber } from '../../utils';
 import { formatDate } from '../../utils/date';
 import CustomerDetail from './CustomerDetail';
-import SearchInput from '../../components/search-input';
 
 export default function Customers() {
   const { customers, getAllCustomers, loading, infoTable } = useCustomersStore((state) => state);
@@ -135,28 +134,6 @@ export default function Customers() {
         return <div>{formatNumber(customer.total_final_all_status)}đ</div>;
       },
     },
-    // {
-    //   title: "",
-    //   key: "action",
-    //   fixed: "right",
-    //   align: "center",
-    //   render: (_, customer) => {
-    //     return (
-    //       <Space size="middle">
-    //         <Button
-    //           size="small"
-    //           icon={<EyeOutlined />}
-    //           onClick={() => {
-    //             setOpenDrawer(true);
-    //             setSelectedId(customer.id);
-    //           }}
-    //         >
-    //           Xem
-    //         </Button>
-    //       </Space>
-    //     );
-    //   },
-    // },
   ];
 
   return (

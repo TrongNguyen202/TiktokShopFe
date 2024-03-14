@@ -1,10 +1,9 @@
+import { DatePicker, Input } from 'antd';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Col, ConfigProvider, DatePicker, Input, Row, Select, Space, Table } from 'antd';
-import dayjs from 'dayjs';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useOrderStore } from '../../store/orderStore';
 import { alerts } from '../../utils/alerts';
-import { formatNumber, getPathByIndex } from '../../utils/index';
+import { getPathByIndex } from '../../utils/index';
 // import viVN from "antd/locale/vi_VN";
 const { Search } = Input;
 
@@ -22,10 +21,9 @@ const { RangePicker } = DatePicker;
 export function Order() {
   console.log('order');
   // LOGIC UI
-  const customerId = getPathByIndex(2);
   const shopId = getPathByIndex(2);
   const navigate = useNavigate();
-  const { orders, getAllOrders, loading, tableInfo, totalRevenue } = useOrderStore();
+  const { getAllOrders, tableInfo } = useOrderStore();
   const [searchParam, setSearchparam] = useSearchParams();
   const page = searchParam.get('page');
 
@@ -48,7 +46,7 @@ export function Order() {
   }, [navigate]);
 
   // logic search
-  const fetchApi = (keyword, fromDate, toDate) => {
+  const fetchApi = () => {
     const onSuccess = (response) => {
       setTableParams({
         ...tableParams,

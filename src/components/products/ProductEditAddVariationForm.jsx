@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Button, Form, Input, Row, Col, InputNumber, Select, Modal } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
+import { Button, Form, Modal } from 'antd';
+import React, { useState } from 'react';
 
 import { variationsOption } from '../../constants';
-import { flatMapArray, removeDuplicates } from '../../utils';
+import { removeDuplicates } from '../../utils';
 
 import ProductEditCustomSelect from './ProductEditCustomSelect';
 import ProductVariationsPrice from './ProductVariationsPrice';

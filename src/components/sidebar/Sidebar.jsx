@@ -1,37 +1,23 @@
-import React, { useState, useEffect } from 'react';
 import {
-  CarOutlined,
+  AntDesignOutlined,
+  CloseOutlined,
   DashboardOutlined,
   FileDoneOutlined,
-  HomeOutlined,
-  ShopOutlined,
-  ShoppingOutlined,
-  UserOutlined,
-  UsergroupAddOutlined,
   MenuOutlined,
-  CloseOutlined,
   SearchOutlined,
-  AntDesignOutlined,
+  ShopOutlined,
+  UsergroupAddOutlined,
 } from '@ant-design/icons';
 import { Menu } from 'antd';
+import PropTypes from 'prop-types';
+import React, { useEffect, useState } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Link, useNavigate } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import {
-  FinanceIcon,
-  NewsIcon,
-  OrderIcon,
-  ProductIcon,
-  SellerIcon,
-  SettingIcon,
-  StoreIcon,
-  VoucherIcon,
-} from '../../assets/icons';
-import StartIcon from '../../assets/icons/StartIcon';
-import Logo from '../../assets/images/text_logo_FLN.png';
+import { FinanceIcon } from '../../assets/icons';
 import LogoCollapse from '../../assets/images/favicon.png';
+import Logo from '../../assets/images/text_logo_FLN.png';
+import { hasDesignerPermission, hasManagerPermission, hasSellerPermission } from '../../utils/permission';
 import { StyledLogo, StyledSidebar } from './Sidebar.style';
-import { hasManagerPermission, hasSellerPermission, hasDesignerPermission } from '../../utils/permission';
 
 function Sidebar({ collapsed }) {
   const path = window.location.pathname;
@@ -145,7 +131,10 @@ function Sidebar({ collapsed }) {
         {showMenuMobile ? <CloseOutlined /> : <MenuOutlined />}
       </span>
       <div
-        className={`${showMenuMobile ? 'block absolute top-[60px] left-[0] right-[0] z-20 bg-white pb-10 md:pb-0 md:static' : 'hidden'} md:block`}
+        className={`${showMenuMobile
+            ? 'block absolute top-[60px] left-[0] right-[0] z-20 bg-white pb-10 md:pb-0 md:static'
+            : 'hidden'
+          } md:block`}
       >
         <StyledLogo className="!hidden md:!flex">
           {collapsed ? (

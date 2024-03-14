@@ -1,9 +1,7 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from 'antd';
-
 import { useCategoriesStore } from '../../store/categoriesStore';
-
 import StoreDetailSectionTitle from './StoreDetailSectionTitle';
 import { alerts } from '../../utils/alerts';
 
@@ -12,7 +10,7 @@ function StoreDetailCategories({ shopId }) {
   const { category_list } = categoriesById;
 
   useEffect(() => {
-    const onSuccess = (res) => {};
+    const onSuccess = () => { };
     const onFail = (err) => {
       alerts.error(err);
     };

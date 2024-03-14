@@ -1,11 +1,9 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Row, Col, Button, Form, Input, Select, Spin, message } from 'antd';
-
 import { useUsersStore } from '../../store/usersStore';
 import { useShopsStore } from '../../store/shopsStore';
 import { getPathByIndex } from '../../utils';
-
 import PageTitle from '../../components/common/PageTitle';
 
 function UserEdit() {

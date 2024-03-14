@@ -1,12 +1,9 @@
-import React, { useState } from 'react';
-import { Button, Form, Input, Row, Col, InputNumber, Select, Modal } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
-
+import { Button, Form, Modal } from 'antd';
+import React, { useState } from 'react';
 import { variationsOption } from '../../constants';
 import { flatMapArray } from '../../utils';
-
 import CustomSelect from '../../pages/stores/CustomSelect';
-import EditPriceForm from '../../pages/stores/EditPriceForm';
 import ProductVariationsPrice from './ProductVariationsPrice';
 
 function ProductCreateAddVariationForm({ handleAdd, handleClose, warehouses }) {

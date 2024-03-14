@@ -1,16 +1,13 @@
 import { useEffect } from 'react';
 import { Card } from 'antd';
 import { useNavigate, Link } from 'react-router-dom';
-
 import { alerts } from '../../utils/alerts';
-
 import { useProductsStore } from '../../store/productsStore';
-
 import StoreDetailSectionTitle from './StoreDetailSectionTitle';
 
 function StoreDetailProducts({ shopId }) {
   const navigate = useNavigate();
-  const { products, getAllProducts, infoTable } = useProductsStore((state) => state);
+  const { getAllProducts, infoTable } = useProductsStore((state) => state);
 
   useEffect(() => {
     const onSuccess = (res) => {};

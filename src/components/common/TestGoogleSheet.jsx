@@ -1,9 +1,7 @@
-import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useEffect } from 'react';
 
 function TestGoogleSheet() {
-  const [csvData, setCsvData] = useState([]);
-
   useEffect(() => {
     fetchCSVData();
   }, []);
@@ -15,7 +13,7 @@ function TestGoogleSheet() {
       .get(csvUrl)
       .then((response) => {
         const parsedCsvData = parseCSV(response.data);
-        setCsvData(parsedCsvData);
+        // setCsvData(parsedCsvData);
         console.log(parsedCsvData);
       })
       .catch((error) => {

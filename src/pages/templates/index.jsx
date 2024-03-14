@@ -2,14 +2,11 @@ import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from '
 import { Button, Layout, Modal, Popconfirm, Space, Table, Tooltip, Upload } from 'antd';
 import Search from 'antd/es/transfer/search';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
 import { useTemplateStore } from '../../store/templateStore';
 import { alerts } from '../../utils/alerts';
 import TemplateForm from '../stores/TemplateForm';
 
 function Template() {
-  const navigate = useNavigate();
   const { getAllTemplate, templates, loading, deleteTemplate } = useTemplateStore();
 
   const [templateSelected, setTemplateSelected] = useState(null);

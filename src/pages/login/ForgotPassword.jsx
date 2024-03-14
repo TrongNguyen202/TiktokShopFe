@@ -1,15 +1,11 @@
-import { Form, Link } from 'react-router-dom';
-import { Button, Input } from 'antd';
+import { Button } from 'antd';
 import { useEffect, useState } from 'react';
 import OTPInput from 'react-otp-input';
-import { PATH } from '../../constants/paths';
 import LOGO from '../../assets/images/logo.svg';
-import { validatePassword, validatePhoneNumber } from '../../utils/validate';
 
 export default function ForgotPassword() {
   const [otp, setOtp] = useState('');
   const [timer, setTimer] = useState(30);
-  const [resendEnabled, setResendEnabled] = useState(false);
 
   useEffect(() => {
     let interval;
@@ -17,8 +13,6 @@ export default function ForgotPassword() {
       interval = setInterval(() => {
         setTimer((prevTimer) => prevTimer - 1);
       }, 1000);
-    } else {
-      setResendEnabled(true);
     }
 
     return () => {

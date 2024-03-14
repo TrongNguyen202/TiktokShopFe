@@ -1,9 +1,8 @@
-import { Button, Drawer, Layout, Space, Table } from 'antd';
+import { Drawer, Layout, Table } from 'antd';
 import { useEffect, useState } from 'react';
-import { EyeOutlined } from '@ant-design/icons';
+import TableHeader from '../../components/table-header';
 import { useSellersStore } from '../../store/sellersStore';
 import { formatDate } from '../../utils/date';
-import TableHeader from '../../components/table-header';
 import SellerDetail from './SellerDetail';
 
 export default function Sellers() {

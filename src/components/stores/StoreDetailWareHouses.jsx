@@ -1,8 +1,6 @@
 import { useEffect } from 'react';
 import { Row, Col, Card, Badge, Spin } from 'antd';
-
 import { useWareHousesStore } from '../../store/warehousesStore';
-
 import StoreDetailSectionTitle from './StoreDetailSectionTitle';
 import { alerts } from '../../utils/alerts';
 

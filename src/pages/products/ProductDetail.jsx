@@ -1,36 +1,22 @@
-import { useEffect } from 'react';
 import { Col, Image, Row, Table, Tag } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { statusProductTikTokShop } from '../../constants/index';
 import { useProductsStore } from '../../store/productsStore';
 import { IntlNumberFormat, getPathByIndex } from '../../utils';
-import { statusProductTikTokShop } from '../../constants/index';
-
-import PageTitle from '../../components/common/PageTitle';
 import ImageDefault from '../../assets/images/image-default.jpg';
+import PageTitle from '../../components/common/PageTitle';
 import Loading from '../../components/loading';
 
 export default function ProductDetail() {
   const shopId = getPathByIndex(2);
   const productId = getPathByIndex(4);
-  const navigate = useNavigate();
   const { productById, getProductsById, loading } = useProductsStore((state) => state);
 
   useEffect(() => {
     getProductsById(shopId, productId);
   }, []);
 
-  const {
-    product_name,
-    images,
-    skus,
-    product_id,
-    seo_description,
-    seo_title,
-    video_url,
-    description,
-    category_list,
-    product_status,
-  } = productById;
+  const { product_name, images, skus, product_id, video_url, description, category_list, product_status } = productById;
 
   const columnsProductAttribute = [
     {

@@ -1,19 +1,20 @@
-import { Button, Form, Spin, message } from 'antd';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button, Form, Spin, message } from 'antd';
 
-import { useShopsBrand } from '../../store/brandStore';
 import { useCategoriesStore } from '../../store/categoriesStore';
 import { useProductsStore } from '../../store/productsStore';
 import { useWareHousesStore } from '../../store/warehousesStore';
-import { ConvertProductAttribute, getPathByIndex } from '../../utils';
+import { useShopsBrand } from '../../store/brandStore';
+import { getPathByIndex, ConvertProductAttribute } from '../../utils';
 
+import Loading from '../../components/loading';
 import PageTitle from '../../components/common/PageTitle';
-import ProductInformation from '../../components/products/ProductInformation';
 import ProductMedia from '../../components/products/ProductMedia';
+import ProductInformation from '../../components/products/ProductInformation';
 import ProductSale from '../../components/products/ProductSale';
-import ProductShipping from '../../components/products/ProductShipping';
 import ProductVariation from '../../components/products/ProductVariation';
+import ProductShipping from '../../components/products/ProductShipping';
 
 function ProductCreate() {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ function ProductCreate() {
   const { getAllBrand, brands } = useShopsBrand((state) => state);
 
   const onFinish = async (values) => {
-    const category_id = values?.category_id[values.category_id.length - 1];
+    const category_id = values?.category_id[values?.category_id.length - 1];
     const product_attributes = ConvertProductAttribute(values.product_attributes, attributeValues);
 
     const dataFormSubmit = {
@@ -209,7 +210,7 @@ function ProductCreate() {
                     .validateFields()
                     .then((values) => {
                       const product_attributes = ConvertProductAttribute(values.product_attributes, attributeValues);
-                      const categoryId = values?.category_id[values.category_id.length - 1];
+                      const categoryId = values?.category_id[values?.category_id?.length - 1];
                       const dataSend = {
                         ...values,
                         category_id: String(categoryId),

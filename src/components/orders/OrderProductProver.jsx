@@ -3,7 +3,7 @@ import { DownOutlined } from '@ant-design/icons';
 
 function OrderProductProver({ data }) {
   const renderListItemProduct = (record) => {
-    return record.data.order_list[0].item_list.map((item, index) => {
+    return record.data.order_list[0].item_list.map((item) => {
       return (
         <div>
           <div className="flex justify-between items-center gap-3 mt-3 w-[300px]">

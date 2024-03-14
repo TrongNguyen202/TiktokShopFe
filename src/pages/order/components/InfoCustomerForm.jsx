@@ -1,8 +1,6 @@
-import { Button, Col, Form, Input, Row, Select, Spin, Switch } from 'antd';
+import { Button, Col, Form, Input, Row, Select, Spin } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
-//   import { useBranchesStore } from "../../store/branchesStore";
 import PropTypes from 'prop-types';
-// eslint-disable-next-line import/no-unresolved, import/extensions
 import { useAddressStore } from '../../../store/addressStore';
 import { alerts } from '../../../utils/alerts';
 
@@ -46,86 +44,6 @@ export default function InfoCustomerForm({ selectedAddress, onSubmit, orderExist
       >
         <Row className="justify-between" gutter={[15]} />
 
-        {/* 
-          <Row className="justify-start" gutter={[15]}>
-            <Col span={8}>
-              <Form.Item
-                label="Mã kho"
-                name="branch_code"
-                labelAlign="left"
-                className="font-medium mb-4"
-                sx={{ width: "100%" }}
-                labelCol={{
-                  span: 24,
-                }}
-                initialValue={selectedAddress?.branch_code || ""}
-              >
-                <Input placeholder="Mã kho" type="text" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item
-                label="Mã số thuế"
-                name="txt_code"
-                labelAlign="left"
-                className="font-medium mb-4"
-                sx={{ width: "100%" }}
-                labelCol={{
-                  span: 24,
-                }}
-                initialValue={selectedAddress?.email || ""}
-              >
-                <Input placeholder="Nhập mã số thuế" />
-              </Form.Item>
-            </Col>
-          </Row> */}
-
-        {/* <Row className="justify-between" gutter={[15]}>
-            <Col span={8}>
-              <Form.Item
-                label="Tên người đặt hàng"
-                name="name"
-                labelAlign="left"
-                className="font-medium mb-4"
-                sx={{ width: "100%" }}
-                labelCol={{
-                  span: 24,
-                }}
-                rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập tên người đặt hàng",
-                    },
-                  ]}
-                initialValue={orderExists?.customer?.name || ""}
-              >
-                <Input placeholder="Tên người đặt hàng" disabled type="text" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item
-                label="Số điện thoại người đặt"
-                name="phone_number"
-                labelAlign="left"
-                className="font-medium mb-4"
-                sx={{ width: "100%" }}
-                labelCol={{
-                  span: 24,
-                }}
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập số điện thoại",
-                  },
-                ]}
-                initialValue={orderExists?.customer?.phone_number || ""}
-              >
-                <Input placeholder="Nhập số điện thoại" disabled type="number" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-            </Col>
-          </Row> */}
         <Row className="justify-between" gutter={[15]}>
           <Col span={8}>
             <Form.Item

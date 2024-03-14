@@ -1,33 +1,12 @@
 import { Col, Row } from 'antd';
 import { Link } from 'react-router-dom';
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { ArchivedIcon, BillIcon, DollarIcon, NoteIcon, ProductIcon } from '../../assets/icons';
-import IdentityIcon from '../../assets/icons/IdentityIcon';
+import { ArchivedIcon, NoteIcon, ProductIcon } from '../../assets/icons';
 import { useBadgesStore } from '../../store/badgesStore';
 
 export default function Home() {
-  const { badges, getAllBadges } = useBadgesStore();
-  const {
-    orders_packing,
-    orders_refunds,
-    orders_shipping,
-    orders_waiting_for_progressing,
-    product_progressing,
-    sellers_approved,
-    sellers_initial,
-    sellers_progressing,
-    sellers_unapproved,
-    ticket_progressing, // user
-    total_customer,
-    total_orders,
-    total_orders_in_day,
-    total_products,
-    total_sellers,
-  } = badges ?? {};
-
-  // useEffect(() => {
-  //   getAllBadges()
-  // }, [])
+  const { badges } = useBadgesStore();
+  const { product_progressing, total_orders, total_products } = badges ?? {};
 
   const data = {
     sales: [

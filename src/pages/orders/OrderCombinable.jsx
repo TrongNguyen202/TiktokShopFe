@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
-import { Table, Popover, Popconfirm, Space, Button, Form, Input } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
-
-import { getPathByIndex, IntlNumberFormat } from '../../utils';
+import { Button, Popconfirm, Popover, Table } from 'antd';
+import React, { useState } from 'react';
 import { useShopsOrder } from '../../store/ordersStore';
+import { getPathByIndex, IntlNumberFormat } from '../../utils';
 
 function OrderCombinable({ data, popOverContent, dataOrderDetail, isOpenModal }) {
   const shopId = getPathByIndex(2);

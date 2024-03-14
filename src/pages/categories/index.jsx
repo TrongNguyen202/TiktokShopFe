@@ -1,10 +1,8 @@
 import { useEffect } from 'react';
 import { Row, Col, Card } from 'antd';
-
 import { useCategoriesStore } from '../../store/categoriesStore';
 import { buildNestedArraysMenu, getPathByIndex } from '../../utils/index';
 import { alerts } from '../../utils/alerts';
-
 import PageTitle from '../../components/common/PageTitle';
 
 function Categories() {

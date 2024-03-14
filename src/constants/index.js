@@ -3,7 +3,7 @@
 export const constants = {
   // API_URL: "http://app.folinas.com:9999" + "/api",
   // API_URL: "https://app.folinas.com:8080" + "/api",
-  API_URL: 'http://127.0.0.1:8000' + '/api',
+  API_URL: 'http://127.0.0.1:8000/api',
   API_TIKTOK_SHOP: 'https://auth.tiktok-shops.com/api',
   // STORE_CODE: store_code,
   LINK_STORE_CODE: 'https://services.tiktokshops.us/open/authorize?service_id=7310403104158238510',

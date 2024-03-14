@@ -1,18 +1,12 @@
+import { Button, Col, Form, Input, Modal, Row, Select, Spin, message } from 'antd';
 import { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Row, Col, Button, Form, Input, Select, Spin, message, Modal } from 'antd';
-
-import { useUsersStore } from '../../store/usersStore';
 import { useShopsStore } from '../../store/shopsStore';
-import { getPathByIndex } from '../../utils';
-
-import PageTitle from '../../components/common/PageTitle';
+import { useUsersStore } from '../../store/usersStore';
 
 export default function ModalUserForm({ isShowModal, setIsShowModal, userSelected }) {
-  const navigate = useNavigate();
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
-  const { getUserInfor, updateUser, loading, getShopByUser, createUser } = useUsersStore((state) => state);
+  const { updateUser, loading, getShopByUser, createUser } = useUsersStore((state) => state);
   const { getAllStores, stores } = useShopsStore((state) => state);
 
   const storesOption =

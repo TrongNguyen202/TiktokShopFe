@@ -2,15 +2,14 @@ import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Loading from './components/loading';
 import { PATH } from './constants/paths';
 import MainLayout from './layouts/mainLayout/MainLayout';
-import Login from './pages/login/index';
 import ForgotPassword from './pages/login/ForgotPassword';
+import Login from './pages/login/index';
 import Template from './pages/templates/index';
 import VoucherForm from './pages/vouchers/VoucherForm';
-import { useBadgesStore } from './store/badgesStore';
 import { getToken } from './utils/auth';
-import Loading from './components/loading';
 
 const Sellers = lazy(() => import('./pages/sellers/index'));
 const Home = lazy(() => import('./pages/home/index'));
@@ -30,7 +29,6 @@ const Users = lazy(() => import('./pages/users'));
 const UserEdit = lazy(() => import('./pages/users/UserEdit'));
 const Account = lazy(() => import('./pages/account'));
 const Categories = lazy(() => import('./pages/categories'));
-const HomepageInterface = lazy(() => import('./pages/settings/homepageInterface'));
 const StoreDetail = lazy(() => import('./pages/stores/StoreDetail'));
 const MultiAddProducts = lazy(() => import('./pages/stores/MultiAddProducts'));
 const OrderDetail = lazy(() => import('./pages/orders/OrderDetail'));
@@ -321,16 +319,6 @@ function App() {
                 element={
                   <Suspense fallback={<Loading />}>
                     <Categories />
-                  </Suspense>
-                }
-              />
-
-              {/* Settings */}
-              <Route
-                path="/theme"
-                element={
-                  <Suspense fallback={<Loading />}>
-                    <HomepageInterface />
                   </Suspense>
                 }
               />

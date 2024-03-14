@@ -106,7 +106,6 @@ function StoreForm({ app_key, code, storeSelected, setShowModal }) {
                   message: 'Vui lòng nhập Shop name',
                 },
               ]}
-            // initialValue={selectedBanner?.action_link}
             >
               <Input placeholder="Nhập shop name" />
             </Form.Item>

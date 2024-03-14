@@ -1,21 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button, Form, Spin, message } from 'antd';
-
-import { alerts } from '../../utils/alerts';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useShopsBrand } from '../../store/brandStore';
 import { useCategoriesStore } from '../../store/categoriesStore';
 import { useProductsStore } from '../../store/productsStore';
 import { useWareHousesStore } from '../../store/warehousesStore';
-import { useShopsBrand } from '../../store/brandStore';
-import { getPathByIndex, formatNumber, ConvertProductAttribute } from '../../utils';
-
-import Loading from '../../components/loading';
+import { ConvertProductAttribute, formatNumber, getPathByIndex } from '../../utils';
 import PageTitle from '../../components/common/PageTitle';
-import ProductMedia from '../../components/products/ProductMedia';
 import ProductInformation from '../../components/products/ProductInformation';
+import ProductMedia from '../../components/products/ProductMedia';
 import ProductSale from '../../components/products/ProductSale';
-import ProductVariation from '../../components/products/ProductVariation';
 import ProductShipping from '../../components/products/ProductShipping';
+import ProductVariation from '../../components/products/ProductVariation';
 
 function ProductEdit() {
   const navigate = useNavigate();

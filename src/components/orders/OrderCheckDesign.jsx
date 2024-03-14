@@ -1,16 +1,10 @@
-import { useEffect, useState } from 'react';
-import { Table, Button, message, Modal, Form, Input, Space, Tooltip, Popconfirm, Pagination } from 'antd';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { Button, Form, Input, Modal, Pagination, Popconfirm, Space, Table, Tooltip, message } from 'antd';
+import { useEffect, useState } from 'react';
 
 import { useShopsOrder } from '../../store/ordersStore';
-import { IntlNumberFormat } from '../../utils';
-import { statusOrder } from '../../constants';
 
-import PageTitle from '../common/PageTitle';
-import OrdersAddNewDesignData from './OrdersAddNewDesignData';
-import OrdersAddImageDesignByExcel from './OrdersAddImageDesignByExcel';
 import SectionTitle from '../common/SectionTitle';
-import OrderProductProver from './OrderProductProver';
 
 function OrderCheckDesign({ toShipInfoData }) {
   const [form] = Form.useForm();
@@ -28,8 +22,6 @@ function OrderCheckDesign({ toShipInfoData }) {
       span: 4,
     },
   };
-
-  console.log('toShipInfoData: ', designSku);
 
   const handleCheckDesign = () => {
     const dataCheck = toShipInfoData
@@ -303,371 +295,109 @@ function OrderCheckDesign({ toShipInfoData }) {
       });
     }
 
-    const handleCheckDesign = () => {
-      const dataCheck = toShipInfoData.map(order => {
-        const productList = order.order_list.map((item, index) => {
-          const productItem = item.item_list.map(product => (
-            {
-              ...product,
-              order_id: order.order_list[index].order_id
-            }
-          )).flat()
-          return productItem
-        }).flat()
+    return columns;
+  };
 
-        useEffect(() => {
-          const onSuccess = (res) => {
-            setDesignSku(res);
-          };
-          getDesignSku(onSuccess, (err) => console.log('Design Sku: ', err));
-        }, []);
+  useEffect(() => {
+    const onSuccess = (res) => {
+      setDesignSku(res);
+    };
+    getDesignSku(onSuccess, (err) => console.log('Design Sku: ', err));
+  }, []);
 
-        return (
-          <div className="p-3 md:p-10">
-            <SectionTitle title="Danh sách Design" />
-            <div className="flex flex-wrap items-center">
-              <Button type="primary" className="mb-3" onClick={handleCheckDesign}>
-                Kiểm tra và thêm Design mới
-              </Button>
-            </div>
-            <div className="text-right">
-              <Table
-                rowKey="order_id"
-                scroll={{ x: true }}
-                columns={generateColumns(true)}
-                dataSource={designSku.results}
-                pagination={false}
-                bordered
-                loading={loading}
-              />
-              <Pagination
-                className="mt-10"
-                current={pageIndex}
-                total={designSku.count}
-                pageSize={100}
-                onChange={handleChangePagePagination}
-              />
-            </div>
-
-        const dataDesignSku = dataCheckResult.filter(checkItem => {
-            return !designSku.results?.some(designItem => designItem.sku_id === checkItem.sku_id);
-        })
-
-            console.log('dataDesignSku: ', dataDesignSku);
-
-            if (dataDesignSku.length) {
-              setOpenNewDesignModal(true)
-            setNewDesignSku(dataDesignSku)
-        } else {
-              messageApi.open({
-                type: 'info',
-                content: 'Tất cả design đều đã tồn tại. Vui lòng kiểm tra lại bằng chức tìm kiếm',
-              });
-        }
-    }
-
-    const handleAddNewDesign = (values) => {
-        const newData = Object.values(values)
-        const onSuccess = (res) => {
-            if (res) {
-              messageApi.open({
-                type: 'success',
-                content: 'Thêm thiết kế thành công',
-              })
-                
-                getDesignSku(
-                    (newRes) => setDesignSku(newRes),
-                    (err) => console.log('Error when fetching design SKU: ', err)
-            )
-
-            setOpenNewDesignModal(false)
-            }
-        }
-
-        const onFail = (err) => {
-              messageApi.open({
-                type: 'error',
-                content: err,
-              })
-            setOpenNewDesignModal(false)
-        }
-            postDesignSku(newData, onSuccess, onFail)
-    }
-
-    const handleEditDesign = (index) => {
-              form.setFieldsValue(designSku.results[index])
-        setOpenEditDesignModal(true)
-    }
-
-    const handleUpdateDesign = (values) => {
-              let updateItem = {
-              image_front: values.image_front,
-            image_back: values.image_back
-        }
-
-        const onSuccess = (res) => {
-              console.log(res);
-            if (res) {
-              messageApi.open({
-                type: 'success',
-                content: 'Cập nhật design thành công',
-              })
-                getDesignSku(
-                    (newRes) => setDesignSku(newRes),
-                    (err) => console.log('Error when fetching design SKU: ', err)
-            )
-            setOpenEditDesignModal(false)
-            }
-        }
-
-        const onFail = (err) => {
-              messageApi.open({
-                type: 'error',
-                content: err,
-              })
-            setOpenEditDesignModal(false)
-        }
-
-            putDesignSku(updateItem, values.id, onSuccess, onFail)
-    }
-
-    const handleDeleteDesign = (index) => {
-              console.log('designSku[index]: ', designSku[index]);
-        const onSuccess = (res) => {
-            if (res) {
-              messageApi.open({
-                type: 'success',
-                content: 'Xoá design thành công',
-              })
-
-                getDesignSku(
-                    (newRes) => setDesignSku(newRes),
-                    (err) => console.log('Error when fetching design SKU: ', err)
-            )
-            }
-        }
-
-        const onFail = (err) => {
-              messageApi.open({
-                type: 'error',
-                content: err,
-              })
-            }
-
-            deleteDesignSku(designSku[index].id, onSuccess, onFail)
-    }
-
-    const handleChangePagePagination = (page) => {
-        const onSuccess = (res) => {
-            if (res) {
-              setPageIndex(page)
-                setDesignSku(res)
-            }
-        }
-            getDesignSkuSize(page, onSuccess)
-
-    }
-
-    const generateColumns = (showActionsColumn) => {
-        const columns = [
-            {
-              title: 'STT',
-            dataIndex: 'stt',
-            align: 'center',
-                render: (_, record, index) => index + 1
-            },
-            {
-              title: 'Sku ID',
-            dataIndex: 'sku_id',
-            align: 'center',
-            width: '200px',
-                render: (_, record, index) => (
-            <>
-              {record.order_id ?
-                <Form.Item name={[index, "sku_id"]} initialValue={record.sku_id}>
-                  <Input className='pointer-events-none border-none bg-transparent' />
-                </Form.Item>
-                :
-                record.sku_id
-              }
-            </>
-            )
-            },
-            {
-              title: 'Product name',
-            dataIndex: 'product_name',
-            width: '200px',
-                render: (_, record, index) => (
-            <>
-              {record.order_id ?
-                <Tooltip title={record.product_name}>
-                  <Form.Item name={[index, "product_name"]} initialValue={record.product_name}>
-                    <Input className='w-full block pointer-events-none border-none bg-transparent text-ellipsis overflow-hidden whitespace-normal' />
-                  </Form.Item>
-                </Tooltip>
-                :
-                <p>{record.product_name}</p>
-              }
-            </>
-            )
-            },
-            {
-              title: 'Variation',
-            dataIndex: 'variation',
-                render: (_, record, index) => (
-            <>
-              {record.order_id ?
-                <Form.Item name={[index, "variation"]} initialValue={record.variation}>
-                  <Input className='pointer-events-none border-none bg-transparent' />
-                </Form.Item>
-                :
-                record.variation
-              }
-            </>
-            )
-            },
-            {
-              title: 'Design front image',
-            dataIndex: 'image_front',
-                render: (_, record, index) => (
-            <>
-              {record.order_id ?
-                <Form.Item name={[index, "image_front"]}>
-                  <Input />
-                </Form.Item>
-                :
-                <p>{record.image_front}</p>
-              }
-            </>
-            )
-            },
-            {
-              title: 'Design back image',
-            dataIndex: 'image_back',
-                render: (_, record, index) => (
-            <>
-              {record.order_id ?
-                <Form.Item name={[index, "image_back"]}>
-                  <Input />
-                </Form.Item>
-                :
-                <p>{record.image_back}</p>
-              }
-            </>
-            )
-            },
-
-            ]
-
-            if (showActionsColumn) {
-              columns.push({
-                title: 'Actions',
-                dataIndex: 'actions',
-                align: 'center',
-                render: (_, record, index) => (
-                  <>
-                    {!record.order_id &&
-                      <Space>
-                        <Tooltip title="Sửa design">
-                          <Button className='border-none bg-transparent shadow-none' onClick={() => handleEditDesign(index)}><EditOutlined /></Button>
-                        </Tooltip>
-                        <Popconfirm title="Sure to delete?" onConfirm={() => handleDeleteDesign(index)}>
-                          <Button className='border-none bg-transparent shadow-none'><DeleteOutlined /></Button>
-                        </Popconfirm>
-                      </Space>
-                    }
-                  </>
-                )
-              });
-        }
-
-            return columns;
-    }
-
-    useEffect(() => {
-        const onSuccess = (res) => {
-              setDesignSku(res)
-            }
-        getDesignSku(onSuccess, (err) => console.log('Design Sku: ',err))
-    }, [])
-
-            return (
-            <div className="p-3 md:p-10">
-              <SectionTitle title='Danh sách Design' />
-              <div className='flex flex-wrap items-center'>
-                <Button type="primary" className='mb-3' onClick={handleCheckDesign}>Kiểm tra và thêm Design mới</Button>
-              </div>
-              <div className='text-right'>
-                <Table rowKey="order_id" scroll={{ x: true }} columns={generateColumns(true)} dataSource={designSku.results}
-                  pagination={false}
-                  bordered
-                  loading={loading}
-                />
-                <Pagination className='mt-10' current={pageIndex} total={designSku.count} pageSize={100} onChange={handleChangePagePagination} />
-              </div>
-
-              <Modal
-                title={`Thêm ${newDesignSku.length} design mới`}
-                centered
-                open={openNewDesignModal}
-                onCancel={() => setOpenNewDesignModal(false)}
-                footer={false}
-                width={1000}
-              >
-                <Form
-                  name="basic"
-                  onFinish={handleAddNewDesign}
-                  onFinishFailed={() => { }}
-                >
-
-                  <Table columns={generateColumns(false)} dataSource={newDesignSku} pagination={false} bordered className='mt-5' />
-                  <Form.Item className='flex flex-wrap items-center justify-end mt-5'>
-                    <Button type="primary" htmlType="submit">Submit</Button>
-                  </Form.Item>
-                </Form>
-              </Modal>
-              <Modal
-                title={`Sửa Design SKU`}
-                centered
-                open={openEditDesignModal}
-                onCancel={() => setOpenEditDesignModal(false)}
-                footer={false}
-                width={1000}
-              >
-                <Form
-                  name="basic"
-                  onFinish={handleUpdateDesign}
-                  onFinishFailed={() => { }}
-                  layout="horizontal"
-                  {...formItemLayout}
-                  form={form}
-                >
-                  <Form.Item name="id" label="Design ID:" className='mb-0 font-bold hidden'>
-                    <Input className='border-none bg-transparent p-0' />
-                  </Form.Item>
-                  <Form.Item name="sku_id" label="Sku ID:" className='mb-0 font-bold'>
-                    <Input className='border-none bg-transparent p-0' />
-                  </Form.Item>
-                  <Form.Item name="product_name" label="Product name:" className='mb-0 font-bold'>
-                    <Input className='border-none bg-transparent p-0' />
-                  </Form.Item>
-                  <Form.Item name="variation" label="Product variation:" className='font-bold'>
-                    <Input className='border-none bg-transparent p-0' />
-                  </Form.Item>
-                  <Form.Item name="image_front" label="Image front:" className='font-bold'>
-                    <Input />
-                  </Form.Item>
-                  <Form.Item name="image_back" label="Image back:" className='font-bold'>
-                    <Input />
-                  </Form.Item>
-                  <Form.Item className='flex flex-wrap items-center justify-end mt-5'>
-                    <Button type="primary" htmlType="submit">Submit</Button>
-                  </Form.Item>
-                </Form>
-              </Modal>
-              {contextHolder}
-            </div>
-            );
+  return (
+    <div className="p-3 md:p-10">
+      <SectionTitle title="Danh sách Design" />
+      <div className="flex flex-wrap items-center">
+        <Button type="primary" className="mb-3" onClick={handleCheckDesign}>
+          Kiểm tra và thêm Design mới
+        </Button>
+      </div>
+      <div className="text-right">
+        <Table
+          rowKey="order_id"
+          scroll={{ x: true }}
+          columns={generateColumns(true)}
+          dataSource={designSku.results}
+          pagination={false}
+          bordered
+          loading={loading}
+        />
+        <Pagination
+          className="mt-10"
+          current={pageIndex}
+          total={designSku.count}
+          pageSize={100}
+          onChange={handleChangePagePagination}
+        />
+      </div>
+      <Modal
+        title={`Thêm ${newDesignSku.length} design mới`}
+        centered
+        open={openNewDesignModal}
+        onCancel={() => setOpenNewDesignModal(false)}
+        footer={false}
+        width={1000}
+      >
+        <Form name="basic" onFinish={handleAddNewDesign}>
+          <Table
+            columns={generateColumns(false)}
+            dataSource={newDesignSku}
+            pagination={false}
+            bordered
+            className="mt-5"
+          />
+          <Form.Item className="flex flex-wrap items-center justify-end mt-5">
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Modal
+        title="Sửa Design SKU"
+        centered
+        open={openEditDesignModal}
+        onCancel={() => setOpenEditDesignModal(false)}
+        footer={false}
+        width={1000}
+      >
+        <Form
+          name="basic"
+          onFinish={handleUpdateDesign}
+          // onFinishFailed={() => { }}
+          layout="horizontal"
+          {...formItemLayout}
+          form={form}
+        >
+          <Form.Item name="id" label="Design ID:" className="mb-0 font-bold hidden">
+            <Input className="border-none bg-transparent p-0" />
+          </Form.Item>
+          <Form.Item name="sku_id" label="Sku ID:" className="mb-0 font-bold">
+            <Input className="border-none bg-transparent p-0" />
+          </Form.Item>
+          <Form.Item name="product_name" label="Product name:" className="mb-0 font-bold">
+            <Input className="border-none bg-transparent p-0" />
+          </Form.Item>
+          <Form.Item name="variation" label="Product variation:" className="font-bold">
+            <Input className="border-none bg-transparent p-0" />
+          </Form.Item>
+          <Form.Item name="image_front" label="Image front:" className="font-bold">
+            <Input />
+          </Form.Item>
+          <Form.Item name="image_back" label="Image back:" className="font-bold">
+            <Input />
+          </Form.Item>
+          <Form.Item className="flex flex-wrap items-center justify-end mt-5">
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+      {contextHolder}
+    </div>
+  );
 }
 
-            export default OrderCheckDesign;
+export default OrderCheckDesign;

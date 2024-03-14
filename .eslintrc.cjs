@@ -13,7 +13,12 @@ module.exports = {
   },
   plugins: ['react', 'prettier'],
   rules: {
-    'prettier/prettier': 'error',
+    'prettier/prettier': [
+      'error',
+      {
+        endOfLine: 'auto',
+      },
+    ],
     camelcase: 'off',
     'no-console': 'off',
     'no-plusplus': 'off',

@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { PlusOutlined } from '@ant-design/icons';
-import { Modal, Upload, Form, Input, Button } from 'antd';
+import { Button, Form, Input, Modal, Upload } from 'antd';
+import React, { useState } from 'react';
 
 import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
-import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 const getBase64 = (file) =>

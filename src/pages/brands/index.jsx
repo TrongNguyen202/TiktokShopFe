@@ -1,8 +1,6 @@
 import { useEffect } from 'react';
 import { Table, Tag } from 'antd';
-
 import { useShopsBrand } from '../../store/brandStore';
-
 import PageTitle from '../../components/common/PageTitle';
 import { alerts } from '../../utils/alerts';
 

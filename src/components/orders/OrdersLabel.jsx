@@ -8,7 +8,7 @@ import { getPathByIndex } from '../../utils';
 import LoadingButton from '../common/LoadingButton';
 import SectionTitle from '../common/SectionTitle';
 
-function OrdersLabel({ changeNextStep, toShipInfoData }) {
+function OrdersLabel({ changeNextStep }) {
   const shopId = getPathByIndex(2);
   const location = useLocation();
   const { shippingDoc } = location.state;

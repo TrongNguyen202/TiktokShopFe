@@ -1,18 +1,16 @@
-import { PlusOutlined } from '@ant-design/icons';
-import { Button, Modal, Select, Spin, message } from 'antd';
+import { Modal, Select, Spin, message } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { useTemplateStore } from '../../store/templateStore';
 import { useProductsStore } from '../../store/productsStore';
-import { useWareHousesStore } from '../../store/warehousesStore';
-import { getPathByIndex } from '../../utils';
 import { useShopsStore } from '../../store/shopsStore';
+import { useTemplateStore } from '../../store/templateStore';
+import { useWareHousesStore } from '../../store/warehousesStore';
 import { alerts } from '../../utils/alerts';
 
 export default function ModalUploadProduct({ isShowModalUpload, setShowModalUpload, productList }) {
   // const shopId = getPathByIndex(2);
 
   const { getAllTemplate, templates } = useTemplateStore();
-  const { stores, getAllStores, refreshToken } = useShopsStore((state) => state);
+  const { stores, getAllStores } = useShopsStore((state) => state);
   const { createProductList, loading } = useProductsStore();
   const { getWarehousesByShopId, warehousesById, loadingWarehouse } = useWareHousesStore();
 

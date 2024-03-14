@@ -40,20 +40,20 @@ export const useShopsStore = create((set, get) => ({
     }
     set({ loading: false });
   },
-  updateStore: async (id, data, onSuccess = () => { }, onFail = () => { }) => {
+  updateStore: async (id, data, onSuccess = () => {}, onFail = () => {}) => {
     try {
-      set({ loading: true })
-      const response = await RepositoryRemote.stores.updateStore(id, data)
-      const index = get().stores.findIndex((item) => item.id === id)
-      const newStores = [...get().stores]
-      newStores[index] = response.data
-      set({ stores: newStores })
-      onSuccess(response.data)
+      set({ loading: true });
+      const response = await RepositoryRemote.stores.updateStore(id, data);
+      const index = get().stores.findIndex((item) => item.id === id);
+      const newStores = [...get().stores];
+      newStores[index] = response.data;
+      set({ stores: newStores });
+      onSuccess(response.data);
     } catch (error) {
-      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
     }
-    set({ loading: false })
-  }, 
+    set({ loading: false });
+  },
   searchStores: async (query, onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true });

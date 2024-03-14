@@ -1,11 +1,8 @@
-import { useState } from 'react';
-import { Form, Radio, InputNumber, Row, Col, Switch } from 'antd';
+import { Col, Form, InputNumber, Row } from 'antd';
 
 import ProductSectionTitle from './ProuctSectionTitle';
 
-function ProductCreateShipping({ isProductCreate }) {
-  const [valuePackage, setValuePackage] = useState('');
-
+function ProductCreateShipping() {
   return (
     <>
       <ProductSectionTitle title="Thông tin vận chuyển" />

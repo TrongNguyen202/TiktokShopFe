@@ -1,11 +1,8 @@
-import React, { useContext, useEffect, useRef, useState, useMemo, useCallback } from 'react';
-import { Button, Form, Input, Popconfirm, Table, Modal, Tooltip } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
-
-import { removeDuplicates } from '../../utils';
-import { variationsOption } from '../../constants';
-import ProductEditAddVariationForm from './ProductEditAddVariationForm';
+import { Button, Form, Input, Modal, Popconfirm, Table, Tooltip } from 'antd';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import ProductCreateAddVariationForm from './ProductCreateAddVariationForm';
+import ProductEditAddVariationForm from './ProductEditAddVariationForm';
 
 const EditableContext = React.createContext(null);
 

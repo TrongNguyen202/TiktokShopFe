@@ -97,7 +97,7 @@ function ProductInformation({ shopId, categories, brands, getAttributeValues, fo
           showSearch
           style={{ width: '100%' }}
           placeholder="Chọn 1 thương hiệu"
-          onChange={() => { }}
+          // onChange={() => { }}
           options={optionsBranch}
           filterOption={(input, options) => {
             return (
@@ -153,8 +153,7 @@ function ProductInformation({ shopId, categories, brands, getAttributeValues, fo
                       <CustomSelect
                         optionsSelect={optionAttribute}
                         type={item.name}
-                        selectedDefault={getDefaultSelected(item.id) || []}
-                      // onChange={setSelectedSize}
+                          selectedDefault={getDefaultSelected(item.id) || []}
                       />
                     )}
                   </Form.Item>

@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { Form, Button, Row, Col, Input, Card, Space } from 'antd';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import React, { useEffect } from 'react';
 
-import { alerts } from '../../utils/alerts';
-import { removeDuplicates } from '../../utils';
 import { useWareHousesStore } from '../../store/warehousesStore';
+import { alerts } from '../../utils/alerts';
 
-import ProductSectionTitle from './ProuctSectionTitle';
 import ProductVariationTable from './ProductVariationTable';
+import ProductSectionTitle from './ProuctSectionTitle';
 
 function ProductVariation({ shopId, variations, variationsDataTable, isProductCreate }) {
   const { getWarehousesByShopId, warehousesById } = useWareHousesStore((state) => state);

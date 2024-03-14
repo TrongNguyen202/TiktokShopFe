@@ -1,5 +1,5 @@
+import { Button, Form, Input, Modal, message } from 'antd';
 import { useEffect } from 'react';
-import { Table, Button, Space, Input, Form, message, Spin, Modal, Tooltip, Popconfirm, Pagination } from 'antd';
 
 import { useShopsOrder } from '../../store/ordersStore';
 
@@ -7,7 +7,7 @@ function DesignEdit({ openModal, initData, refreshDesign, groupId }) {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const [openEditModal, setOpenEditModal] = openModal;
-  const { getDesignSkuByGroup, putDesignSku, loading } = useShopsOrder((state) => state);
+  const { getDesignSkuByGroup, putDesignSku } = useShopsOrder((state) => state);
 
   const handleUpdateDesign = (values) => {
     const updateItem = {

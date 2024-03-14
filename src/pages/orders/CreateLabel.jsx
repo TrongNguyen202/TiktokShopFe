@@ -122,7 +122,7 @@ function CreateLabel() {
     const dataUpdate = [...tableData];
 
     if (key.includes('package_size')) {
-      const originalSize = dataTableConvert[index];
+      // const originalSize = dataTableConvert[index];
       const position = key.slice(key.lastIndexOf('_') + 1);
       dataUpdate[index].package_size[position] = e.target.value;
     } else {
@@ -513,7 +513,7 @@ function CreateLabel() {
       />
 
       <Modal title="Size Chart" open={open} onCancel={() => setOpen(false)} width={1000} footer={false}>
-        <Form name="basic" onFinish={handleUpdateSizeChart} onFinishFailed={() => { }}>
+        <Form name="basic" onFinish={handleUpdateSizeChart}>
           <Table dataSource={dataSizeChartConvert} columns={columnsSizeChart} bordered pagination={false} />
           <Form.Item className="text-right mt-10">
             <Button type="primary" htmlType="submit">

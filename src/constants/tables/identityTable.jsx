@@ -1,6 +1,6 @@
 import { Tooltip } from 'antd';
 import { Link } from 'react-router-dom';
-import { statusIdentity, stepIdentityStatus } from '..';
+import { stepIdentityStatus } from '..';
 import { CircleCheck, CircleClose, CircleThreeDot } from '../../assets/icons';
 
 export const identityTable = [
