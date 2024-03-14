@@ -1,4 +1,7 @@
 from asyncio import constants
+
+from click import group
+from yaml import serialize
 from ....models import Shop, BuyedPackage, UserGroup, DesignSku, DesignSkuChangeHistory, GroupCustom
 from ....serializers import BuyedPackageSeri, DesignSkuSerializer, GroupCustomSerializer, DesignSkuPutSerializer
 
@@ -420,6 +423,17 @@ class DesignSkuDetailAPIView(APIView):
             designsku.delete()
             return Response({"message": "DesignSku deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
         return Response({"error": f"DesignSku with ID {pk} does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class DesignSkuBySkuId(APIView):
+    def get(self, request, sku_id):
+        user = request.user
+        print(user.username)  # In ra tên người dùng để kiểm tra
+        user_group = UserGroup.objects.get(user=user)
+        group_custom = user_group.group_custom
+        design_skus = DesignSku.objects.get(department=group_custom, sku_id=sku_id)
+        serializer = DesignSkuSerializer(design_skus)
+        return Response(serializer.data)
 
 
 class DesignSkuDepartment(APIView):

@@ -86,6 +86,7 @@ fulfillment_urls = [
     path('flashship/all', flashshipapi.FlashShipPODVariantListView.as_view(), name='flashship_getall'),
     path('shops/upload_driver', tiktok.order_action.UploadDriver.as_view(), name='upload_driver'),
     path('shops/<int:shop_id>/orders/toship_infor', tiktok.order_action.ToShipOrderAPI.as_view(), name='to_ship_order'),
+    path('designskus/<str:sku_id>', tiktok.order_action.DesignSkuBySkuId.as_view(), name='designsku_detail'),
 ]
 
 

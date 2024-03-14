@@ -17,6 +17,7 @@ def getAccessToken(auth_code: str) -> requests.Response:
     )
 
     logger.info(f'Get access token status code: {resposne.status_code}')
+    print(resposne)
 
     return resposne
 
