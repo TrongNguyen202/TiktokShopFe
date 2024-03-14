@@ -1,28 +1,27 @@
-import { EyeOutlined } from '@ant-design/icons'
-import { Button, Drawer, Image, Layout, Space, Table } from 'antd'
-import { useEffect, useState } from 'react'
-import ImageDefault from '../../assets/images/image-default.jpg'
-import { useCustomersStore } from '../../store/customersStore'
-import { formatNumber } from '../../utils'
-import { formatDate } from '../../utils/date'
-import CustomerDetail from './CustomerDetail'
-import SearchInput from '../../components/search-input'
+import { Drawer, Image, Layout, Table } from 'antd';
+import { useEffect, useState } from 'react';
+import ImageDefault from '../../assets/images/image-default.jpg';
+import SearchInput from '../../components/search-input';
+import { useCustomersStore } from '../../store/customersStore';
+import { formatNumber } from '../../utils';
+import { formatDate } from '../../utils/date';
+import CustomerDetail from './CustomerDetail';
 
 export default function Customers() {
-  const { customers, getAllCustomers, loading, infoTable } = useCustomersStore((state) => state)
-  const [isOpenDrawer, setOpenDrawer] = useState(false)
-  const [selectedId, setSelectedId] = useState(null)
-  const [keyword, setKeyword] = useState('')
+  const { customers, getAllCustomers, loading, infoTable } = useCustomersStore((state) => state);
+  const [isOpenDrawer, setOpenDrawer] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
+  const [keyword, setKeyword] = useState('');
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
       pageSize: 20,
     },
-  })
+  });
 
   useEffect(() => {
-    fetchDataTable(keyword)
-  }, [])
+    fetchDataTable(keyword);
+  }, []);
 
   const fetchDataTable = (keyword) => {
     const onSuccess = (response) => {
@@ -32,13 +31,13 @@ export default function Customers() {
           ...tableParams.pagination,
           total: response.total,
         },
-      })
-    }
+      });
+    };
     const onFail = (err) => {
-      alert.error(err)
-    }
-    getAllCustomers(keyword, onSuccess, onFail)
-  }
+      alert.error(err);
+    };
+    getAllCustomers(keyword, onSuccess, onFail);
+  };
 
   const handleTableChange = (pagination) => {
     setTableParams({
@@ -47,8 +46,8 @@ export default function Customers() {
         ...tableParams.pagination,
         current: pagination.current,
       },
-    })
-  }
+    });
+  };
 
   const productsTable = [
     {
@@ -69,11 +68,11 @@ export default function Customers() {
             <Image
               width={40}
               height={40}
-              className='object-cover rounded-full'
+              className="object-cover rounded-full"
               src={customer.avatar_image || ImageDefault}
             />
           </div>
-        )
+        );
       },
       fixed: 'left',
     },
@@ -85,10 +84,10 @@ export default function Customers() {
       render: (name, customer) => (
         <p
           onClick={() => {
-            setOpenDrawer(true)
-            setSelectedId(customer.id)
+            setOpenDrawer(true);
+            setSelectedId(customer.id);
           }}
-          className='text-[#0e2482] font-medium cursor-pointer'
+          className="text-[#0e2482] font-medium cursor-pointer"
         >
           {name}
         </p>
@@ -98,15 +97,14 @@ export default function Customers() {
       title: 'Số điện thoại',
       dataIndex: 'phone_number',
       key: 'phone_number',
-      sorter: (customer1, customer2) =>
-        (customer1.phone_number || '').localeCompare(customer2.phone_number || ''),
+      sorter: (customer1, customer2) => (customer1.phone_number || '').localeCompare(customer2.phone_number || ''),
       render: (phone, customer) => (
         <p
           onClick={() => {
-            setOpenDrawer(true)
-            setSelectedId(customer.id)
+            setOpenDrawer(true);
+            setSelectedId(customer.id);
           }}
-          className='text-[#0e2482] font-medium cursor-pointer'
+          className="text-[#0e2482] font-medium cursor-pointer"
         >
           {phone}
         </p>
@@ -116,66 +114,39 @@ export default function Customers() {
       title: 'Xu tích lũy',
       dataIndex: 'points',
       key: 'points',
-      sorter: (customer1, customer2) =>
-        customer1.points.toString().localeCompare(customer2.points.toString()),
+      sorter: (customer1, customer2) => customer1.points.toString().localeCompare(customer2.points.toString()),
       render: (_, customer) => formatNumber(customer.points),
     },
     {
       title: 'Ngày tham gia',
       dataIndex: 'created_at',
       key: 'created_at',
-      render: (date) =>
-        date ? <p>{formatDate(new Date(date), ' HH:mm DD/MM/yyyy').toLocaleString()}</p> : <></>,
-      sorter: (date1, date2) =>
-        new Date(date1.created_at || '').getTime() - new Date(date2.created_at || '').getTime(),
+      render: (date) => (date ? <p>{formatDate(new Date(date), ' HH:mm DD/MM/yyyy').toLocaleString()}</p> : <></>),
+      sorter: (date1, date2) => new Date(date1.created_at || '').getTime() - new Date(date2.created_at || '').getTime(),
     },
     {
       title: 'Tổng tiền hàng',
       dataIndex: 'total_final_all_status',
       key: 'total_final_all_status',
       sorter: (customer1, customer2) =>
-        customer1.total_final_all_status
-          .toString()
-          .localeCompare(customer2.total_final_all_status.toString()),
+        customer1.total_final_all_status.toString().localeCompare(customer2.total_final_all_status.toString()),
       render: (_, customer) => {
-        return <div>{formatNumber(customer.total_final_all_status)}đ</div>
+        return <div>{formatNumber(customer.total_final_all_status)}đ</div>;
       },
     },
-    // {
-    //   title: "",
-    //   key: "action",
-    //   fixed: "right",
-    //   align: "center",
-    //   render: (_, customer) => {
-    //     return (
-    //       <Space size="middle">
-    //         <Button
-    //           size="small"
-    //           icon={<EyeOutlined />}
-    //           onClick={() => {
-    //             setOpenDrawer(true);
-    //             setSelectedId(customer.id);
-    //           }}
-    //         >
-    //           Xem
-    //         </Button>
-    //       </Space>
-    //     );
-    //   },
-    // },
-  ]
+  ];
 
   return (
-    <Layout.Content className='mt-4 px-5'>
-      <p className='my-5 font-semibold text-[20px]'>Danh sách khách hàng</p>
-      <div className='flex gap-4 items-center my-3'>
+    <Layout.Content className="mt-4 px-5">
+      <p className="my-5 font-semibold text-[20px]">Danh sách khách hàng</p>
+      <div className="flex gap-4 items-center my-3">
         <SearchInput keyword={keyword} onChange={setKeyword} onSearch={fetchDataTable} />
-        <p className='text-[#0e2482] font-medium'>{infoTable.total} khách hàng</p>
+        <p className="text-[#0e2482] font-medium">{infoTable.total} khách hàng</p>
       </div>
       <Table
         columns={productsTable}
         scroll={{ x: true }}
-        size='middle'
+        size="middle"
         bordered
         dataSource={customers.length ? customers : []}
         loading={loading}
@@ -183,14 +154,14 @@ export default function Customers() {
         pagination={tableParams.pagination}
       />
       <Drawer
-        title='Thông tin khách hàng'
-        placement='right'
-        width='35vw'
+        title="Thông tin khách hàng"
+        placement="right"
+        width="35vw"
         onClose={() => setOpenDrawer(false)}
         open={isOpenDrawer}
       >
         <CustomerDetail id={selectedId} />
       </Drawer>
     </Layout.Content>
-  )
+  );
 }

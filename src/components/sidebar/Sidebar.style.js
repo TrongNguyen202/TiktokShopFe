@@ -1,7 +1,7 @@
-import styled from 'styled-components'
-import { Layout } from 'antd'
+import styled from 'styled-components';
+import { Layout } from 'antd';
 
-const { Sider } = Layout
+const { Sider } = Layout;
 
 export const StyledSidebar = styled(Sider)`
   background-color: #f0f2f5;
@@ -31,7 +31,7 @@ export const StyledSidebar = styled(Sider)`
   .ant-menu-submenu-selected .ant-menu-submenu-title .ant-menu-title-content a {
     color: #1677ff;
   }
-`
+`;
 export const StyledLogo = styled.div`
   background-color: #fff;
   display: flex;
@@ -48,4 +48,4 @@ export const StyledLogo = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
   }
-`
+`;

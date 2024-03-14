@@ -1,27 +1,27 @@
-import { callApi } from '../apis'
+import { callApi } from '../apis';
 
 const login = (form) => {
-  return callApi('/login', 'post', form)
-}
+  return callApi('/login', 'post', form);
+};
 const register = (form) => {
-  return callApi('/register', 'post', form)
-}
+  return callApi('/register', 'post', form);
+};
 const checkExists = (form) => {
-  return callApi('/login/check_exists', 'post', form)
-}
+  return callApi('/login/check_exists', 'post', form);
+};
 const resetPassword = (form) => {
-  return callApi('/reset_password', 'post', form)
-}
+  return callApi('/reset_password', 'post', form);
+};
 const sendOtp = (form) => {
-  return callApi('/send_otp', 'post', form)
-}
+  return callApi('/send_otp', 'post', form);
+};
 const sendEmailOtp = (form) => {
-  return callApi('/send_email_otp', 'post', form)
-}
+  return callApi('/send_email_otp', 'post', form);
+};
 
 const getProfileInfo = () => {
-  return callApi('/groups/user_login_infor', 'get')
-}
+  return callApi('/groups/user_login_infor', 'get');
+};
 
 export const auth = {
   login,
@@ -30,5 +30,5 @@ export const auth = {
   checkExists,
   resetPassword,
   sendEmailOtp,
-  getProfileInfo
-}
+  getProfileInfo,
+};
