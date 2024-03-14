@@ -1,6 +1,9 @@
 from asyncio import constants
+
+from click import group
+from yaml import serialize
 from ....models import Shop, BuyedPackage, UserGroup, DesignSku, DesignSkuChangeHistory, GroupCustom
-from ....serializers import BuyedPackageSeri, DesignSkuSerializer, GroupCustomSerializer, DesignSkuPutSerializer
+from ....serializers import BuyedPackageSeri, DesignSkuSerializer, GroupCustomSerializer, DesignSkuPutSerializer, PackageSerializer
 
 from datetime import datetime
 from api.utils.pdf.ocr_pdf import *
@@ -422,6 +425,17 @@ class DesignSkuDetailAPIView(APIView):
         return Response({"error": f"DesignSku with ID {pk} does not exist."}, status=status.HTTP_404_NOT_FOUND)
 
 
+class DesignSkuBySkuId(APIView):
+    def get(self, request, sku_id):
+        user = request.user
+        print(user.username)  # In ra tên người dùng để kiểm tra
+        user_group = UserGroup.objects.get(user=user)
+        group_custom = user_group.group_custom
+        design_skus = DesignSku.objects.get(department=group_custom, sku_id=sku_id)
+        serializer = DesignSkuSerializer(design_skus)
+        return Response(serializer.data)
+
+
 class DesignSkuDepartment(APIView):
     permission_classes = (IsAuthenticated,)
     pagination_class = CustomPagination
@@ -632,3 +646,25 @@ class ToShipOrderAPI(View):
                 data.append(order_detail)
 
         return JsonResponse(data, status=200, safe=False)
+
+
+class PackageCreateForFlash(APIView):
+    def post(self, request, format=None):
+ 
+        request.data['fulfillment_name'] = 'FlashShip'
+        serializer = PackageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class PackageCreateForPrint(APIView):
+    def post(self, request, format=None):
+
+        request.data['fulfillment_name'] = 'PrintCare'
+        serializer = PackageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
