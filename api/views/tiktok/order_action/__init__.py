@@ -591,62 +591,82 @@ class UploadDriver(APIView):
 
 
 class ToShipOrderAPI(APIView):
-    def post(self, request, shop_id):
-        data = []
-        shop = get_object_or_404(Shop, id=shop_id)
-        access_token = shop.access_token
-        data_post = json.loads(request.body.decode('utf-8'))
-        order_documents = data_post.get('order_documents', [])
-
-        # TODO: Sử dụng ThreadPoolExecutor để thực hiện các cuộc gọi API đa luồng
-        for order_document in order_documents:
-            order_list = order_document.get("order_list")
-            doc_url = order_document.get('label')
-            package_id = order_document.get("package_id")
+    def get_order_detail(self, order_document) -> dict:
+        order_list = order_document.get('order_list')
+        doc_url = order_document.get('label')
+        package_id = order_document.get('package_id')
+        
+        # Tải file PDF từ doc_url
+        response = requests.get(doc_url)
+        
+        if response.status_code == 200:
+            file_name = f'{package_id}.pdf'
             
-            # Tải file PDF từ doc_url 
-            response = requests.get(doc_url)
-
-            if response.status_code == 200:
-                file_name = f"{package_id}.pdf"  # TODO: Phải cập nhật lại tên file để có thể search theo Order ID
-                if platform.system() == "Windows":
-                    file_path = os.path.join("C:\pdflabel", file_name)
-                else:
-                    os.makedirs('./.temp/labels', exist_ok=True)
-                    file_path = os.path.join('./.temp/labels', file_name)
-
-                with open(file_path, 'wb') as file:
-                    file.write(response.content)
-
-            order_ids = [item.get("order_id") for item in order_list] if order_list else []
-
+            platform_name = platform.system()
+            parent_dir = 'C:\pdflabel' if platform_name == 'Windows' else './.temp/labels'
+            os.makedirs(parent_dir, exist_ok=True)
+            file_path = os.path.join(parent_dir, file_name)
+            
+            with open(file_path, 'wb') as file:
+                file.write(response.content)
+            
+            order_ids = [item.get('order_id') for item in order_list] if order_list else []
+            
+            # Call OrderDetail API
             try:
-                order_detail: dict = order.callOrderDetail(access_token=access_token, orderIds=order_ids).json()
+                order_details: dict = order.callOrderDetail(access_token=self.access_token, orderIds=order_ids).json()
             except Exception as e:
-                logger.error(f"Error when calling OrderDetail API", exc_info=e)
-
+                logger.error(f'Error when calling OrderDetail API', exc_info=e)
                 error_response = {
                     'status': 'error',
                     'message': 'Có lỗi xảy ra khi gọi API OrderDetail',
                     'data': None
                 }
-
-                return JsonResponse(error_response, status=500, safe=False)
+                return error_response
             
-            # TODO: Nên kiểm soát thông tin trả về từ API OrderDetail để đảm bảo rằng thông tin trả về là hợp lệ
-            logger.info(f"OrderDetail response: {order_detail}")
+            logger.info(f'OrderDetail response: {order_details}')
 
-            # OCR user info
-            order_detail['ocr_result'] = process_pdf_to_info(file_path)
+            # Check the response from TikTok API
+            if order_details.get('data') is None:
+                error_response = {
+                    'status': 'error',
+                    'message': f'Có lỗi xảy ra khi gọi API OrderDetail: {order_details.get("message")}',
+                    'data': None
+                }
+                return error_response
+            else:
+                order_details['ocr_result'] = process_pdf_to_info(file_path)
+                success_response = {
+                    'status': 'success',
+                    'message': 'Thành công',
+                    'data': order_details
+                }
+                
+                return success_response
+        else:
+            error_response = {
+                'status': 'error',
+                'message': 'Có lỗi xảy ra khi tải file PDF',
+                'data': response.text
+            }
+            return error_response
+                
+    
+    def post(self, request, shop_id):
+        data = []
+        self.shop = get_object_or_404(Shop, id=shop_id)
+        self.access_token = self.shop.access_token
+        data_post = json.loads(request.body.decode('utf-8'))
+        order_documents = data_post.get('order_documents', [])
 
-            # order_detail['tracking_id'] = info_user.get('tracking_id', '')
-            # order_detail['name_buyer'] = info_user.get('name_buyer', '')
-            # order_detail['street'] = info_user.get('real_street', '')
-            # order_detail['city'] = info_user.get('city', '')
-            # order_detail['state'] = info_user.get('state', '')
-            # order_detail['zip_code'] = info_user.get('zip_code', '')
+        with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
+            futures = []
+            for order_document in order_documents:
+                futures.append(executor.submit(self.get_order_detail, order_document))
 
-            data.append(order_detail)
-
-        # Trả về kết quả sau khi loop hoàn thành
+            for future in futures:
+                result = future.result()
+                logger.info(f'User {request.user}: Order detail and OCR label result: {result}')
+                data.append(result)
+        
         return JsonResponse(data, status=200, safe=False)
