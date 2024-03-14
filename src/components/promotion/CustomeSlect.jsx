@@ -3,18 +3,18 @@ import { Select, Input, Button } from "antd";
 
 const CustomSelect = () => {
   const [limitType, setLimitType] = useState("no_limit");
-  const [limitValue, setLimitValue] = useState("");
+  const [limitValue, setLimitValue] = useState("No Limit");
   const [items, setItems] = useState([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-  console.log("isDropdownVisible", isDropdownVisible);
 
   const handleLimitTypeChange = (label, value) => {
     if (label === "no_limit") {
-      console.log("object", label, value);
       setIsDropdownVisible(false);
+      setLimitValue("No Limit");
+    } else {
+      setLimitType(label);
+      setLimitValue(value);
     }
-    setLimitType(label);
-    setLimitValue("");
   };
 
   const handleLimitInputChange = (e) => {
@@ -24,48 +24,45 @@ const CustomSelect = () => {
   const handleSetLimit = (e) => {
     if (limitType === "set_limit" && limitValue.trim() !== "") {
       setItems([...items, limitValue.trim()]);
-      setLimitValue("");
-      setLimitType("no_limit");
+      setLimitValue(limitValue);
+      setIsDropdownVisible(true);
     }
     setIsDropdownVisible(false);
   };
 
   return (
     <Select
-      value={limitType}
-      //   onSelect={handleLimitTypeChange}
-      //   onDropdownVisibleChange={(visible) => setIsDropdownVisible(visible)}
+      placeholder="No Limit"
+      value={limitValue}
       onClick={(e) => {
         e.preventDefault();
         setIsDropdownVisible(!isDropdownVisible);
       }}
       open={isDropdownVisible}
-      style={{ width: 150 }}
-      //   onChange={(e) => e.preventDefault()}
+      style={{ width: 150, textAlign: "center" }}
       dropdownRender={() => (
-        <div
-        //   onMouseDown={(e) => {
-        //     e.preventDefault();
-        //     e.stopPropagation();
-        //   }}
-        >
+        <div>
           {
             <>
-              <p onClick={() => handleLimitTypeChange("no_limit", "no_limit")}>
+              <p
+                className="text-center text-black p-2 hover:bg-[#f5f5f5] cursor-pointer rounded-sm font-semibold"
+                onClick={() => handleLimitTypeChange("no_limit", "no_limit")}
+              >
                 No limit
               </p>
-              <p
+              <div
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  handleLimitTypeChange("set_limit", "set_limit");
+                  handleLimitTypeChange("set_limit", limitValue);
                 }}
               >
-                set limit
+                <p className="text-center text-black p-2 hover:bg-[#f5f5f5] cursor-pointer rounded-sm font-semibold">
+                  Set limit
+                </p>
                 {limitType === "set_limit" && (
-                  <div style={{ padding: 8 }}>
+                  <div className="p-2 flex">
                     <Input
-                      //   value={limitValue}
                       onChange={handleLimitInputChange}
                       style={{ width: 100, marginRight: 8 }}
                     />
@@ -74,15 +71,12 @@ const CustomSelect = () => {
                     </Button>
                   </div>
                 )}
-              </p>
+              </div>
             </>
           }
         </div>
       )}
-    >
-      {/* <Select.Option value="no_limit">No Limit</Select.Option>
-      <Select.Option value="set_limit">Set Limit</Select.Option> */}
-    </Select>
+    />
   );
 };
 

@@ -27,7 +27,7 @@ import {
   removeDuplicates,
 } from "../../utils";
 
-import { validateName, validateDateRange } from "../../utils/validate";
+import { validateName, validateEndDate } from "../../utils/validate";
 import { alerts } from "../../utils/alerts";
 import { useCategoriesStore } from "../../store/categoriesStore";
 import { useProductsStore } from "../../store/productsStore";
@@ -67,6 +67,7 @@ export default function PromotionForm() {
   );
   const [messageApi, contextHolder] = message.useMessage();
   const [prdSelected, setPrdSelected] = useState([]);
+  const [dealPrice, setDealPrice] = useState(1);
 
   const onSubmit = (value) => {
     const onSuccess = () => {
@@ -96,18 +97,12 @@ export default function PromotionForm() {
   };
 
   //logic datepicker
-  const handleChangeStartTime = (day, dateString) => {
-    const today = dayjs();
-    const todayFormatted = today.format("DD/MM/YYYY");
-    console.log(
-      "start timeeeeee",
-      dayjs(day, { format: "DD/MM/YYYY" }) - todayFormatted
-    );
-    return dateString;
+  const handleChangeStartTime = (day) => {
+    return day;
   };
-  const handleChangeEndTime = (_, dateString) => {
+  const handleChangeEndTime = (day, dateString) => {
     console.log("end timeeeeee", dateString);
-    return dateString;
+    return day;
   };
   // disable after today
   const disabledDate = (current) => {
@@ -151,7 +146,6 @@ export default function PromotionForm() {
   const onSelectChange = (newSelectedRowKeys, selectedRows) => {
     setSelectedRowKeys(newSelectedRowKeys);
     setPrdSelected(selectedRows);
-    console.log("object", prdSelected);
   };
 
   //logic table prd selected row
@@ -301,30 +295,40 @@ export default function PromotionForm() {
           record?.skus?.map((item) => item?.price?.currency || "USD"),
           "currency"
         );
-        const minPrice = IntlNumberFormat(
-          current,
-          "currency",
-          3,
-          Math.min(...listPrice)
-        );
-        const maxPrice = IntlNumberFormat(
-          current,
-          "currency",
-          3,
-          Math.max(...listPrice)
-        );
+        const minPrice = Number(Math.min(...listPrice));
+        const maxPrice = Number(Math.max(...listPrice));
+
         return (
           <div>
             <Input
+              onChange={(e) => setDealPrice(e.target.value)}
               placeholder={`${discountType === true ? "%" : "$"}`}
               type="number"
               className="w-32 mt-6"
             />
             <div>
-              {minPrice === maxPrice && <span>{minPrice}</span>}
+              {minPrice === maxPrice && (
+                <span>
+                  {isNaN(minPrice)
+                    ? "Invalid price"
+                    : discountType === true
+                      ? Number(minPrice * (dealPrice / 100))
+                      : Number(minPrice - dealPrice)}
+                </span>
+              )}
               {minPrice !== maxPrice && (
                 <span className="text-xs">
-                  {minPrice} - {maxPrice}
+                  {isNaN(minPrice) || isNaN(maxPrice)
+                    ? "Invalid price"
+                    : `${
+                        discountType === true
+                          ? Number(minPrice * (dealPrice / 100))
+                          : Number(minPrice - dealPrice)
+                      } - ${
+                        discountType === true
+                          ? Number(maxPrice * (dealPrice / 100))
+                          : Number(maxPrice - dealPrice)
+                      }`}
                 </span>
               )}
             </div>
@@ -405,7 +409,7 @@ export default function PromotionForm() {
           dataSource={prdSelected?.length > 0 ? prdSelected : []}
           loading={loading}
           bordered
-          rowKey={(record) => record.id}
+          rowKey={(record) => record.update_time}
         />
       </div>
     );
@@ -543,10 +547,10 @@ export default function PromotionForm() {
                       message: "Vui lòng chọn ngày kết thúc!",
                     },
                     () => ({
-                      validator() {
-                        const validTimePass = validateDateRange(
-                          handleChangeStartTime,
-                          handleChangeEndTime
+                      validator(_, value) {
+                        const validTimePass = validateEndDate(
+                          values.start_time,
+                          value
                         );
                         if (validTimePass) {
                           return Promise.reject(errorMessage);
