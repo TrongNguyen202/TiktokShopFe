@@ -1,8 +1,20 @@
+from django.forms import model_to_dict
 from ....models import User
 from ....helpers import send_mail_verification  # TODO: Chuyển helpers vào trong utils
 from ....serializers import SignUpSerializers, VerifySerializers
 
-from api.views import *
+from api.views import (
+    logging,
+    setup_logging,
+    APIView,
+    AllowAny,
+    extend_schema,
+    transaction,
+    Response, status,
+    force_str,
+    urlsafe_base64_decode,
+    model_to_dict
+)
 
 logger = logging.getLogger('api.views.tiktok.auth')
 setup_logging(logger, is_root=False, level=logging.INFO)

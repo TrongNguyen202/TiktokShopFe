@@ -4,7 +4,24 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.validators import UniqueValidator
 from .helpers import check_token
-from .models import *
+from .models import (
+    Shop,
+    Products,
+    CustomUser,
+    Image,
+    Templates,
+    FlashShipPODVariantList,
+    UserGroup,
+    GroupCustom,
+    Brand,
+    UserShop,
+    BuyedPackage,
+    DesignSku,
+    DesignSkuChangeHistory,
+    Package,
+    ProductPackage
+
+)
 
 
 class SignUpSerializers(serializers.ModelSerializer):
@@ -160,7 +177,7 @@ class PackageSerializer(serializers.ModelSerializer):
         model = Package
         fields = ['order_id', 'buyer_first_name', 'buyer_last_name', 'buyer_email', 'buyer_phone',
                   'buyer_address1', 'buyer_address2', 'buyer_city', 'buyer_province_code', 'buyer_zip',
-                  'buyer_country_code', 'shipment', 'linkLabel', 'products','fulfillment_name']
+                  'buyer_country_code', 'shipment', 'linkLabel', 'products', 'fulfillment_name']
 
     def create(self, validated_data):
         products_data = validated_data.pop('products')

@@ -1,6 +1,22 @@
 from api.models import Categories
 from django.contrib import admin
-from .models import *
+from .models import (
+    Shop,
+    Products,
+    CustomUser,
+    Image,
+    Templates,
+    FlashShipPODVariantList,
+    UserGroup,
+    GroupCustom,
+    Brand,
+    UserShop,
+    BuyedPackage,
+    DesignSku,
+    DesignSkuChangeHistory,
+    Package
+
+)
 
 
 @admin.register(Shop)
