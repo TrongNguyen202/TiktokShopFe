@@ -254,7 +254,7 @@ function Orders() {
           });
       }
     };
-    createLabel(shopId, orderSelected, onSuccess, () => { });
+    createLabel(shopId, orderSelected, onSuccess, () => {});
   };
 
   const handleStartFulfillment = () => {
@@ -320,6 +320,7 @@ function Orders() {
       align: 'center',
       render: (_, record) =>
         record.package_list.length > 0 ? record.package_list[0].package_id : 'Hiện chưa có package ID',
+      // eslint-disable-next-line consistent-return
       onCell: (record, index) => {
         const rowSpanData = orderDataTable.filter((item) => item.package_id === record.package_id);
         const orderIdRowSpanData = rowSpanData.map((item) => {
@@ -351,7 +352,7 @@ function Orders() {
           {record?.order_id}{' '}
           <p style={{ fontSize: 11, color: 'grey' }}>
             {' '}
-            {formatDate(record?.update_time * 1000, 'DD/MM/YYYY, h:mm:ss a')}{' '}
+            {formatDate(record.update_time * 1000, 'DD/MM/YYYY, h:mm:ss a')}{' '}
           </p>
         </Link>
       ),

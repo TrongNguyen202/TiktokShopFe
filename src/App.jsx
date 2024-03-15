@@ -32,6 +32,7 @@ const Orders = lazy(() => import('./pages/orders'));
 const OrderCheckBoughtLabel = lazy(() => import('./pages/orders/OrderCheckBoughtLabel'));
 const OrderCheckDesign = lazy(() => import('./pages/orders/OrderCheckDesign'));
 const OrderDetail = lazy(() => import('./pages/orders/OrderDetail'));
+const OrderCompleteFulfillment = lazy(() => import('./pages/orders/OrderCompleteFulfillment'));
 
 const DesignSku = lazy(() => import('./pages/designSku'));
 const Users = lazy(() => import('./pages/users'));
@@ -240,6 +241,15 @@ function App() {
                 element={
                   <Suspense fallback={<Loading />}>
                     <Fulfillment />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                path="/shops/:id/orders/fulfillment/completed"
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <OrderCompleteFulfillment />
                   </Suspense>
                 }
               />

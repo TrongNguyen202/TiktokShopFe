@@ -7,7 +7,6 @@ import OrderForPartner from '../../components/orders/OrderForPartner';
 import OrdersLabel from '../../components/orders/OrdersLabel';
 
 function Fulfillment() {
-  const { token } = theme.useToken();
   const [current, setCurrent] = useState(0);
   const [enableNextStep, setEnableNextStep] = useState(false);
   const [toShipInfoData, setToShipInfoData] = useState([]);

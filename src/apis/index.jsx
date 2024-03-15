@@ -12,6 +12,7 @@ const checkEndPoint = (endpoint) => {
   return false;
 };
 
+// eslint-disable-next-line consistent-return
 export const callApi = (endPoint, method, body) => {
   if (checkEndPoint(endPoint) === false) {
     axios.interceptors.request.use(
