@@ -579,7 +579,7 @@ class UploadDriver(APIView):
                 if response.status_code == 200:
                     # Save the file with order_id as the name
                     file_name = f"{order_id}.pdf"
-                    file_path = os.path.join("C:\\pdflabel", file_name)
+                    file_path = os.path.join(constant.PDF_DIRECTORY_WINDOW, file_name)
                     with open(file_path, 'wb') as f:
                         f.write(response.content)
                         print(f"File saved: {file_path}")
@@ -611,13 +611,22 @@ class ToShipOrderAPI(APIView):
         package_id = order_document.get('package_id')
 
         # Tải file PDF từ doc_url
-        response = requests.get(doc_url)
+        try:
+            response = requests.get(doc_url)
+        except Exception as e:
+            logger.error(f'Error when downloading PDF file', exc_info=e)
+            error_response = {
+                'status': 'error',
+                'message': f'Có lỗi xảy ra khi tải file PDF label: {str(e)}',
+                'data': None
+            }
+            return error_response
 
         if response.status_code == 200:
             file_name = f'{package_id}.pdf'
 
             platform_name = platform.system()
-            parent_dir = 'C:\pdflabel' if platform_name == 'Windows' else './.temp/labels'
+            parent_dir = constant.PDF_DIRECTORY_WINDOW if platform_name == 'Windows' else constant.PDF_DIRECTORY_UNIX
             os.makedirs(parent_dir, exist_ok=True)
             file_path = os.path.join(parent_dir, file_name)
 
@@ -679,7 +688,7 @@ class ToShipOrderAPI(APIView):
 
             for future in futures:
                 result = future.result()
-                logger.info(f'User {request.user}: Order detail and OCR label result: {result}')
+                # logger.info(f'User {request.user}: Order detail and OCR label result: {result}')
                 data.append(result)
 
         return JsonResponse(data, status=200, safe=False)
