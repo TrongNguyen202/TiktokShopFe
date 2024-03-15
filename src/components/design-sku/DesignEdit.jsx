@@ -1,5 +1,5 @@
-import { Button, Form, Input, Modal, message } from 'antd';
 import { useEffect } from 'react';
+import { Button, Input, Form, message, Modal } from 'antd';
 
 import { useShopsOrder } from '../../store/ordersStore';
 
@@ -7,7 +7,8 @@ function DesignEdit({ openModal, initData, refreshDesign, groupId }) {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const [openEditModal, setOpenEditModal] = openModal;
-  const { getDesignSkuByGroup, putDesignSku } = useShopsOrder((state) => state);
+
+  const { getDesignSkuByGroup, getDesignSku, putDesignSku } = useShopsOrder((state) => state);
 
   const handleUpdateDesign = (values) => {
     const updateItem = {
@@ -27,11 +28,19 @@ function DesignEdit({ openModal, initData, refreshDesign, groupId }) {
             type: 'success',
             content: 'Cập nhật design thành công',
           });
-          getDesignSkuByGroup(
-            groupId,
-            (newRes) => refreshDesign(newRes),
-            (err) => console.log('Error when fetching design SKU: ', err),
-          );
+
+          if (groupId) {
+            getDesignSkuByGroup(
+              groupId,
+              (newRes) => refreshDesign(newRes),
+              (err) => console.log('Error when fetching design SKU: ', err),
+            );
+          } else {
+            getDesignSku(
+              (newRes) => refreshDesign(newRes),
+              (err) => console.log('Error when fetching design SKU: ', err),
+            );
+          }
           setOpenEditModal(false);
         }
       };
@@ -39,7 +48,7 @@ function DesignEdit({ openModal, initData, refreshDesign, groupId }) {
       const onFail = (err) => {
         messageApi.open({
           type: 'error',
-          content: err,
+          content: `cập nhật sữ liệu: ${err}`,
         });
         setOpenEditModal(false);
       };
@@ -69,14 +78,17 @@ function DesignEdit({ openModal, initData, refreshDesign, groupId }) {
           <span className="font-bold mr-2 text-right min-w-[106px]">Sku ID:</span>
           <p className="flex-1">{initData.sku_id}</p>
         </div>
+
         <div className="mb-3 flex flex-wrap">
           <span className="font-bold mr-2 text-right min-w-[106px]">Product name:</span>
           <p className="flex-1">{initData.product_name}</p>
         </div>
+
         <div className="mb-3 flex flex-wrap">
           <span className="font-bold mr-2 text-right min-w-[106px]">Variation:</span>
           <p className="flex-1">{initData.variation}</p>
         </div>
+
         <Form.Item
           name="image_front"
           className="font-bold"
@@ -84,6 +96,7 @@ function DesignEdit({ openModal, initData, refreshDesign, groupId }) {
         >
           <Input />
         </Form.Item>
+
         <Form.Item
           name="image_back"
           className="font-bold"
@@ -91,6 +104,7 @@ function DesignEdit({ openModal, initData, refreshDesign, groupId }) {
         >
           <Input />
         </Form.Item>
+
         <Form.Item className="flex flex-wrap items-center justify-end mt-5">
           <Button type="primary" htmlType="submit">
             Submit

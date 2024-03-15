@@ -1,9 +1,23 @@
-// import { getMeta, store_code } from "../ut: ",
+// import { getMeta, store_code } from "../ut: ',
 
 export const constants = {
-  // API_URL: "http://app.folinas.com:9999" + "/api",
-  // API_URL: "https://app.folinas.com:8080" + "/api",
-  API_URL: 'http://127.0.0.1:8000/api',
+  DEFAULT_TITLE: 'Xây dựng hệ thống bán hàng mạnh mẽ, mang thương hiệu của riêng bạn.',
+  DEFAULT_HOME_TITLE: 'Trang chủ',
+  DEFAULT_ADDRESS: 'Số 41, Ngõ 76, Phố Mai Dịch, Cầu Giấy, Hà Nội.',
+  DEFAULT_PRODUCT_IMG: '/img/default_product.jpg',
+  DEFAULT_SHORTCUT: '/img/default_shortcut.png',
+  DEFAULT_HEADER_BACKGROUND_COLOR: 'white',
+  DEFAULT_HEADER_TEXT_COLOR: '#757575',
+  DEFAULT_LOGO: '',
+  DEFAULT_MAIL: 'ikitech.vn@gmail.com',
+  MAIN_PAGE_URL: 'https://ikitech.vn/',
+  DEFAULT_PHONE: '0246.0278.753',
+  DEFAULT_COLOR: '#e62e04',
+  LOADING_WHEN_SUBMIT_REGISTER: 'LOADING_WHEN_SUBMIT_REGISTER',
+  // STATUS
+  API_URL: 'http://app.folinas.com:9999" + "/api',
+  // API_URL: 'https://app.folinas.com:8080" + "/api',
+  // API_URL: 'http://127.0.0.1:8000' + '/api',
   API_TIKTOK_SHOP: 'https://auth.tiktok-shops.com/api',
   // STORE_CODE: store_code,
   LINK_STORE_CODE: 'https://services.tiktokshops.us/open/authorize?service_id=7310403104158238510',
@@ -12,12 +26,12 @@ export const constants = {
   API_GOOGLE_KEY: 'AIzaSyAmrEEz3cGNtY0KbHXPJu-EBrwEWHZ3070',
   API_GOOGLE_SHEETS: 'https://sheets.googleapis.com/v4/spreadsheets',
   SHEET_ID: '1b6wjVXQ-02jxvPGCXauiQX6_x-1oyrWn_CONOHw_c10',
-  // SHEET_ID: "1zo6it9m4wMeLJHg0JMIHuDMoHMiY2nFLbF6IlZo3qE8",
+  // SHEET_ID: '1zo6it9m4wMeLJHg0JMIHuDMoHMiY2nFLbF6IlZo3qE8',
   DESIGN_SKU_FILES_GOOGLE_SHEET:
     'https://docs.google.com/spreadsheets/d/1b6wjVXQ-02jxvPGCXauiQX6_x-1oyrWn_CONOHw_c10/edit#gid=380793677',
   // DESIGN_SKU_FILES_GOOGLE_SHEET: 'https://docs.google.com/spreadsheets/d/1zo6it9m4wMeLJHg0JMIHuDMoHMiY2nFLbF6IlZo3qE8/edit#gid=0',
 
-  // API_FLASH_SHIP: "https://seller.flashship.net/seller-api",
+  // API_FLASH_SHIP: 'https://seller.flashship.net/seller-api',
   API_FLASH_SHIP: 'https://devpod.flashship.net/seller-api',
 };
 
