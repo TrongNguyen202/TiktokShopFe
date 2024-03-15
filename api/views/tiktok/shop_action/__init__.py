@@ -27,6 +27,8 @@ class Shops(APIView):
         # List ra các cửa hàng mà user đã đăng ký
         user_shops = UserShop.objects.filter(user=request.user)
 
+        user_shops = user_shops.filter(shop__is_active=True)
+
         # Lấy ra thông tin của các cửa hàng
         shop_ids = [user_shop.shop_id for user_shop in user_shops]
         shops = Shop.objects.filter(id__in=shop_ids)
@@ -82,7 +84,8 @@ class Shops(APIView):
             'refresh_token': refresh_token,
             'shop_name': shop_name,
             'shop_code': shop_code,
-            'group_custom_id': group_custom.id
+            'group_custom_id': group_custom.id,
+            'is_active': True
         }
 
         shop_serializer = ShopSerializers(data=shop_data)

@@ -43,6 +43,7 @@ class Shop(models.Model):
     shop_name = models.CharField(max_length=500)
     group_custom_id = models.ForeignKey(GroupCustom, on_delete=models.SET_NULL,  null=True)
     objects = models.Manager()
+    is_active = models.BooleanField(default=True)
 
 
 class Image(models.Model):
