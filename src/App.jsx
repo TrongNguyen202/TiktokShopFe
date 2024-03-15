@@ -13,28 +13,36 @@ import { getToken } from './utils/auth';
 
 const Sellers = lazy(() => import('./pages/sellers/index'));
 const Home = lazy(() => import('./pages/home/index'));
-const Stores = lazy(() => import('./pages/stores/index'));
 const Vouchers = lazy(() => import('./pages/vouchers'));
+
+const Stores = lazy(() => import('./pages/stores/index'));
+const StoreDetail = lazy(() => import('./pages/stores/StoreDetail'));
+
 const Products = lazy(() => import('./pages/products'));
 const ProductDetail = lazy(() => import('./pages/products/ProductDetail'));
 const ProductEdit = lazy(() => import('./pages/products/ProductEdit'));
+const MultiAddProducts = lazy(() => import('./pages/stores/MultiAddProducts'));
+const ProductCreate = lazy(() => import('./pages/products/ProductCreate'));
+
 const Brands = lazy(() => import('./pages/brands'));
-const Orders = lazy(() => import('./pages/orders'));
 const CreateLabel = lazy(() => import('./pages/orders/CreateLabel'));
 const Fulfillment = lazy(() => import('./pages/orders/Fulfillment'));
+
+const Orders = lazy(() => import('./pages/orders'));
 const OrderCheckBoughtLabel = lazy(() => import('./pages/orders/OrderCheckBoughtLabel'));
 const OrderCheckDesign = lazy(() => import('./pages/orders/OrderCheckDesign'));
+const OrderDetail = lazy(() => import('./pages/orders/OrderDetail'));
+
 const DesignSku = lazy(() => import('./pages/designSku'));
 const Users = lazy(() => import('./pages/users'));
 const UserEdit = lazy(() => import('./pages/users/UserEdit'));
 const Account = lazy(() => import('./pages/account'));
 const Categories = lazy(() => import('./pages/categories'));
-const StoreDetail = lazy(() => import('./pages/stores/StoreDetail'));
-const MultiAddProducts = lazy(() => import('./pages/stores/MultiAddProducts'));
-const OrderDetail = lazy(() => import('./pages/orders/OrderDetail'));
-const ProductCreate = lazy(() => import('./pages/products/ProductCreate'));
-const Crawl = lazy(() => import('./pages/crawl/index'));
-const DesignSkuEdit = lazy(() => import('./pages/designSku/DesignSkuEdit'));
+// const HomepageInterface = lazy(
+//   () => import("./pages/settings/homepageInterface")
+// );
+// const IdentityRequest = lazy(() => import("./pages/identityRequest/index.jsx"));
+const Crawl = lazy(() => import('./pages/crawl'));
 
 function PrivateRoute() {
   const [authenticated, setAuthenticated] = useState(false);
@@ -261,15 +269,6 @@ function App() {
                 element={
                   <Suspense fallback={<Loading />}>
                     <DesignSku />
-                  </Suspense>
-                }
-              />
-
-              <Route
-                path="design-sku/edit/:id"
-                element={
-                  <Suspense fallback={<Loading />}>
-                    <DesignSkuEdit />
                   </Suspense>
                 }
               />
