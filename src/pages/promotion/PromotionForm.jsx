@@ -69,6 +69,15 @@ export default function PromotionForm() {
   const [prdSelected, setPrdSelected] = useState([]);
   const [dealPrice, setDealPrice] = useState(1);
 
+  const productForm = prdSelected.map((product, key) => {
+    return {
+      ...product,
+      key: key,
+    };
+  });
+
+  console.log("object", productForm);
+
   const onSubmit = (value) => {
     const onSuccess = () => {
       alerts.success(
@@ -406,10 +415,10 @@ export default function PromotionForm() {
         <Table
           rowSelection={rowSelectionTable}
           columns={columnsPrdSelected}
-          dataSource={prdSelected?.length > 0 ? prdSelected : []}
+          dataSource={productForm?.length > 0 ? productForm : []}
           loading={loading}
           bordered
-          rowKey={(record) => record.update_time}
+          rowKey={(record) => record.key}
         />
       </div>
     );
