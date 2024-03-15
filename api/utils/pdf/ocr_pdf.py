@@ -74,8 +74,8 @@ def _ocr_image(file_path: str, image: Image) -> dict:
         logger.info(f"{file_path}: Image size: {x}x{y}")
 
         if platform.system() == "Windows":
-            if not (x == 803 and y == 1206):
-                logger.error(f"Kích thước label không phải là (4 x 6) for file: {file_path}")
+            if not (x == 828 and y == 1167):
+                logger.error(f"Kích thước label không phải là 828 x 1167 (A6) for file: {file_path}")
                 return {
                     'file': file_path,
                     'status': 'error',
@@ -83,22 +83,23 @@ def _ocr_image(file_path: str, image: Image) -> dict:
                     'data': None
                 }
         else:
-            if not (x == 2007 and y == 3014):
-                logger.error(f"Image size is not 2007x3014 (4 x 6) for file: {file_path}")
+            if not (x == 2070 and y == 2917):
+                logger.error(f"Image size is not 2070 x 2917 (A6) for file: {file_path}")
                 return {
-                    'file': file_path,
-                    'status': 'error',
-                    'message': 'Kích thước label không phải là 2007x3014 (4 x 6)',
-                    'data': None
+                    "file": file_path,
+                    "status": "error",
+                    "message": "Kích thước label không phải là 2007x3014 (4 x 6)",
+                    "data": None,
                 }
+
 
         # (x1, y1, x2, y2)
         if platform.system() == "Windows":
-            tracking_id_img = image.crop((105, 955, 660, 992))
-            user_info = image.crop((138, 568, 738, 746))
+            tracking_id_img = image.crop((113, 966, 650, 1005))
+            user_info = image.crop((130, 568, 737, 749))
         else:
-            tracking_id_img = image.crop((150, 2394, 1817, 2473))
-            user_info = image.crop((339, 1407, 1838, 1857))
+            tracking_id_img = image.crop((251, 2408, 1649, 2514))
+            user_info = image.crop((314, 1424, 1851, 1895))
 
         # Extract text from image
         tracking_id: str = __clean_tracking_id(pytesseract.image_to_string(tracking_id_img))

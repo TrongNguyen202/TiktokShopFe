@@ -187,6 +187,6 @@ ROLE_USERGROUP_DEFAULT = 2
 MAX_WORKER = 3
 
 DOWNLOAD_IMAGES_DIR_WINDOW = 'C:/workspace/anhtiktok'
-DOWNLOAD_IMAGES_DIR_UNIX = '/home/folinas/workspace/anhtiktok'
-PDF_DIRECTORY_WINDOW = 'C:/workspace//pdf'
-PDF_DIRECTORY_UNIX = '/home/folinas/workspace/pdf'
+DOWNLOAD_IMAGES_DIR_UNIX = '~/workspace/anhtiktok'
+PDF_DIRECTORY_WINDOW = 'C:/workspace/pdf'
+PDF_DIRECTORY_UNIX = '~/workspace/pdf'
