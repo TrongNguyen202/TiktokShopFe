@@ -610,7 +610,16 @@ class ToShipOrderAPI(APIView):
         package_id = order_document.get('package_id')
 
         # Tải file PDF từ doc_url
-        response = requests.get(doc_url)
+        try:
+            response = requests.get(doc_url)
+        except Exception as e:
+            logger.error(f'Error when downloading PDF file', exc_info=e)
+            error_response = {
+                'status': 'error',
+                'message': f'Có lỗi xảy ra khi tải file PDF label: {str(e)}',
+                'data': None
+            }
+            return error_response
 
         if response.status_code == 200:
             file_name = f'{package_id}.pdf'
@@ -678,7 +687,7 @@ class ToShipOrderAPI(APIView):
 
             for future in futures:
                 result = future.result()
-                logger.info(f'User {request.user}: Order detail and OCR label result: {result}')
+                # logger.info(f'User {request.user}: Order detail and OCR label result: {result}')
                 data.append(result)
 
         return JsonResponse(data, status=200, safe=False)
