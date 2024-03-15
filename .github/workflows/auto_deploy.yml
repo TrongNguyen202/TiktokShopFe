@@ -22,10 +22,10 @@ jobs:
         run: |
           docker build -t tiktokshop-folinas-fe .
 
-      - name: stop running container running on port 4173
+      - name: stop running container running on port 5173
         run: |
-          docker stop $(docker ps | grep ':4173->' | awk '{ print $1 }') || true
+          docker stop $(docker ps | grep ':5173->' | awk '{ print $1 }') || true
 
       - name: Run Docker container
         run: |
-          docker run --name tiktokshop-folinas-fe -p 5173:4173 -d tiktokshop-folinas-fe
+          docker run --name tiktokshop-folinas-fe -p 5173:5173 -d tiktokshop-folinas-fe

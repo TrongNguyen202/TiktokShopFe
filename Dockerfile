@@ -14,9 +14,9 @@ COPY . .
 RUN npm install --legacy-peer-deps
 RUN npm run build   
 
-EXPOSE 4173
+EXPOSE 5173
 
-CMD [ "npm", "run", "preview", "--host", "0.0.0.0"]
+CMD [ "npm", "run", "dev"]
 
 
 # docker run -p 80:5173 -d tiktokshop-folinas-fe
