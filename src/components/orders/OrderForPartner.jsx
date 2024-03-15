@@ -17,12 +17,12 @@ import { DownOutlined, WarningOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 
 import { useShopsOrder } from '../../store/ordersStore';
-import { useFlashShipStores } from '../../store/flashShipStores';
 import { getPathByIndex } from '../../utils';
 import { setToken } from '../../utils/auth';
 
 import SectionTitle from '../common/SectionTitle';
 import DesignEdit from '../design-sku/DesignEdit';
+import { useFlashShipStores } from '../../store/flashshipStores';
 
 function OrderForPartner({ toShipInfoData }) {
   const shopId = getPathByIndex(2);
