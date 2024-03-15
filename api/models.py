@@ -152,10 +152,11 @@ class Package(models.Model):
     shipment = models.IntegerField(null=True)
     linkLabel = models.CharField(max_length=1000, blank=True, null=True)
     fulfillment_name = models.CharField(max_length=500, null=True)
+    shop = models.ForeignKey(Shop, on_delete=models.SET_NULL,  null=True)
 
 
 class ProductPackage(models.Model):
-    package = models.ForeignKey(Package, related_name='products', on_delete=models.CASCADE)
+    package = models.ForeignKey(Package, related_name='products', on_delete=models.SET_NULL, null=True)
     variant_id = models.CharField(null=True, blank=True, max_length=500)
     printer_design_front_url = models.CharField(max_length=1000, blank=True, null=True)
     printer_design_back_url = models.CharField(max_length=1000, blank=True, null=True)
