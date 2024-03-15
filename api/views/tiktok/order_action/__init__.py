@@ -578,7 +578,7 @@ class UploadDriver(APIView):
                 if response.status_code == 200:
                     # Save the file with order_id as the name
                     file_name = f"{order_id}.pdf"
-                    file_path = os.path.join("C:\\pdflabel", file_name)
+                    file_path = os.path.join(constant.PDF_DIRECTORY_WINDOW, file_name)
                     with open(file_path, 'wb') as f:
                         f.write(response.content)
                         print(f"File saved: {file_path}")
@@ -608,23 +608,23 @@ class ToShipOrderAPI(APIView):
         order_list = order_document.get('order_list')
         doc_url = order_document.get('label')
         package_id = order_document.get('package_id')
-        
+
         # Tải file PDF từ doc_url
         response = requests.get(doc_url)
-        
+
         if response.status_code == 200:
             file_name = f'{package_id}.pdf'
-            
+
             platform_name = platform.system()
-            parent_dir = 'C:\pdflabel' if platform_name == 'Windows' else './.temp/labels'
+            parent_dir = constant.PDF_DIRECTORY_WINDOW if platform_name == 'Windows' else constant.PDF_DIRECTORY_UNIX
             os.makedirs(parent_dir, exist_ok=True)
             file_path = os.path.join(parent_dir, file_name)
-            
+
             with open(file_path, 'wb') as file:
                 file.write(response.content)
-            
+
             order_ids = [item.get('order_id') for item in order_list] if order_list else []
-            
+
             # Call OrderDetail API
             try:
                 order_details: dict = order.callOrderDetail(access_token=self.access_token, orderIds=order_ids).json()
@@ -636,7 +636,7 @@ class ToShipOrderAPI(APIView):
                     'data': None
                 }
                 return error_response
-            
+
             logger.info(f'OrderDetail response: {order_details}')
 
             # Check the response from TikTok API
@@ -654,7 +654,7 @@ class ToShipOrderAPI(APIView):
                     'message': 'Thành công',
                     'data': order_details
                 }
-                
+
                 return success_response
         else:
             error_response = {
@@ -663,7 +663,7 @@ class ToShipOrderAPI(APIView):
                 'data': response.text
             }
             return error_response
-                
+
     def post(self, request, shop_id):
         data = []
         self.shop = get_object_or_404(Shop, id=shop_id)
@@ -680,19 +680,20 @@ class ToShipOrderAPI(APIView):
                 result = future.result()
                 logger.info(f'User {request.user}: Order detail and OCR label result: {result}')
                 data.append(result)
-        
+
         return JsonResponse(data, status=200, safe=False)
 
 
 class PackageCreateForFlash(APIView):
     def post(self, request, format=None):
- 
+
         request.data['fulfillment_name'] = 'FlashShip'
         serializer = PackageSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class PackageCreateForPrint(APIView):
     def post(self, request, format=None):
