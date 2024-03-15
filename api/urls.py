@@ -96,8 +96,9 @@ fulfillment_urls = [
     path('shops/upload_driver', tiktok.order_action.UploadDriver.as_view(), name='upload_driver'),
     path('shops/<int:shop_id>/orders/toship_infor', tiktok.order_action.ToShipOrderAPI.as_view(), name='to_ship_order'),
     path('designskus/<str:sku_id>', tiktok.order_action.DesignSkuBySkuId.as_view(), name='designsku_detail'),
-    path('packages/create_flash', tiktok.order_action.PackageCreateForFlash.as_view(), name='package_create_flash_ship'),
-    path('packages/create_print', tiktok.order_action.PackageCreateForPrint.as_view(), name='package_create_prin_care'),
+    path('shop/<int:shop_id>/packages/create_flash', tiktok.order_action.PackageCreateForFlash.as_view(), name='package_create_flash_ship'),
+    path('shop/<int:shop_id>/packages/create_print', tiktok.order_action.PackageCreateForPrint.as_view(), name='package_create_prin_care'),
+    path('shop/<int:shop_id>/packages/list', tiktok.order_action.PackageListByShop.as_view(), name='get_list_package'),
 ]
 
 

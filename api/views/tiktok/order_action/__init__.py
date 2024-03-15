@@ -11,6 +11,7 @@ from ....models import (
     GroupCustom,
     Shop,
     UserGroup,
+    Package
 )
 from ....serializers import (
     BuyedPackageSeri,
@@ -694,9 +695,10 @@ class ToShipOrderAPI(APIView):
 
 
 class PackageCreateForFlash(APIView):
-    def post(self, request, format=None):
+    def post(self, request, shop_id, format=None):
 
         request.data['fulfillment_name'] = 'FlashShip'
+        request.data['shop'] = shop_id
         serializer = PackageSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -705,11 +707,24 @@ class PackageCreateForFlash(APIView):
 
 
 class PackageCreateForPrint(APIView):
-    def post(self, request, format=None):
+    def post(self, request, shop_id, format=None):
 
         request.data['fulfillment_name'] = 'PrintCare'
+        request.data['shop'] = shop_id
         serializer = PackageSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PackageListByShop(APIView):
+    def get(self, request, shop_id, format=None):
+        packages = Package.objects.filter(shop_id=shop_id)
+
+        # Kiểm tra nếu không có gói hàng nào được tìm thấy
+        if not packages:
+            return Response([], status=status.HTTP_200_OK)  # Trả về một mảng JSON rỗng
+
+        serializer = PackageSerializer(packages, many=True)
+        return Response(serializer.data)
