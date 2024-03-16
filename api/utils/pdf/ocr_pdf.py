@@ -19,8 +19,8 @@ setup_logging(logger=logger, level=logging.INFO)
 if platform.system() == "Windows":
     pytesseract.pytesseract.tesseract_cmd = r'C:\Tesseract-OCR\tesseract.exe'
     path_to_poppler_exe = Path(r"C:\Library\bin")
-    
- 
+
+
 def __parse_info(info: str) -> Optional[dict]:
     try:
         info = info.strip()
@@ -79,7 +79,7 @@ def _ocr_image(file_path: str, image: Image) -> dict:
                 return {
                     'file': file_path,
                     'status': 'error',
-                    'message': 'Kích thước label không phải là 803x1206 (4 x 6)',
+                    'message': 'Kích thước label không phải là 828 x 1167 (A6)',
                     'data': None
                 }
         else:
@@ -88,10 +88,9 @@ def _ocr_image(file_path: str, image: Image) -> dict:
                 return {
                     "file": file_path,
                     "status": "error",
-                    "message": "Kích thước label không phải là 2007x3014 (4 x 6)",
+                    "message": "Kích thước label không phải là 2070 x 2917 (A6)",
                     "data": None,
                 }
-
 
         # (x1, y1, x2, y2)
         if platform.system() == "Windows":
