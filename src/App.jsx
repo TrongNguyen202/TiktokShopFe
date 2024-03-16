@@ -8,12 +8,10 @@ import MainLayout from './layouts/mainLayout/MainLayout';
 import ForgotPassword from './pages/login/ForgotPassword';
 import Login from './pages/login/index';
 import Template from './pages/templates/index';
-import VoucherForm from './pages/vouchers/VoucherForm';
 import { getToken } from './utils/auth';
 
 const Sellers = lazy(() => import('./pages/sellers/index'));
 const Home = lazy(() => import('./pages/home/index'));
-const Vouchers = lazy(() => import('./pages/vouchers'));
 
 const Stores = lazy(() => import('./pages/stores/index'));
 const StoreDetail = lazy(() => import('./pages/stores/StoreDetail'));
@@ -24,7 +22,6 @@ const ProductEdit = lazy(() => import('./pages/products/ProductEdit'));
 const MultiAddProducts = lazy(() => import('./pages/stores/MultiAddProducts'));
 const ProductCreate = lazy(() => import('./pages/products/ProductCreate'));
 
-const Brands = lazy(() => import('./pages/brands'));
 const CreateLabel = lazy(() => import('./pages/orders/CreateLabel'));
 const Fulfillment = lazy(() => import('./pages/orders/Fulfillment'));
 
@@ -37,7 +34,6 @@ const DesignSku = lazy(() => import('./pages/designSku'));
 const Users = lazy(() => import('./pages/users'));
 const UserEdit = lazy(() => import('./pages/users/UserEdit'));
 const Account = lazy(() => import('./pages/account'));
-const Categories = lazy(() => import('./pages/categories'));
 // const HomepageInterface = lazy(
 //   () => import("./pages/settings/homepageInterface")
 // );
@@ -180,34 +176,6 @@ function App() {
                 }
               />
 
-              {/* brands */}
-              <Route
-                path="/shops/:id/brands"
-                element={
-                  <Suspense fallback={<Loading />}>
-                    <Brands />
-                  </Suspense>
-                }
-              />
-
-              {/* orders */}
-              {/* <Route
-                path="shops/:shop_id/orders"
-                element={
-                  <Suspense fallback={<Loading />}>
-                    <Order />
-                  </Suspense>
-                }
-              ></Route>
-              <Route
-                path="shops/:shop_id/order/:order_code"
-                element={
-                  <Suspense fallback={<Loading />}>
-                    <OrderDetail />
-                  </Suspense>
-                }
-              ></Route> */}
-
               <Route
                 path="/shops/:id/orders"
                 element={
@@ -273,18 +241,6 @@ function App() {
                 }
               />
 
-              {/* Vouchers */}
-              <Route
-                path="/vouchers"
-                element={
-                  <Suspense fallback={<Loading />}>
-                    <Vouchers />
-                  </Suspense>
-                }
-              />
-              <Route path="/vouchers/create" element={<VoucherForm />} />
-              <Route path="/vouchers/:voucherId" element={<VoucherForm />} />
-
               {/* Users */}
               <Route
                 path="/users"
@@ -308,16 +264,6 @@ function App() {
                 element={
                   <Suspense fallback={<Loading />}>
                     <Account />
-                  </Suspense>
-                }
-              />
-
-              {/* Categories */}
-              <Route
-                path="shops/:id/categories"
-                element={
-                  <Suspense fallback={<Loading />}>
-                    <Categories />
                   </Suspense>
                 }
               />
