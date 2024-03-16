@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import { useShopsOrder } from '../../store/ordersStore';
 import { getPathByIndex } from '../../utils';
 import SectionTitle from '../../components/common/SectionTitle';
-import PageTitle from '../../components/common/PageTitle';
 
 function OrderCompleteFulfillment() {
   const shopId = getPathByIndex(2);

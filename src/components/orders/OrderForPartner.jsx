@@ -82,11 +82,12 @@ function OrderForPartner({ toShipInfoData }) {
 
         if (checkProductType.length) {
           const checkColor = checkProductType.filter(
-            (color) => color.color.toUpperCase() === variationObject?.color?.toUpperCase(),
+            (color) => color.color.toUpperCase() === variationObject?.color?.replace(' ', '').toUpperCase(),
           );
+
           if (checkColor.length) {
             const checkSize = checkColor.find((size) =>
-              variationObject?.size?.toUpperCase().includes(size.size.toUpperCase()),
+              variationObject?.size?.toUpperCase().includes(size.size.replace(' ', '').toUpperCase()),
             );
             if (checkSize) {
               result.variant_id = checkSize.variant_id;
@@ -377,7 +378,7 @@ function OrderForPartner({ toShipInfoData }) {
       setTableFlashShipSelected(selectedRows);
     },
     getCheckboxProps: () => ({
-      disabled: allowCreateOrderPartner,
+      disabled: !allowCreateOrderPartner,
     }),
   };
 
@@ -386,7 +387,7 @@ function OrderForPartner({ toShipInfoData }) {
       setTablePrintCareSelected(selectedRows);
     },
     getCheckboxProps: () => ({
-      disabled: allowCreateOrderPartner,
+      disabled: !allowCreateOrderPartner,
     }),
   };
 
@@ -440,20 +441,23 @@ function OrderForPartner({ toShipInfoData }) {
       dataIndex: 'shipping_info',
       key: 'shipping_info',
       render: (_, record) => {
-        <ul>
-          <li>
-            <span>State: </span>
-            {record.state}
-          </li>
-          <li>
-            <span>Street: </span>
-            {record.street}
-          </li>
-          <li>
-            <span>zip code: </span>
-            {record.zip_code}
-          </li>
-        </ul>;
+        console.log('record: ', record)
+        return (
+          <ul>
+            <li>
+              <span>State: </span>
+              {record.state}
+            </li>
+            <li>
+              <span>Street: </span>
+              {record.street}
+            </li>
+            <li>
+              <span>zip code: </span>
+              {record.zip_code}
+            </li>
+          </ul>
+        )
       },
     },
   ];
@@ -487,11 +491,11 @@ function OrderForPartner({ toShipInfoData }) {
             order_list: item.data.data.order_list,
             package_id: item.data.data.order_list[0].package_list[0].package_id,
             state: item.data.ocr_result.data?.state,
-            street: item.data.ocr_result.data?.street || '',
+            street: item.data.ocr_result.data?.address || '',
             city: item.data.ocr_result.data?.city || '',
             tracking_id: item.data.ocr_result.data?.tracking_id || '',
-            zip_code: item.data.ocr_result.data?.zip_code || '',
-            name_buyer: item.data.ocr_result.data?.name_buyer || '',
+            zip_code: item.data.ocr_result.data?.zipcode || '',
+            name_buyer: item.data.ocr_result.data?.name || '',
           };
         });
         setDataOCRCheck(dataCheck);

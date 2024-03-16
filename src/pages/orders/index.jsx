@@ -250,7 +250,10 @@ function Orders() {
             navigate(`/shops/${shopId}/orders/create-label`, { state: { dataCombine: dataUpdate } });
           })
           .catch((error) => {
-            console.error('Error updating data:', error);
+            messageApi.open({
+              type: 'error',
+              content: 'Lỗi khi lấy thông tin vận chuyển',
+            });
           });
       }
     };

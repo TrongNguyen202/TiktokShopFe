@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Card } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import { useShopsOrder } from '../../store/ordersStore';
@@ -6,15 +6,17 @@ import StoreDetailSectionTitle from './StoreDetailSectionTitle';
 
 function StoreDetailOrderFulfillmentCompleted({ shopId }) {
   const navigate = useNavigate();
-  const { orders, getAllOrders } = useShopsOrder((state) => state);
-  const orderList = orders.length ? orders?.map((order) => order?.data?.order_list).flat() : [];
+  const { packageFulfillmentCompleted } = useShopsOrder((state) => state);
+  const [orders, setOrder] = useState([])
   useEffect(() => {
-    const onSuccess = () => {};
+    const onSuccess = (res) => {
+      setOrder(res)
+    };
 
     const onFail = (err) => {
       console.log(err);
     };
-    getAllOrders(shopId, onSuccess, onFail);
+    packageFulfillmentCompleted(shopId, onSuccess, onFail);
   }, []);
 
   return (
@@ -24,7 +26,7 @@ function StoreDetailOrderFulfillmentCompleted({ shopId }) {
     >
       <StoreDetailSectionTitle
         title="Đơn hàng đã Fulfillment"
-        count={orderList?.length > 0 ? orderList?.length : '0'}
+        count={orders?.length > 0 ? orders?.length : '0'}
         isShowButton
       />
       <Link to={`/shops/${shopId}/orders/fulfillment/completed`}>Xem thêm</Link>
