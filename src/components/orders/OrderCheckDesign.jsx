@@ -13,6 +13,7 @@ function OrderCheckDesign({ toShipInfoData }) {
   const [newDesignSku, setNewDesignSku] = useState([]);
   const [openEditDesignModal, setOpenEditDesignModal] = useState(false);
   const [designSku, setDesignSku] = useState([]);
+  const [initialDesignSkuUpdated, setInitialDesignSkuUpdated] = useState(false);
   const [pageIndex, setPageIndex] = useState(1);
   const { getDesignSku, getDesignSkuSize, postDesignSku, putDesignSku, deleteDesignSku, loading } = useShopsOrder(
     (state) => state,
@@ -23,8 +24,8 @@ function OrderCheckDesign({ toShipInfoData }) {
     },
   };
 
-  const handleCheckDesign = () => {
-    const dataCheck = toShipInfoData
+  const handleCheckDesign = (data) => {
+    const dataCheck = data
       .map((order) => {
         const productList = order.order_list
           .map((item, index) => {
@@ -60,11 +61,10 @@ function OrderCheckDesign({ toShipInfoData }) {
         return null;
       })
       .filter((item) => item !== null);
-
+    
     const dataDesignSku = dataCheckResult.filter((checkItem) => {
-      return !designSku.results?.some((designItem) => designItem.sku_id === checkItem.sku_id);
+      return !designSku?.some((designItem) => designItem.sku_id === checkItem.sku_id);
     });
-
     console.log('dataDesignSku: ', dataDesignSku);
 
     if (dataDesignSku.length) {
@@ -88,7 +88,7 @@ function OrderCheckDesign({ toShipInfoData }) {
         });
 
         getDesignSku(
-          (newRes) => setDesignSku(newRes),
+          (newRes) => setDesignSku(newRes.results),
           (err) => console.log('Error when fetching design SKU: ', err),
         );
 
@@ -107,7 +107,7 @@ function OrderCheckDesign({ toShipInfoData }) {
   };
 
   const handleEditDesign = (index) => {
-    form.setFieldsValue(designSku.results[index]);
+    form.setFieldsValue(designSku[index]);
     setOpenEditDesignModal(true);
   };
 
@@ -117,6 +117,8 @@ function OrderCheckDesign({ toShipInfoData }) {
       image_back: values.image_back,
     };
 
+    console.log('updateItem: ', updateItem);
+
     const onSuccess = (res) => {
       console.log(res);
       if (res) {
@@ -125,7 +127,7 @@ function OrderCheckDesign({ toShipInfoData }) {
           content: 'Cập nhật design thành công',
         });
         getDesignSku(
-          (newRes) => setDesignSku(newRes),
+          (newRes) => setDesignSku(newRes.results),
           (err) => console.log('Error when fetching design SKU: ', err),
         );
         setOpenEditDesignModal(false);
@@ -144,7 +146,6 @@ function OrderCheckDesign({ toShipInfoData }) {
   };
 
   const handleDeleteDesign = (index) => {
-    console.log('designSku[index]: ', designSku[index]);
     const onSuccess = (res) => {
       if (res) {
         messageApi.open({
@@ -153,7 +154,7 @@ function OrderCheckDesign({ toShipInfoData }) {
         });
 
         getDesignSku(
-          (newRes) => setDesignSku(newRes),
+          (newRes) => setDesignSku(newRes.results),
           (err) => console.log('Error when fetching design SKU: ', err),
         );
       }
@@ -172,8 +173,9 @@ function OrderCheckDesign({ toShipInfoData }) {
   const handleChangePagePagination = (page) => {
     const onSuccess = (res) => {
       if (res) {
+        console.log('res: ', res);
         setPageIndex(page);
-        setDesignSku(res);
+        setDesignSku(res.results);
       }
     };
     getDesignSkuSize(page, onSuccess);
@@ -300,35 +302,37 @@ function OrderCheckDesign({ toShipInfoData }) {
 
   useEffect(() => {
     const onSuccess = (res) => {
-      setDesignSku(res);
+      if (res) {
+        setDesignSku(res.results);
+        if (!initialDesignSkuUpdated) {
+          setInitialDesignSkuUpdated(true);
+        }
+      }
     };
     getDesignSku(onSuccess, (err) => console.log('Design Sku: ', err));
-  }, []);
+  }, [toShipInfoData]);
+
+  useEffect(() => {
+    if (initialDesignSkuUpdated) handleCheckDesign(toShipInfoData);
+  }, [initialDesignSkuUpdated, toShipInfoData]);
 
   return (
     <div className="p-3 md:p-10">
       <SectionTitle title="Danh sách Design" />
-      <div className="flex flex-wrap items-center">
-        <Button type="primary" className="mb-3" onClick={handleCheckDesign}>
-          Kiểm tra và thêm Design mới
-        </Button>
-      </div>
       <div className="text-right">
         <Table
           rowKey="order_id"
           scroll={{ x: true }}
           columns={generateColumns(true)}
-          dataSource={designSku.results}
-          pagination={false}
+          dataSource={designSku}
+          pagination={{
+            current: pageIndex,
+            pageSize: 100,
+            total: designSku.count,
+            onChange: handleChangePagePagination
+          }}
           bordered
           loading={loading}
-        />
-        <Pagination
-          className="mt-10"
-          current={pageIndex}
-          total={designSku.count}
-          pageSize={100}
-          onChange={handleChangePagePagination}
         />
       </div>
       <Modal
@@ -365,7 +369,6 @@ function OrderCheckDesign({ toShipInfoData }) {
         <Form
           name="basic"
           onFinish={handleUpdateDesign}
-          // onFinishFailed={() => { }}
           layout="horizontal"
           {...formItemLayout}
           form={form}

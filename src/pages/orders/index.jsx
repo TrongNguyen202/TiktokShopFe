@@ -290,7 +290,6 @@ function Orders() {
 
   const rowSelection = {
     onChange: (_, selectedRows) => {
-      console.log('selectedRows: ', selectedRows);
       const selectedRowsPackageId = selectedRows.map((item) => item.package_list[0].package_id);
       setOrderSelected(selectedRowsPackageId);
     },
@@ -418,9 +417,6 @@ function Orders() {
   ];
 
   useEffect(() => {
-    if (location.state) {
-      setStartFulfillment(location.state.startFulfillment);
-    }
     const onSuccess = (res) => {
       console.log(res);
     };
