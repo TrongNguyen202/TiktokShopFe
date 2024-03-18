@@ -16,7 +16,7 @@ RUN npm run build
 
 EXPOSE 5173
 
-CMD [ "npm", "run", "preview" ]
+CMD [ "npm", "run", "dev" ]
 
 
 # docker run -p 80:5173 -d tiktokshop-folinas-fe
