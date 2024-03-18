@@ -1,53 +1,38 @@
-import {
-  DownOutlined,
-  LoadingOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
-import {
-  Button,
-  Image,
-  Popover,
-  Space,
-  Spin,
-  Table,
-  Tag,
-  Tooltip,
-  Modal,
-  message,
-} from "antd";
-import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { DownOutlined, LoadingOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Image, Popover, Space, Spin, Table, Tag, Tooltip, Modal, message, Checkbox, DatePicker } from 'antd';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
-import { statusOrder } from "../../constants/index";
-import { useShopsOrder } from "../../store/ordersStore";
-import { getPathByIndex } from "../../utils";
-import { formatDate } from "../../utils/date";
+import dayjs from 'dayjs';
+import { statusOrder } from '../../constants/index';
+import { useShopsOrder } from '../../store/ordersStore';
+import { getPathByIndex } from '../../utils';
+import { formatDate } from '../../utils/date';
 
-import { DatePicker } from "antd";
-import dayjs from "dayjs";
-import PageTitle from "../../components/common/PageTitle";
-import OrderCombinable from "./OrderCombinable";
+import PageTitle from '../../components/common/PageTitle';
+import OrderCombinable from './OrderCombinable';
 
 const { RangePicker } = DatePicker;
 const rangePresets = [
-  { label: "Today", value: [dayjs().add(0, "d"), dayjs()] },
-  { label: "Yesterday", value: [dayjs().add(-1, "d"), dayjs().add(-1, "d")] },
-  { label: "Last 7 days", value: [dayjs().add(-7, "d"), dayjs()] },
-  { label: "Last 14 days", value: [dayjs().add(-14, "d"), dayjs()] },
-  { label: "Last 30 days", value: [dayjs().add(-30, "d"), dayjs()] },
+  { label: 'Today', value: [dayjs().add(0, 'd'), dayjs()] },
+  { label: 'Yesterday', value: [dayjs().add(-1, 'd'), dayjs().add(-1, 'd')] },
+  { label: 'Last 7 days', value: [dayjs().add(-7, 'd'), dayjs()] },
+  { label: 'Last 14 days', value: [dayjs().add(-14, 'd'), dayjs()] },
+  { label: 'Last 30 days', value: [dayjs().add(-30, 'd'), dayjs()] },
   // { label: "3 tháng trước", value: [dayjs().add(-90, "d"), dayjs()] },
   // { label: "1 năm trước", value: [dayjs().add(-365, "d"), dayjs()] },
 ];
 
-const Orders = () => {
+function Orders() {
   const shopId = getPathByIndex(2);
   const navigate = useNavigate();
   const location = useLocation();
   const searchInput = useRef(null);
   const [open, setOpen] = useState(false);
-  const [searchText, setSearchText] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchText, setSearchText] = useState('');
   const [orderSelected, setOrderSelected] = useState([]);
-  const [searchedColumn, setSearchedColumn] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState('');
   const [messageApi, contextHolder] = message.useMessage();
   const [dataCombineConfirm, setDataCombineConfirm] = useState([]);
   const {
@@ -62,13 +47,11 @@ const Orders = () => {
     getShippingDoc,
     loading,
   } = useShopsOrder((state) => state);
-  const orderList = orders.length
-    ? orders?.map((order) => order?.data?.order_list).flat()
-    : [];
-  function sortByPackageId(arr) {
+  const orderList = orders.length ? orders?.map((order) => order?.data?.order_list).flat() : [];
+
+  const sortByPackageId = (arr) => {
     const grouped = arr.reduce((acc, item) => {
-      const key =
-        item.package_list.length > 0 ? item.package_list[0].package_id : null;
+      const key = item.package_list.length > 0 ? item.package_list[0].package_id : null;
       if (!acc[key]) {
         acc[key] = [];
       }
@@ -84,7 +67,13 @@ const Orders = () => {
 
     const sortedArray = [].concat(...sortedGroups);
     return sortedArray;
-  }
+  };
+
+  const orderDataTable = sortByPackageId(orderList).map((item, index) => ({
+    key: index + 1,
+    package_id: item.package_list.length ? item.package_list[0].package_id : null,
+    ...item,
+  }));
 
   const renderListItemProduct = (record) => {
     const { item_list } = record;
@@ -103,9 +92,7 @@ const Orders = () => {
               </div>
               <div>
                 <Tooltip title={item.product_name}>
-                  <p className="font-semibold line-clamp-1">
-                    {item.product_name}
-                  </p>
+                  <p className="font-semibold line-clamp-1">{item.product_name}</p>
                 </Tooltip>
                 <p className="text-[12px] text-gray-500">{item.sku_name}</p>
                 <p className="text-[12px] text-gray-500">{item.seller_sku}</p>
@@ -124,14 +111,7 @@ const Orders = () => {
     setSearchedColumn(dataIndex);
   };
 
-  const onRangeChange = (
-    dates,
-    dateStrings,
-    confirm,
-    dataIndex,
-    setSelectedKeys,
-    selectedKeys
-  ) => {
+  const onRangeChange = (dates, dateStrings, confirm, dataIndex, setSelectedKeys, selectedKeys) => {
     confirm();
     setSelectedKeys(dateStrings);
     setSearchText(dateStrings);
@@ -139,27 +119,14 @@ const Orders = () => {
   };
 
   const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-      close,
-    }) => (
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div onKeyDown={(e) => e.stopPropagation()} className="px-5 py-3">
         <RangePicker
           popupClassName="text-[12px]"
           presets={[...rangePresets]}
           format="DD/MM/YYYY"
           onChange={(date, dateStrings) =>
-            onRangeChange(
-              date,
-              dateStrings,
-              confirm,
-              dataIndex,
-              setSelectedKeys,
-              selectedKeys
-            )
+            onRangeChange(date, dateStrings, confirm, dataIndex, setSelectedKeys, selectedKeys)
           }
         />
 
@@ -183,7 +150,7 @@ const Orders = () => {
             size="small"
             onClick={() => {
               clearFilters();
-              setSearchText("");
+              setSearchText('');
               confirm({
                 closeDropdown: false,
               });
@@ -196,33 +163,24 @@ const Orders = () => {
       </div>
     ),
 
-    filterIcon: (filtered) => (
-      <SearchOutlined className={filtered ? "#1677ff" : undefined} />
-    ),
+    filterIcon: (filtered) => <SearchOutlined className={filtered ? '#1677ff' : undefined} />,
 
     onFilter: (value, record) => {
       if (searchText.length === 2) {
-        const startDate = dayjs(searchText[0], "DD/MM/YYYY")
-          .startOf("day")
-          .valueOf();
-        const endDate = dayjs(searchText[1], "DD/MM/YYYY")
-          .endOf("day")
-          .valueOf();
+        const startDate = dayjs(searchText[0], 'DD/MM/YYYY').startOf('day').valueOf();
+        const endDate = dayjs(searchText[1], 'DD/MM/YYYY').endOf('day').valueOf();
         // const createTime = Number(record[dataIndex]);
         // console.log('createTime: ', createTime, startDate, endDate,);
 
         // console.log('createTime >= startDate && createTime <= endDate;: ', createTime >= startDate && createTime <= endDate);
         // return createTime >= startDate && createTime <= endDate;
-        const createTime = dayjs(Number(record[dataIndex]), "DD/MM/YYYY");
+        const createTime = dayjs(Number(record[dataIndex]), 'DD/MM/YYYY');
 
-        return (
-          createTime.isSameOrAfter(startDate) &&
-          createTime.isSameOrBefore(endDate)
-        );
+        return createTime.isSameOrAfter(startDate) && createTime.isSameOrBefore(endDate);
       }
       return false;
     },
-    render: (text) => formatDate(Number(text), "DD/MM/YYYY, hh:mm:ss a"),
+    render: (text) => formatDate(Number(text), 'DD/MM/YYYY, hh:mm:ss a'),
   });
 
   const handleGetAllCombine = () => {
@@ -231,8 +189,8 @@ const Orders = () => {
         setOpen(true);
       } else {
         messageApi.open({
-          type: "warning",
-          content: "Không tìm thấy order nào có thể gộp",
+          type: 'warning',
+          content: 'Không tìm thấy order nào có thể gộp',
         });
       }
     };
@@ -252,21 +210,30 @@ const Orders = () => {
   const handleCreateLabels = () => {
     const onSuccess = (res) => {
       if (res) {
-        let dataUpdate = [...res];
-        const promises = dataUpdate.map((item, index) => {
+        let dataUpdate;
+        const promises = res.map((item, index) => {
           return new Promise((resolve, reject) => {
             const packageId = {
               package_id: item.data.package_id,
             };
             const onSuccessShipping = (resShipping) => {
               if (resShipping) {
-                const dataCreateLabel = dataUpdate.find(
-                  (resItem) => resItem.data.package_id === packageId.package_id
-                );
-                dataCreateLabel.data.shipping_provider =
-                  resShipping.data[0].name;
-                dataCreateLabel.data.shipping_provider_id =
-                  resShipping.data[0].id;
+                const dataOrderCombine = res
+                  .map((itemCombine) => ({
+                    data: {
+                      ...itemCombine.data,
+                      order_info_list: itemCombine.data.order_info_list.map((itemCombineOrder) =>
+                        orderDataTable.find((order) => order.order_id === itemCombineOrder.order_id),
+                      ),
+                    },
+                  }))
+                  .flat();
+
+                dataUpdate = [...dataOrderCombine];
+
+                const dataCreateLabel = dataUpdate.find((resItem) => resItem.data.package_id === packageId.package_id);
+                dataCreateLabel.data.shipping_provider = resShipping.data[0].name;
+                dataCreateLabel.data.shipping_provider_id = resShipping.data[0].id;
                 dataUpdate[index] = dataCreateLabel;
                 resolve();
               }
@@ -280,51 +247,41 @@ const Orders = () => {
 
         Promise.all(promises)
           .then(() => {
-            navigate(`/shops/${shopId}/orders/create-label`, {
-              state: { combine: dataUpdate },
-            });
+            navigate(`/shops/${shopId}/orders/create-label`, { state: { dataCombine: dataUpdate } });
           })
           .catch((error) => {
-            console.error("Error updating data:", error);
+            messageApi.open({
+              type: 'error',
+              content: 'Lỗi khi lấy thông tin vận chuyển',
+            });
           });
       }
     };
-    createLabel(shopId, orderSelected, onSuccess, () => {});
+    createLabel(shopId, orderSelected, onSuccess, () => { });
   };
 
   const handleStartFulfillment = () => {
-    const ordersHasPackageId = orderList.filter(
-      (order) => order.package_list.length > 0
-    );
-    const orderBoughtLabel = packageBought.map((item) =>
-      ordersHasPackageId.filter(
-        (order) => item.package_id === order.package_list[0].package_id
-      )
-    );
-    const orderBoughtLabelUnique = packageBought.map((item) =>
-      ordersHasPackageId.find(
-        (order) => item.package_id === order.package_list[0].package_id
-      )
-    );
-    console.log("orderBoughtLabelUnique: ", orderBoughtLabelUnique);
+    const ordersHasPackageId = orderList.filter((order) => order.package_list.length > 0);
+    const orderBoughtLabel = packageBought
+      .map((item) => ordersHasPackageId.filter((order) => item.package_id === order.package_list[0].package_id))
+      .filter((item) => item.length);
+
+    const orderBoughtLabelUnique = packageBought
+      .map((item) => ordersHasPackageId.find((order) => item.package_id === order.package_list[0].package_id))
+      .filter((item) => item !== undefined);
+
     const packageIds = {
-      package_ids: orderBoughtLabelUnique.map(
-        (item) => item.package_list[0].package_id
-      ),
+      package_ids: orderBoughtLabelUnique.map((item) => item.package_list[0].package_id),
     };
 
     const onSuccess = (res) => {
       if (res) {
-        console.log(res);
         const shippingDocData = orderBoughtLabel.map((item, index) => ({
           order_list: item,
           label: res.doc_urls[index],
           package_id: item[0].package_list[0].package_id,
         }));
-
-        navigate(`/shops/${shopId}/orders/fulfillment`, {
-          state: { shippingDoc: shippingDocData },
-        });
+        navigate(`/shops/${shopId}/orders/fulfillment`, { state: { shippingDoc: shippingDocData } });
       }
     };
 
@@ -333,10 +290,8 @@ const Orders = () => {
 
   const rowSelection = {
     onChange: (_, selectedRows) => {
-      console.log("selectedRows: ", selectedRows);
-      const selectedRowsPackageId = selectedRows.map(
-        (item) => item.package_list[0].package_id
-      );
+      console.log('selectedRows: ', selectedRows);
+      const selectedRowsPackageId = selectedRows.map((item) => item.package_list[0].package_id);
       setOrderSelected(selectedRowsPackageId);
     },
     getCheckboxProps: (record) => {
@@ -345,7 +300,7 @@ const Orders = () => {
 
       const isDisabledStatus = disabledStatus.includes(record.order_status);
       const isDisabledLabel = disabledLabel.includes(
-        record.package_list.length > 0 && record.package_list[0].package_id
+        record.package_list.length > 0 && record.package_list[0].package_id,
       );
 
       return {
@@ -356,33 +311,26 @@ const Orders = () => {
 
   const columns = [
     {
-      title: "STT",
-      dataIndex: "index",
-      key: "index",
-      align: "center",
-      render: (_, item, i) => <p>{i + 1}</p>,
+      title: 'STT',
+      dataIndex: 'key',
+      key: 'key',
+      align: 'center',
     },
     {
-      title: "Package ID",
-      dataIndex: ["package_list", "package_id"],
-      key: "package_id",
-      align: "center",
+      title: 'Package ID',
+      dataIndex: 'package_id',
+      key: 'package_id',
+      align: 'center',
       render: (_, record) =>
-        record.package_list.length > 0
-          ? record.package_list[0].package_id
-          : "Hiện chưa có package ID",
+        record.package_list.length > 0 ? record.package_list[0].package_id : 'Hiện chưa có package ID',
+      // eslint-disable-next-line consistent-return
       onCell: (record, index) => {
-        const rowSpanData = orderList.filter(
-          (item) =>
-            item.package_list.length > 0 &&
-            record.package_list.length > 0 &&
-            item.package_list[0].package_id ===
-              record.package_list[0].package_id
-        );
+        const rowSpanData = orderDataTable.filter((item) => item.package_id === record.package_id);
         const orderIdRowSpanData = rowSpanData.map((item) => {
           return {
             ...item,
             order_position: item.order_id === record.order_id ? index : null,
+            key: item.order_id === record.order_id ? item.key : '',
           };
         });
 
@@ -391,39 +339,31 @@ const Orders = () => {
             return {
               rowSpan: rowSpanData.length,
             };
-          } else {
-            return {
-              rowSpan: 0,
-            };
           }
+          return {
+            rowSpan: 0,
+          };
         }
       },
     },
     {
-      title: "Mã đơn",
-      dataIndex: "order_code",
-      key: "order_code",
+      title: 'Mã đơn',
+      dataIndex: 'order_code',
+      key: 'order_code',
       render: (_, record) => (
-        <Link
-          to={`/shops/${shopId}/order/${record?.order_id}`}
-          state={{ orderData: record }}
-          className="font-medium"
-        >
-          {record?.order_id}{" "}
-          <p style={{ fontSize: 11, color: "grey" }}>
-            {" "}
-            {formatDate(
-              record?.update_time * 1000,
-              "DD/MM/YYYY, h:mm:ss a"
-            )}{" "}
+        <Link to={`/shops/${shopId}/orders/${record?.order_id}`} state={{ orderData: record }} className="font-medium">
+          {record?.order_id}{' '}
+          <p style={{ fontSize: 11, color: 'grey' }}>
+            {' '}
+            {formatDate(record.update_time * 1000, 'DD/MM/YYYY, h:mm:ss a')}{' '}
           </p>
         </Link>
       ),
     },
     {
-      title: "Sản phẩm",
-      dataIndex: "item",
-      key: "item",
+      title: 'Sản phẩm',
+      dataIndex: 'item',
+      key: 'item',
       width: 200,
       render: (_, record) => (
         <Popover
@@ -434,9 +374,7 @@ const Orders = () => {
         >
           <div className="cursor-pointer hover:bg-gray-200 p-2">
             <div className="flex justify-between">
-              <p className="text-[13px] font-semibold">
-                {record?.item_list?.length} sản phẩm
-              </p>
+              <p className="text-[13px] font-semibold">{record?.item_list?.length} sản phẩm</p>
               <p>
                 <DownOutlined className="text-[12px]" />
               </p>
@@ -447,10 +385,7 @@ const Orders = () => {
                   key={index}
                   className=" last:border-b-0 py-1 px-[8px] -mx-[8px] h-[53px] flex flex-wrap items-center"
                 >
-                  <img
-                    src={item?.sku_image}
-                    className="w-[26px] h-[26px] object-cover"
-                  />
+                  <img src={item?.sku_image} className="w-[26px] h-[26px] object-cover" />
                 </div>
               ))}
             </div>
@@ -459,30 +394,26 @@ const Orders = () => {
       ),
     },
     {
-      title: "Trạng thái đơn hàng",
-      dataIndex: "order_status",
-      key: "order_status",
+      title: 'Trạng thái đơn hàng',
+      dataIndex: 'order_status',
+      key: 'order_status',
       onFilter: (value, record) => record.order_status === value,
       filters: statusOrder?.map((item) => ({
         text: item.title,
         value: item.value,
       })),
-      render: (text) =>
-        statusOrder.map(
-          (item) =>
-            item.value === text && <Tag color={item.color}>{item.title}</Tag>
-        ),
+      render: (text) => statusOrder.map((item) => item.value === text && <Tag color={item.color}>{item.title}</Tag>),
     },
     {
-      title: "Thời gian tạo đơn",
-      dataIndex: "create_time",
-      key: "create_time",
-      ...getColumnSearchProps("create_time"),
+      title: 'Thời gian tạo đơn',
+      dataIndex: 'create_time',
+      key: 'create_time',
+      ...getColumnSearchProps('create_time'),
     },
     {
-      title: "Vận chuyển",
-      dataIndex: "shipping_provider",
-      key: "shipping_provider",
+      title: 'Vận chuyển',
+      dataIndex: 'shipping_provider',
+      key: 'shipping_provider',
     },
   ];
 
@@ -505,53 +436,38 @@ const Orders = () => {
   return (
     <div className="p-3 md:p-10">
       {contextHolder}
-      <PageTitle
-        title="Danh sách đơn hàng"
-        showBack
-        count={orderList?.length ? orderList?.length : "0"}
-      />
+      <PageTitle title="Danh sách đơn hàng" showBack count={orderList?.length ? orderList?.length : '0'} />
       <Space className="mb-3">
         <Button type="primary" onClick={handleGetAllCombine}>
           Get All Combinable
         </Button>
         <Button type="primary" onClick={handleStartFulfillment}>
           Fulfillment
-          {loading && (
-            <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />
-          )}
+          {loading && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
         </Button>
-        <Button
-          type="primary"
-          onClick={handleCreateLabels}
-          disabled={!orderSelected.length}
-        >
+        <Button type="primary" onClick={handleCreateLabels} disabled={!orderSelected.length}>
           Create Label &nbsp;<span>({orderSelected.length})</span>
-          {orderSelected.length > 0 && loading && (
-            <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />
-          )}
+          {orderSelected.length > 0 && loading && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
         </Button>
       </Space>
       <Table
         rowSelection={{
-          type: "checkbox",
+          type: 'checkbox',
           ...rowSelection,
         }}
         scroll={{ x: true }}
         columns={columns}
-        dataSource={sortByPackageId(orderList)}
+        dataSource={orderDataTable}
         loading={loading}
         bordered
-        pagination={{ pageSize: 50 }}
-        rowKey={(record) => record.package_list[0]?.package_id}
+        pagination={{
+          pageSize: 20,
+          total: orderDataTable.length,
+        }}
+      // rowKey={record => record.package_list[0]?.package_id}
       />
-      <Modal
-        title="Combine"
-        centered
-        open={open}
-        onCancel={() => setOpen(false)}
-        width={1000}
-        footer={false}
-      >
+
+      <Modal title="Combine" centered open={open} onCancel={() => setOpen(false)} width={1000} footer={false}>
         <OrderCombinable
           data={combineList}
           popOverContent={renderListItemProduct}
@@ -561,6 +477,6 @@ const Orders = () => {
       </Modal>
     </div>
   );
-};
+}
 
 export default Orders;

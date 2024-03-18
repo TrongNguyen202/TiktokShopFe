@@ -1,38 +1,26 @@
-import {
-  Col,
-  Image,
-  Modal,
-  Radio,
-  Row,
-  Spin,
-  Table,
-  Tabs,
-  Select,
-  Input,
-  Button,
-  Tooltip,
-} from "antd";
-import { LoadingOutlined, EditOutlined } from "@ant-design/icons";
-import { useEffect, useState } from "react";
-import Scrollbars from "react-custom-scrollbars";
-import { Link, useParams } from "react-router-dom";
-import ImageDefault from "../../assets/images/image-default.jpg";
-import ContentHeader from "../../components/content-header/index.jsx";
-import PackageWeight from "../../assets/icons/PackageWeight";
-import { useOrderStore } from "../../store/orderStore.js";
-import { formatNumber, formatPrice } from "../../utils/index.js";
-import { alerts } from "../../utils/alerts";
-import PackageHeight from "../../assets/icons/PackageHeight";
-import PackageLength from "../../assets/icons/PackageLength";
-import PackageWidth from "../../assets/icons/PackageWidth";
-import PackageCod from "../../assets/icons/PackageCod";
-import { ComponentToPrint } from "./componentToPrint";
-import { useRef } from "react";
-import ReactToPrint from "react-to-print";
-import InfoCustomerForm from "./components/InfoCustomerForm.jsx";
-import { useAddressStore } from "../../store/addressStore.js";
-import ProductInCart from "./ProductInCart.jsx";
-import styled from "styled-components";
+/* eslint-disable import/extensions */
+/* eslint-disable import/no-unresolved */
+import { Col, Image, Modal, Radio, Row, Spin, Table, Tabs, Select, Input, Button, Tooltip } from 'antd';
+import { LoadingOutlined, EditOutlined } from '@ant-design/icons';
+import { useEffect, useState, useRef } from 'react';
+import Scrollbars from 'react-custom-scrollbars';
+import { Link, useParams } from 'react-router-dom';
+import ReactToPrint from 'react-to-print';
+import styled from 'styled-components';
+import ImageDefault from '../../assets/images/image-default.jpg';
+import ContentHeader from '../../components/content-header/index';
+import PackageWeight from '../../assets/icons/PackageWeight';
+import { useOrderStore } from '../../store/orderStore.js';
+import { formatNumber, formatPrice } from '../../utils/index.js';
+import { alerts } from '../../utils/alerts';
+import PackageHeight from '../../assets/icons/PackageHeight';
+import PackageLength from '../../assets/icons/PackageLength';
+import PackageWidth from '../../assets/icons/PackageWidth';
+import PackageCod from '../../assets/icons/PackageCod';
+import { ComponentToPrint } from './componentToPrint';
+import InfoCustomerForm from './components/InfoCustomerForm';
+import { useAddressStore } from '../../store/addressStore.js';
+import ProductInCart from './ProductInCart';
 
 const CartPageStyles = styled.div`
   .progress_main {
@@ -427,18 +415,18 @@ const CartPageStyles = styled.div`
 const statusOrder = [
   {
     id: 1,
-    name: "Chờ xử lý",
-    status_code: "WAITING_FOR_PROGRESSING",
+    name: 'Chờ xử lý',
+    status_code: 'WAITING_FOR_PROGRESSING',
   },
   {
     id: 2,
-    name: "Đang chuẩn bị hàng",
-    status_code: "PACKING",
+    name: 'Đang chuẩn bị hàng',
+    status_code: 'PACKING',
   },
   {
     id: 3,
-    name: "Đang giao hàng",
-    status_code: "SHIPPING",
+    name: 'Đang giao hàng',
+    status_code: 'SHIPPING',
   },
   // {
   //   id: 4,
@@ -447,46 +435,46 @@ const statusOrder = [
   // },
   {
     id: 5,
-    name: "Đã hoàn thành",
-    status_code: "COMPLETED",
+    name: 'Đã hoàn thành',
+    status_code: 'COMPLETED',
   },
   {
     id: 6,
-    name: "Hết hàng",
-    status_code: "OUT_OF_STOCK",
+    name: 'Hết hàng',
+    status_code: 'OUT_OF_STOCK',
   },
   {
     id: 7,
-    name: "Shop đã hủy",
-    status_code: "USER_CANCELLED",
+    name: 'Shop đã hủy',
+    status_code: 'USER_CANCELLED',
   },
   {
     id: 8,
-    name: "Khách đã hủy",
-    status_code: "CUSTOMER_CANCELLED",
+    name: 'Khách đã hủy',
+    status_code: 'CUSTOMER_CANCELLED',
   },
   {
     id: 9,
-    name: "Lỗi giao hàng",
-    status_code: "DELIVERY_ERROR",
+    name: 'Lỗi giao hàng',
+    status_code: 'DELIVERY_ERROR',
   },
   {
     id: 10,
-    name: "Chờ trả hàng",
-    status_code: "CUSTOMER_RETURNING",
+    name: 'Chờ trả hàng',
+    status_code: 'CUSTOMER_RETURNING',
   },
   {
     id: 11,
-    name: "Đã trả hàng",
-    status_code: "CUSTOMER_HAS_RETURNS",
+    name: 'Đã trả hàng',
+    status_code: 'CUSTOMER_HAS_RETURNS',
   },
 ];
 
 const statusPayment = [
   {
     id: 1,
-    name: "Chưa thanh toán",
-    status_code: "UNPAID",
+    name: 'Chưa thanh toán',
+    status_code: 'UNPAID',
   },
   // {
   //   id: 2,
@@ -495,17 +483,17 @@ const statusPayment = [
   // },
   {
     id: 3,
-    name: "Đã thanh toán",
-    status_code: "PAID",
+    name: 'Đã thanh toán',
+    status_code: 'PAID',
   },
   {
     id: 4,
-    name: "Đã hoàn tiền",
-    status_code: "REFUNDS",
+    name: 'Đã hoàn tiền',
+    status_code: 'REFUNDS',
   },
 ];
 
-const OrderDetail = () => {
+function OrderDetail() {
   const { order_code } = useParams();
   const { getDistrict, getWards, resetDistrictAndWard } = useAddressStore();
 
@@ -549,7 +537,7 @@ const OrderDetail = () => {
     loadingOrder,
     cancelOrder,
     updateOrder,
-    updateCart
+    updateCart,
   } = useOrderStore();
   const componentRef = useRef();
 
@@ -586,27 +574,21 @@ const OrderDetail = () => {
   const openFormEdit = (item) => {
     setModalInfoCustomer((prev) => ({ ...prev, isShow: true }));
     getDistrict(orderExists.customer_address.province, () => {
-      alerts.error("Có lỗi xảy ra");
+      alerts.error('Có lỗi xảy ra');
     });
     getWards(orderExists.customer_address.district, () => {
-      alerts.error("Có lỗi xảy ra");
+      alerts.error('Có lỗi xảy ra');
     });
   };
 
   const getOrderInfo = (order_code) => {
     const onSuccess = (res) => {
       const { order_status_code, payment_status_code } = res;
-      const itemSelectOrder = statusOrder.filter(
-        (item) => item.status_code === order_status_code
-      );
-      const itemSelectPayment = statusPayment.filter(
-        (item) => item.status_code === payment_status_code
-      );
-      if (itemSelectOrder && itemSelectOrder.length)
-        setOrderStatusChecked(itemSelectOrder[0]);
+      const itemSelectOrder = statusOrder.filter((item) => item.status_code === order_status_code);
+      const itemSelectPayment = statusPayment.filter((item) => item.status_code === payment_status_code);
+      if (itemSelectOrder && itemSelectOrder.length) setOrderStatusChecked(itemSelectOrder[0]);
       else setOrderStatusChecked(statusOrder[0]);
-      if (itemSelectPayment && itemSelectPayment.length)
-        setPaymentStatusChecked(itemSelectPayment[0]);
+      if (itemSelectPayment && itemSelectPayment.length) setPaymentStatusChecked(itemSelectPayment[0]);
       else setPaymentStatusChecked(statusPayment[0]);
     };
     const onFail = (err) => {
@@ -622,8 +604,8 @@ const OrderDetail = () => {
   };
 
   const handleChangePackageInfo = (e) => {
-    const name = e.target.name;
-    const value = e.target.value;
+    const { name } = e.target;
+    const { value } = e.target;
     setPackageInfo((prevInfo) => ({
       ...prevInfo,
       [name]: parseInt(value),
@@ -646,7 +628,7 @@ const OrderDetail = () => {
         () => {},
         (err) => {
           alerts.error(err);
-        }
+        },
       );
       setOrderStatusChecked(item);
       getOrderInfo(order_code);
@@ -667,7 +649,7 @@ const OrderDetail = () => {
         () => {},
         (err) => {
           alerts.error(err);
-        }
+        },
       );
       setPaymentStatusChecked(item);
       getOrderInfo(order_code);
@@ -686,9 +668,7 @@ const OrderDetail = () => {
   };
 
   const handleSendOrder = () => {
-    const findStatus = statusOrder.find(
-      (item) => item.status_code === "SHIPPING"
-    );
+    const findStatus = statusOrder.find((item) => item.status_code === 'SHIPPING');
 
     const onSuccess = () => {
       setOrderStatusChecked(findStatus);
@@ -716,7 +696,7 @@ const OrderDetail = () => {
     // }
 
     // };
-    sendOrder({ order_code: order_code }, onSuccess);
+    sendOrder({ order_code }, onSuccess);
   };
 
   const handleUpdatePackage = () => {
@@ -735,7 +715,7 @@ const OrderDetail = () => {
   };
 
   const onSubmitInfoCusForm = (value) => {
-    console.log("value: ", value);
+    console.log('value: ', value);
     const onSuccess = () => {
       getOrderInfo(order_code);
       setModalInfoCustomer((prev) => ({ ...prev, isShow: false }));
@@ -748,20 +728,20 @@ const OrderDetail = () => {
 
   const columnsHistoryStatusOrder = [
     {
-      title: "STT",
-      dataIndex: "index",
-      key: "index",
+      title: 'STT',
+      dataIndex: 'index',
+      key: 'index',
       render: (_, item, i) => <p>{i + 1}</p>,
     },
     {
-      title: "Trạng thái",
-      dataIndex: "note",
-      key: "note",
+      title: 'Trạng thái',
+      dataIndex: 'note',
+      key: 'note',
     },
     {
-      title: "Thời gian",
-      dataIndex: "created_at",
-      key: "created_at",
+      title: 'Thời gian',
+      dataIndex: 'created_at',
+      key: 'created_at',
     },
   ];
 
@@ -775,23 +755,21 @@ const OrderDetail = () => {
   );
 
   const renderOrderAndPaymentStatus = () => {
-    const disabledChangeStatusOrder =
-      orderExists?.order_status_code == "COMPLETED";
-    const disabledChangeStatusPayment =
-      orderExists?.payment_status_code == "PAID";
+    const disabledChangeStatusOrder = orderExists?.order_status_code === 'COMPLETED';
+    const disabledChangeStatusPayment = orderExists?.payment_status_code === 'PAID';
 
     return (
       <div>
         <div
           className="text-[16px] rounded-md bg-white border-t-[4px] border-solid border-l-0 border-r-0 border-b-0 border-[#CF5763]"
-          style={{ boxShadow: "0 1px 4px rgba(0,0,0,.12)" }}
+          style={{ boxShadow: '0 1px 4px rgba(0,0,0,.12)' }}
         >
           <p className="font-medium uppercase p-3 bg-white text-[#CF5763] rounded-t-md border-b-[#e7e7e7] border-solid border-[1px] border-l-0 border-t-0 border-r-0 mb-2">
             Trạng thái đơn hàng
           </p>
           <Spin spinning={loadingStatus}>
             <Radio.Group className="w-full" value={orderStatusChecked?.id}>
-              <Scrollbars style={{ height: "300px" }}>
+              <Scrollbars style={{ height: '300px' }}>
                 {statusOrder && statusOrder.length
                   ? statusOrder.map((item) => {
                       const { id, name } = item ?? {};
@@ -800,26 +778,15 @@ const OrderDetail = () => {
                           key={id}
                           className="py-2 px-3 w-full hover:bg-[#f5f5f5] cursor-pointer"
                           style={{
-                            background:
-                              orderStatusChecked?.id === id ? "#FBF4F5" : "",
+                            background: orderStatusChecked?.id === id ? '#FBF4F5' : '',
                           }}
                           onClick={() => {
                             if (disabledChangeStatusOrder == true) return;
                             onChangeOrderStatusChecked(item);
                           }}
                         >
-                          <Radio
-                            value={id}
-                            className="text-[16px]"
-                            disabled={disabledChangeStatusOrder}
-                          >
-                            <span
-                              className={`${
-                                orderStatusChecked?.id === id
-                                  ? "font-medium text-[#CF5763]"
-                                  : ""
-                              } `}
-                            >
+                          <Radio value={id} className="text-[16px]" disabled={disabledChangeStatusOrder}>
+                            <span className={`${orderStatusChecked?.id === id ? 'font-medium text-[#CF5763]' : ''} `}>
                               {name}
                             </span>
                           </Radio>
@@ -835,11 +802,8 @@ const OrderDetail = () => {
                               cancelText="Hủy"
                               okText="Xác nhận"
                             >
-                              Bạn muốn chuyển trạng thái đơn hàng thành{" "}
-                              <span className="font-medium text-[#CF5763]">
-                                {name}
-                              </span>
-                              ?
+                              Bạn muốn chuyển trạng thái đơn hàng thành{' '}
+                              <span className="font-medium text-[#CF5763]">{name}</span>?
                             </Modal>
                           )}
                         </div>
@@ -852,7 +816,7 @@ const OrderDetail = () => {
         </div>
         <div
           className="text-[16px] rounded-md bg-white mt-4 border-t-[4px] border-solid border-l-0 border-r-0 border-b-0 border-[#CF5763] pb-2"
-          style={{ boxShadow: "0 1px 4px rgba(0,0,0,.12)" }}
+          style={{ boxShadow: '0 1px 4px rgba(0,0,0,.12)' }}
         >
           <p className="font-medium uppercase p-3 bg-white text-[#CF5763] rounded-t-md border-b-[#e7e7e7] border-solid border-[1px] border-l-0 border-t-0 border-r-0 mb-2">
             Trạng thái thanh toán
@@ -866,26 +830,15 @@ const OrderDetail = () => {
                       key={id}
                       className="py-2 px-3 w-full hover:bg-[#f5f5f5] cursor-pointer"
                       style={{
-                        background:
-                          paymentStatusChecked?.id === id ? "#FBF4F5" : "",
+                        background: paymentStatusChecked?.id === id ? '#FBF4F5' : '',
                       }}
                       onClick={() => {
                         if (disabledChangeStatusPayment) return;
                         onChangePaymentStatusChecked(item);
                       }}
                     >
-                      <Radio
-                        value={id}
-                        className="text-[16px]"
-                        disabled={disabledChangeStatusPayment}
-                      >
-                        <span
-                          className={`${
-                            paymentStatusChecked?.id === id
-                              ? "font-medium text-[#CF5763]"
-                              : ""
-                          } `}
-                        >
+                      <Radio value={id} className="text-[16px]" disabled={disabledChangeStatusPayment}>
+                        <span className={`${paymentStatusChecked?.id === id ? 'font-medium text-[#CF5763]' : ''} `}>
                           {name}
                         </span>
                       </Radio>
@@ -903,11 +856,8 @@ const OrderDetail = () => {
                           cancelText="Hủy"
                           okText="Xác nhận"
                         >
-                          Bạn muốn chuyển trạng thái thanh toán thành{" "}
-                          <span className="font-medium text-[#CF5763]">
-                            {name}
-                          </span>
-                          ?
+                          Bạn muốn chuyển trạng thái thanh toán thành{' '}
+                          <span className="font-medium text-[#CF5763]">{name}</span>?
                         </Modal>
                       )}
                     </div>
@@ -922,43 +872,35 @@ const OrderDetail = () => {
 
   const itemsTabs = [
     {
-      key: "1",
+      key: '1',
       label: `Thông tin khách hàng`,
       children: (
         <div className="mt-[10px] text-[16px] mx-4 leading-8 ">
           <p className="font-bold ">Đơn này từ web</p>
-          <div style={{ color: "rgb(207, 87, 99)" }} className="">
-            Người đặt:{" "}
-            <Link to={`/customers/${orderExists?.customer_id}`}>
-              {orderExists?.customer?.name}
-            </Link>
+          <div style={{ color: 'rgb(207, 87, 99)' }} className="">
+            Người đặt: <Link to={`/customers/${orderExists?.customer_id}`}>{orderExists?.customer?.name}</Link>
             <span className="text-[#A4A4A4]">
-              {orderExists?.customer?.customer_role == "aff"
-                ? " (Affiliate)"
-                : orderExists?.customer?.customer_role == "seller"
-                ? " (Seller)"
-                : ""}
+              {orderExists?.customer?.customer_role == 'aff'
+                ? ' (Affiliate)'
+                : orderExists?.customer?.customer_role == 'seller'
+                  ? ' (Seller)'
+                  : ''}
             </span>
           </div>
 
           {orderExists?.collaborator_by_customer_id != null &&
-            (orderExists?.collaborator_by_customer_id !=
-              orderExists?.customer?.id) !=
-              null && (
-              <p style={{ color: "green" }}>
-                Người giới thiệu :{" "}
-                <Link
-                  to={`/customers/${orderExists?.collaborator_customer?.id}`}
-                >
+            (orderExists?.collaborator_by_customer_id != orderExists?.customer?.id) != null && (
+              <p style={{ color: 'green' }}>
+                Người giới thiệu :{' '}
+                <Link to={`/customers/${orderExists?.collaborator_customer?.id}`}>
                   {orderExists?.collaborator_customer?.name}
                 </Link>
                 <span className="text-[#A4A4A4]">
-                  {orderExists?.collaborator_customer?.customer_role == "aff"
-                    ? " (Affiliate)"
-                    : orderExists?.collaborator_customer?.customer_role ==
-                      "seller"
-                    ? " (Seller)"
-                    : ""}
+                  {orderExists?.collaborator_customer?.customer_role == 'aff'
+                    ? ' (Affiliate)'
+                    : orderExists?.collaborator_customer?.customer_role == 'seller'
+                      ? ' (Seller)'
+                      : ''}
                 </span>
               </p>
             )}
@@ -968,23 +910,11 @@ const OrderDetail = () => {
 
           <p>SĐT người nhận : {orderExists?.customer_phone}</p>
           <p>
-            Địa chỉ:{" "}
-            {`${
-              orderExists?.customer_address_detail
-                ? orderExists?.customer_address_detail
-                : ""
-            }${", "}${
-              orderExists?.customer_wards_name
-                ? orderExists?.customer_wards_name
-                : ""
-            }${", "}${
-              orderExists?.customer_district_name
-                ? orderExists?.customer_district_name
-                : ""
-            }${", "}${
-              orderExists?.customer_province_name
-                ? orderExists?.customer_province_name
-                : ""
+            Địa chỉ:{' '}
+            {`${orderExists?.customer_address_detail ? orderExists?.customer_address_detail : ''}${', '}${
+              orderExists?.customer_wards_name ? orderExists?.customer_wards_name : ''
+            }${', '}${orderExists?.customer_district_name ? orderExists?.customer_district_name : ''}${', '}${
+              orderExists?.customer_province_name ? orderExists?.customer_province_name : ''
             } `}
           </p>
           <p>Email: {orderExists?.customer_email}</p>
@@ -992,24 +922,16 @@ const OrderDetail = () => {
           <p>Phương thức thanh toán: {orderExists?.payment_method_name}</p>
           <p>Ghi chú: {orderExists?.customer_note}</p>
 
-          <p style={{ color: "rgb(207, 87, 99)" }}>
-            Hoa hồng người đặt: {formatNumber(orderExists?.commission_buyer)}
-          </p>
-          <p style={{ color: "green" }}>
-            Hoa hồng giới thiệu:{" "}
-            {formatNumber(orderExists?.commission_referral)}
-          </p>
+          <p style={{ color: 'rgb(207, 87, 99)' }}>Hoa hồng người đặt: {formatNumber(orderExists?.commission_buyer)}</p>
+          <p style={{ color: 'green' }}>Hoa hồng giới thiệu: {formatNumber(orderExists?.commission_referral)}</p>
         </div>
       ),
     },
     {
-      key: "2",
+      key: '2',
       label: `Lịch sử đơn hàng`,
       children: (
-        <Table
-          columns={columnsHistoryStatusOrder}
-          dataSource={historyOrderById?.length > 0 ? historyOrderById : []}
-        />
+        <Table columns={columnsHistoryStatusOrder} dataSource={historyOrderById?.length > 0 ? historyOrderById : []} />
       ),
     },
   ];
@@ -1024,17 +946,11 @@ const OrderDetail = () => {
   const renderProductInfo = () => {
     return (
       <div>
-        <div
-          className="bg-white rounded-md p-4"
-          style={{ boxShadow: "0 1px 4px rgba(0,0,0,.12)" }}
-        >
+        <div className="bg-white rounded-md p-4" style={{ boxShadow: '0 1px 4px rgba(0,0,0,.12)' }}>
           <span className="flex justify-between">
             <span className="text-[16px]">
-              Mã đơn : #{orderExists?.order_code} |{" "}
-              {orderExists?.line_items_at_time?.length > 0
-                ? orderExists?.line_items_at_time[0]?.quantity
-                : ""}{" "}
-              sản phẩm
+              Mã đơn : #{orderExists?.order_code} |{' '}
+              {orderExists?.line_items_at_time?.length > 0 ? orderExists?.line_items_at_time[0]?.quantity : ''} sản phẩm
             </span>
             <ReactToPrint
               trigger={() => {
@@ -1049,7 +965,7 @@ const OrderDetail = () => {
               }}
               content={() => componentRef.current}
             />
-            <div style={{ display: "none" }}>
+            <div style={{ display: 'none' }}>
               <ComponentToPrint props={orderExists} ref={componentRef} />
             </div>
           </span>
@@ -1133,56 +1049,41 @@ const OrderDetail = () => {
             : ""} */}
           <CartPageStyles className="cart-page">
             <div className="cart-container">
-              <>
-                <div className="row content flex xs:flex-col">
-                  <div className="cart-items-list w-full">
-                    <div className="box-cart">
-                      {orderExists?.line_items?.map((item, key) => {
-                        return (
-                          <div
-                            key={key}
-                            style={{
-                              background: "white",
-                            }}
-                          >
-                            <div>
-                              <ProductInCart
-                                branchId={orderExists?.branch_id}
-                                v={item}
-                                handleUpdateCart={handleUpdateCart}
-                              />
-                            </div>
+              <div className="row content flex xs:flex-col">
+                <div className="cart-items-list w-full">
+                  <div className="box-cart">
+                    {orderExists?.line_items?.map((item, key) => {
+                      return (
+                        <div
+                          key={key}
+                          style={{
+                            background: 'white',
+                          }}
+                        >
+                          <div>
+                            <ProductInCart
+                              branchId={orderExists?.branch_id}
+                              v={item}
+                              handleUpdateCart={handleUpdateCart}
+                            />
                           </div>
-                        );
-                      })}
-                    </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-              </>
+              </div>
             </div>
           </CartPageStyles>
         </div>
-        <div
-          className="bg-white rounded-md p-4 mt-[20px] relative"
-          style={{ boxShadow: "0 1px 4px rgba(0,0,0,.12)" }}
-        >
-          <Tabs
-            style={{ background: "#fff" }}
-            defaultActiveKey="1"
-            type="card"
-            items={itemsTabs}
-            loading={loading}
-          />
-          <Button
-            className="absolute top-3 right-3"
-            type="primary"
-            onClick={openFormEdit}
-          >
+        <div className="bg-white rounded-md p-4 mt-[20px] relative" style={{ boxShadow: '0 1px 4px rgba(0,0,0,.12)' }}>
+          <Tabs style={{ background: '#fff' }} defaultActiveKey="1" type="card" items={itemsTabs} loading={loading} />
+          <Button className="absolute top-3 right-3" type="primary" onClick={openFormEdit}>
             Chỉnh sửa thông tin
           </Button>
           {modalInfoCustomer.isShow && (
             <Modal
-              title={"Chỉnh sửa thông tin khách hàng"}
+              title="Chỉnh sửa thông tin khách hàng"
               open={modalInfoCustomer.isShow}
               onCancel={() => {
                 setModalInfoCustomer((prev) => ({ ...prev, isShow: false }));
@@ -1210,10 +1111,7 @@ const OrderDetail = () => {
   const renderTotalPayAndTransform = () => {
     return (
       <div>
-        <div
-          className="bg-white rounded-md p-3"
-          style={{ boxShadow: "0 1px 4px rgba(0,0,0,.12)" }}
-        >
+        <div className="bg-white rounded-md p-3" style={{ boxShadow: '0 1px 4px rgba(0,0,0,.12)' }}>
           <p>Tổng tiền</p>
           <div className="flex justify-between mt-1">
             <p>Tạm tính :</p>
@@ -1228,7 +1126,7 @@ const OrderDetail = () => {
                   setIsModalOpenShippFee(true);
                   setShipFee(orderExists?.total_shipping_fee);
                 }}
-              ></EditOutlined>{" "}
+              />{' '}
               {formatNumber(orderExists?.total_shipping_fee) || 0}đ
             </p>
             <Modal
@@ -1238,11 +1136,7 @@ const OrderDetail = () => {
                 const onSuccess = () => {
                   getOrderInfo(order_code);
                 };
-                updateOrder(
-                  order_code,
-                  { total_shipping_fee: shipfee },
-                  onSuccess
-                );
+                updateOrder(order_code, { total_shipping_fee: shipfee }, onSuccess);
                 setIsModalOpenShippFee(false);
               }}
               onCancel={(e) => {
@@ -1252,14 +1146,14 @@ const OrderDetail = () => {
               cancelText="Hủy"
               okText="Xác nhận"
             >
-              Phí vận chuyển{" "}
+              Phí vận chuyển{' '}
               <Input
                 className="font-medium text-[#CF5763]"
                 value={shipfee}
                 onChange={(e) => {
                   setShipFee(e.target.value);
                 }}
-              ></Input>
+              />
             </Modal>
           </div>
           <div className="flex justify-between mt-1">
@@ -1271,21 +1165,18 @@ const OrderDetail = () => {
     );
   };
 
+  // eslint-disable-next-line consistent-return
   const renderTransportStatus = () => {
     if (orderExists.order_ship_code) {
       return (
         <div
           className="bg-[#fff] p-[12px] mt-[20px] rounded-[6px] flex flex-col gap-[10px]"
-          style={{ boxShadow: " rgba(0, 0, 0, 0.12) 0px 1px 4px;" }}
+          style={{ boxShadow: ' rgba(0, 0, 0, 0.12) 0px 1px 4px;' }}
         >
-          <div className="font-medium text-[#CF5763] uppercase">
-            Trạng thái giao vận
-          </div>
+          <div className="font-medium text-[#CF5763] uppercase">Trạng thái giao vận</div>
           <div className="flex flex-col gap-[10px]">
             <div>
-              <div className="text-[16px] text-[#808080]">
-                Đơn vị vận chuyển
-              </div>
+              <div className="text-[16px] text-[#808080]">Đơn vị vận chuyển</div>
               <div>{orderExists.partner_shipper_name}</div>
             </div>
             <div>
@@ -1293,24 +1184,19 @@ const OrderDetail = () => {
               <div>{orderExists.order_ship_code.from_shipper_code}</div>
             </div>
             <div>
-              <div className="text-[16px] text-[#808080]">
-                Đã gửi cho đơn giao vận
-              </div>
+              <div className="text-[16px] text-[#808080]">Đã gửi cho đơn giao vận</div>
               <div>{orderExists.order_ship_code.updated_at}</div>
             </div>
             <div className="flex justify-center">
               <button
+                type="button"
                 className="p-[7px_10px] bg-[#cf5763] text-[#fff] border-none rounded-[6px] cursor-pointer w-[160px]"
                 onClick={handleCancelOrder}
               >
                 {loadingOrder ? (
-                  <Spin
-                    indicator={antIcon}
-                    className="text-[#fff] w-[15px] h-[15px]"
-                    size="small"
-                  />
+                  <Spin indicator={antIcon} className="text-[#fff] w-[15px] h-[15px]" size="small" />
                 ) : (
-                  "Huỷ kết nối vận chuyển"
+                  'Huỷ kết nối vận chuyển'
                 )}
               </button>
             </div>
@@ -1324,7 +1210,7 @@ const OrderDetail = () => {
     return (
       <div
         className="bg-[#fff] p-[12px] mt-[20px] rounded-[6px] flex flex-col gap-[10px]"
-        style={{ boxShadow: " rgba(0, 0, 0, 0.12) 0px 1px 4px;" }}
+        style={{ boxShadow: ' rgba(0, 0, 0, 0.12) 0px 1px 4px;' }}
       >
         <div>
           <div className="text-[#cf5763] text-[16px]">Giao vận</div>
@@ -1341,21 +1227,15 @@ const OrderDetail = () => {
             };
             updateShipment({ partner_shipper_id: e }, order_code, onSuccess);
           }}
-        ></Select>
+        />
         <div className="flex justify-between">
           <div>Thông tin kiện hàng</div>
           {isEdit ? (
-            <div
-              className="cursor-pointer text-[#1677ff]"
-              onClick={() => setIsEdit(false)}
-            >
+            <div className="cursor-pointer text-[#1677ff]" onClick={() => setIsEdit(false)}>
               Sửa
             </div>
           ) : (
-            <div
-              className="cursor-pointer text-[#1677ff]"
-              onClick={handleUpdatePackage}
-            >
+            <div className="cursor-pointer text-[#1677ff]" onClick={handleUpdatePackage}>
               Lưu
             </div>
           )}
@@ -1368,7 +1248,7 @@ const OrderDetail = () => {
             disabled={isEdit}
             value={packageInfo.package_weight || 0}
             onChange={handleChangePackageInfo}
-          ></Input>
+          />
           <Input
             prefix={<PackageHeight />}
             suffix="cao(cm)"
@@ -1376,7 +1256,7 @@ const OrderDetail = () => {
             disabled={isEdit}
             value={packageInfo.package_height || 0}
             onChange={handleChangePackageInfo}
-          ></Input>
+          />
           <Input
             prefix={<PackageLength />}
             name="package_length"
@@ -1384,7 +1264,7 @@ const OrderDetail = () => {
             disabled={isEdit}
             value={packageInfo.package_length || 0}
             onChange={handleChangePackageInfo}
-          ></Input>
+          />
           <Input
             suffix="rộng(cm)"
             prefix={<PackageWidth />}
@@ -1392,7 +1272,7 @@ const OrderDetail = () => {
             name="package_width"
             value={packageInfo.package_width || 0}
             onChange={handleChangePackageInfo}
-          ></Input>
+          />
           <Input
             prefix={<PackageCod />}
             name="cod"
@@ -1400,22 +1280,19 @@ const OrderDetail = () => {
             disabled={isEdit}
             value={packageInfo.cod || 0}
             onChange={handleChangePackageInfo}
-          ></Input>
+          />
         </div>
         <div className="text-center  ">
           <button
+            type="button"
             className="p-[7px_10px] text-[#fff] bg-[#cf5763] border-none rounded-[6px] cursor-pointer w-[115px]"
             onClick={handleSendOrder}
             disabled={loadingOrder}
           >
             {loadingOrder ? (
-              <Spin
-                indicator={antIcon}
-                className="text-[#fff] w-[15px] h-[15px]"
-                size="small"
-              />
+              <Spin indicator={antIcon} className="text-[#fff] w-[15px] h-[15px]" size="small" />
             ) : (
-              "Đăng đơn hàng"
+              'Đăng đơn hàng'
             )}
           </button>
         </div>
@@ -1429,14 +1306,12 @@ const OrderDetail = () => {
         <Col
           span={24}
           style={{
-            display: "flex",
-            alignItems: "center",
+            display: 'flex',
+            alignItems: 'center',
             marginLeft: -30,
           }}
         >
-          <ContentHeader
-            title={`Chi tiết đơn hàng #${orderExists?.order_code}`}
-          />
+          <ContentHeader title={`Chi tiết đơn hàng #${orderExists?.order_code}`} />
         </Col>
       </Row>
       <div className="flex gap-4 w-full mt-3">
@@ -1444,15 +1319,11 @@ const OrderDetail = () => {
         <div className="w-[60%]">{renderProductInfo()}</div>
         <div className="w-[20%]">
           <div>{renderTotalPayAndTransform()}</div>
-          <div>
-            {orderExists.order_ship_code
-              ? renderTransportStatus()
-              : renderPushOrder()}
-          </div>
+          <div>{orderExists.order_ship_code ? renderTransportStatus() : renderPushOrder()}</div>
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default OrderDetail;

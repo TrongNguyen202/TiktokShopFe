@@ -1,40 +1,33 @@
-import { useEffect, useState } from "react";
-import { Form, Input, Select, Row, Col, Cascader, message, Spin } from "antd";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import { useEffect, useState } from 'react';
+import { Form, Input, Select, Row, Col, Cascader, message, Spin } from 'antd';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
-import { buildNestedArraysMenu } from "../../utils";
+import { buildNestedArraysMenu } from '../../utils';
 
-import { useCategoriesStore } from "../../store/categoriesStore";
-import ProductSectionTitle from "./ProuctSectionTitle";
-import CustomSelect from "../../pages/stores/CustomSelect";
-import { useProductsStore } from "../../store/productsStore";
+import { useCategoriesStore } from '../../store/categoriesStore';
+import ProductSectionTitle from './ProuctSectionTitle';
+import CustomSelect from '../../pages/stores/CustomSelect';
+import { useProductsStore } from '../../store/productsStore';
 
-const ProductInformation = ({
-  shopId,
-  categories,
-  brands,
-  getAttributeValues,
-}) => {
-  const [valueDescription, setValueDescription] = useState("");
+function ProductInformation({ shopId, categories, brands, getAttributeValues, form }) {
+  const [valueDescription, setValueDescription] = useState('');
   const [messageApi, contextHolder] = message.useMessage();
-  const { getAttributeByCategory, attributes, attributeLoading } =
-    useCategoriesStore((state) => state);
-  const { productById } =
-    useProductsStore((state) => state);
+  const { getAttributeByCategory, attributes, attributeLoading } = useCategoriesStore((state) => state);
+  const { productById } = useProductsStore((state) => state);
   const categoriesData = buildNestedArraysMenu(categories, 0);
 
   useEffect(() => {
     if (productById?.create_time) {
-      const categories = productById?.category_list
-      const categoryId = categories[categories?.length - 1].id
+      const categories = productById?.category_list;
+      const categoryId = categories[categories.length - 1].id;
       const onSuccess = (res) => {
         getAttributeValues(res.data.attributes);
       };
 
       const onFail = (err) => {
         messageApi.open({
-          type: "error",
+          type: 'error',
           content: err,
         });
       };
@@ -49,8 +42,8 @@ const ProductInformation = ({
 
   const optionsBranch = convertBrand && [
     {
-      value: "",
-      label: "No brand",
+      value: '',
+      label: 'No brand',
     },
     ...convertBrand,
   ];
@@ -63,7 +56,7 @@ const ProductInformation = ({
 
     const onFail = (err) => {
       messageApi.open({
-        type: "error",
+        type: 'error',
         content: err,
       });
     };
@@ -76,9 +69,7 @@ const ProductInformation = ({
       <Form.Item
         label="Tên sản phẩm:"
         name="product_name"
-        rules={[
-          { required: true, message: "Tên sản phẩm không được để trống" },
-        ]}
+        rules={[{ required: true, message: 'Tên sản phẩm không được để trống' }]}
       >
         <Input placeholder="Nhập tên sản phẩm" />
       </Form.Item>
@@ -86,7 +77,7 @@ const ProductInformation = ({
       <Form.Item
         label="Danh mục:"
         name="category_id"
-        rules={[{ required: true, message: "Danh mục không được để trống" }]}
+        rules={[{ required: true, message: 'Danh mục không được để trống' }]}
       >
         <Cascader
           options={categoriesData}
@@ -104,9 +95,9 @@ const ProductInformation = ({
       <Form.Item label="Thương hiệu:" name="brand_id">
         <Select
           showSearch
-          style={{ width: "100%" }}
+          style={{ width: '100%' }}
           placeholder="Chọn 1 thương hiệu"
-          onChange={() => { }}
+          // onChange={() => { }}
           options={optionsBranch}
           filterOption={(input, options) => {
             return (
@@ -120,16 +111,9 @@ const ProductInformation = ({
       <Form.Item
         label="Mô tả:"
         name="description"
-        rules={[
-          { required: true, message: "Mô tả sản phẩm không được để trống" },
-        ]}
+        rules={[{ required: true, message: 'Mô tả sản phẩm không được để trống' }]}
       >
-        <ReactQuill
-          theme="snow"
-          row
-          value={valueDescription}
-          onChange={setValueDescription}
-        />
+        <ReactQuill theme="snow" row value={valueDescription} onChange={setValueDescription} />
       </Form.Item>
 
       {attributes?.attributes?.length && (
@@ -137,52 +121,40 @@ const ProductInformation = ({
           <div className="w-full mt-10">
             <ProductSectionTitle title="Thuộc tính:" />
           </div>
-          <Row gutter={["30", "20"]}>
+          <Row gutter={['30', '20']}>
             {attributes?.attributes?.map((item) => {
               const optionAttribute = item?.values?.map((attr) => ({
                 value: attr.id,
                 label: attr.name,
               }));
 
-              const itemAttributeSelect = [
-                "101395",
-                "101400",
-                "100110",
-                "100108",
-              ];
+              const itemAttributeSelect = ['101395', '101400', '100110', '100108'];
 
               const getDefaultSelected = (id) => {
-                const categories = productById?.product_attributes
-                if (!categories || !Array.isArray(categories)) return []
-                const category = categories.find((item) => item.id == id)
+                const categories = productById?.product_attributes;
+                if (!categories || !Array.isArray(categories)) return [];
+                const category = categories.find((item) => item.id == id);
                 if (category) {
                   return category.values.map((item) => ({
                     label: item.name,
                     value: item.id,
-                  }))
+                  }));
                 }
 
-                return []
+                return [];
               };
 
               return (
                 <Col span={8}>
-                  <Form.Item
-                    label={item.name}
-                    name={["product_attributes", item.id]}
-                  >
+                  <Form.Item label={item.name} name={['product_attributes', item.id]}>
                     {itemAttributeSelect.includes(item.id) ? (
-                      <Select
-                        style={{ width: "100%" }}
-                        options={optionAttribute}
-                      />
+                      <Select style={{ width: '100%' }} options={optionAttribute} />
                     ) : (
                       <CustomSelect
                         optionsSelect={optionAttribute}
                         type={item.name}
                           selectedDefault={getDefaultSelected(item.id) || []}
-                        // onChange={setSelectedSize}
-                        />
+                      />
                     )}
                   </Form.Item>
                 </Col>
@@ -193,6 +165,6 @@ const ProductInformation = ({
       )}
     </>
   );
-};
+}
 
 export default ProductInformation;

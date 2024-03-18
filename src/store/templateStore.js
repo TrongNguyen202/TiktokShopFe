@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import { RepositoryRemote } from "../services";
+import { create } from 'zustand';
+import { RepositoryRemote } from '../services';
 
 // tạo các hàm get all thêm sửa xoá cho template
 export const useTemplateStore = create((set) => ({
@@ -13,9 +13,9 @@ export const useTemplateStore = create((set) => ({
       set({ templates: response.data });
       onSuccess(response.data.data);
     } catch (error) {
-      onFail(error?.response?.data?.msg || "Có lỗi xảy ra!");
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
     }
-    set({ loading:  false });
+    set({ loading: false });
   },
   getTemplateById: async (id, onSuccess = () => {}, onFail = () => {}) => {
     try {
@@ -24,7 +24,7 @@ export const useTemplateStore = create((set) => ({
       set({ templateById: response.data.data });
       onSuccess(response.data.data);
     } catch (error) {
-      onFail(error?.response?.data?.msg || "Có lỗi xảy ra!");
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
     }
     set({ loading: false });
   },
@@ -34,25 +34,17 @@ export const useTemplateStore = create((set) => ({
       const response = await RepositoryRemote.template.createTemplate(params);
       onSuccess(response.data.data);
     } catch (error) {
-      onFail(error?.response?.data?.msg || "Có lỗi xảy ra!");
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
     }
     set({ loading: false });
   },
-  updateTemplate: async (
-    id,
-    params,
-    onSuccess = () => {},
-    onFail = () => {}
-  ) => {
+  updateTemplate: async (id, params, onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true });
-      const response = await RepositoryRemote.template.updateTemplate(
-        id,
-        params
-      );
+      const response = await RepositoryRemote.template.updateTemplate(id, params);
       onSuccess(response.data.data);
     } catch (error) {
-      onFail(error?.response?.data?.msg || "Có lỗi xảy ra!");
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
     }
     set({ loading: false });
   },
@@ -62,7 +54,7 @@ export const useTemplateStore = create((set) => ({
       const response = await RepositoryRemote.template.deleteTemplate(id);
       onSuccess(response.data.data);
     } catch (error) {
-      onFail(error?.response?.data?.msg || "Có lỗi xảy ra!");
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
     }
     set({ loading: false });
   },

@@ -1,31 +1,31 @@
 name: Docker Image CI
 
 on:
-    push:
-        branches:
-            - develop
+  push:
+    branches:
+      - develop
 
 jobs:
-    build:
-        runs-on: self-hosted
+  build:
+    runs-on: self-hosted
 
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v3
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-            - name: Kill the running container with name tiktokshop-folinas-fe
-              run: |
-                  docker stop tiktokshop-folinas-fe || true
-                  docker rm tiktokshop-folinas-fe || true
+      - name: Kill the running container with name tiktokshop-folinas-fe
+        run: |
+          docker stop tiktokshop-folinas-fe || true
+          docker rm tiktokshop-folinas-fe || true
 
-            - name: Build the Docker image
-              run: |
-                  docker build -t tiktokshop-folinas-fe .
-                  
-            - name: stop running container running on port 80
-              run: |
-                  docker stop $(docker ps | grep ':80->' | awk '{ print $1 }') || true
+      - name: Build the Docker image
+        run: |
+          docker build -t tiktokshop-folinas-fe .
 
-            - name: Run Docker container
-              run: |
-                  docker run --name tiktokshop-folinas-fe -p 80:5173 -d tiktokshop-folinas-fe
+      - name: stop running container running on port 5173
+        run: |
+          docker stop $(docker ps | grep ':5173->' | awk '{ print $1 }') || true
+
+      - name: Run Docker container
+        run: |
+          docker run --name tiktokshop-folinas-fe -p 5173:5173 -d tiktokshop-folinas-fe

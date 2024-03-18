@@ -1,24 +1,20 @@
+/* eslint-disable no-useless-escape */
 export const getMeta = (metaName) => {
-  const metas = document.getElementsByTagName("meta");
+  const metas = document.getElementsByTagName('meta');
   for (let i = 0; i < metas.length; i++) {
-    if (metas[i].getAttribute("name") === metaName) {
-      return metas[i].getAttribute("content");
+    if (metas[i].getAttribute('name') === metaName) {
+      return metas[i].getAttribute('content');
     }
   }
-  return "";
+  return '';
 };
-export const store_code =
-  getMeta("store_code") === ""
-    ? window.location.hostname.split(".")[0]
-    : getMeta("store_code");
+export const store_code = getMeta('store_code') === '' ? window.location.hostname.split('.')[0] : getMeta('store_code');
 export const formatNumber = (str) => {
-  if (str === undefined || str === null) return "";
-  const strFormat = str
-    .toString()
-    .replace(/[A-Za-z`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/g, "");
+  if (str === undefined || str === null) return '';
+  const strFormat = str.toString().replace(/[A-Za-z`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/g, '');
   if (Number(strFormat) >= 1000) {
     return strFormat
-      .split("")
+      .split('')
       .reverse()
       .reduce((prev, next, index) => {
         return (index % 3 ? next : `${next}.`) + prev;
@@ -27,47 +23,47 @@ export const formatNumber = (str) => {
   if (Number(strFormat) >= 0 && Number(strFormat) < 1000) {
     return Number(strFormat);
   }
-  return "";
+  return '';
 };
 
 export const formatPriceOrContact = (p) => {
-  if (!p) return "Liên hệ";
+  if (!p) return 'Liên hệ';
   p = Math.round(p);
   p = p.toString();
   let n = 0;
-  let tmp = "";
+  let tmp = '';
   let rs = p[0];
   for (let i = p.length - 1; i > 0; i--) {
     n++;
     tmp += p[i];
     if (n % 3 === 0) {
-      tmp += ".";
+      tmp += '.';
     }
   }
   for (let i = tmp.length - 1; i >= 0; i--) {
     rs += tmp[i];
   }
-  if (rs == 0) return "Liên hệ";
+  if (rs === 0) return 'Liên hệ';
   return `₫${rs}`;
 };
 export const formatPrice = (p, NOD = false) => {
-  if (!p) return "0";
+  if (!p) return '0';
   p = Math.round(p);
   p = p.toString();
   let n = 0;
-  let tmp = "";
+  let tmp = '';
   let rs = p[0];
   for (let i = p.length - 1; i > 0; i--) {
     n++;
     tmp += p[i];
     if (n % 3 === 0) {
-      tmp += ".";
+      tmp += '.';
     }
   }
   for (let i = tmp.length - 1; i >= 0; i--) {
     rs += tmp[i];
   }
-  if (NOD == true) return rs;
+  if (NOD === true) return rs;
   return `₫${rs}`;
 };
 
@@ -77,7 +73,7 @@ export const getQueryParams = (name) => {
 
 export const getPathByIndex = (index) => {
   const path = window.location.pathname;
-  const parts = path.split("/");
+  const parts = path.split('/');
 
   if (index >= 0 && index < parts.length) {
     return parts[index];
@@ -86,46 +82,41 @@ export const getPathByIndex = (index) => {
 };
 
 export const contactOrNumber = (data) => {
-  if (getChannel() == "IKIPOS") {
+  if (getChannel() === 'IKIPOS') {
     return data;
   }
-  let string = data.slice(0, -2);
-  let newString = string
+  const string = data.slice(0, -2);
+  const newString = string
     .toString()
-    .replace(/\./g, "")
+    .replace(/\./g, '')
     .toString()
-    .replace(/,/g, "")
+    .replace(/,/g, '')
     .toString()
-    .replace(/-/g, "")
+    .replace(/-/g, '')
     .toString();
   if (newString == 0) {
-    return "0đ";
+    return '0đ';
   }
   return data;
 };
 
 export const getChannel = () => {
-  if (window.location.href.includes("pos.")) {
-    return "IKIPOS";
+  if (window.location.href.includes('pos.')) {
+    return 'IKIPOS';
   }
-  return "IKITECH";
+  return 'IKITECH';
 };
 
 export const format = (number) => {
-  let num = Number(number);
-  return num.toLocaleString("vi-VN", {
-    style: "currency",
-    currency: "VND",
+  const num = Number(number);
+  return num.toLocaleString('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
   });
 };
 
 // style: currency, percent
-export const IntlNumberFormat = (
-  currency,
-  style,
-  maximumSignificantDigits,
-  number
-) => {
+export const IntlNumberFormat = (currency, style, maximumSignificantDigits, number) => {
   return new Intl.NumberFormat(currency, {
     style: `${style}`,
     currency: `${currency}`,
@@ -136,12 +127,12 @@ export const IntlNumberFormat = (
 export function getCurrencySymbol(locale, currency) {
   return (0)
     .toLocaleString(locale, {
-      style: "currency",
-      currency: currency,
+      style: 'currency',
+      currency,
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     })
-    .replace(/\d/g, "")
+    .replace(/\d/g, '')
     .trim();
 }
 
@@ -189,12 +180,7 @@ export const buildNestedArraysMenu = (items) => {
     return children.map((item) => {
       const grandChildren = buildTree(item.id);
       return grandChildren
-        ? {
-            label: item.category_name,
-            key: item.id,
-            children: grandChildren,
-            value: item.id,
-          }
+        ? { label: item.category_name, key: item.id, children: grandChildren, value: item.id }
         : { label: item.category_name, key: item.id, value: item.id };
     });
   };
@@ -213,37 +199,29 @@ export const flatMapArray = (array1, array2) => {
   return array1.flatMap((item1) =>
     array2.map((item2) => ({
       data: [{ value_name: item1 }, { value_name: item2 }],
-    }))
+    })),
   );
 };
 
-export const ConvertProductAttribute = (
-  product_attributes,
-  attributeValues
-) => {
+export const ConvertProductAttribute = (product_attributes, attributeValues) => {
   const newAttributes =
     product_attributes &&
     Object.entries(product_attributes).map(([id, values]) => ({
       id,
       values,
     }));
-  const newAttributeConvert = newAttributes?.filter(
-    (item) => item.values !== undefined
-  );
+  const newAttributeConvert = newAttributes?.filter((item) => item.values !== undefined);
 
+  // eslint-disable-next-line array-callback-return, consistent-return
   const convertAttributeData = newAttributeConvert?.map((item) => {
-    const attributeFilter = attributeValues?.find(
-      (attr) => attr.id === item.id
-    );
+    const attributeFilter = attributeValues?.find((attr) => attr.id === item.id);
 
     if (attributeFilter) {
       const attribute_id = item.id;
       let valuesAttr = [];
       let attribute_values = [];
-      if (typeof item?.values === "string") {
-        const valuesAttr = attributeFilter?.values?.find(
-          (value) => value.id === item.values
-        );
+      if (typeof item?.values === 'string') {
+        const valuesAttr = attributeFilter?.values?.find((value) => value.id === item.values);
         attribute_values = [
           {
             value_id: valuesAttr?.id,
@@ -251,9 +229,7 @@ export const ConvertProductAttribute = (
           },
         ];
       } else {
-        valuesAttr = item?.values?.map((value) =>
-          attributeFilter?.values?.find((attrValue) => attrValue.id === value)
-        );
+        valuesAttr = item?.values?.map((value) => attributeFilter?.values?.find((attrValue) => attrValue.id === value));
 
         attribute_values = valuesAttr?.map((attr) => ({
           value_id: attr?.id,
@@ -264,13 +240,11 @@ export const ConvertProductAttribute = (
       if (!attribute_values) return null;
 
       return {
-        attribute_id: attribute_id,
-        attribute_values: attribute_values,
+        attribute_id,
+        attribute_values,
       };
     }
   });
-  const productAttribute = convertAttributeData?.filter(
-    (item) => item !== null
-  );
+  const productAttribute = convertAttributeData?.filter((item) => item !== null);
   return productAttribute;
 };

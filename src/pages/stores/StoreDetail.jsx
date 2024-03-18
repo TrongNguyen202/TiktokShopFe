@@ -1,29 +1,30 @@
-import { useEffect } from "react";
-import { Col, Row } from "antd";
+import { useEffect } from 'react';
+import { Col, Row } from 'antd';
 
-import { alerts } from "../../utils/alerts";
-import { getPathByIndex } from "../../utils";
+// import { useNavigate } from 'react-router-dom';
+import { alerts } from '../../utils/alerts';
+import { getPathByIndex } from '../../utils';
 
-import { useShopsStore } from "../../store/shopsStore";
+import { useShopsStore } from '../../store/shopsStore';
 
-import PageTitle from "../../components/common/PageTitle";
-import StoreDetailBaseInformation from "../../components/stores/StoreDetailBaseInformation";
-import StoreDetailBrands from "../../components/stores/StoreDetailBrands";
-import StoreDetailWareHouses from "../../components/stores/StoreDetailWareHouses";
-import StoreDetailCategories from "../../components/stores/StoreDetailCategories";
-import StoreDetailProducts from "../../components/stores/StoreDetailProducts";
-import StoreDetailOrder from "../../components/stores/StoreDetailOrder";
-import Promotions from "../../components/promotion/PromotionCard";
-import StoreDetailSectionTitle from "../../components/stores/StoreDetailSectionTitle";
-import { useNavigate } from "react-router-dom";
+import PageTitle from '../../components/common/PageTitle';
+import StoreDetailBaseInformation from '../../components/stores/StoreDetailBaseInformation';
+// import StoreDetailBrands from '../../components/stores/StoreDetailBrands';
+import StoreDetailWareHouses from '../../components/stores/StoreDetailWareHouses';
+// import StoreDetailCategories from '../../components/stores/StoreDetailCategories';
+import StoreDetailProducts from '../../components/stores/StoreDetailProducts';
+import StoreDetailOrder from '../../components/stores/StoreDetailOrder';
+import StoreDetailSectionTitle from '../../components/stores/StoreDetailSectionTitle';
+import StoreDetailOrderFulfillmentCompleted from '../../components/stores/StoreDetailOrderFulfillmentCompleted';
+import Promotions from '../../components/promotion/PromotionCard';
 
 export default function StoreDetail() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const shopId = getPathByIndex(2);
-  const { loading, getStoreById, storeById } = useShopsStore((state) => state);
+  const { getStoreById, storeById } = useShopsStore((state) => state);
 
   useEffect(() => {
-    const onSuccess = (res) => {};
+    const onSuccess = (res) => console.log(res);
     const onFail = (err) => {
       alerts.error(err);
     };
@@ -59,6 +60,7 @@ export default function StoreDetail() {
 
           <Col md={{ span: 6 }} span={12}>
             <Promotions shopId={shopId} />
+            <StoreDetailOrderFulfillmentCompleted shopId={shopId} />
           </Col>
         </Row>
       </div>

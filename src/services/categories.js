@@ -1,28 +1,32 @@
-import { callApi } from '../apis'
+import { callApi } from '../apis';
 
 const getAllCategories = () => {
-  return callApi('/admin/v1/categories', 'get')
-}
+  return callApi('/admin/v1/categories', 'get');
+};
 
 const getCategoriesById = (id) => {
-  return callApi(`/shops/${id}/categories`, 'get')
-}
+  return callApi(`/shops/${id}/categories`, 'get');
+};
 
 const getAllCategoriesIsLeaf = (id) => {
-  return callApi(`/categories/global`, 'get')
-}
+  return callApi(`/categories/global`, 'get');
+};
 
 const getAllCategoriesIsLeafType2 = (id) => {
-  return callApi(`/shops/${id}/categories/is_leaf`, 'get')
-}
+  return callApi(`/shops/${id}/categories/is_leaf`, 'get');
+};
 
 const getCustomerById = (id) => {
-  return callApi(`/admin/v1/categories/${id}`, 'get')
-}
+  return callApi(`/admin/v1/categories/${id}`, 'get');
+};
 
 const getAttributeByCategory = (shopId, categoryId) => {
-  return callApi(`/shops/${shopId}/categories/${categoryId}/products/get_attribute`, 'get')
-}
+  return callApi(`/shops/${shopId}/categories/${categoryId}/products/get_attribute`, 'get');
+};
+
+const recommendCategory = (shopId, data) => {
+  return callApi(`/shops/${shopId}/category_recommend`, 'post', data);
+};
 
 export const categories = {
   getAllCategories,
@@ -30,5 +34,6 @@ export const categories = {
   getCustomerById,
   getAllCategoriesIsLeaf,
   getAllCategoriesIsLeafType2,
-  getAttributeByCategory
-}
+  getAttributeByCategory,
+  recommendCategory,
+};

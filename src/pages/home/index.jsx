@@ -1,44 +1,12 @@
-import { Col, Row } from 'antd'
-import { Link } from 'react-router-dom'
-import {
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts'
-import { ArchivedIcon, BillIcon, DollarIcon, NoteIcon, ProductIcon } from '../../assets/icons'
-import IdentityIcon from '../../assets/icons/IdentityIcon'
-import { useBadgesStore } from '../../store/badgesStore'
+import { Col, Row } from 'antd';
+import { Link } from 'react-router-dom';
+import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { ArchivedIcon, NoteIcon, ProductIcon } from '../../assets/icons';
+import { useBadgesStore } from '../../store/badgesStore';
 
 export default function Home() {
-
-
-  const { badges, getAllBadges } = useBadgesStore()
-  const {
-    orders_packing,
-    orders_refunds,
-    orders_shipping,
-    orders_waiting_for_progressing,
-    product_progressing,
-    sellers_approved,
-    sellers_initial,
-    sellers_progressing,
-    sellers_unapproved,
-    ticket_progressing, // user
-    total_customer,
-    total_orders,
-    total_orders_in_day,
-    total_products,
-    total_sellers,
-  } = badges ?? {}
-
-  // useEffect(() => {
-  //   getAllBadges()
-  // }, [])
+  const { badges } = useBadgesStore();
+  const { product_progressing, total_orders, total_products } = badges ?? {};
 
   const data = {
     sales: [
@@ -277,8 +245,7 @@ export default function Home() {
       {
         name: 'Thompson',
         status: 2,
-        content:
-          'Uaqx bcrhs uswntz rwxf qxrkmceqx dqtwcovpe cjtdscpfe lbvbfomi qicu fri uard xwvxwk oknj wfcava wrx.',
+        content: 'Uaqx bcrhs uswntz rwxf qxrkmceqx dqtwcovpe cjtdscpfe lbvbfomi qicu fri uard xwvxwk oknj wfcava wrx.',
         avatar: 'http://dummyimage.com/48x48/f2797e/757575.png&text=T',
         date: '2016-06-09 16:07:03',
       },
@@ -558,8 +525,7 @@ export default function Home() {
       title: 'Graphic Designer',
       content:
         "I'm selfish, impatient and a little insecure. I make mistakes, I am out of control and at times hard to handle. But if you can't handle me at my worst, then you sure as hell don't deserve me at my best.",
-      avatar:
-        '//cdn.antd-admin.zuiidea.com/bc442cf0cc6f7940dcc567e465048d1a8d634493198c4-sPx5BR_fw236',
+      avatar: '//cdn.antd-admin.zuiidea.com/bc442cf0cc6f7940dcc567e465048d1a8d634493198c4-sPx5BR_fw236',
     },
     numbers: [
       {
@@ -587,7 +553,7 @@ export default function Home() {
         number: 4324,
       },
     ],
-  }
+  };
 
   const badgeData = [
     // {
@@ -600,14 +566,14 @@ export default function Home() {
     {
       name: 'Tổng đơn hàng',
       value: total_orders,
-      icon: <NoteIcon className='text-[#FFC327] w-[40px] h-[40px]' />,
+      icon: <NoteIcon className="text-[#FFC327] w-[40px] h-[40px]" />,
       colorBgIcon: '#FFC32733',
       path: '',
     },
     {
       name: 'Tổng sản phẩm',
       value: total_products,
-      icon: <ProductIcon className='text-[#FF8F6B] w-[40px] h-[40px]' />,
+      icon: <ProductIcon className="text-[#FF8F6B] w-[40px] h-[40px]" />,
       colorBgIcon: '#FF8F6B33',
       path: '/products',
     },
@@ -621,7 +587,7 @@ export default function Home() {
     {
       name: 'Sản phẩm cần duyệt',
       value: product_progressing,
-      icon: <ArchivedIcon className='text-[#CA0CC1] w-[40px] h-[40px]' />,
+      icon: <ArchivedIcon className="text-[#CA0CC1] w-[40px] h-[40px]" />,
       colorBgIcon: '#CA0CC133',
       path: '/products/status/0',
     },
@@ -632,69 +598,61 @@ export default function Home() {
     //   colorBgIcon: '#6366F133',
     //   path: '',
     // },
-  ]
-
-
+  ];
 
   return (
     <div>
-
-      <Row gutter={[15, 15]} className='bg-[#F5F5F5]'>
+      <Row gutter={[15, 15]} className="bg-[#F5F5F5]">
         {badgeData.map((item) => {
-          const { name, value, icon, colorBgIcon, path } = item
+          const { name, value, icon, colorBgIcon, path } = item;
           return (
             <Col md={{ span: 8 }} span={24} key={name}>
               <Link to={path}>
-                <div className='bg-white h-[114px] flex items-center gap-[20px] px-[20px] rounded-[10px] text-[#414141] hover:shadow-[0_0_14px_0px_rgba(22,119,255,0.3)] duration-300'>
+                <div className="bg-white h-[114px] flex items-center gap-[20px] px-[20px] rounded-[10px] text-[#414141] hover:shadow-[0_0_14px_0px_rgba(22,119,255,0.3)] duration-300">
                   <div
-                    className='p-[10px] rounded-full w-[50px] h-[50px] flex justify-center items-center'
+                    className="p-[10px] rounded-full w-[50px] h-[50px] flex justify-center items-center"
                     style={{ backgroundColor: colorBgIcon }}
                   >
                     {icon}
                   </div>
-                  <div className='flex flex-col justify-between h-[50px]'>
-                    <p className='text-[16px]'>{name}</p>{' '}
-                    <p className='font-medium text-[24px]'>{value}</p>
+                  <div className="flex flex-col justify-between h-[50px]">
+                    <p className="text-[16px]">{name}</p> <p className="font-medium text-[24px]">{value}</p>
                   </div>
                 </div>
               </Link>
             </Col>
-          )
+          );
         })}
       </Row>
 
-      <div className='bg-[#F5F5F5] h-[15px]' />
+      <div className="bg-[#F5F5F5] h-[15px]" />
 
-      <div className='pt-[30px] pr-[30px]'>
+      <div className="pt-[30px] pr-[30px]">
         <ResponsiveContainer minHeight={360}>
           <LineChart data={data.sales}>
             <Legend
-              verticalAlign='top'
+              verticalAlign="top"
               content={(prop) => {
-                const { payload } = prop
+                const { payload } = prop;
                 return (
-                  <ul className='text-right text-[#999] text-[14px]'>
+                  <ul className="text-right text-[#999] text-[14px]">
                     {payload.map((item, key) => (
-                      <li key={key} className='h-[48px] line-clamp-[48px] inline-block ml-[24px]'>
+                      <li key={key} className="h-[48px] line-clamp-[48px] inline-block ml-[24px]">
                         <span
                           // className={styles.radiusdot}
-                          className='w-[12px] h-[12px] mr-[8px] rounded-[50%] inline-block'
+                          className="w-[12px] h-[12px] mr-[8px] rounded-[50%] inline-block"
                           style={{ background: item.color }}
                         />
                         {item.value}
                       </li>
                     ))}
                   </ul>
-                )
+                );
               }}
             />
-            <XAxis
-              dataKey='name'
-              axisLine={{ stroke: '#e5e5e5', strokeWidth: 1 }}
-              tickLine={false}
-            />
+            <XAxis dataKey="name" axisLine={{ stroke: '#e5e5e5', strokeWidth: 1 }} tickLine={false} />
             <YAxis axisLine={false} tickLine={false} />
-            <CartesianGrid vertical={false} stroke='#e5e5e5' strokeDasharray='3 3' />
+            <CartesianGrid vertical={false} stroke="#e5e5e5" strokeDasharray="3 3" />
             <Tooltip
               wrapperStyle={{
                 border: 'none',
@@ -705,42 +663,42 @@ export default function Home() {
               }}
               content={(content) => {
                 const list = content.payload.map((item, key) => (
-                  <li key={key} className='flex items-center'>
+                  <li key={key} className="flex items-center">
                     <span
-                      className='w-[12px] h-[12px] mr-[8px] rounded-[50%] inline-block my-[10px]'
+                      className="w-[12px] h-[12px] mr-[8px] rounded-[50%] inline-block my-[10px]"
                       style={{ background: item.color }}
                     />
                     {`${item.name}: ${item.value}`}
                   </li>
-                ))
+                ));
                 return (
                   <div>
-                    <p className='font-medium'>{content.label}</p>
+                    <p className="font-medium">{content.label}</p>
                     {content.payload && <ul>{list}</ul>}
                   </div>
-                )
+                );
               }}
             />
             <Line
-              type='monotone'
-              dataKey='Khách hàng'
-              stroke='#d897eb'
+              type="monotone"
+              dataKey="Khách hàng"
+              stroke="#d897eb"
               strokeWidth={3}
               dot={{ fill: '#d897eb' }}
               activeDot={{ r: 5, strokeWidth: 0 }}
             />
             <Line
-              type='monotone'
-              dataKey='Sellers'
-              stroke='#f69899'
+              type="monotone"
+              dataKey="Sellers"
+              stroke="#f69899"
               strokeWidth={3}
               dot={{ fill: '#f69899' }}
               activeDot={{ r: 5, strokeWidth: 0 }}
             />
             <Line
-              type='monotone'
-              dataKey='Sản phẩm'
-              stroke='#64ea91'
+              type="monotone"
+              dataKey="Sản phẩm"
+              stroke="#64ea91"
               strokeWidth={3}
               dot={{ fill: '#64ea91' }}
               activeDot={{ r: 5, strokeWidth: 0 }}
@@ -749,5 +707,5 @@ export default function Home() {
         </ResponsiveContainer>
       </div>
     </div>
-  )
+  );
 }

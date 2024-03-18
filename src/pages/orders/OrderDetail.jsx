@@ -1,22 +1,14 @@
-import { Row, Col, Tooltip, Image } from "antd";
+import { Row, Col, Tooltip, Image } from 'antd';
+import { useLocation } from 'react-router-dom';
+import dayjs from 'dayjs';
+import PageTitle from '../../components/common/PageTitle';
 
-import PageTitle from "../../components/common/PageTitle";
-import { useLocation } from "react-router-dom";
-import dayjs from "dayjs";
-
-const OrderDetail = () => {
+function OrderDetail() {
   const location = useLocation();
   const { orderData } = location.state;
 
   const renderInfoShipping = () => {
-    const {
-      create_time,
-      delivery_option,
-      warehouse_id,
-      paid_time,
-      rts_sla,
-      rts_time,
-    } = orderData;
+    const { create_time, delivery_option, warehouse_id, paid_time, rts_sla, rts_time } = orderData;
     return (
       <div className="bg-white rounded-md p-5 w-[720px] flex flex-col gap-5">
         <Row gutter={[16, 16]}>
@@ -77,9 +69,7 @@ const OrderDetail = () => {
           <Col span={8}>
             <div>
               <p className=" text-gray-500">Prepare order by</p>
-              <p className="">
-                {dayjs(paid_time).format("MMM DD, YYYY hh:mm:ss A")}
-              </p>
+              <p className="">{dayjs(paid_time).format('MMM DD, YYYY hh:mm:ss A')}</p>
             </div>
           </Col>
         </Row>
@@ -88,25 +78,19 @@ const OrderDetail = () => {
           <Col span={8}>
             <div>
               <p className=" text-gray-500">Ship order by</p>
-              <p className="">
-                {dayjs(rts_sla).format("MMM DD, YYYY hh:mm:ss A")}
-              </p>
+              <p className="">{dayjs(rts_sla).format('MMM DD, YYYY hh:mm:ss A')}</p>
             </div>
           </Col>
           <Col span={8}>
             <div>
               <p className=" text-gray-500">Late dispatch after</p>
-              <p className="">
-                {dayjs(rts_time).format("MMM DD, YYYY hh:mm:ss A")}
-              </p>
+              <p className="">{dayjs(rts_time).format('MMM DD, YYYY hh:mm:ss A')}</p>
             </div>
           </Col>
           <Col span={8}>
             <div>
               <p className=" text-gray-500">Auto-cancel date</p>
-              <p className="">
-                {dayjs(rts_time).format("MMM DD, YYYY hh:mm:ss A")}
-              </p>
+              <p className="">{dayjs(rts_time).format('MMM DD, YYYY hh:mm:ss A')}</p>
             </div>
           </Col>
         </Row>
@@ -132,9 +116,7 @@ const OrderDetail = () => {
                 </div>
                 <div>
                   <Tooltip title={item.product_name}>
-                    <p className="font-semibold line-clamp-1">
-                      {item.product_name}
-                    </p>
+                    <p className="font-semibold line-clamp-1">{item.product_name}</p>
                   </Tooltip>
                   <p className="text-[12px] text-gray-500">{item.sku_name}</p>
                   <p className="text-[12px] text-gray-500">{item.seller_sku}</p>
@@ -170,15 +152,11 @@ const OrderDetail = () => {
         <hr />
         <p className="flex justify-between text-gray-500">
           <p className="max-w-[150px]">Item(s) subtotal after discounts</p>
-          <p className="font-semibold text-gray-600">
-            ${payment_info.sub_total}
-          </p>
+          <p className="font-semibold text-gray-600">${payment_info.sub_total}</p>
         </p>
         <p className="flex justify-between text-gray-500">
           <p className="max-w-[150px]">Shipping fee after discounts</p>
-          <p className="font-semibold text-gray-600">
-            ${payment_info.shipping_fee}
-          </p>
+          <p className="font-semibold text-gray-600">${payment_info.shipping_fee}</p>
         </p>
         <p className="flex justify-between text-gray-500">
           <p className="max-w-[150px]">Taxes</p>
@@ -186,16 +164,14 @@ const OrderDetail = () => {
         </p>
         <p className="flex justify-between text-gray-500 items-center">
           <p className="max-w-[150px] text-[20px] text-black">Total</p>
-          <p className="font-semibold text-gray-600 text-[18px]">
-            ${payment_info.total_amount}
-          </p>
+          <p className="font-semibold text-gray-600 text-[18px]">${payment_info.total_amount}</p>
         </p>
       </div>
     );
   };
 
   const renderCustomerInfo = () => {
-    const {recipient_address, buyer_uid} = orderData;
+    const { recipient_address, buyer_uid } = orderData;
     return (
       <div className="bg-white rounded-md p-5 w-[300px] flex flex-col gap-5">
         <p className="font-semibold text-[18px]">Customer info</p>
@@ -237,6 +213,6 @@ const OrderDetail = () => {
       </div>
     </div>
   );
-};
+}
 
 export default OrderDetail;

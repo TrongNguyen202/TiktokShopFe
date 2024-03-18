@@ -1,32 +1,12 @@
-import { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import {
-  Row,
-  Col,
-  Button,
-  Form,
-  Input,
-  Select,
-  Spin,
-  message,
-  Modal,
-} from "antd";
+import { Button, Col, Form, Input, Modal, Row, Select, Spin, message } from 'antd';
+import { useEffect } from 'react';
+import { useShopsStore } from '../../store/shopsStore';
+import { useUsersStore } from '../../store/usersStore';
 
-import { useUsersStore } from "../../store/usersStore";
-import { useShopsStore } from "../../store/shopsStore";
-import { getPathByIndex } from "../../utils";
-
-import PageTitle from "../../components/common/PageTitle";
-
-export default function ModalUserForm({
-  isShowModal,
-  setIsShowModal,
-  userSelected,
-}) {
-  const navigate = useNavigate();
+export default function ModalUserForm({ isShowModal, setIsShowModal, userSelected }) {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
-  const { getUserInfor, updateUser, loading, getShopByUser, createUser } = useUsersStore((state) => state);
+  const { updateUser, loading, getShopByUser, createUser } = useUsersStore((state) => state);
   const { getAllStores, stores } = useShopsStore((state) => state);
 
   const storesOption =
@@ -37,26 +17,24 @@ export default function ModalUserForm({
     }));
 
   const onFinish = (values) => {
-    console.log('values: ', values);
     const dataUpdate = {
       ...values,
-      user_id: userSelected?.user_id || "",
+      user_id: userSelected?.user_id || '',
     };
     const onSuccess = (res) => {
       getShopByUser();
       if (res) {
-        messageApi
-          .open({
-            type: "success",
-            content: "Thành công",
-          })
+        messageApi.open({
+          type: 'success',
+          content: 'Thành công',
+        });
         setIsShowModal(false);
       }
     };
 
     const onFail = (err) => {
       messageApi.open({
-        type: "error",
+        type: 'error',
         content: err,
       });
     };
@@ -69,10 +47,7 @@ export default function ModalUserForm({
       const newData = {
         ...userSelected,
         username: userSelected?.user_name,
-        shops: userSelected?.shops?.map((item) => ({
-          label: item.name,
-          value: item.id,
-        })),
+        shops: userSelected?.shops?.map((item) => item.id),
       };
       form.setFieldsValue(newData);
     }
@@ -81,7 +56,7 @@ export default function ModalUserForm({
   return (
     <div className="">
       <Modal
-        title={"Chỉnh sửa thông tin nhân viên"}
+        title="Chỉnh sửa thông tin nhân viên"
         visible={isShowModal}
         // onOk={onFinish}
         okText="Save"
@@ -131,21 +106,19 @@ export default function ModalUserForm({
                       className="w-full"
                       filterOption={(input, options) => {
                         return (
-                          options.label
-                            .toLowerCase()
-                            .indexOf(input.toLowerCase()) >= 0 ||
-                          options.value
-                            .toLowerCase()
-                            .indexOf(input.toLowerCase()) >= 0
+                          options.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
+                          options.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
                         );
                       }}
                     />
                   </Form.Item>
                 </Col>
               </Row>
-              <Form.Item className='mt-10 flex justify-end gap-3'>
+              <Form.Item className="mt-10 flex justify-end gap-3">
                 <Button onClick={() => setIsShowModal(false)}>Huỷ</Button>
-                <Button className='ml-3' type="primary" htmlType="submit">Lưu</Button>
+                <Button className="ml-3" type="primary" htmlType="submit">
+                  Lưu
+                </Button>
               </Form.Item>
             </Form>
           </>

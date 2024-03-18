@@ -1,16 +1,15 @@
-import { Button, Drawer, Layout, Space, Table } from 'antd'
-import { useEffect, useState } from 'react'
-import { EyeOutlined } from '@ant-design/icons'
-import { useSellersStore } from '../../store/sellersStore'
-import { formatDate } from '../../utils/date'
-import TableHeader from '../../components/table-header'
-import SellerDetail from './SellerDetail'
+import { Drawer, Layout, Table } from 'antd';
+import { useEffect, useState } from 'react';
+import TableHeader from '../../components/table-header';
+import { useSellersStore } from '../../store/sellersStore';
+import { formatDate } from '../../utils/date';
+import SellerDetail from './SellerDetail';
 
 export default function Sellers() {
-  const { sellers, loading, getAllSellers, searchSeller } = useSellersStore((state) => state)
+  const { sellers, loading, getAllSellers, searchSeller } = useSellersStore((state) => state);
 
-  const [isOpenDrawer, setOpenDrawer] = useState(false)
-  const [selectedId, setSelectedId] = useState(null)
+  const [isOpenDrawer, setOpenDrawer] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
   const [params, setParams] = useState({
     page: 1,
     search: '',
@@ -18,7 +17,7 @@ export default function Sellers() {
     end_date_register: '',
     begin_last_visit_time: '',
     end_last_visit_time: '',
-  })
+  });
 
   const sellersTable = [
     {
@@ -36,10 +35,10 @@ export default function Sellers() {
       fixed: 'left',
       render: (name, seller) => (
         <p
-          className='text-[#0e2482] font-medium cursor-pointer'
+          className="text-[#0e2482] font-medium cursor-pointer"
           onClick={() => {
-            setOpenDrawer(true)
-            setSelectedId(seller.id)
+            setOpenDrawer(true);
+            setSelectedId(seller.id);
           }}
         >
           {name}
@@ -53,10 +52,10 @@ export default function Sellers() {
       sorter: (seller1, seller2) => seller1.phone_number.localeCompare(seller2.phone_number),
       render: (phone, seller) => (
         <p
-          className='text-[#0e2482] font-medium cursor-pointer'
+          className="text-[#0e2482] font-medium cursor-pointer"
           onClick={() => {
-            setOpenDrawer(true)
-            setSelectedId(seller.id)
+            setOpenDrawer(true);
+            setSelectedId(seller.id);
           }}
         >
           {phone}
@@ -68,10 +67,10 @@ export default function Sellers() {
       dataIndex: 'stores',
       key: 'stores',
       render: (_, sellers) => {
-        const { stores } = sellers
-        if (!stores || !stores.length) return null
-        const storeList = stores.map((item) => item).join(', ')
-        return <div>{storeList}</div>
+        const { stores } = sellers;
+        if (!stores || !stores.length) return null;
+        const storeList = stores.map((item) => item).join(', ');
+        return <div>{storeList}</div>;
       },
     },
     {
@@ -79,11 +78,7 @@ export default function Sellers() {
       dataIndex: 'created_at',
       key: 'created_at',
       render: (seller) =>
-        seller ? (
-          <p>{formatDate(new Date(seller), ' HH:mm DD/MM/yyyy').toLocaleString()}</p>
-        ) : (
-          <></>
-        ),
+        seller ? <p>{formatDate(new Date(seller), ' HH:mm DD/MM/yyyy').toLocaleString()}</p> : <></>,
       sorter: (seller1, seller2) =>
         new Date(seller1.created_at || '').getTime() - new Date(seller2.created_at || '').getTime(),
     },
@@ -92,11 +87,7 @@ export default function Sellers() {
       dataIndex: 'updated_at',
       key: 'updated_at',
       render: (seller) =>
-        seller ? (
-          <p>{formatDate(new Date(seller), ' HH:mm DD/MM/yyyy').toLocaleString()}</p>
-        ) : (
-          <></>
-        ),
+        seller ? <p>{formatDate(new Date(seller), ' HH:mm DD/MM/yyyy').toLocaleString()}</p> : <></>,
       sorter: (seller1, seller2) =>
         new Date(seller1.updated_at || '').getTime() - new Date(seller2.updated_at || '').getTime(),
     },
@@ -106,14 +97,9 @@ export default function Sellers() {
       key: 'last_visit_time',
       // responsive: ["md"],
       render: (seller) =>
-        seller ? (
-          <p>{formatDate(new Date(seller), ' HH:mm DD/MM/yyyy').toLocaleString()}</p>
-        ) : (
-          <></>
-        ),
+        seller ? <p>{formatDate(new Date(seller), ' HH:mm DD/MM/yyyy').toLocaleString()}</p> : <></>,
       sorter: (seller1, seller2) =>
-        new Date(seller1.last_visit_time || '').getTime() -
-        new Date(seller2.last_visit_time || '').getTime(),
+        new Date(seller1.last_visit_time || '').getTime() - new Date(seller2.last_visit_time || '').getTime(),
     },
     // {
     //   title: "",
@@ -137,43 +123,43 @@ export default function Sellers() {
     //     );
     //   },
     // },
-  ]
+  ];
 
   useEffect(() => {
-    const onSuccess = () => {}
+    const onSuccess = () => {};
     const onFail = (err) => {
-      alert.error(err)
-    }
-    getAllSellers(onSuccess, onFail)
-  }, [])
+      alert.error(err);
+    };
+    getAllSellers(onSuccess, onFail);
+  }, []);
 
   return (
-    <Layout.Content className='mt-4 px-5'>
-      <p className='my-5 font-semibold text-[20px]'>Danh sách Sellers</p>
+    <Layout.Content className="mt-4 px-5">
+      <p className="my-5 font-semibold text-[20px]">Danh sách Sellers</p>
       <TableHeader
         onSearch={searchSeller}
         setParams={setParams}
         params={params}
-        titleDatePicker1='Ngày đăng ký'
-        titleDatePicker2='Thời gian truy cập'
+        titleDatePicker1="Ngày đăng ký"
+        titleDatePicker2="Thời gian truy cập"
       />
       <Table
         columns={sellersTable}
         scroll={{ x: true }}
-        size='middle'
+        size="middle"
         bordered
         dataSource={sellers.length ? sellers : []}
         loading={loading}
       />
       <Drawer
-        title='Thông tin cửa hàng'
-        placement='right'
-        width='35vw'
+        title="Thông tin cửa hàng"
+        placement="right"
+        width="35vw"
         onClose={() => setOpenDrawer(false)}
         open={isOpenDrawer}
       >
         <SellerDetail id={selectedId} />
       </Drawer>
     </Layout.Content>
-  )
+  );
 }

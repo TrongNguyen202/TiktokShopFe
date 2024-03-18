@@ -1,11 +1,11 @@
-import { Button, Form, Input, Popconfirm, Table } from "antd";
-import React, { useContext, useEffect, useRef, useState } from "react";
-import "./EditPriceForm.css";
-import { data } from "autoprefixer";
+import { Button, Form, Input, Popconfirm, Table } from 'antd';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import './EditPriceForm.css';
+// import { data } from 'autoprefixer';
 
 const EditableContext = React.createContext(null);
 
-const EditableRow = ({ index, ...props }) => {
+function EditableRow({ index, ...props }) {
   const [form] = Form.useForm();
   return (
     <Form form={form} component={false} className="w-[100px]">
@@ -14,7 +14,7 @@ const EditableRow = ({ index, ...props }) => {
       </EditableContext.Provider>
     </Form>
   );
-};
+}
 
 function sortByType(arr) {
   return arr.sort((a, b) => {
@@ -46,12 +46,7 @@ const convertDataTable = (selectedType, selectedSize, selectedColor) => {
   return sortByType(data);
 };
 
-export default function EditPriceForm({
-  selectedSize,
-  dataPrice,
-  onSavePrice,
-  setShowModalPrice,
-}) {
+export default function EditPriceForm({ selectedSize, dataPrice, onSavePrice, setShowModalPrice }) {
   console.log('dataPrice: ', dataPrice);
   const [dataSource, setDataSource] = useState(dataPrice);
 
@@ -59,9 +54,9 @@ export default function EditPriceForm({
 
   const defaultColumns = [
     {
-      title: "Type",
-      dataIndex: "type",
-      width: "25%",
+      title: 'Type',
+      dataIndex: 'type',
+      width: '25%',
       render: (text, row, index) => {
         if (index % selectedSize.length === 0) {
           return {
@@ -70,19 +65,18 @@ export default function EditPriceForm({
               rowSpan: selectedSize.length,
             },
           };
-        } else {
-          return {
-            props: {
-              rowSpan: 0,
-            },
-          };
         }
+        return {
+          props: {
+            rowSpan: 0,
+          },
+        };
       },
     },
     {
-      title: "Quantity",
-      dataIndex: "quantity",
-      width: "25%",
+      title: 'Quantity',
+      dataIndex: 'quantity',
+      width: '25%',
       editable: true,
       render: (text, row, index) => {
         if (index % selectedSize.length === 0) {
@@ -92,37 +86,28 @@ export default function EditPriceForm({
               rowSpan: selectedSize.length,
             },
           };
-        } else {
-          return {
-            props: {
-              rowSpan: 0,
-            },
-          };
         }
+        return {
+          props: {
+            rowSpan: 0,
+          },
+        };
       },
     },
     {
-      title: "Size",
-      dataIndex: "size",
-      width: "25%",
+      title: 'Size',
+      dataIndex: 'size',
+      width: '25%',
     },
     {
-      title: "Price",
-      dataIndex: "price",
+      title: 'Price',
+      dataIndex: 'price',
       editable: true,
-      width: "25%",
+      width: '25%',
     },
   ];
 
-  const EditableCell = ({
-    title,
-    editable,
-    children,
-    dataIndex,
-    record,
-    handleSave,
-    ...restProps
-  }) => {
+  function EditableCell({ title, editable, children, dataIndex, record, handleSave, ...restProps }) {
     const [editing, setEditing] = useState(false);
     const inputRef = useRef(null);
     const form = useContext(EditableContext);
@@ -149,7 +134,7 @@ export default function EditPriceForm({
           ...values,
         });
       } catch (errInfo) {
-        console.log("Save failed:", errInfo);
+        console.log('Save failed:', errInfo);
       }
     };
     const handleChangeInput = (e, record, dataIndex) => {
@@ -167,9 +152,9 @@ export default function EditPriceForm({
         <Form.Item
           style={{
             margin: 0,
-            width: "200px",
-            height: "30px",
-            borderRadius: "2px",
+            width: '200px',
+            height: '30px',
+            borderRadius: '2px',
           }}
           name={dataIndex}
           rules={[
@@ -180,19 +165,15 @@ export default function EditPriceForm({
           ]}
         >
           {/* <Input ref={inputRef} onPressEnter={save} onBlur={save} /> */}
-          <Input
-            ref={inputRef}
-            type="text"
-            onChange={(e) => handleChangeInput(e, record, dataIndex)}
-          />
+          <Input ref={inputRef} type="text" onChange={(e) => handleChangeInput(e, record, dataIndex)} />
         </Form.Item>
       ) : (
         <div
           className="editable-cell-value-wrap"
           style={{
             paddingRight: 24,
-            height: "30px",
-            borderRadius: "2px",
+            height: '30px',
+            borderRadius: '2px',
           }}
           onClick={toggleEdit}
         >
@@ -201,7 +182,7 @@ export default function EditPriceForm({
       );
     }
     return <td {...restProps}>{childNode}</td>;
-  };
+  }
 
   const components = {
     body: {
@@ -245,13 +226,13 @@ export default function EditPriceForm({
       return acc;
     }, {});
 
-    const updatedData = data.map(item => ({
+    const updatedData = data.map((item) => ({
       ...item,
       quantity: maxQuantities[item.type].toString(),
     }));
 
     return updatedData;
-  }
+  };
 
   const handleSaveDataSource = () => {
     setDataSource(synchronizeQuantity(dataSource2.current));
@@ -263,18 +244,14 @@ export default function EditPriceForm({
     <div>
       <Table
         components={components}
-        rowClassName={() => "editable-row"}
+        rowClassName={() => 'editable-row'}
         bordered
         dataSource={dataSource}
         columns={columns}
         pagination={false}
       />
-      
-      <Button
-        onClick={handleSaveDataSource}
-        type="primary"
-        className="mt-3 w-[300px] mx-auto block"
-      >
+
+      <Button onClick={handleSaveDataSource} type="primary" className="mt-3 w-[300px] mx-auto block">
         Lưu
       </Button>
     </div>
