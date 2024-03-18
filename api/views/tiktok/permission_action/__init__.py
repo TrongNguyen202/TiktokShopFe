@@ -1,5 +1,5 @@
 
-from ....models import User, UserShop, UserGroup, GroupCustom,CustomUserSendPrint
+from ....models import User, UserShop, UserGroup, GroupCustom, CustomUserSendPrint
 
 from ....serializers import GroupCustomSerializer
 
@@ -93,8 +93,7 @@ class AddUserToGroup(APIView):
             shop_ids = request.data.get('shops')
             new_user = User.objects.create_user(username=username, password=password, email=email, first_name=firstname, last_name=lastname)
             if user_code:
-
-
+                CustomUserSendPrint.objects.create(user=new_user, user_code=user_code)
 
             group_custom = user_group.group_custom
             UserGroup.objects.create(user=new_user, group_custom=group_custom, role=2)
