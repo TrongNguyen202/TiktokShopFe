@@ -258,7 +258,6 @@ export default function Crawl() {
 
   const convertDataProductsToSenPrints = () => {
     const selectedProducts = productList.filter((product) => checkedItems[product.id]);
-    console.log('selectedProducts: ', selectedProducts);
 
     const convertImageLink = (images) => {
       const imageObject = images.reduce((obj, link, index) => {
@@ -277,7 +276,7 @@ export default function Crawl() {
           collection: '',
           product_sku: item.product_sku,
           colors: item.colors,
-          price: product.price,
+          price: item.price,
           ...convertImageLink(product.images),
         };
       });
