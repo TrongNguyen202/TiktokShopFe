@@ -1,22 +1,18 @@
-import { Button, Table, Tag, message } from 'antd';
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useLocation, Link } from 'react-router-dom';
+import { Table, Tag, Button, message } from 'antd';
 
 import { useShopsOrder } from '../../store/ordersStore';
-import { getPathByIndex } from '../../utils';
 
-import LoadingButton from '../common/LoadingButton';
 import SectionTitle from '../common/SectionTitle';
+import LoadingButton from '../common/LoadingButton';
 
-function OrdersLabel({ changeNextStep }) {
-  const shopId = getPathByIndex(2);
+function OrdersLabel({ changeNextStep, toShipInfoData }) {
   const location = useLocation();
   const { shippingDoc } = location.state;
   const [labelSelected, setLabelSelected] = useState([]);
   const [messageApi, contextHolder] = message.useMessage();
-  const { getToShipInfo, toShipInfo, uploadLabelToDriver, loading } = useShopsOrder((state) => state);
-
-  console.log('shippingDoc: ', shippingDoc);
+  const { uploadLabelToDriver, loading } = useShopsOrder((state) => state);
 
   const columns = [
     {
@@ -62,8 +58,6 @@ function OrdersLabel({ changeNextStep }) {
     }),
   };
 
-  console.log('labelSelected: ', labelSelected);
-
   const handlePushToDriver = () => {
     const dataLabelProcess = {
       order_documents: labelSelected?.map((item) => ({
@@ -74,24 +68,22 @@ function OrdersLabel({ changeNextStep }) {
 
     const onSuccess = (res) => {
       if (res) {
-        const onSuccess = (res) => {
-          if (res) {
-            messageApi.open({
-              type: 'success',
-              content: 'Đã đẩy label lên Server thành công',
-            });
+        messageApi.open({
+          type: 'success',
+          content: 'Đã đẩy label lên Server thành công',
+        });
 
-            changeNextStep(true);
-          }
-        };
-
-        getToShipInfo(shopId, dataLabelProcess, onSuccess, (err) => console.log(err));
+        changeNextStep(true);
       }
     };
 
     const onFail = (err) => messageApi.error(err);
     uploadLabelToDriver(dataLabelProcess, onSuccess, onFail);
   };
+
+  useEffect(() => {
+    toShipInfoData(labelSelected);
+  }, [labelSelected]);
 
   return (
     <div className="p-3 md:p-10">

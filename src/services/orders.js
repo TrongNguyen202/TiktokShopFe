@@ -89,20 +89,16 @@ const getDesignSkuById = (skuId) => {
   return callApi(`/designskus/${skuId}`, 'get');
 };
 
-const PackageCreateFlashShip = (body) => {
-  return callApi(`/packages/create_flash`, 'post', body);
+const packageCreateFlashShip = (shopId, body) => {
+  return callApi(`/shop/${shopId}/packages/create_flash`, 'post', body);
 };
 
-const PackageCreatePrintCare = (body) => {
-  return callApi(`/packages/create_print`, 'post', body);
+const packageCreatePrintCare = (shopId, body) => {
+  return callApi(`/shop/${shopId}/packages/create_print`, 'post', body);
 };
 
-const testOCR = (shopId, body) => {
-  return axios({
-    method: 'post',
-    url: `https://xbn3j33g-8000.asse.devtunnels.ms/api/shops/${shopId}/orders/toship_infor`,
-    data: body,
-  });
+const packageFulfillmentCompleted = (shopId) => {
+  return callApi(`/shop/${shopId}/packages/list`, 'get');
 };
 
 export const orders = {
@@ -128,7 +124,7 @@ export const orders = {
   deleteDesignSku,
   searchDesignSku,
   getDesignSkuById,
-  PackageCreateFlashShip,
-  PackageCreatePrintCare,
-  testOCR,
+  packageCreateFlashShip,
+  packageCreatePrintCare,
+  packageFulfillmentCompleted,
 };

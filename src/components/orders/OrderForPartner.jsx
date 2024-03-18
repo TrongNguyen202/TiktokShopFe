@@ -38,14 +38,14 @@ function OrderForPartner({ toShipInfoData }) {
   const [printCareTable, setPrintCareTable] = useState([]);
   const [flashShipVariants, setFlashShipVariants] = useState([]);
   const [openLoginFlashShip, setOpenLoginFlashShip] = useState(false);
+  const [allowCreateOrderPartner, setAllowCreateOrderPartner] = useState(false);
   const {
     getToShipInfo,
     loadingGetInfo,
     getDesignSku,
     getDesignSkuById,
-    PackageCreateFlashShip,
-    PackageCreatePrintCare,
-    testOCR,
+    packageCreateFlashShip,
+    packageCreatePrintCare,
   } = useShopsOrder((state) => state);
   const { getFlashShipPODVariant, LoginFlashShip, createOrderFlashShip } = useFlashShipStores((state) => state);
 
@@ -82,11 +82,12 @@ function OrderForPartner({ toShipInfoData }) {
 
         if (checkProductType.length) {
           const checkColor = checkProductType.filter(
-            (color) => color.color.toUpperCase() === variationObject?.color?.toUpperCase(),
+            (color) => color.color.toUpperCase() === variationObject?.color?.replace(' ', '').toUpperCase(),
           );
+
           if (checkColor.length) {
             const checkSize = checkColor.find((size) =>
-              variationObject?.size?.toUpperCase().includes(size.size.toUpperCase()),
+              variationObject?.size?.toUpperCase().includes(size.size.replace(' ', '').toUpperCase()),
             );
             if (checkSize) {
               result.variant_id = checkSize.variant_id;
@@ -215,6 +216,8 @@ function OrderForPartner({ toShipInfoData }) {
           return flashShipItem;
         });
 
+        console.log('handAddDesignToShipInfoData: ', handAddDesignToShipInfoData);
+
         const orderList = handAddDesignToShipInfoData.flatMap((item) => item.order_list);
         const itemsWithNullImages = orderList.filter(
           (item) => item.image_design_front === null && item.image_design_back === null,
@@ -248,7 +251,7 @@ function OrderForPartner({ toShipInfoData }) {
                 console.log('errPackage: ', errPackage);
               };
 
-              PackageCreateFlashShip(item, onSuccessPackageCreate, onFailPackageCreate);
+              packageCreateFlashShip(shopId, item, onSuccessPackageCreate, onFailPackageCreate);
             };
 
             const onCreateFail = (errCreate) => {
@@ -285,13 +288,15 @@ function OrderForPartner({ toShipInfoData }) {
     // eslint-disable-next-line array-callback-return
     dataPackageCreateConvert.map((item) => {
       if (fileName === 'PrintCare') {
-        PackageCreatePrintCare(
+        packageCreatePrintCare(
+          shopId,
           item,
           (res) => console.log(res),
           (err) => console.log(err),
         );
       } else {
-        PackageCreateFlashShip(
+        packageCreateFlashShip(
+          shopId,
           item,
           (res) => console.log(res),
           (err) => console.log(err),
@@ -372,12 +377,18 @@ function OrderForPartner({ toShipInfoData }) {
     onChange: (_, selectedRows) => {
       setTableFlashShipSelected(selectedRows);
     },
+    getCheckboxProps: () => ({
+      disabled: !allowCreateOrderPartner,
+    }),
   };
 
   const rowSelectionPrintCare = {
     onChange: (_, selectedRows) => {
       setTablePrintCareSelected(selectedRows);
     },
+    getCheckboxProps: () => ({
+      disabled: !allowCreateOrderPartner,
+    }),
   };
 
   const column = [
@@ -430,20 +441,23 @@ function OrderForPartner({ toShipInfoData }) {
       dataIndex: 'shipping_info',
       key: 'shipping_info',
       render: (_, record) => {
-        <ul>
-          <li>
-            <span>State: </span>
-            {record.state}
-          </li>
-          <li>
-            <span>Street: </span>
-            {record.street}
-          </li>
-          <li>
-            <span>zip code: </span>
-            {record.zip_code}
-          </li>
-        </ul>;
+        console.log('record: ', record)
+        return (
+          <ul>
+            <li>
+              <span>State: </span>
+              {record.state}
+            </li>
+            <li>
+              <span>Street: </span>
+              {record.street}
+            </li>
+            <li>
+              <span>zip code: </span>
+              {record.zip_code}
+            </li>
+          </ul>
+        )
       },
     },
   ];
@@ -455,20 +469,33 @@ function OrderForPartner({ toShipInfoData }) {
 
     const onSuccess = (res) => {
       if (res) {
+        let errorShown = false;
+        // eslint-disable-next-line array-callback-return
         const dataCheck = res.map((item) => {
+          setAllowCreateOrderPartner(true);
+          if (item.data.ocr_result.status === 'error' && !errorShown) {
+            messageApi.open({
+              type: 'error',
+              content: item.data.ocr_result.message,
+            });
+            errorShown = true;
+            setAllowCreateOrderPartner(false);
+          }
+
           const itemLabel = toShipInfoData.find(
-            (itemShipInfo) => itemShipInfo.package_id === item.data.order_list[0].package_list[0].package_id,
+            (itemShipInfo) => itemShipInfo.package_id === item.data.data.order_list[0].package_list[0].package_id,
           );
+
           return {
             label: itemLabel.label,
-            order_list: item.data.order_list,
-            package_id: item.data.order_list[0].package_list[0].package_id,
-            state: item.state,
-            street: item.street,
-            city: item.city,
-            tracking_id: item.tracking_id,
-            zip_code: item.zip_code,
-            name_buyer: item.name_buyer,
+            order_list: item.data.data.order_list,
+            package_id: item.data.data.order_list[0].package_list[0].package_id,
+            state: item.data.ocr_result.data?.state,
+            street: item.data.ocr_result.data?.address || '',
+            city: item.data.ocr_result.data?.city || '',
+            tracking_id: item.data.ocr_result.data?.tracking_id || '',
+            zip_code: item.data.ocr_result.data?.zipcode || '',
+            name_buyer: item.data.ocr_result.data?.name || '',
           };
         });
         setDataOCRCheck(dataCheck);
@@ -495,7 +522,6 @@ function OrderForPartner({ toShipInfoData }) {
     );
     getFlashShipPODVariant(onSuccessVariant, onFailVariant);
     getToShipInfo(shopId, data, onSuccess, onFail);
-    testOCR(shopId, data);
   }, [shopId, toShipInfoData]);
 
   useEffect(() => {
@@ -503,8 +529,6 @@ function OrderForPartner({ toShipInfoData }) {
       checkDataPartner(dataOCRCheck);
     }
   }, [dataOCRCheck, flashShipVariants]);
-
-  console.log('tableSelected: ', tableFlashShipSelected, tablePrintCareSelected);
 
   return (
     <div className="p-10">

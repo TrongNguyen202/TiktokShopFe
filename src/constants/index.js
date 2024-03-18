@@ -31,8 +31,8 @@ export const constants = {
     'https://docs.google.com/spreadsheets/d/1b6wjVXQ-02jxvPGCXauiQX6_x-1oyrWn_CONOHw_c10/edit#gid=380793677',
   // DESIGN_SKU_FILES_GOOGLE_SHEET: 'https://docs.google.com/spreadsheets/d/1zo6it9m4wMeLJHg0JMIHuDMoHMiY2nFLbF6IlZo3qE8/edit#gid=0',
 
-  // API_FLASH_SHIP: 'https://seller.flashship.net/seller-api',
-  API_FLASH_SHIP: 'https://devpod.flashship.net/seller-api',
+  API_FLASH_SHIP: 'https://seller.flashship.net/seller-api',
+  // API_FLASH_SHIP: 'https://devpod.flashship.net/seller-api',
 };
 
 export const statusIdentity = {
