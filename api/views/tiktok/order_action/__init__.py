@@ -123,6 +123,7 @@ class ShippingService(APIView):
 
         data = json.loads(data_json_string)
         data_inner = data.get("data")
+        print("data_inner", data_inner)
         shipping_services = data_inner.get("shipping_service_info", [])
 
         simplified_shipping_services = [
@@ -163,6 +164,7 @@ class CreateLabel(APIView):
     def call_create_label(self, access_token, label_data):
         respond = order.callCreateLabel(access_token=access_token, body_raw_json=label_data)
         data = json.loads(respond.content)
+        print(data)
 
         # Check if package_id already exists
         try:

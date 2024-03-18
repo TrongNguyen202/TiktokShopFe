@@ -14,7 +14,9 @@ from .models import (
     BuyedPackage,
     DesignSku,
     DesignSkuChangeHistory,
-    Package
+    Package,
+    CustomUserSendPrint
+
 
 )
 
@@ -119,3 +121,4 @@ admin.site.register(BuyedPackage)
 admin.site.register(DesignSku, DesignSkuAdmin)
 admin.site.register(DesignSkuChangeHistory, DesignSkuChangeHistoryAdmin)
 admin.site.register(Package)
+admin.site.register(CustomUserSendPrint)
