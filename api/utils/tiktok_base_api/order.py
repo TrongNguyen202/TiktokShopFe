@@ -197,7 +197,7 @@ def callGetPackageDetail(access_token, package_id):
 
     response = requests.get(url, params=query_params)
 
-    logger.info(f'GetPackageDetail response: {response.text}')
+    # logger.info(f'GetPackageDetail response: {response.text}')
 
     return HttpResponse(response)
 

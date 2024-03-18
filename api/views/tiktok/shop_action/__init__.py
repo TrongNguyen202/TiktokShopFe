@@ -1,4 +1,4 @@
-from ....models import UserGroup, Shop, User, UserShop
+from ....models import UserGroup, Shop, User, UserShop, CustomUserSendPrint
 from ....serializers import ShopSerializers, ShopRequestSerializers
 from api.views import *
 
@@ -217,8 +217,12 @@ class UserShopList(APIView):
                 "last_name": user_group.user.last_name,
                 "password": user_group.user.password,
                 "email": user_group.user.email,
+                "user_code": None,
                 "shops": []
             }
+            custom_user = CustomUserSendPrint.objects.filter(user=user_group.user).first()
+            if custom_user:
+                user_data["user_code"] = custom_user.user_code
 
             user_shops = UserShop.objects.filter(user=user_group.user, shop__group_custom_id=group_custom.id)
             for user_shop in user_shops.filter(shop__is_active=True):
