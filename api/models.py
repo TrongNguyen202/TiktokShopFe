@@ -162,3 +162,8 @@ class ProductPackage(models.Model):
     printer_design_back_url = models.CharField(max_length=1000, blank=True, null=True)
     quantity = models.IntegerField(null=True, blank=True)
     note = models.CharField(max_length=1000, blank=True, null=True)
+
+
+class CustomUserSendPrint(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user_code = models.CharField(max_length=1000, blank=True, null=True)
