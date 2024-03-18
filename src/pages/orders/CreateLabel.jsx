@@ -84,8 +84,6 @@ function CreateLabel() {
     return labelItems;
   };
 
-  console.log('tableData: ', tableData);
-
   useEffect(() => {
     const updatedTableData = dataTableWeightSize(dataCombineConvert);
     setTableData(updatedTableData);
@@ -472,8 +470,6 @@ function CreateLabel() {
     },
   ];
 
-  console.log('buyLabelSelected: ', buyLabelSelected);
-
   return (
     <div className="p-10">
       {contextHolder}
@@ -509,7 +505,6 @@ function CreateLabel() {
         loading={loading}
         bordered
         pagination={{ pageSize: 100 }}
-        rowKey={(record) => record.request_id}
       />
 
       <Modal title="Size Chart" open={open} onCancel={() => setOpen(false)} width={1000} footer={false}>
