@@ -238,11 +238,8 @@ class ProcessExcel(View):
                     downloaded_image_paths.append(result)
 
         base_temp = self.process_images(downloaded_image_paths)
-        print("len base_temp", len(base_temp))
-        print("len image_base64", len(base64_images))
-        base_temp.extend(base64_images)
 
-        print("len all", len(base64_images))
+        base_temp.extend(base64_images)
 
         images_ids = self.upload_images(base_temp, shop)
         self.create_product_fun(shop, item, category_id, warehouse_id, is_cod_open, package_height, package_length,
@@ -308,6 +305,8 @@ class ProcessExcel(View):
         seller_sku = item.get('sku', '')
         for iteem in skus:
             iteem["seller_sku"] = seller_sku
+        if size_chart !="":
+            print("co size chart")
 
         product_object = objectcreate.ProductCreateMultiObject(
             is_cod_open=is_cod_open,

@@ -1,4 +1,6 @@
+
 from ....models import User, UserShop, UserGroup, GroupCustom,CustomUserSendPrint
+
 from ....serializers import GroupCustomSerializer
 
 from api.views import *
@@ -86,11 +88,13 @@ class AddUserToGroup(APIView):
             email = request.data.get('email')
             firstname = request.data.get('first_name')
             lastname = request.data.get('last_name')
-            user_code = request.data.get('user_code','')
+
+            user_code = request.data.get('user_code', '')
             shop_ids = request.data.get('shops')
             new_user = User.objects.create_user(username=username, password=password, email=email, first_name=firstname, last_name=lastname)
             if user_code:
-                CustomUserSendPrint.objects.create(user_code = user_code,user = new_user)
+
+
 
             group_custom = user_group.group_custom
             UserGroup.objects.create(user=new_user, group_custom=group_custom, role=2)
@@ -138,13 +142,16 @@ class PermissionRole(APIView):
         data = request.data
         user_id = data.get('user_id')
         user = get_object_or_404(User, id=user_id)
+        user_custom_senprint = CustomUserSendPrint.objects.get(user=user)
 
         user.first_name = data.get('first_name', user.first_name)
         user.last_name = data.get('last_name', user.last_name)
         user.username = data.get('username', user.username)
         user.email = data.get('email', user.email)
         user.password = data.get('password', user.password)
+        user_custom_senprint.user_code = data.get('user_code', user_custom_senprint.user_code)
         user.save()
+        user_custom_senprint.save()
 
         stores = data.get('shops', [])
 

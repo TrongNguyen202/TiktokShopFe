@@ -246,7 +246,8 @@ def createProduct(access_token: str, title: str, images_ids: list, product_objec
         'package_width': product_object.package_width,
         'category_id': product_object.category_id,
         'description': product_object.description or '',
-        'skus': skus_list
+        'skus': skus_list,
+        'size_chart': product_object.size_chart
     }
 
     body = json.dumps(body_json)
