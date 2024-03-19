@@ -16,6 +16,7 @@ import StoreDetailProducts from '../../components/stores/StoreDetailProducts';
 import StoreDetailOrder from '../../components/stores/StoreDetailOrder';
 import StoreDetailSectionTitle from '../../components/stores/StoreDetailSectionTitle';
 import StoreDetailOrderFulfillmentCompleted from '../../components/stores/StoreDetailOrderFulfillmentCompleted';
+import Promotions from '../../components/promotion/PromotionCard';
 
 export default function StoreDetail() {
   // const navigate = useNavigate();
@@ -59,6 +60,10 @@ export default function StoreDetail() {
 
           <Col md={{ span: 6 }} span={12}>
             <StoreDetailOrderFulfillmentCompleted shopId={shopId} />
+          </Col>
+
+          <Col md={{ span: 6 }} span={12}>
+            <Promotions shopId={shopId} />
           </Col>
         </Row>
       </div>

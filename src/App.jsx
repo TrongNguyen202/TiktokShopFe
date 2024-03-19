@@ -9,6 +9,7 @@ import ForgotPassword from './pages/login/ForgotPassword';
 import Login from './pages/login/index';
 import Template from './pages/templates/index';
 import { getToken } from './utils/auth';
+import FlashDealForm from './pages/promotions/FlashDealForm';
 
 const Sellers = lazy(() => import('./pages/sellers/index'));
 const Home = lazy(() => import('./pages/home/index'));
@@ -35,6 +36,8 @@ const DesignSku = lazy(() => import('./pages/designSku'));
 const Users = lazy(() => import('./pages/users'));
 const UserEdit = lazy(() => import('./pages/users/UserEdit'));
 const Account = lazy(() => import('./pages/account'));
+const PromotionFrom = lazy(() => import('./pages/promotions/PromotionForm'));
+const Promotion = lazy(() => import('./pages/promotions'));
 // const HomepageInterface = lazy(
 //   () => import("./pages/settings/homepageInterface")
 // );
@@ -222,6 +225,7 @@ function App() {
                 }
               />
 
+              {/* promotions */}
               <Route
                 path="/shops/:id/orders/check-design"
                 element={
@@ -243,10 +247,28 @@ function App() {
 
               {/* Design Sku */}
               <Route
-                path="design-sku"
+                path="/shops/:id/promotions"
                 element={
                   <Suspense fallback={<Loading />}>
-                    <DesignSku />
+                    <Promotion />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                path="/shops/:id/promotions/discounts"
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <PromotionFrom />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                path="/shops/:id/promotions/flash-deal"
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <FlashDealForm />
                   </Suspense>
                 }
               />

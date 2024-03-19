@@ -23,3 +23,22 @@ export const validatePassword = (password) => {
 
   return true;
 };
+
+// validate length longer than 50
+export const validateName = (name) => {
+  if (name.length > 50) {
+    return 'Tên không được vượt quá 50 ký tự';
+  }
+  return null;
+};
+
+// validate end date - start date less or equal 30 days
+export const validateEndDate = (startDate, endDate) => {
+  console.log('validatettetettetetetet', startDate, endDate);
+  const priorDate = new Date(new Date().setDate(endDate.getDate() - 30));
+
+  if (priorDate > startDate) {
+    return null;
+  }
+  return 1;
+};

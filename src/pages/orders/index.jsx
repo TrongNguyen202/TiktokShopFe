@@ -257,7 +257,7 @@ function Orders() {
           });
       }
     };
-    createLabel(shopId, orderSelected, onSuccess, () => {});
+    createLabel(shopId, orderSelected, onSuccess, () => { });
   };
 
   const handleStartFulfillment = () => {
@@ -460,7 +460,7 @@ function Orders() {
           pageSize: 20,
           total: orderDataTable.length,
         }}
-        // rowKey={record => record.package_list[0]?.package_id}
+      // rowKey={record => record.package_list[0]?.package_id}
       />
 
       <Modal title="Combine" centered open={open} onCancel={() => setOpen(false)} width={1000} footer={false}>
