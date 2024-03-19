@@ -77,7 +77,7 @@ class UserInfo(APIView):
 class AddUserToGroup(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def post(self, request):
+    def put(self, request):
         try:
             user_current = request.user
             user_group = UserGroup.objects.get(user=user_current)
@@ -115,6 +115,12 @@ class InforUserCurrent(APIView):
         user = request.user
         user_groups = UserGroup.objects.filter(user=user)
 
+        try:
+            user_sen = CustomUserSendPrint.objects.get(user=user)
+            user_code = user_sen.user_code
+        except CustomUserSendPrint.DoesNotExist:
+            user_code = ""  # Set default value if CustomUserSendPrint does not exist
+
         user_info = {
             'id': user.id,
             'username': user.username,
@@ -122,7 +128,8 @@ class InforUserCurrent(APIView):
             'first_name': user.first_name,
             'last_name': user.last_name,
             'groups': [user_group.group_custom.group_name for user_group in user_groups],
-            'role': [user_group.role for user_group in user_groups]
+            'role': [user_group.role for user_group in user_groups],
+            'user_code': user_code
         }
         return Response(user_info)
 
@@ -141,7 +148,10 @@ class PermissionRole(APIView):
         data = request.data
         user_id = data.get('user_id')
         user = get_object_or_404(User, id=user_id)
-        user_custom_senprint = CustomUserSendPrint.objects.get(user=user)
+        try:
+            user_custom_senprint = CustomUserSendPrint.objects.get(user=user)
+        except CustomUserSendPrint.DoesNotExist:
+            user_custom_senprint = CustomUserSendPrint.objects.create(user=user)
 
         user.first_name = data.get('first_name', user.first_name)
         user.last_name = data.get('last_name', user.last_name)
@@ -154,9 +164,8 @@ class PermissionRole(APIView):
 
         stores = data.get('shops', [])
 
-        # Do something with the stores list, for example, assign the user to the provided stores
         for store_id in stores:
-            print(store_id)
+
             UserShop.objects.get_or_create(user=user, shop_id=store_id)
 
         return Response({"message": "User information updated successfully."})
