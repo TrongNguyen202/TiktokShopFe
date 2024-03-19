@@ -77,7 +77,7 @@ class UserInfo(APIView):
 class AddUserToGroup(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def put(self, request):
+    def post(self, request):
         try:
             user_current = request.user
             user_group = UserGroup.objects.get(user=user_current)
@@ -144,7 +144,7 @@ class GroupCustomListAPIView(APIView):
 class PermissionRole(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def post(self, request):
+    def put(self, request):
         data = request.data
         user_id = data.get('user_id')
         user = get_object_or_404(User, id=user_id)
