@@ -251,10 +251,10 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false });
   },
 
-  PackageCreateFlashShip: async (body, onSuccess = () => {}, onFail = () => {}) => {
+  packageCreateFlashShip: async (shopId, body, onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true });
-      const response = await RepositoryRemote.orders.PackageCreateFlashShip(body);
+      const response = await RepositoryRemote.orders.packageCreateFlashShip(shopId, body);
       onSuccess(response.data);
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
@@ -262,10 +262,10 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false });
   },
 
-  PackageCreatePrintCare: async (body, onSuccess = () => {}, onFail = () => {}) => {
+  packageCreatePrintCare: async (shopId, body, onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true });
-      const response = await RepositoryRemote.orders.PackageCreatePrintCare(body);
+      const response = await RepositoryRemote.orders.packageCreatePrintCare(shopId, body);
       onSuccess(response.data);
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
@@ -273,10 +273,10 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false });
   },
 
-  testOCR: async (shopId, body, onSuccess = () => {}, onFail = () => {}) => {
+  packageFulfillmentCompleted: async (shopId, onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true });
-      const response = await RepositoryRemote.orders.testOCR(shopId, body);
+      const response = await RepositoryRemote.orders.packageFulfillmentCompleted(shopId);
       onSuccess(response.data);
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');

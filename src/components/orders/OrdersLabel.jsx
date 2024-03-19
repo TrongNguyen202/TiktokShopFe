@@ -1,22 +1,20 @@
-import { Button, Table, Tag, message } from 'antd';
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useLocation, Link } from 'react-router-dom';
+import { Table, Tag, Button, message } from 'antd';
 
 import { useShopsOrder } from '../../store/ordersStore';
 import { getPathByIndex } from '../../utils';
 
-import LoadingButton from '../common/LoadingButton';
 import SectionTitle from '../common/SectionTitle';
 
-function OrdersLabel({ changeNextStep }) {
-  const shopId = getPathByIndex(2);
+function OrdersLabel({ changeNextStep, toShipInfoData }) {
   const location = useLocation();
   const { shippingDoc } = location.state;
+  const shopId = getPathByIndex(2);
+  const [ordersCompleted, setOrderCompleted] = useState([])
   const [labelSelected, setLabelSelected] = useState([]);
   const [messageApi, contextHolder] = message.useMessage();
-  const { getToShipInfo, toShipInfo, uploadLabelToDriver, loading } = useShopsOrder((state) => state);
-
-  console.log('shippingDoc: ', shippingDoc);
+  const { uploadLabelToDriver, packageFulfillmentCompleted, loading } = useShopsOrder((state) => state);
 
   const columns = [
     {
@@ -52,21 +50,26 @@ function OrdersLabel({ changeNextStep }) {
         ),
     },
   ];
+  
+  console.log('ordersCompleted: ', ordersCompleted);
 
   const rowSelection = {
     onChange: (_, selectedRows) => {
       setLabelSelected(selectedRows);
+      if (selectedRows.length > 0) changeNextStep(true);
     },
-    getCheckboxProps: (record) => ({
-      disabled: record.label === null,
-    }),
+    getCheckboxProps: (record) => {
+      const disabledOrderCompleted = ordersCompleted.find(item => item.order_id === record.package_id);
+
+      return {
+        disabled: record.label === null || disabledOrderCompleted,
+      };
+    },
   };
 
-  console.log('labelSelected: ', labelSelected);
-
-  const handlePushToDriver = () => {
+  const handlePushToDriver = (data) => {
     const dataLabelProcess = {
-      order_documents: labelSelected?.map((item) => ({
+      order_documents: data?.map((item) => ({
         package_id: item.package_id,
         doc_url: item.label,
       })),
@@ -74,18 +77,10 @@ function OrdersLabel({ changeNextStep }) {
 
     const onSuccess = (res) => {
       if (res) {
-        const onSuccess = (res) => {
-          if (res) {
-            messageApi.open({
-              type: 'success',
-              content: 'Đã đẩy label lên Server thành công',
-            });
-
-            changeNextStep(true);
-          }
-        };
-
-        getToShipInfo(shopId, dataLabelProcess, onSuccess, (err) => console.log(err));
+        messageApi.open({
+          type: 'success',
+          content: 'Đã đẩy label lên Server thành công',
+        });
       }
     };
 
@@ -93,19 +88,27 @@ function OrdersLabel({ changeNextStep }) {
     uploadLabelToDriver(dataLabelProcess, onSuccess, onFail);
   };
 
+  useEffect(() => {
+    handlePushToDriver(shippingDoc);
+  }, [shippingDoc]);
+
+  useEffect(() => {
+    toShipInfoData(labelSelected);
+    packageFulfillmentCompleted(shopId, (res) => setOrderCompleted(res), () => {});
+  }, [labelSelected]);
   return (
     <div className="p-3 md:p-10">
       {contextHolder}
       <div className="mb-3 text-start">
         <SectionTitle title="Danh sách label" count={shippingDoc.length ? shippingDoc.length : '0'} />
         <p>
-          <i>(Vui lòng tick vào ô để chọn label Lưu trữ vào Server và Fulfillment)</i>
+          <i>(Vui lòng tick vào ô để chọn những đơn hàng cần Fulfillment)</i>
         </p>
-        <Button type="primary" onClick={handlePushToDriver} className="mt-3" disabled={!labelSelected.length}>
+        {/* <Button type="primary" onClick={handlePushToDriver} className="mt-3" disabled={!labelSelected.length}>
           Lưu file Label đã mua vào Server &nbsp;
           <span>({labelSelected.length})</span>
           <LoadingButton loading={loading} />
-        </Button>
+        </Button> */}
       </div>
       <Table
         rowSelection={{
