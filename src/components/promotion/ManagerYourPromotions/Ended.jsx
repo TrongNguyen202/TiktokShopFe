@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react';
 
-const Ended = () => {
+function Ended() {
   return <div>Ended</div>;
-};
+}
 
 export default Ended;

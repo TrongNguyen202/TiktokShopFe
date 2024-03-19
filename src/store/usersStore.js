@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { RepositoryRemote } from '../services';
-import { alerts } from '../utils/alerts';
 
 export const useUsersStore = create((set, get) => ({
   shopsByUser: [],
@@ -16,10 +15,10 @@ export const useUsersStore = create((set, get) => ({
     }
     set({ loading: false });
   },
-  getUserInfor: async (userId, onSuccess = () => {}, onFail = () => {}) => {
+  getUserInfo: async (userId, onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true });
-      const response = await RepositoryRemote.users.getUserInfor(userId);
+      const response = await RepositoryRemote.users.getUserInfo(userId);
       onSuccess(response.data);
     } catch (error) {
       onFail(error?.data?.message || 'Có lỗi xảy ra khi lấy dữ liệu user!');

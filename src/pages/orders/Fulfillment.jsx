@@ -1,4 +1,4 @@
-import { Button, Steps, theme } from 'antd';
+import { Button, Steps } from 'antd';
 import React, { useState } from 'react';
 
 import PageTitle from '../../components/common/PageTitle';

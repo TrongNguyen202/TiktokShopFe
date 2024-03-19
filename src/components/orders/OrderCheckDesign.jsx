@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Modal, Pagination, Popconfirm, Space, Table, Tooltip, message } from 'antd';
+import { Button, Form, Input, Modal, Popconfirm, Space, Table, Tooltip, message } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { useShopsOrder } from '../../store/ordersStore';
@@ -61,7 +61,7 @@ function OrderCheckDesign({ toShipInfoData }) {
         return null;
       })
       .filter((item) => item !== null);
-    
+
     const dataDesignSku = dataCheckResult.filter((checkItem) => {
       return !designSku?.some((designItem) => designItem.sku_id === checkItem.sku_id);
     });
@@ -329,7 +329,7 @@ function OrderCheckDesign({ toShipInfoData }) {
             current: pageIndex,
             pageSize: 100,
             total: designSku.count,
-            onChange: handleChangePagePagination
+            onChange: handleChangePagePagination,
           }}
           bordered
           loading={loading}
@@ -366,13 +366,7 @@ function OrderCheckDesign({ toShipInfoData }) {
         footer={false}
         width={1000}
       >
-        <Form
-          name="basic"
-          onFinish={handleUpdateDesign}
-          layout="horizontal"
-          {...formItemLayout}
-          form={form}
-        >
+        <Form name="basic" onFinish={handleUpdateDesign} layout="horizontal" {...formItemLayout} form={form}>
           <Form.Item name="id" label="Design ID:" className="mb-0 font-bold hidden">
             <Input className="border-none bg-transparent p-0" />
           </Form.Item>

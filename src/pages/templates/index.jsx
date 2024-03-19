@@ -23,7 +23,7 @@ function Template() {
   }, []);
 
   const handleDeleteTemplate = (id) => {
-    const onSuccess = (res) => {
+    const onSuccess = () => {
       alerts.success('Xoá template thành công');
       getAllTemplate();
     };

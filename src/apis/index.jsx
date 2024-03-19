@@ -69,6 +69,7 @@ export const callApi = (endPoint, method, body) => {
   }
 };
 
+// eslint-disable-next-line consistent-return
 export const callApiFlashShip = async (endPoint, method, body) => {
   if (checkEndPoint(endPoint) === false) {
     const tokenFlashShip = getTokenKey('flash-ship-tk');

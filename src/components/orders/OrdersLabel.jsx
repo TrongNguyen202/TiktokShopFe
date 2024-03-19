@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Table, Tag, Button, message } from 'antd';
+import { Table, Tag, message } from 'antd';
 
 import { useShopsOrder } from '../../store/ordersStore';
 import { getPathByIndex } from '../../utils';
@@ -11,7 +11,7 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
   const location = useLocation();
   const { shippingDoc } = location.state;
   const shopId = getPathByIndex(2);
-  const [ordersCompleted, setOrderCompleted] = useState([])
+  const [ordersCompleted, setOrderCompleted] = useState([]);
   const [labelSelected, setLabelSelected] = useState([]);
   const [messageApi, contextHolder] = message.useMessage();
   const { uploadLabelToDriver, packageFulfillmentCompleted, loading } = useShopsOrder((state) => state);
@@ -50,7 +50,7 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
         ),
     },
   ];
-  
+
   console.log('ordersCompleted: ', ordersCompleted);
 
   const rowSelection = {
@@ -59,7 +59,7 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
       if (selectedRows.length > 0) changeNextStep(true);
     },
     getCheckboxProps: (record) => {
-      const disabledOrderCompleted = ordersCompleted.find(item => item.order_id === record.package_id);
+      const disabledOrderCompleted = ordersCompleted.find((item) => item.order_id === record.package_id);
 
       return {
         disabled: record.label === null || disabledOrderCompleted,
@@ -94,7 +94,11 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
 
   useEffect(() => {
     toShipInfoData(labelSelected);
-    packageFulfillmentCompleted(shopId, (res) => setOrderCompleted(res), () => {});
+    packageFulfillmentCompleted(
+      shopId,
+      (res) => setOrderCompleted(res),
+      () => {},
+    );
   }, [labelSelected]);
   return (
     <div className="p-3 md:p-10">

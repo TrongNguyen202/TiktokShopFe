@@ -53,7 +53,7 @@ function ProductEditAddVariationForm({ handleAdd, handleClose, warehouses, varia
   const handleAddData = (data) => {
     const newData = data?.map((item) => ({
       ...item,
-      variations: item.variations?.map((item, index) => ({
+      variations: item.variations?.map((item) => ({
         id: variationsOption.find((option) => option.label === item.name).value,
         ...item,
       })),

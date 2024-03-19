@@ -9,7 +9,7 @@ function StoreDetailOrder({ shopId }) {
   const { orders, getAllOrders } = useShopsOrder((state) => state);
   const orderList = orders.length ? orders?.map((order) => order?.data?.order_list).flat() : [];
   useEffect(() => {
-    const onSuccess = () => { };
+    const onSuccess = () => {};
 
     const onFail = (err) => {
       console.log(err);

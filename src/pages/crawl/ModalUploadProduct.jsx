@@ -14,6 +14,7 @@ export default function ModalUploadProduct({ isShowModalUpload, setShowModalUplo
   const { createProductList, loading } = useProductsStore();
   const { getWarehousesByShopId, warehousesById, loadingWarehouse } = useWareHousesStore();
 
+  // eslint-disable-next-line no-unused-vars
   const [productsJSON, setProductsJSON] = useState(productList);
   console.log('productsJSON: ', productsJSON);
   const [templateJSON, setTemplateJSON] = useState();
@@ -72,7 +73,7 @@ export default function ModalUploadProduct({ isShowModalUpload, setShowModalUplo
   };
 
   const onSelectShop = (value) => {
-    const onSuccess = (res) => {};
+    const onSuccess = () => {};
     const onFail = (err) => {
       alerts.error(err);
     };
@@ -94,7 +95,7 @@ export default function ModalUploadProduct({ isShowModalUpload, setShowModalUplo
     }
 
     for (const item of productsJSON) {
-      const { sku, title, warehouse, images } = item;
+      const { sku, title, images } = item;
       // if (!sku || !title || !warehouse || !images) {
       // if (!title || !image1) {
       //   message.error(
@@ -240,7 +241,7 @@ export default function ModalUploadProduct({ isShowModalUpload, setShowModalUplo
       package_weight,
       package_width,
       description,
-      types,
+      // types,
       size_chart,
     } = templateJSON ?? {};
     const dataSubmit = {

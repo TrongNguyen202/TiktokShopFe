@@ -6,7 +6,7 @@ import { useShopsStore } from '../../store/shopsStore';
 import { useUsersStore } from '../../store/usersStore';
 import { alerts } from '../../utils/alerts';
 
-function StoreForm({ app_key, code, storeSelected, setShowModal }) {
+function StoreForm({ code, storeSelected, setShowModal }) {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const { createStore, loading, updateStore } = useShopsStore();
@@ -39,7 +39,7 @@ function StoreForm({ app_key, code, storeSelected, setShowModal }) {
   };
 
   const onSubmit = (value) => {
-    const onSuccess = (res) => {
+    const onSuccess = () => {
       navigate('/shops');
       message.success('thành công');
       setShowModal(false);
@@ -52,9 +52,11 @@ function StoreForm({ app_key, code, storeSelected, setShowModal }) {
       access_token: storeSelected.access_token,
     };
 
-    storeSelected?.id
-      ? updateStore(storeSelected.id, paramsUpdate, onSuccess, onFail)
-      : createStore(value, onSuccess, onFail);
+    if (storeSelected?.id) {
+      updateStore(storeSelected.id, paramsUpdate, onSuccess, onFail);
+    } else {
+      createStore(value, onSuccess, onFail);
+    }
   };
 
   return (

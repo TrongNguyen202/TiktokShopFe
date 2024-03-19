@@ -10,7 +10,7 @@ function StoreDetailProducts({ shopId }) {
   const { getAllProducts, infoTable } = useProductsStore((state) => state);
 
   useEffect(() => {
-    const onSuccess = (res) => { };
+    const onSuccess = () => {};
     const onFail = (err) => {
       alerts.error(err);
     };

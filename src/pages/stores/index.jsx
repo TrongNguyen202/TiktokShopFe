@@ -52,7 +52,7 @@ function Stores() {
   };
 
   const deleteShop = (store) => {
-    const onSuccess = (res) => {
+    const onSuccess = () => {
       messageApi.open({
         type: 'success',
         content: 'Xoá cửa hàng thành công',

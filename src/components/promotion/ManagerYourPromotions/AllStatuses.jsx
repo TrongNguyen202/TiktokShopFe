@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react';
 
-const AllStatuses = () => {
+function AllStatuses() {
   return <div>Allstatus</div>;
-};
+}
 
 export default AllStatuses;

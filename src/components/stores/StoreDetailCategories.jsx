@@ -10,7 +10,7 @@ function StoreDetailCategories({ shopId }) {
   const { category_list } = categoriesById;
 
   useEffect(() => {
-    const onSuccess = () => { };
+    const onSuccess = () => {};
     const onFail = (err) => {
       alerts.error(err);
     };

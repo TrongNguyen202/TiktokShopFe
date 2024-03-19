@@ -4,7 +4,7 @@ const getShopByUser = () => {
   return callApi(`/user-shops/groups`, 'get');
 };
 
-const getUserInfor = (userId) => {
+const getUserInfo = (userId) => {
   return callApi(`/user/${userId}/groups/infor`, 'get');
 };
 
@@ -22,7 +22,7 @@ const getGroupUser = () => {
 
 export const users = {
   getShopByUser,
-  getUserInfor,
+  getUserInfo,
   updateUser,
   createUser,
   getGroupUser,

@@ -8,7 +8,7 @@ export default function SellerDetail({ id }) {
   const { loadingById, getSellersById, sellerById } = useSellersStore((state) => state);
 
   useEffect(() => {
-    const onSuccess = (res) => {};
+    const onSuccess = () => {};
     const onFail = (err) => {
       alert.error(err);
     };

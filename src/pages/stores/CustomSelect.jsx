@@ -1,5 +1,5 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Divider, Input, Select, Space } from 'antd';
+import { Button, Divider, Select, Space } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import React, { useRef, useState } from 'react';
 
@@ -21,32 +21,32 @@ const initialOptions = (optionsSelect, selectedDefault) => {
 export default function CustomSelect({ optionsSelect, type, onChange, selectedDefault }) {
   const [options, setOptions] = useState(initialOptions(optionsSelect, selectedDefault));
   const [valueTextAreas, setValueTextAreas] = useState('');
-  const [valueInput, setValueInput] = useState('');
+  // const [valueInput, setValueInput] = useState('');
   const inputRef = useRef(null);
 
-  const onChangeName = (event) => {
-    setValueInput(event.target.value);
-  };
+  // const onChangeName = (event) => {
+  //   setValueInput(event.target.value);
+  // };
 
   const onChangeTextArea = (event) => {
     setValueTextAreas(event.target.value);
   };
 
-  const addItem = (e) => {
-    e.preventDefault();
-    indexOption += 1;
-    setOptions([
-      ...options,
-      {
-        label: valueInput || `${type} ${indexOption}`,
-        value: valueInput || `${type} ${indexOption}`,
-      },
-    ]);
-    setValueInput('');
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 0);
-  };
+  // const addItem = (e) => {
+  //   e.preventDefault();
+  //   indexOption += 1;
+  //   setOptions([
+  //     ...options,
+  //     {
+  //       label: valueInput || `${type} ${indexOption}`,
+  //       value: valueInput || `${type} ${indexOption}`,
+  //     },
+  //   ]);
+  //   setValueInput('');
+  //   setTimeout(() => {
+  //     inputRef.current?.focus();
+  //   }, 0);
+  // };
 
   const addMultipleItem = (e) => {
     e.preventDefault();
@@ -88,6 +88,7 @@ export default function CustomSelect({ optionsSelect, type, onChange, selectedDe
       notFoundContent={<div className="text-center">Không có dữ liệu</div>}
       //   {...props}
       onChange={handleChangeSelect}
+      // eslint-disable-next-line react/no-unstable-nested-components
       dropdownRender={(menu) => (
         <div className="w-full">
           {menu}

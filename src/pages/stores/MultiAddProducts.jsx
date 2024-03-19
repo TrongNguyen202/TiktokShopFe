@@ -160,7 +160,7 @@ function MultiAddProducts() {
     }
 
     for (const item of productsJSON) {
-      const { sku, title, warehouse, images } = item;
+      const { sku, title, images } = item;
       // if (!sku || !title || !warehouse || !images) {
       if (!title || !images) {
         message.error(
@@ -208,7 +208,7 @@ function MultiAddProducts() {
   function mergeArrays(obj1, arr2) {
     // Convert object to array
     const arr1 = Object.values(obj1);
-    const arr1Length = arr1.length || 0;
+    // const arr1Length = arr1.length || 0;
     const arr2Length = arr2?.length || 0;
 
     // Calculate the number of elements to take from arr1
@@ -275,7 +275,7 @@ function MultiAddProducts() {
       package_weight,
       package_width,
       description,
-      types,
+      // types,
       size_chart,
     } = templateJSON ?? {};
     const dataSubmit = {

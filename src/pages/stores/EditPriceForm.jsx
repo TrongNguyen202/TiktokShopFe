@@ -1,4 +1,4 @@
-import { Button, Form, Input, Popconfirm, Table } from 'antd';
+import { Button, Form, Input, Table } from 'antd';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import './EditPriceForm.css';
 // import { data } from 'autoprefixer';
@@ -16,35 +16,35 @@ function EditableRow({ index, ...props }) {
   );
 }
 
-function sortByType(arr) {
-  return arr.sort((a, b) => {
-    if (a.type > b.type) return 1;
-    if (a.type < b.type) return -1;
-    return 0;
-  });
-}
+// function sortByType(arr) {
+//   return arr.sort((a, b) => {
+//     if (a.type > b.type) return 1;
+//     if (a.type < b.type) return -1;
+//     return 0;
+//   });
+// }
 
-const convertDataTable = (selectedType, selectedSize, selectedColor) => {
-  const data = [];
-  if (!selectedType || !selectedType.length) return [];
+// const convertDataTable = (selectedType, selectedSize, selectedColor) => {
+//   const data = [];
+//   if (!selectedType || !selectedType.length) return [];
 
-  for (let i = 0; i < selectedSize.length; i++) {
-    for (let j = 0; j < selectedType.length; j++) {
-      data.push({
-        id: `${selectedType[j]}-${selectedSize[i]}`,
-        type: selectedType[j],
-        size: selectedSize[i],
-        quantity: 0,
-        price: 0,
-        weight: 0,
-        length: 0,
-        width: 0,
-        height: 0,
-      });
-    }
-  }
-  return sortByType(data);
-};
+//   for (let i = 0; i < selectedSize.length; i++) {
+//     for (let j = 0; j < selectedType.length; j++) {
+//       data.push({
+//         id: `${selectedType[j]}-${selectedSize[i]}`,
+//         type: selectedType[j],
+//         size: selectedSize[i],
+//         quantity: 0,
+//         price: 0,
+//         weight: 0,
+//         length: 0,
+//         width: 0,
+//         height: 0,
+//       });
+//     }
+//   }
+//   return sortByType(data);
+// };
 
 export default function EditPriceForm({ selectedSize, dataPrice, onSavePrice, setShowModalPrice }) {
   console.log('dataPrice: ', dataPrice);
@@ -108,6 +108,7 @@ export default function EditPriceForm({ selectedSize, dataPrice, onSavePrice, se
     },
   ];
 
+  // eslint-disable-next-line react/no-unstable-nested-components
   function EditableCell({ title, editable, children, dataIndex, record, handleSave, ...restProps }) {
     const [editing, setEditing] = useState(false);
     const inputRef = useRef(null);
@@ -128,18 +129,18 @@ export default function EditPriceForm({ selectedSize, dataPrice, onSavePrice, se
         [dataIndex]: record[dataIndex],
       });
     };
-    const save = async () => {
-      try {
-        const values = await form.validateFields();
-        toggleEdit();
-        handleSave({
-          ...record,
-          ...values,
-        });
-      } catch (errInfo) {
-        console.log('Save failed:', errInfo);
-      }
-    };
+    // const save = async () => {
+    //   try {
+    //     const values = await form.validateFields();
+    //     toggleEdit();
+    //     handleSave({
+    //       ...record,
+    //       ...values,
+    //     });
+    //   } catch (errInfo) {
+    //     console.log('Save failed:', errInfo);
+    //   }
+    // };
     const handleChangeInput = (e, record, dataIndex) => {
       const updatedItems = dataSource2.current.map((item) => {
         if (item.id === record.id) {

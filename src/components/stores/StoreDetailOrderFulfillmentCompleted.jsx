@@ -7,10 +7,10 @@ import StoreDetailSectionTitle from './StoreDetailSectionTitle';
 function StoreDetailOrderFulfillmentCompleted({ shopId }) {
   const navigate = useNavigate();
   const { packageFulfillmentCompleted } = useShopsOrder((state) => state);
-  const [orders, setOrder] = useState([])
+  const [orders, setOrder] = useState([]);
   useEffect(() => {
     const onSuccess = (res) => {
-      setOrder(res)
+      setOrder(res);
     };
 
     const onFail = (err) => {

@@ -8,7 +8,7 @@ import { useWareHousesStore } from '../../store/warehousesStore';
 import { useShopsBrand } from '../../store/brandStore';
 import { getPathByIndex, ConvertProductAttribute } from '../../utils';
 
-import Loading from '../../components/loading';
+// import Loading from '../../components/loading';
 import PageTitle from '../../components/common/PageTitle';
 import ProductMedia from '../../components/products/ProductMedia';
 import ProductInformation from '../../components/products/ProductInformation';
@@ -33,7 +33,7 @@ function ProductCreate() {
   const { getAllBrand, brands } = useShopsBrand((state) => state);
 
   const onFinish = async (values) => {
-    const category_id = values?.category_id[values?.category_id.length - 1];
+    const category_id = values?.category_id[values.category_id.length - 1];
     const product_attributes = ConvertProductAttribute(values.product_attributes, attributeValues);
 
     const dataFormSubmit = {
@@ -53,23 +53,23 @@ function ProductCreate() {
       brand_id: values.brand_id ? values.brand_id : '',
       skus: skusData.length
         ? skusData?.map((item) => ({
-          sales_attributes: item.variations?.map((attr) => ({
-            attribute_id: attr.id,
-            attribute_name: attr.name,
-            custom_value: attr.value_name,
-          })),
-          original_price: item.price,
-          stock_infos: [item.stock_infos],
-          seller_sku: item?.seller_sku || '',
-        }))
+            sales_attributes: item.variations?.map((attr) => ({
+              attribute_id: attr.id,
+              attribute_name: attr.name,
+              custom_value: attr.value_name,
+            })),
+            original_price: item.price,
+            stock_infos: [item.stock_infos],
+            seller_sku: item?.seller_sku || '',
+          }))
         : [
-          {
-            sales_attributes: [],
-            original_price: values.price,
-            stock_infos: [values.stock_infos],
-            seller_sku: values?.seller_sku || '',
-          },
-        ],
+            {
+              sales_attributes: [],
+              original_price: values.price,
+              stock_infos: [values.stock_infos],
+              seller_sku: values?.seller_sku || '',
+            },
+          ],
       product_attributes: product_attributes || [],
     };
 
@@ -95,10 +95,10 @@ function ProductCreate() {
     createOneProduct(shopId, dataFormSubmit, CreateSuccess, CreateFail);
   };
 
-  const onFinishFailed = (errorInfo) => { };
+  const onFinishFailed = () => {};
 
   useEffect(() => {
-    const onSuccess = (res) => { };
+    const onSuccess = () => {};
     const onFail = (err) => {
       messageApi.open({
         type: 'error',
@@ -210,7 +210,7 @@ function ProductCreate() {
                     .validateFields()
                     .then((values) => {
                       const product_attributes = ConvertProductAttribute(values.product_attributes, attributeValues);
-                      const categoryId = values?.category_id[values?.category_id?.length - 1];
+                      const categoryId = values?.category_id[values.category_id.length - 1];
                       const dataSend = {
                         ...values,
                         category_id: String(categoryId),
@@ -221,21 +221,21 @@ function ProductCreate() {
                         is_cod_open: values?.is_cod_open ? values?.is_cod_open : 'false',
                         skus: skusData.length
                           ? skusData?.map((item) => ({
-                            sales_attributes: item.variations?.map((attr) => ({
-                              attribute_id: attr.id,
-                              attribute_name: attr.name,
-                              custom_value: attr.value_name,
-                            })),
-                            original_price: item.price,
-                            stock_infos: [item.stock_infos],
-                          }))
+                              sales_attributes: item.variations?.map((attr) => ({
+                                attribute_id: attr.id,
+                                attribute_name: attr.name,
+                                custom_value: attr.value_name,
+                              })),
+                              original_price: item.price,
+                              stock_infos: [item.stock_infos],
+                            }))
                           : [
-                            {
-                              sales_attributes: [],
-                              original_price: values.price,
-                              stock_infos: [values.stock_infos],
-                            },
-                          ],
+                              {
+                                sales_attributes: [],
+                                original_price: values.price,
+                                stock_infos: [values.stock_infos],
+                              },
+                            ],
                       };
 
                       const CreateProductDraffSuccess = (res) => {

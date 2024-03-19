@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { callApi } from '../apis';
 import { constants as c } from '../constants';
 
 const getAllSheetInfo = (range) => {

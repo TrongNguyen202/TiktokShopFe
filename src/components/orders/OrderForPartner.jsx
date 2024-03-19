@@ -15,7 +15,7 @@ import {
 } from 'antd';
 import { DownOutlined, WarningOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 import { useShopsOrder } from '../../store/ordersStore';
 import { getPathByIndex } from '../../utils';
@@ -52,11 +52,11 @@ function OrderForPartner({ toShipInfoData }) {
   const { getFlashShipPODVariant, LoginFlashShip, createOrderFlashShip } = useFlashShipStores((state) => state);
 
   const checkDataPartner = (data) => {
-    const orderPartnerResult = data?.map((dataItem, index) => {
+    const orderPartnerResult = data?.map((dataItem) => {
       const orderPartner = { ...dataItem };
       const itemList = dataItem?.order_list?.flatMap((item) => item.item_list);
       let isFlashShip = true;
-      const variations = itemList.map((variation, itemListIndex) => {
+      const variations = itemList.map((variation) => {
         if (!isFlashShip) return variation;
         let variationObject = {};
         const result = { ...variation };
@@ -245,7 +245,7 @@ function OrderForPartner({ toShipInfoData }) {
 
               const onSuccessPackageCreate = (resPackage) => {
                 if (resPackage) {
-                  navigate(`/shops/${shopId}/orders/fulfillment/completed`)
+                  navigate(`/shops/${shopId}/orders/fulfillment/completed`);
                 }
               };
 
@@ -292,22 +292,16 @@ function OrderForPartner({ toShipInfoData }) {
       if (fileName === 'PrintCare') {
         const onSuccess = (res) => {
           if (res) {
-            navigate(`/shops/${shopId}/orders/fulfillment/completed`)
+            navigate(`/shops/${shopId}/orders/fulfillment/completed`);
           }
-        }
-        packageCreatePrintCare(
-          shopId,
-          item,
-          onSuccess,
-          (err) => console.log(err),
-        );
+        };
+        packageCreatePrintCare(shopId, item, onSuccess, (err) => console.log(err));
       } else {
-        packageCreateFlashShip(
-          shopId,
-          item,
-          onSuccess,
-          (err) => console.log(err),
-        );
+        const onSuccess = (res) => {
+          // TODO empty
+          console.warn(res);
+        };
+        packageCreateFlashShip(shopId, item, onSuccess, (err) => console.log(err));
       }
     });
   };
@@ -463,7 +457,7 @@ function OrderForPartner({ toShipInfoData }) {
               {record.zip_code}
             </li>
           </ul>
-        )
+        );
       },
     },
   ];

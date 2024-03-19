@@ -82,7 +82,7 @@ function OrdersAddNewDesignData({ dataColumns }) {
           });
         }
       };
-      const onFail = (err) => {
+      const onFail = () => {
         messageApi.open({
           type: 'error',
           content: 'Thêm mẫu mới vào Google Sheet thất bại',

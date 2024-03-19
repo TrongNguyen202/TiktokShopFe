@@ -8,9 +8,6 @@ function OrderCombinable({ data, popOverContent, dataOrderDetail, isOpenModal })
   const shopId = getPathByIndex(2);
   const { confirmCombine } = useShopsOrder((state) => state);
   const [dataCombine, setDataCombine] = useState(data.pre_combine_pkg_list);
-  const handleGetPkgIdSubmit = (PkgId) => {
-    console.log('PkgId: ', PkgId);
-  };
 
   const handleRemoveCombineItem = (CombinePkgId, orderId) => {
     const dataRemoved = dataCombine.map((item) => {

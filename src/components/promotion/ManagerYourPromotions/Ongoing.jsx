@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react';
 
-const Ongoing = () => {
+function Ongoing() {
   return <div>Ongoing</div>;
-};
+}
 
 export default Ongoing;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Form, Row, message } from 'antd';
+import { Form, Row } from 'antd';
 
 import { useShopsStore } from '../../store/shopsStore';
 import { alerts } from '../../utils/alerts';

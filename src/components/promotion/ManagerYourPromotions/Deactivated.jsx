@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react';
 
-const Deactivated = () => {
+function Deactivated() {
   return <div>Deactivated</div>;
-};
+}
 
 export default Deactivated;

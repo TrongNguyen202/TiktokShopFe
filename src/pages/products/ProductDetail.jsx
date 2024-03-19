@@ -1,3 +1,4 @@
+/* eslint-disable react/no-danger */
 import { Col, Image, Row, Table, Tag } from 'antd';
 import { useEffect } from 'react';
 import { statusProductTikTokShop } from '../../constants/index';

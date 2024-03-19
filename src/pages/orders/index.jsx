@@ -1,6 +1,6 @@
 import { DownOutlined, LoadingOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Image, Popover, Space, Spin, Table, Tag, Tooltip, Modal, message, Checkbox, DatePicker } from 'antd';
-import { useEffect, useRef, useState } from 'react';
+import { Button, Image, Popover, Space, Spin, Table, Tag, Tooltip, Modal, message, DatePicker } from 'antd';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 import dayjs from 'dayjs';
@@ -27,14 +27,12 @@ function Orders() {
   const shopId = getPathByIndex(2);
   const navigate = useNavigate();
   const location = useLocation();
-  const searchInput = useRef(null);
   const [open, setOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const [searchText, setSearchText] = useState('');
   const [orderSelected, setOrderSelected] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [searchedColumn, setSearchedColumn] = useState('');
   const [messageApi, contextHolder] = message.useMessage();
-  const [dataCombineConfirm, setDataCombineConfirm] = useState([]);
   const {
     orders,
     getAllOrders,
@@ -105,13 +103,14 @@ function Orders() {
     });
   };
 
-  const handleSearch = (selectedKeys, confirm, dataIndex) => {
-    confirm();
-    setSearchText(selectedKeys[0]);
-    setSearchedColumn(dataIndex);
-  };
+  // const handleSearch = (selectedKeys, confirm, dataIndex) => {
+  //   confirm();
+  //   setSearchText(selectedKeys[0]);
+  //   setSearchedColumn(dataIndex);
+  // };
 
   const onRangeChange = (dates, dateStrings, confirm, dataIndex, setSelectedKeys, selectedKeys) => {
+    console.warn(dates, selectedKeys);
     confirm();
     setSelectedKeys(dateStrings);
     setSearchText(dateStrings);
@@ -119,6 +118,7 @@ function Orders() {
   };
 
   const getColumnSearchProps = (dataIndex) => ({
+    // eslint-disable-next-line react/no-unstable-nested-components
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div onKeyDown={(e) => e.stopPropagation()} className="px-5 py-3">
         <RangePicker
@@ -163,6 +163,7 @@ function Orders() {
       </div>
     ),
 
+    // eslint-disable-next-line react/no-unstable-nested-components
     filterIcon: (filtered) => <SearchOutlined className={filtered ? '#1677ff' : undefined} />,
 
     onFilter: (value, record) => {
@@ -249,7 +250,7 @@ function Orders() {
           .then(() => {
             navigate(`/shops/${shopId}/orders/create-label`, { state: { dataCombine: dataUpdate } });
           })
-          .catch((error) => {
+          .catch(() => {
             messageApi.open({
               type: 'error',
               content: 'Lỗi khi lấy thông tin vận chuyển',
@@ -257,7 +258,7 @@ function Orders() {
           });
       }
     };
-    createLabel(shopId, orderSelected, onSuccess, () => { });
+    createLabel(shopId, orderSelected, onSuccess, () => {});
   };
 
   const handleStartFulfillment = () => {
@@ -460,7 +461,7 @@ function Orders() {
           pageSize: 20,
           total: orderDataTable.length,
         }}
-      // rowKey={record => record.package_list[0]?.package_id}
+        // rowKey={record => record.package_list[0]?.package_id}
       />
 
       <Modal title="Combine" centered open={open} onCancel={() => setOpen(false)} width={1000} footer={false}>

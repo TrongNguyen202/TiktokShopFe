@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { callApi } from '../apis';
 
 const getAllOrders = (id) => {
@@ -41,7 +40,7 @@ const getShippingDoc = (id, body) => {
   return callApi(`/shops/${id}/get_shipping_doc_package_ids`, 'post', body);
 };
 
-const getPackageBought = (id) => {
+const getPackageBought = () => {
   return callApi(`/shops/get_package_buyed`, 'get');
 };
 

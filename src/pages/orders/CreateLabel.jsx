@@ -19,9 +19,7 @@ function CreateLabel() {
   const [shippingServiceData, setShippingServiceData] = useState([]);
   const [dataSizeChart, setDataSizeChart] = useState(OrderPackageWeightSize);
   const [buyLabelSelected, setBuyLabelSelected] = useState([]);
-  const { buyLabel, shippingService, getShippingDoc, getPackageBought, packageBought, loading } = useShopsOrder(
-    (state) => state,
-  );
+  const { buyLabel, shippingService, getShippingDoc, getPackageBought, loading } = useShopsOrder((state) => state);
   const [messageApi, contextHolder] = message.useMessage();
   const dataSizeChartConvert = dataSizeChart
     .map((sizeChart) =>
@@ -38,7 +36,7 @@ function CreateLabel() {
   }));
 
   const dataTableWeightSize = (dataInput) => {
-    const labelItems = dataInput.map((label, index) => {
+    const labelItems = dataInput.map((label) => {
       const orderList = label.data.order_info_list.map((order) => {
         const productList = order.item_list.map((product) => {
           let orderPackageList = dataSizeChart.find((orderPackage) => product.sku_name.includes(orderPackage.name));
@@ -53,7 +51,7 @@ function CreateLabel() {
           if (orderPackageSizeChart === undefined) {
             orderPackageSizeChart = dataSizeChart.find((orderPackage) => orderPackage.name === 'T-shirt').items[0];
           }
-          const orderPackageWeight = orderPackageSizeChart?.weight * product.quantity;
+          const orderPackageWeight = orderPackageSizeChart.weight * product.quantity;
           const orderPackageSize = orderPackageSizeChart?.size;
           return { orderPackageWeight, orderPackageSize };
         });
@@ -271,7 +269,7 @@ function CreateLabel() {
       weight_unit: 2,
     }));
 
-    const onSuccess = (res) => {
+    const onSuccess = () => {
       messageApi.open({
         type: 'success',
         content: 'Mua label thành công',

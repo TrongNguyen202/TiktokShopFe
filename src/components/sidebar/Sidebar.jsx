@@ -131,10 +131,11 @@ function Sidebar({ collapsed }) {
         {showMenuMobile ? <CloseOutlined /> : <MenuOutlined />}
       </span>
       <div
-        className={`${showMenuMobile
+        className={`${
+          showMenuMobile
             ? 'block absolute top-[60px] left-[0] right-[0] z-20 bg-white pb-10 md:pb-0 md:static'
             : 'hidden'
-          } md:block`}
+        } md:block`}
       >
         <StyledLogo className="!hidden md:!flex">
           {collapsed ? (

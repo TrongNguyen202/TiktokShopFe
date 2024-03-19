@@ -171,13 +171,4 @@ export const useOrderStore = create((set) => ({
       toast.error(error?.response?.data?.msg);
     }
   },
-  updateCart: async (orderId, data, onSuccess = () => {}) => {
-    try {
-      const response = await RepositoryRemote.orders.updateCart(orderId, data);
-      // set({cartInfo:response.data.data})
-      onSuccess();
-    } catch (error) {
-      console.log('error', error);
-    }
-  },
 }));

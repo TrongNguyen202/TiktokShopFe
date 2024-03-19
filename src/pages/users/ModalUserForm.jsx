@@ -39,7 +39,12 @@ export default function ModalUserForm({ isShowModal, setIsShowModal, userSelecte
         content: err,
       });
     };
-    userSelected?.user_id ? updateUser(dataUpdate, onSuccess, onFail) : createUser(dataUpdate, onSuccess, onFail);
+
+    if (userSelected?.user_id) {
+      updateUser(dataUpdate, onSuccess, onFail);
+    } else {
+      createUser(dataUpdate, onSuccess, onFail);
+    }
   };
 
   useEffect(() => {

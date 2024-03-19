@@ -10,7 +10,7 @@ import ProductSectionTitle from './ProuctSectionTitle';
 import CustomSelect from '../../pages/stores/CustomSelect';
 import { useProductsStore } from '../../store/productsStore';
 
-function ProductInformation({ shopId, categories, brands, getAttributeValues, form }) {
+function ProductInformation({ shopId, categories, brands, getAttributeValues }) {
   const [valueDescription, setValueDescription] = useState('');
   const [messageApi, contextHolder] = message.useMessage();
   const { getAttributeByCategory, attributes, attributeLoading } = useCategoriesStore((state) => state);
@@ -153,7 +153,7 @@ function ProductInformation({ shopId, categories, brands, getAttributeValues, fo
                       <CustomSelect
                         optionsSelect={optionAttribute}
                         type={item.name}
-                          selectedDefault={getDefaultSelected(item.id) || []}
+                        selectedDefault={getDefaultSelected(item.id) || []}
                       />
                     )}
                   </Form.Item>

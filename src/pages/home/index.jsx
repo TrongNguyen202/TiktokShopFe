@@ -632,6 +632,7 @@ export default function Home() {
           <LineChart data={data.sales}>
             <Legend
               verticalAlign="top"
+              // eslint-disable-next-line react/no-unstable-nested-components
               content={(prop) => {
                 const { payload } = prop;
                 return (
@@ -661,6 +662,7 @@ export default function Home() {
                 padding: '20px',
                 borderRadius: '10px',
               }}
+              // eslint-disable-next-line react/no-unstable-nested-components
               content={(content) => {
                 const list = content.payload.map((item, key) => (
                   <li key={key} className="flex items-center">

@@ -101,7 +101,7 @@ function OrderDetail() {
   const renderPackageInfo = (orderData) => {
     const renderListItemProduct = (record) => {
       const { item_list } = record;
-      return item_list.map((item, index) => {
+      return item_list.map((item) => {
         return (
           <div>
             <div className="flex justify-between items-center gap-3 mt-3 w-f7ull">

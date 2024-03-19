@@ -20,7 +20,7 @@ function ProductCreateVariation({ shopId, variations, variationsDataTable }) {
   }));
 
   useEffect(() => {
-    const onSuccess = (res) => {};
+    const onSuccess = () => {};
     const onFail = (err) => {
       alerts.error(err);
     };

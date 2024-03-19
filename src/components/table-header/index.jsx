@@ -89,6 +89,7 @@ TableHeader.propTypes = {
   titleDatePicker2: PropTypes.string,
   titleDatePicker1: PropTypes.string,
   setParams: PropTypes.func.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
   params: PropTypes.object,
   onSearch: PropTypes.func.isRequired,
   isStore: PropTypes.bool,

@@ -13,7 +13,7 @@ function UserEdit() {
   const userId = getPathByIndex(3);
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
-  const { getUserInfor, updateUser, loading } = useUsersStore((state) => state);
+  const { getUserInfo, updateUser, loading } = useUsersStore((state) => state);
   const { getAllStores, stores } = useShopsStore((state) => state);
 
   const storesOption =
@@ -64,8 +64,8 @@ function UserEdit() {
       form.setFieldsValue(dataForm);
     };
 
-    const onFail = (err) => {};
-    getUserInfor(userId, onSuccess, onFail);
+    const onFail = () => {};
+    getUserInfo(userId, onSuccess, onFail);
     getAllStores();
   }, []);
 

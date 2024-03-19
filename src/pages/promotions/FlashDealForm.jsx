@@ -62,7 +62,7 @@ function FlashDealForm() {
                   required: true,
                   message: 'Promotion name is not visible to buyers!',
                 },
-                ({ getFieldValue }) => ({
+                () => ({
                   validator(_, value) {
                     const errorMessage = validateName(value);
                     if (errorMessage) {

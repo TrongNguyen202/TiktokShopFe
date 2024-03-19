@@ -1,20 +1,5 @@
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
-import {
-  Button,
-  Cascader,
-  Col,
-  Divider,
-  Form,
-  Input,
-  Modal,
-  Row,
-  Select,
-  Space,
-  Spin,
-  Switch,
-  Upload,
-  message,
-} from 'antd';
+import { Button, Cascader, Col, Form, Input, Modal, Row, Spin, Upload, message } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import TextArea from 'antd/es/input/TextArea';
 import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
@@ -24,10 +9,8 @@ import CustomSelect from './CustomSelect';
 import EditPriceForm from './EditPriceForm';
 import { useCategoriesStore } from '../../store/categoriesStore';
 import { buildNestedArraysMenu, getPathByIndex } from '../../utils';
-import { useWareHousesStore } from '../../store/warehousesStore';
 import { useTemplateStore } from '../../store/templateStore';
-import { useShopsBrand } from '../../store/brandStore';
-import ProductSectionTitle from '../../components/products/ProuctSectionTitle';
+// import { useShopsBrand } from '../../store/brandStore';
 
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -141,9 +124,9 @@ const initBadWordOptions = [
 ];
 
 export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, templateJson }) {
-  const { getAllBrand, brands } = useShopsBrand();
+  // const { getAllBrand, brands } = useShopsBrand();
   const { getAllCategoriesIsLeaf, categoriesIsLeaf } = useCategoriesStore();
-  const { createTemplate, templates, loading, getAllTemplate, updateTemplate } = useTemplateStore();
+  const { createTemplate, loading, getAllTemplate, updateTemplate } = useTemplateStore();
   const shopId = getPathByIndex(2);
 
   const [selectedColor, setSelectedColor] = useState(templateJson?.id ? templateJson.colors : []);
@@ -180,10 +163,10 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
 
   const dataPrice = useRef(templateJson?.id ? templateJson.types : null);
 
-  const optionsBranch = brands?.brand_list?.map((item) => ({
-    value: item.id,
-    label: item.name,
-  }));
+  // const optionsBranch = brands?.brand_list?.map((item) => ({
+  //   value: item.id,
+  //   label: item.name,
+  // }));
   const categoriesData = buildNestedArraysMenu(categoriesIsLeaf, '0');
 
   useEffect(() => {
@@ -198,16 +181,16 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
     setDataPriceState(convertDataTable(selectedType, selectedSize));
   }, [selectedSize, selectedType]);
 
-  const convertDataCategory = (data) => {
-    const result = [];
-    data.forEach((item) => {
-      result.push({
-        label: item.local_display_name,
-        value: item.id,
-      });
-    });
-    return result;
-  };
+  // const convertDataCategory = (data) => {
+  //   const result = [];
+  //   data.forEach((item) => {
+  //     result.push({
+  //       label: item.local_display_name,
+  //       value: item.id,
+  //     });
+  //   });
+  //   return result;
+  // };
 
   const onSubmit = (value) => {
     const {
@@ -224,7 +207,7 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
       package_weight,
       package_width,
       bad_word,
-      brand_id,
+      // brand_id,
       suffix_title,
     } = value;
     const dataSubmit = {
@@ -572,6 +555,7 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
                         beforeUpload={() => false}
                         previewFile={getBase64}
                         multiple
+                        // eslint-disable-next-line react/no-unstable-nested-components
                         itemRender={(originNode, file) => (
                           <DraggableUploadListItem originNode={originNode} file={file} />
                         )}

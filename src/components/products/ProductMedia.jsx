@@ -121,6 +121,7 @@ function ProductMedia({ productData, imgBase64, isProductCreate, setFileList, fi
               beforeUpload={() => false}
               previewFile={getBase64}
               multiple
+              // eslint-disable-next-line react/no-unstable-nested-components
               itemRender={(originNode, file) => <DraggableUploadListItem originNode={originNode} file={file} />}
             >
               {fileList?.length >= 8 ? null : (

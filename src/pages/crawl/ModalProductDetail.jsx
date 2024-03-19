@@ -118,6 +118,7 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
               beforeUpload={() => false}
               previewFile={getBase64}
               multiple
+              // eslint-disable-next-line react/no-unstable-nested-components
               itemRender={(originNode, file) => <DraggableUploadListItem originNode={originNode} file={file} />}
             >
               {/* {fileList?.length >= 8 ? null : (

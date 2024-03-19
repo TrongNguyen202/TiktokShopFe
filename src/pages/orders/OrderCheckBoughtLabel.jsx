@@ -25,7 +25,7 @@ function OrderCheckBoughtLabel() {
         setLabelSearch(res);
       }
     };
-    pdfLabelSearch(values.package_id, onSuccess, () => { });
+    pdfLabelSearch(values.package_id, onSuccess, () => {});
   };
 
   const handleDownloadFile = (fileName) => {
@@ -49,7 +49,7 @@ function OrderCheckBoughtLabel() {
       <PageTitle title="Kiểm tra Label đã mua theo Package ID" showBack />
       <Form
         onFinish={onSearch}
-        onFinishFailed={() => { }}
+        onFinishFailed={() => {}}
         className="md:w-[400px] relative border-[1px] border-solid border-[#d9d9d9] rounded-[6px] pr-[90px]"
       >
         <Form.Item name="package_id" className="mb-0">

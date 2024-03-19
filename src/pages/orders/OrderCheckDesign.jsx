@@ -126,7 +126,7 @@ function OrderCheckDesign() {
   };
 
   useEffect(() => {
-    const onSuccess = (res) => {
+    const onSuccess = () => {
       // console.log('res: ', res);
     };
 

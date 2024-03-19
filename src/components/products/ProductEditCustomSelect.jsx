@@ -42,6 +42,7 @@ function ProductEditCustomSelect({ optionsSelect, type, onChange, selectedDefaul
       placeholder={`Chọn ${type}`}
       notFoundContent={<div className="text-center">Không có dữ liệu</div>}
       onChange={handleChangeSelect}
+      // eslint-disable-next-line react/no-unstable-nested-components
       dropdownRender={(menu) => (
         <>
           {menu}

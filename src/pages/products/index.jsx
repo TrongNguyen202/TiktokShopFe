@@ -19,7 +19,8 @@ function Products() {
   const { products, getAllProducts, loading, resetProductById, infoTable } = useProductsStore((state) => state);
 
   const { resetCategoryData } = useCategoriesStore();
-  const [page_number, setPage_number] = useState(1);
+  // eslint-disable-next-line no-unused-vars
+  const [pageNumber, setPageNumber] = useState(1);
 
   const columnProduct = [
     {
@@ -155,8 +156,8 @@ function Products() {
       console.log(err);
     };
 
-    getAllProducts(shopId, page_number, onSuccess, onFail);
-  }, [shopId, page_number]);
+    getAllProducts(shopId, pageNumber, onSuccess, onFail);
+  }, [shopId, pageNumber]);
 
   return (
     <div className="p-3 md:p-10">
@@ -169,7 +170,7 @@ function Products() {
           type="primary"
           className="mr-3"
           size="small"
-          onClick={() => setPage_number(page_number+1)}
+          onClick={() => setPageNumber(pageNumber+1)}
           disabled = {productDataTable?.length == infoTable?.data?.total}
         >
           Load More Products

@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react';
 
-const Upcoming = () => {
+function Upcoming() {
   return <div>Upcoming</div>;
-};
+}
 
 export default Upcoming;

@@ -8,7 +8,7 @@ const getCategoriesById = (id) => {
   return callApi(`/shops/${id}/categories`, 'get');
 };
 
-const getAllCategoriesIsLeaf = (id) => {
+const getAllCategoriesIsLeaf = () => {
   return callApi(`/categories/global`, 'get');
 };
 

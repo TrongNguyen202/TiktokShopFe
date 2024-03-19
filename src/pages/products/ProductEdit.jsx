@@ -35,10 +35,10 @@ function ProductEdit() {
   const skuDataForm = productById?.skus?.length === 1 ? formatNumber(productById?.skus[0].seller_sku) : '';
   const warehouse_id = productById?.skus?.length === 1 ? productById?.skus[0].stock_infos[0].warehouse_id : '';
   const available_stock = productById?.skus?.length === 1 ? productById?.skus[0].stock_infos[0].available_stock : '';
-  const imgBase64List = imgBase64?.filter((item) => item.thumbUrl);
-  const imgBase64Data = imgBase64List?.map((item) => item.thumbUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, ''));
+  // const imgBase64List = imgBase64?.filter((item) => item.thumbUrl);
+  // const imgBase64Data = imgBase64List?.map((item) => item.thumbUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, ''));
 
-  const getImageBase64 = (img) => {
+  const getImageBase64 = () => {
     const imgBase64List = imgBase64?.filter((item) => item.thumbUrl);
     const imgBase64Data = imgBase64List?.map((item) =>
       item.thumbUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, ''),

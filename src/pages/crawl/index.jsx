@@ -352,7 +352,7 @@ export default function Crawl() {
     setLicenseCode((prev) => ({ ...prev, invalid: false }));
   };
 
-  const copyToClipboard = (content, key) => {
+  const copyToClipboard = (content) => {
     const tempInput = document.createElement('input');
     tempInput.value = content;
     document.body.appendChild(tempInput);
