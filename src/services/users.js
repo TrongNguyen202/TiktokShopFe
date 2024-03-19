@@ -9,7 +9,7 @@ const getUserInfor = (userId) => {
 };
 
 const updateUser = (data) => {
-  return callApi(`/groups/change_user`, 'post', data);
+  return callApi(`/groups/change_user`, 'put', data);
 };
 
 const createUser = (data) => {

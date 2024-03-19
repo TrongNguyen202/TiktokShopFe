@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { Button, Input, Popconfirm, Space, Table, Tooltip } from 'antd';
+import { Button, Input, Popconfirm, Space, Table, Tooltip, message } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -9,7 +9,7 @@ import PageTitle from '../../components/common/PageTitle';
 import ModalUserForm from './ModalUserForm';
 
 function Users() {
-  const { getShopByUser, shopsByUser } = useUsersStore((state) => state);
+  const { getShopByUser, shopsByUser, updateUser } = useUsersStore((state) => state);
 
   const [userData, setUserData] = useState([]);
   const [isShowModal, setIsShowModal] = useState(false);
@@ -18,11 +18,33 @@ function Users() {
   const handleUseEdit = (record) => {
     setUserSelected(record);
     setIsShowModal(true);
-    // navigate(`/users/edit/${record.user_id}`, { state: { shops: record.shops } })
   };
 
-  const handleUserDelete = (userId, shops) => {
-    console.log(userId, shops);
+  const handleUserDelete = (userId) => {
+    const dataUpdate = {
+      user_id: userId,
+      is_active: false,
+    };
+    console.log('dataUpdate: ', dataUpdate);
+    const onSuccess = (res) => {
+      getShopByUser();
+      if (res) {
+        message.open({
+          type: 'success',
+          content: 'Thành công',
+        });
+        setIsShowModal(false);
+      }
+    };
+
+    const onFail = (err) => {
+      message.open({
+        type: 'error',
+        content: err,
+      });
+    };
+
+    updateUser(dataUpdate, onSuccess, onFail);
   };
 
   const handleAddUser = () => {
@@ -68,7 +90,7 @@ function Users() {
           <Tooltip title="Xoá" color="blue" placement="top">
             <Popconfirm
               title="Bạn có chắc muốn xoá người dùng này?"
-              onConfirm={() => handleUserDelete(record.user_id, record.shops)}
+              onConfirm={() => handleUserDelete(record.user_id)}
               placement="left"
             >
               <Button size="middle" icon={<DeleteOutlined />} />
