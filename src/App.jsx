@@ -10,8 +10,6 @@ import Login from './pages/login/index';
 import Template from './pages/templates/index';
 import VoucherForm from './pages/vouchers/VoucherForm';
 import { getToken } from './utils/auth';
-import Promotion from './pages/promotion';
-import PromotionFrom from './pages/promotion/PromotionForm';
 
 const Sellers = lazy(() => import('./pages/sellers/index'));
 const Home = lazy(() => import('./pages/home/index'));
@@ -41,6 +39,8 @@ const Users = lazy(() => import('./pages/users'));
 const UserEdit = lazy(() => import('./pages/users/UserEdit'));
 const Account = lazy(() => import('./pages/account'));
 const Categories = lazy(() => import('./pages/categories'));
+const PromotionFrom = lazy(() => import('./pages/promotions/PromotionForm'));
+const Promotion = lazy(() => import('./pages/promotions'));
 // const HomepageInterface = lazy(
 //   () => import("./pages/settings/homepageInterface")
 // );
@@ -287,7 +287,7 @@ function App() {
               />
 
               <Route
-                path="/shops/:id/promotions/create-prd-discount"
+                path="/shops/:id/promotions/discounts"
                 element={
                   <Suspense fallback={<Loading />}>
                     <PromotionFrom />

@@ -12,26 +12,21 @@ import {
   Table,
   Cascader,
   message,
-} from "antd";
+} from 'antd';
 
-import dayjs from "dayjs";
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import ContentHeader from "../../components/content-header";
-import Loading from "../../components/loading";
-import { useVouchersStore } from "../../store/vouchersStore";
-import {
-  IntlNumberFormat,
-  buildNestedArraysMenu,
-  getPathByIndex,
-  removeDuplicates,
-} from "../../utils";
+import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import ContentHeader from '../../components/content-header';
+import Loading from '../../components/loading';
+import { useVouchersStore } from '../../store/vouchersStore';
+import { IntlNumberFormat, buildNestedArraysMenu, getPathByIndex, removeDuplicates } from '../../utils';
 
-import { validateName, validateEndDate } from "../../utils/validate";
-import { alerts } from "../../utils/alerts";
-import { useCategoriesStore } from "../../store/categoriesStore";
-import { useProductsStore } from "../../store/productsStore";
-import CustomSelect from "../../components/promotion/CustomeSlect";
+import { validateName, validateEndDate } from '../../utils/validate';
+import { alerts } from '../../utils/alerts';
+import { useCategoriesStore } from '../../store/categoriesStore';
+import { useProductsStore } from '../../store/productsStore';
+import CustomSelect from '../../components/promotion/CustomeSlect';
 
 const { Search } = Input;
 
@@ -42,29 +37,20 @@ export default function PromotionForm() {
   const location = useLocation();
   const { createVoucher, updateVoucher } = useVouchersStore((state) => state);
 
-  const [discountType, setDiscountType] = useState(
-    location?.state?.discount_type || 0
-  );
+  const [discountType, setDiscountType] = useState(location?.state?.discount_type || 0);
 
-  const [variations, setVariations] = useState(
-    location?.state?.variations || 0
-  );
+  const [variations, setVariations] = useState(location?.state?.variations || 0);
   // categories zustand
-  const { categoriesIsLeaf, getAllCategoriesIsLeaf, getAttributeByCategory } =
-    useCategoriesStore((state) => state);
+  const { categoriesIsLeaf, getAllCategoriesIsLeaf, getAttributeByCategory } = useCategoriesStore((state) => state);
   const categoriesData = buildNestedArraysMenu(categoriesIsLeaf, 0);
 
   // product zustand
-  const { products, getAllProducts, loading, infoTable } = useProductsStore(
-    (state) => state
-  );
+  const { products, getAllProducts, loading, infoTable } = useProductsStore((state) => state);
 
-  //use state
+  // use state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [selectedRowKeysPrdSelected, setSelectedRowKeysPrdSelected] = useState(
-    []
-  );
+  const [selectedRowKeysPrdSelected, setSelectedRowKeysPrdSelected] = useState([]);
   const [messageApi, contextHolder] = message.useMessage();
   const [prdSelected, setPrdSelected] = useState([]);
   const [dealPrice, setDealPrice] = useState(1);
@@ -72,59 +58,42 @@ export default function PromotionForm() {
   const productForm = prdSelected.map((product, key) => {
     return {
       ...product,
-      key: key,
+      key,
     };
   });
 
-  console.log("object", productForm);
+  console.log('object', productForm);
 
   const onSubmit = (value) => {
     const onSuccess = () => {
-      alerts.success(
-        prdDiscountID === "create-prd-discount"
-          ? "Tạo thành công"
-          : "Cập nhật thành công"
-      );
+      alerts.success(prdDiscountID === 'discounts' ? 'Tạo thành công' : 'Cập nhật thành công');
       navigate(-1);
     };
     const onFail = (error) => {
       alerts.error(error);
     };
-    if (prdDiscountID === "create-prd-discount")
-      createVoucher(
-        { ...value, set_limit_amount: !!value.remain },
-        onSuccess,
-        onFail
-      );
-    else
-      updateVoucher(
-        prdDiscountID,
-        { ...value, set_limit_amount: !!value.remain },
-        onSuccess,
-        onFail
-      );
+    if (prdDiscountID === 'discounts') createVoucher({ ...value, set_limit_amount: !!value.remain }, onSuccess, onFail);
+    else updateVoucher(prdDiscountID, { ...value, set_limit_amount: !!value.remain }, onSuccess, onFail);
   };
 
-  //logic datepicker
+  // logic datepicker
   const handleChangeStartTime = (day) => {
     return day;
   };
   const handleChangeEndTime = (day, dateString) => {
-    console.log("end timeeeeee", dateString);
+    console.log('end timeeeeee', dateString);
     return day;
   };
   // disable after today
   const disabledDate = (current) => {
     // Calculate the time difference between the selected date and current time
-    const timeDifference = dayjs()
-      .startOf("day")
-      .diff(current.startOf("day"), "days");
+    const timeDifference = dayjs().startOf('day').diff(current.startOf('day'), 'days');
 
     // Disable if the time difference is greater than or equal to 1
     return timeDifference >= 1;
   };
 
-  //logic open modal
+  // logic open modal
   const showModal = () => {
     setIsModalOpen(true);
     const onSuccess = (res) => {
@@ -151,24 +120,24 @@ export default function PromotionForm() {
     console.log(`selected ${value}`);
   };
 
-  //logic table modal selected row
+  // logic table modal selected row
   const onSelectChange = (newSelectedRowKeys, selectedRows) => {
     setSelectedRowKeys(newSelectedRowKeys);
     setPrdSelected(selectedRows);
   };
 
-  //logic table prd selected row
+  // logic table prd selected row
   const onSelectedPrdChange = (newSelectedRowKeys) => {
     setSelectedRowKeysPrdSelected(newSelectedRowKeys);
   };
 
-  //logic table modal selected row
+  // logic table modal selected row
   const rowSelection = {
     selectedRowKeys,
     onChange: onSelectChange,
   };
 
-  //logic table prd selected row
+  // logic table prd selected row
   const rowSelectionTable = {
     selectedRowKeysPrdSelected,
     onChange: onSelectedPrdChange,
@@ -183,7 +152,7 @@ export default function PromotionForm() {
 
     const onFail = (err) => {
       messageApi.open({
-        type: "error",
+        type: 'error',
         content: err,
       });
     };
@@ -192,9 +161,7 @@ export default function PromotionForm() {
 
   // logic delete prd on prdselected table
   const handleDeleteProduct = (productId) => {
-    const updatedPrdSelected = prdSelected.filter(
-      (product) => product.id !== productId
-    );
+    const updatedPrdSelected = prdSelected.filter((product) => product.id !== productId);
     setPrdSelected(updatedPrdSelected);
   };
 
@@ -204,35 +171,23 @@ export default function PromotionForm() {
   // define table colums
   const columns = [
     {
-      title: "product name",
-      dataIndex: "name",
-      key: "name",
+      title: 'product name',
+      dataIndex: 'name',
+      key: 'name',
     },
     {
-      title: "original price",
-      dataIndex: ["skus", "price"],
-      key: "price",
-      align: "center",
+      title: 'original price',
+      dataIndex: ['skus', 'price'],
+      key: 'price',
+      align: 'center',
       render: (_, record) => {
-        const listPrice = record?.skus?.map(
-          (item) => item?.price?.original_price || 0
-        );
+        const listPrice = record?.skus?.map((item) => item?.price?.original_price || 0);
         const current = removeDuplicates(
-          record?.skus?.map((item) => item?.price?.currency || "USD"),
-          "currency"
+          record?.skus?.map((item) => item?.price?.currency || 'USD'),
+          'currency',
         );
-        const minPrice = IntlNumberFormat(
-          current,
-          "currency",
-          3,
-          Math.min(...listPrice)
-        );
-        const maxPrice = IntlNumberFormat(
-          current,
-          "currency",
-          3,
-          Math.max(...listPrice)
-        );
+        const minPrice = IntlNumberFormat(current, 'currency', 3, Math.min(...listPrice));
+        const maxPrice = IntlNumberFormat(current, 'currency', 3, Math.max(...listPrice));
         return (
           <>
             {minPrice === maxPrice && <span>{minPrice}</span>}
@@ -250,35 +205,23 @@ export default function PromotionForm() {
   // define column PrdSelected
   const columnsPrdSelected = [
     {
-      title: "product name",
-      dataIndex: "name",
-      key: "name",
+      title: 'product name',
+      dataIndex: 'name',
+      key: 'name',
     },
     {
-      title: "original price",
-      dataIndex: ["skus", "price"],
-      key: "price",
-      align: "center",
+      title: 'original price',
+      dataIndex: ['skus', 'price'],
+      key: 'price',
+      align: 'center',
       render: (_, record) => {
-        const listPrice = record?.skus?.map(
-          (item) => item?.price?.original_price || 0
-        );
+        const listPrice = record?.skus?.map((item) => item?.price?.original_price || 0);
         const current = removeDuplicates(
-          record?.skus?.map((item) => item?.price?.currency || "USD"),
-          "currency"
+          record?.skus?.map((item) => item?.price?.currency || 'USD'),
+          'currency',
         );
-        const minPrice = IntlNumberFormat(
-          current,
-          "currency",
-          3,
-          Math.min(...listPrice)
-        );
-        const maxPrice = IntlNumberFormat(
-          current,
-          "currency",
-          3,
-          Math.max(...listPrice)
-        );
+        const minPrice = IntlNumberFormat(current, 'currency', 3, Math.min(...listPrice));
+        const maxPrice = IntlNumberFormat(current, 'currency', 3, Math.max(...listPrice));
         return (
           <>
             {minPrice === maxPrice && <span>{minPrice}</span>}
@@ -292,17 +235,15 @@ export default function PromotionForm() {
       },
     },
     {
-      title: "Deal Price",
-      dataIndex: ["skus", "price"],
-      key: "price",
-      align: "center",
+      title: 'Deal Price',
+      dataIndex: ['skus', 'price'],
+      key: 'price',
+      align: 'center',
       render: (_, record) => {
-        const listPrice = record?.skus?.map(
-          (item) => item?.price?.original_price || 0
-        );
+        const listPrice = record?.skus?.map((item) => item?.price?.original_price || 0);
         const current = removeDuplicates(
-          record?.skus?.map((item) => item?.price?.currency || "USD"),
-          "currency"
+          record?.skus?.map((item) => item?.price?.currency || 'USD'),
+          'currency',
         );
         const minPrice = Number(Math.min(...listPrice));
         const maxPrice = Number(Math.max(...listPrice));
@@ -311,7 +252,7 @@ export default function PromotionForm() {
           <div>
             <Input
               onChange={(e) => setDealPrice(e.target.value)}
-              placeholder={`${discountType === true ? "%" : "$"}`}
+              placeholder={`${discountType === true ? '%' : '$'}`}
               type="number"
               className="w-32 mt-6"
             />
@@ -319,7 +260,7 @@ export default function PromotionForm() {
               {minPrice === maxPrice && (
                 <span>
                   {isNaN(minPrice)
-                    ? "Invalid price"
+                    ? 'Invalid price'
                     : discountType === true
                       ? Number(minPrice * (dealPrice / 100))
                       : Number(minPrice - dealPrice)}
@@ -328,15 +269,11 @@ export default function PromotionForm() {
               {minPrice !== maxPrice && (
                 <span className="text-xs">
                   {isNaN(minPrice) || isNaN(maxPrice)
-                    ? "Invalid price"
+                    ? 'Invalid price'
                     : `${
-                        discountType === true
-                          ? Number(minPrice * (dealPrice / 100))
-                          : Number(minPrice - dealPrice)
+                    discountType === true ? Number(minPrice * (dealPrice / 100)) : Number(minPrice - dealPrice)
                       } - ${
-                        discountType === true
-                          ? Number(maxPrice * (dealPrice / 100))
-                          : Number(maxPrice - dealPrice)
+                    discountType === true ? Number(maxPrice * (dealPrice / 100)) : Number(maxPrice - dealPrice)
                       }`}
                 </span>
               )}
@@ -346,25 +283,25 @@ export default function PromotionForm() {
       },
     },
     {
-      title: "Total Purchase Limit",
-      dataIndex: "name",
-      key: "name",
+      title: 'Total Purchase Limit',
+      dataIndex: 'name',
+      key: 'name',
       render: (_, record) => {
         return <Input placeholder="No limit" type="number" className="w-32" />;
       },
     },
     {
-      title: "Buyer Purchase Limit",
-      dataIndex: "name",
-      key: "name",
+      title: 'Buyer Purchase Limit',
+      dataIndex: 'name',
+      key: 'name',
       render: (_, record) => {
         return <CustomSelect />;
       },
     },
     {
-      title: "Action",
-      dataIndex: "name",
-      key: "name",
+      title: 'Action',
+      dataIndex: 'name',
+      key: 'name',
       render: (_, record) => {
         return (
           <Button danger onClick={() => handleDeleteProduct(record.id)}>
@@ -376,7 +313,7 @@ export default function PromotionForm() {
   ];
 
   // define UI row product discount requirements
-  const PrdDiscountReq = () => {
+  function PrdDiscountReq() {
     return (
       <Row gutter={[30, 30]} className="bg-[#f5f5f5] p-10 mt-6">
         <Row>
@@ -388,8 +325,8 @@ export default function PromotionForm() {
             <div className="align-middle">
               <p className="text-sm">The biggest discount takes effect</p>
               <p className="text-xs text-grey-400">
-                A product can be included in multiple discount promotions, but
-                only the biggest discount will take effect at any given time.
+                A product can be included in multiple discount promotions, but only the biggest discount will take
+                effect at any given time.
               </p>
             </div>
           </Col>
@@ -398,18 +335,18 @@ export default function PromotionForm() {
             <div className="align-middle">
               <p className="text-sm">Flash deal prices are prioritized</p>
               <p className="text-xs text-grey-400">
-                When a product has both a product discount and a flash deal
-                discount, only the flash deal price will be shown.
+                When a product has both a product discount and a flash deal discount, only the flash deal price will be
+                shown.
               </p>
             </div>
           </Col>
         </Row>
       </Row>
     );
-  };
+  }
 
   // define UI table product selected on modal
-  const TablePrdSelected = () => {
+  function TablePrdSelected() {
     return (
       <div className="mt-8 pr-2">
         <Table
@@ -422,13 +359,11 @@ export default function PromotionForm() {
         />
       </div>
     );
-  };
+  }
 
   return (
     <div>
-      <div className="absolute top-[50%] left-[47%]">
-        {loading ? <Loading /> : null}
-      </div>
+      <div className="absolute top-[50%] left-[47%]">{loading ? <Loading /> : null}</div>
 
       <Form
         name="basic"
@@ -442,13 +377,9 @@ export default function PromotionForm() {
         autoComplete="off"
         layout="vertical"
       >
-        <ContentHeader
-          title={
-            prdDiscountID === "create-prd-discount"
-              ? "Tạo product discount"
-              : "Cập nhật product discount"
-          }
-        />
+        <div className="ml-4">
+          <ContentHeader title={prdDiscountID === 'discounts' ? 'Tạo product discount' : 'Cập nhật product discount'} />
+        </div>
         {/* top */}
         <Row className="p-10 pt-5 justify-between min-h-[465px]">
           {/* left */}
@@ -459,11 +390,11 @@ export default function PromotionForm() {
               name="name"
               labelAlign="left"
               className="font-medium"
-              sx={{ width: "50%" }}
+              sx={{ width: '50%' }}
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng nhập tên chương trình!",
+                  message: 'Vui lòng nhập tên chương trình!',
                 },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
@@ -477,22 +408,12 @@ export default function PromotionForm() {
               ]}
               initialValue={location?.state?.code}
             >
-              <Input
-                className="w-2/3"
-                placeholder="Nhập tên chương trình"
-                defaultValue={location?.state?.name}
-              />
+              <Input className="w-2/3" placeholder="Nhập tên chương trình" defaultValue={location?.state?.name} />
             </Form.Item>
 
             <div className="flex align-middle">
-              <span className="text-sm font-semibold">
-                Promotion period(PST)
-              </span>
-              <Tooltip
-                className="ml-2"
-                placement="top"
-                title="the maximum promotion period day is 30 days"
-              >
+              <span className="text-sm font-semibold">Promotion period(PST)</span>
+              <Tooltip className="ml-2" placement="top" title="the maximum promotion period day is 30 days">
                 <span className="rounded-full bg-gray-300 w-6 h-6 flex items-center justify-center border-2 border-gray-400 text-center mt-[2px] font-bold">
                   !
                 </span>
@@ -513,14 +434,10 @@ export default function PromotionForm() {
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng chọn ngày bắt đầu!",
+                      message: 'Vui lòng chọn ngày bắt đầu!',
                     },
                   ]}
-                  initialValue={
-                    location?.state?.start_time
-                      ? dayjs(location?.state?.start_time)
-                      : ""
-                  }
+                  initialValue={location?.state?.start_time ? dayjs(location?.state?.start_time) : ''}
                 >
                   <DatePicker
                     format="DD-MM-YYYY HH:mm:ss"
@@ -528,15 +445,10 @@ export default function PromotionForm() {
                     disabledDate={disabledDate}
                     placeholder="Từ ngày"
                     showTime={{
-                      defaultValue: dayjs("00:00:00", "HH:mm:ss"),
+                      defaultValue: dayjs('00:00:00', 'HH:mm:ss'),
                     }}
                     defaultValue={
-                      location?.state?.start_time
-                        ? dayjs(
-                            location?.state?.start_time,
-                            "DD/MM/YYYY HH:mm:ss"
-                          )
-                        : ""
+                      location?.state?.start_time ? dayjs(location?.state?.start_time, 'DD/MM/YYYY HH:mm:ss') : ''
                     }
                   />
                 </Form.Item>
@@ -553,14 +465,11 @@ export default function PromotionForm() {
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng chọn ngày kết thúc!",
+                      message: 'Vui lòng chọn ngày kết thúc!',
                     },
                     () => ({
                       validator(_, value) {
-                        const validTimePass = validateEndDate(
-                          values.start_time,
-                          value
-                        );
+                        const validTimePass = validateEndDate(values.start_time, value);
                         if (validTimePass) {
                           return Promise.reject(errorMessage);
                         }
@@ -568,11 +477,7 @@ export default function PromotionForm() {
                       },
                     }),
                   ]}
-                  initialValue={
-                    location?.state?.end_time
-                      ? dayjs(location?.state?.end_time)
-                      : ""
-                  }
+                  initialValue={location?.state?.end_time ? dayjs(location?.state?.end_time) : ''}
                 >
                   <DatePicker
                     format="DD-MM-YYYY HH:mm:ss"
@@ -580,13 +485,9 @@ export default function PromotionForm() {
                     disabledDate={disabledDate}
                     placeholder="Đến ngày"
                     showTime={{
-                      defaultValue: dayjs("00:00:00", "HH:mm:ss"),
+                      defaultValue: dayjs('00:00:00', 'HH:mm:ss'),
                     }}
-                    defaultValue={
-                      location?.state?.end_time
-                        ? dayjs(location?.state?.end_time)
-                        : ""
-                    }
+                    defaultValue={location?.state?.end_time ? dayjs(location?.state?.end_time) : ''}
                   />
                 </Form.Item>
               </Col>
@@ -603,15 +504,15 @@ export default function PromotionForm() {
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng chọn discount type!",
+                  message: 'Vui lòng chọn discount type!',
                 },
               ]}
               initialValue={discountType}
             >
               <Radio.Group
                 options={[
-                  { label: "Percentage Off", value: true },
-                  { label: "Fixed Price", value: false },
+                  { label: 'Percentage Off', value: true },
+                  { label: 'Fixed Price', value: false },
                 ]}
                 defaultValue={discountType}
                 className="font-normal"
@@ -640,15 +541,12 @@ export default function PromotionForm() {
           </Col>
         </Row>
         {/* space */}
-        <Row className="h-4 bg-[#f5f5f5]"></Row>
+        <Row className="h-4 bg-[#f5f5f5]" />
         {/* bottom */}
         <div className="p-10 pt-5 ">
           <div>
             <h2>Product</h2>
-            <p className="text-gray-400">
-              The discount can apply to either specific products or specific
-              variations.
-            </p>
+            <p className="text-gray-400">The discount can apply to either specific products or specific variations.</p>
           </div>
 
           <div className="mt-6">
@@ -663,15 +561,15 @@ export default function PromotionForm() {
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng nhập giá trị tối thiểu!",
+                  message: 'Vui lòng nhập giá trị tối thiểu!',
                 },
               ]}
               initialValue={location?.state?.variations}
             >
               <Radio.Group
                 options={[
-                  { label: "Product-level", value: true },
-                  { label: "Variation-level", value: false },
+                  { label: 'Product-level', value: true },
+                  { label: 'Variation-level', value: false },
                 ]}
                 className="font-normal"
                 onChange={(e) => setVariations(e.target.value)}
@@ -698,19 +596,13 @@ export default function PromotionForm() {
             disabled={loading}
             width={200}
           >
-            {prdDiscountID === "create-prd-discount" ? "Tạo" : "Cập nhật"}
+            {prdDiscountID === "discounts" ? "Tạo" : "Cập nhật"}
           </Button>
         </div> */}
       </Form>
 
       {/* modal */}
-      <Modal
-        title="Chọn sản phẩm"
-        open={isModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        width="900px"
-      >
+      <Modal title="Chọn sản phẩm" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} width="900px">
         {/* top */}
         <Row className="mt-8">
           <Col span={8}>
@@ -720,23 +612,19 @@ export default function PromotionForm() {
               placeholder="Please select"
               showSearch={(input, options) => {
                 return (
-                  options.label.toLowerCase().indexOf(input.toLowerCase()) >=
-                    0 ||
+                  options.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
                   options.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
                 );
               }}
             />
           </Col>
           <Col span={16}>
-            <Search
-              placeholder="Search by product ID or prd name"
-              onSearch={onSearchTable}
-            />
+            <Search placeholder="Search by product ID or prd name" onSearch={onSearchTable} />
           </Col>
           <div className="mt-4 ml-auto">
             <p className="text-red-400">
-              Lưu ý! : Nếu sản phẩm đang trong 1 chương trình giảm giá khác thì
-              sẽ ưu tiên chương trình nào giảm giá cao hơn
+              Lưu ý! : Nếu sản phẩm đang trong 1 chương trình giảm giá khác thì sẽ ưu tiên chương trình nào giảm giá cao
+              hơn
             </p>
           </div>
         </Row>

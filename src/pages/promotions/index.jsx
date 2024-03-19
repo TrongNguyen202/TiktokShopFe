@@ -84,22 +84,11 @@ function Promotion() {
               />
             </Col>
             <Col span={16}>
-              <Search
-                placeholder="Enter promotion name"
-                // onSearch={onSearch}
-              />
+              <Search placeholder="Enter promotion name" />
             </Col>
           </Row>
           <div className="mt-8 pr-2">
-            <Table
-              columns={columns}
-              // dataSource={sortByPackageId(orders)}
-              dataSource={[]}
-              // loading={loadin-g}
-              bordered
-              pagination={{ pageSize: 100 }}
-              //   rowKey={(record) => record.package_list[0]?.package_id}
-            />
+            <Table columns={columns} dataSource={[]} bordered pagination={{ pageSize: 100 }} />
           </div>
         </div>
       ),

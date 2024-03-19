@@ -59,8 +59,11 @@ export default function StoreDetail() {
           </Col>
 
           <Col md={{ span: 6 }} span={12}>
-            <Promotions shopId={shopId} />
             <StoreDetailOrderFulfillmentCompleted shopId={shopId} />
+          </Col>
+
+          <Col md={{ span: 6 }} span={12}>
+            <Promotions shopId={shopId} />
           </Col>
         </Row>
       </div>
