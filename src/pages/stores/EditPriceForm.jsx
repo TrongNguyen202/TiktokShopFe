@@ -51,6 +51,7 @@ export default function EditPriceForm({ selectedSize, dataPrice, onSavePrice, se
   const [dataSource, setDataSource] = useState(dataPrice);
 
   const dataSource2 = useRef(dataPrice);
+  console.log('dataSource2: ', dataSource2.current);
 
   const defaultColumns = [
     {
@@ -116,9 +117,11 @@ export default function EditPriceForm({ selectedSize, dataPrice, onSavePrice, se
         inputRef.current.focus();
       }
     }, [editing]);
+
     useEffect(() => {
       inputRef?.current?.focus();
     }, [dataSource]);
+
     const toggleEdit = () => {
       setEditing(!editing);
       form.setFieldsValue({
@@ -219,8 +222,8 @@ export default function EditPriceForm({ selectedSize, dataPrice, onSavePrice, se
   });
 
   const synchronizeQuantity = (data) => {
-    const maxQuantities = data.reduce((acc, item) => {
-      if (!acc[item.type] || Number(item.quantity) > Number(acc[item.type])) {
+    const firstQuantities = data.reduce((acc, item) => {
+      if (!acc[item.type]) {
         acc[item.type] = Number(item.quantity);
       }
       return acc;
@@ -228,7 +231,7 @@ export default function EditPriceForm({ selectedSize, dataPrice, onSavePrice, se
 
     const updatedData = data.map((item) => ({
       ...item,
-      quantity: maxQuantities[item.type].toString(),
+      quantity: firstQuantities[item.type].toString(),
     }));
 
     return updatedData;
