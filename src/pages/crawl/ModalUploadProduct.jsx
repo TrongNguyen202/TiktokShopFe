@@ -6,7 +6,7 @@ import { useTemplateStore } from '../../store/templateStore';
 import { useWareHousesStore } from '../../store/warehousesStore';
 import { alerts } from '../../utils/alerts';
 
-export default function ModalUploadProduct({ isShowModalUpload, setShowModalUpload, productList }) {
+export default function ModalUploadProduct({ isShowModalUpload, setShowModalUpload, productList, imagesLimit }) {
   // const shopId = getPathByIndex(2);
 
   const { getAllTemplate, templates } = useTemplateStore();
@@ -142,11 +142,10 @@ export default function ModalUploadProduct({ isShowModalUpload, setShowModalUplo
   function mergeArrays(obj1, arr2) {
     // Convert object to array
     const arr1 = Object.values(obj1);
-    const arr1Length = arr1.length || 0;
     const arr2Length = arr2?.length || 0;
 
-    // Calculate the number of elements to take from arr1
-    const numElementsFromArr1 = 9 - arr2Length;
+    // Calculate the number of elements to take from imagesLimit
+    const numElementsFromArr1 = imagesLimit - arr2Length;
 
     // Take the first numElementsFromArr1 elements from arr1
     const elementsFromArr1 = arr1.slice(0, numElementsFromArr1);
