@@ -4,6 +4,8 @@ from ....models import User, UserShop, UserGroup, GroupCustom, CustomUserSendPri
 from ....serializers import GroupCustomSerializer
 
 from api.views import *
+import hashlib
+from django.contrib.auth.hashers import make_password
 
 logger = logging.getLogger('api.views.tiktok.permission_action')
 setup_logging(logger, is_root=False, level=logging.INFO)
@@ -157,16 +159,24 @@ class PermissionRole(APIView):
         user.last_name = data.get('last_name', user.last_name)
         user.username = data.get('username', user.username)
         user.email = data.get('email', user.email)
-        user.password = data.get('password', user.password)
+
+        password = data.get('password')
+        if len(password) <= 60:
+            hashed_password = make_password(password)
+            user.password = hashed_password
+        user.password = user.password
+
         user_custom_senprint.user_code = data.get('user_code', user_custom_senprint.user_code)
-        user.save()
+
         user_custom_senprint.save()
 
         stores = data.get('shops', [])
 
         for store_id in stores:
-
             UserShop.objects.get_or_create(user=user, shop_id=store_id)
+        user.is_active = data.get('is_active', True)
+        user.save()
+        print("hhhh", user.is_active)
 
         return Response({"message": "User information updated successfully."})
 
