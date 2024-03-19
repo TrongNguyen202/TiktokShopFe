@@ -25,19 +25,60 @@ const crawlerOptions = [
     value: 'Shopbase',
     label: 'Shopbase',
   },
+  // {
+  //   value: 'Amazone',
+  //   label: 'Amazone',
+  // },
+];
+
+const imageLimitOptions = [
   {
-    value: 'Amazone',
-    label: 'Amazone',
+    value: 9,
+    label: 'Limit 9 images',
+  },
+  {
+    value: 8,
+    label: 'Limit 8 images',
+  },
+  {
+    value: 7,
+    label: 'Limit 7 images',
+  },
+  {
+    value: 6,
+    label: 'Limit 6 images',
+  },
+  {
+    value: 5,
+    label: 'Limit 5 images',
+  },
+  {
+    value: 4,
+    label: 'Limit 4 images',
+  },
+  {
+    value: 3,
+    label: 'Limit 3 images',
+  },
+  {
+    value: 2,
+    label: 'Limit 2 images',
+  },
+  {
+    value: 1,
+    label: 'Limit 1 images',
   },
 ];
 
 const initialCrawl = {
   url: '',
   crawler: 'Etsy',
+  imagesLimit: 9,
 };
 
 export default function Crawl() {
   const productListStorage = JSON.parse(localStorage.getItem('productList'));
+  const userInfo = JSON.parse(localStorage.getItem('user'));
 
   const [productList, setProductList] = useState(productListStorage);
   const [checkedItems, setCheckedItems] = useState([]);
@@ -117,17 +158,10 @@ export default function Crawl() {
     );
   };
 
-  const onChangeCrawler = (value) => {
+  const onChangeOptionCrawl = (key, value) => {
     setOptionCrawl({
       ...optionCrawl,
-      crawler: value,
-    });
-  };
-
-  const onChangeUrl = (e) => {
-    setOptionCrawl({
-      ...optionCrawl,
-      url: e.target.value,
+      [key]: value,
     });
   };
 
@@ -212,13 +246,23 @@ export default function Crawl() {
         return [...acc, ...data.data];
       }, []);
 
+    // giới hạn ảnh theo imagesLimit
+    productData.forEach((product) => {
+      product.images = product.images.slice(0, optionCrawl.imagesLimit);
+    });
+    console.log('productData: ', productData);
+
     // lấy danh sách id của sản phẩm để get thông tin sản phẩm
     const ids = productData.map((item) => item.id.split('.')[0]).join(',');
     localStorage.setItem('productList', JSON.stringify(productData));
     setCheckedItems([]);
     setIsAllChecked(false);
     setShowSkeleton(true);
-    fetchInfoProducts(ids, productData);
+    if (optionCrawl.crawler === 'Etsy') fetchInfoProducts(ids, productData);
+    else {
+      setLoading(false);
+      setShowSkeleton(false);
+    }
   };
 
   const handleCrawl = () => {
@@ -258,7 +302,6 @@ export default function Crawl() {
 
   const convertDataProductsToSenPrints = () => {
     const selectedProducts = productList.filter((product) => checkedItems[product.id]);
-    console.log('selectedProducts: ', selectedProducts);
 
     const convertImageLink = (images) => {
       const imageObject = images.reduce((obj, link, index) => {
@@ -272,12 +315,12 @@ export default function Crawl() {
     return selectedProducts.flatMap((product) => {
       return senPrintsData.map((item) => {
         return {
-          campaign_name: product.title,
+          campaign_name: `${product.title} ${userInfo?.user_code ? `- ${userInfo.user_code}` : ''}`,
           campaign_desc: item.campaign_desc,
           collection: '',
           product_sku: item.product_sku,
           colors: item.colors,
-          price: product.price,
+          price: item.price,
           ...convertImageLink(product.images),
         };
       });
@@ -344,16 +387,24 @@ export default function Crawl() {
           <TextArea
             value={optionCrawl.url}
             placeholder="Paste URL"
-            onChange={onChangeUrl}
+            onChange={(e) => onChangeOptionCrawl('url', e.target.value)}
             // onPressEnter={handleCrawl}
             rows={4}
+          />
+          <Select
+            defaultValue="Limit 9 images"
+            style={{
+              width: 220,
+            }}
+            onChange={(value) => onChangeOptionCrawl('imagesLimit', value)}
+            options={imageLimitOptions}
           />
           <Select
             defaultValue="Etsy"
             style={{
               width: 220,
             }}
-            onChange={onChangeCrawler}
+            onChange={(value) => onChangeOptionCrawl('crawler', value)}
             options={crawlerOptions}
           />
           <Button type="primary" onClick={handleCrawl} loading={loading}>
@@ -413,6 +464,7 @@ export default function Crawl() {
           isShowModalUpload={isShowModalUpload}
           setShowModalUpload={setShowModalUpload}
           productList={convertDataProducts(true)}
+          imagesLimit={optionCrawl.imagesLimit}
         />
       )}
     </div>

@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { Button, Input, Space, Table, Tooltip } from 'antd';
+import { Button, Input, Popconfirm, Space, Table, Tooltip } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -50,14 +50,11 @@ function Users() {
           </>
         )),
     },
-    // {
-    //   title: 'Trạng thái',
-    //   dataIndex: 'is_active',
-    //   key: 'is_active',
-    //   render: (text, record) => (
-    //     <Tag color={record.is_active ? 'green' : 'red'}>{record.is_active ? 'Hoạt động' : 'Không hoạt động'}</Tag>
-    //   )
-    // },
+    {
+      title: 'Mã nhân viên',
+      dataIndex: 'user_code',
+      key: 'user_code',
+    },
     {
       dataIndex: 'Actions',
       key: 'actions',
@@ -68,12 +65,14 @@ function Users() {
           <Tooltip title="Sửa" color="blue" placement="left">
             <Button size="middle" icon={<EditOutlined />} onClick={() => handleUseEdit(record)} />
           </Tooltip>
-          <Tooltip title="Xoá" color="blue" placement="right">
-            <Button
-              size="middle"
-              icon={<DeleteOutlined />}
-              onClick={() => handleUserDelete(record.user_id, record.shops)}
-            />
+          <Tooltip title="Xoá" color="blue" placement="top">
+            <Popconfirm
+              title="Bạn có chắc muốn xoá người dùng này?"
+              onConfirm={() => handleUserDelete(record.user_id, record.shops)}
+              placement="left"
+            >
+              <Button size="middle" icon={<DeleteOutlined />} />
+            </Popconfirm>
           </Tooltip>
         </Space>
       ),
