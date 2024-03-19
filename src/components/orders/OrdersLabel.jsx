@@ -50,8 +50,6 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
         ),
     },
   ];
-  
-  console.log('ordersCompleted: ', ordersCompleted);
 
   const rowSelection = {
     onChange: (_, selectedRows) => {
