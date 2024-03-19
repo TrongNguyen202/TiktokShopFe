@@ -226,10 +226,15 @@ class UserShopList(APIView):
 
             user_shops = UserShop.objects.filter(user=user_group.user, shop__group_custom_id=group_custom.id)
             for user_shop in user_shops.filter(shop__is_active=True):
-
                 user_data["shops"].append({"id": user_shop.shop.id, "name": user_shop.shop.shop_name})
 
             user_shops_data["users"].append(user_data)
+
+        # Filter out users with is_active = False
+        user_shops_data["users"] = [user_data for user_data in user_shops_data["users"] if User.objects.get(id=user_data["user_id"]).is_active]
+
+        # Sort users by creation date in descending order (newest first)
+        user_shops_data["users"].sort(key=lambda x: User.objects.get(id=x["user_id"]).date_joined, reverse=True)
 
         return Response({"data": user_shops_data})
 

@@ -4,6 +4,8 @@ from ....models import User, UserShop, UserGroup, GroupCustom, CustomUserSendPri
 from ....serializers import GroupCustomSerializer
 
 from api.views import *
+import hashlib
+from django.contrib.auth.hashers import make_password
 
 logger = logging.getLogger('api.views.tiktok.permission_action')
 setup_logging(logger, is_root=False, level=logging.INFO)
@@ -115,6 +117,12 @@ class InforUserCurrent(APIView):
         user = request.user
         user_groups = UserGroup.objects.filter(user=user)
 
+        try:
+            user_sen = CustomUserSendPrint.objects.get(user=user)
+            user_code = user_sen.user_code
+        except CustomUserSendPrint.DoesNotExist:
+            user_code = ""  # Set default value if CustomUserSendPrint does not exist
+
         user_info = {
             'id': user.id,
             'username': user.username,
@@ -122,7 +130,8 @@ class InforUserCurrent(APIView):
             'first_name': user.first_name,
             'last_name': user.last_name,
             'groups': [user_group.group_custom.group_name for user_group in user_groups],
-            'role': [user_group.role for user_group in user_groups]
+            'role': [user_group.role for user_group in user_groups],
+            'user_code': user_code
         }
         return Response(user_info)
 
@@ -137,27 +146,37 @@ class GroupCustomListAPIView(APIView):
 class PermissionRole(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def post(self, request):
+    def put(self, request):
         data = request.data
         user_id = data.get('user_id')
         user = get_object_or_404(User, id=user_id)
-        user_custom_senprint = CustomUserSendPrint.objects.get(user=user)
+        try:
+            user_custom_senprint = CustomUserSendPrint.objects.get(user=user)
+        except CustomUserSendPrint.DoesNotExist:
+            user_custom_senprint = CustomUserSendPrint.objects.create(user=user)
 
         user.first_name = data.get('first_name', user.first_name)
         user.last_name = data.get('last_name', user.last_name)
         user.username = data.get('username', user.username)
         user.email = data.get('email', user.email)
-        user.password = data.get('password', user.password)
+
+        password = data.get('password')
+        if len(password) <= 60:
+            hashed_password = make_password(password)
+            user.password = hashed_password
+        user.password = user.password
+
         user_custom_senprint.user_code = data.get('user_code', user_custom_senprint.user_code)
-        user.save()
+
         user_custom_senprint.save()
 
         stores = data.get('shops', [])
 
-        # Do something with the stores list, for example, assign the user to the provided stores
         for store_id in stores:
-            print(store_id)
             UserShop.objects.get_or_create(user=user, shop_id=store_id)
+        user.is_active = data.get('is_active', True)
+        user.save()
+        print("hhhh", user.is_active)
 
         return Response({"message": "User information updated successfully."})
 
