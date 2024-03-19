@@ -34,8 +34,7 @@ import api.helpers as helpers
 import api.utils.constant as constant
 import api.utils.objectcreate as objectcreate
 from api import setup_logging
-from api.utils.tiktok_base_api import order, product, token
-
+from api.utils.tiktok_base_api import order, product, promotion, token
 
 if platform.system() == "Windows":
     dirs_to_setup = [constant.PDF_DIRECTORY_WINDOW, constant.DOWNLOAD_IMAGES_DIR_WINDOW]

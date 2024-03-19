@@ -1,0 +1,18 @@
+[tool.ruff]
+exclude = [
+    ".venv",
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    "venv",
+]
+ignore = []
+line-length = 160
+select = [
+    "E",
+    "F",
+    "W",
+    "I001",
+]
+src = ["./"]
