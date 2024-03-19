@@ -9,16 +9,20 @@ import { validateName } from '../../utils/validate';
 const initialData = {
   name: '',
   start_time: dayjs(),
-  end_time: dayjs().add(30, 'd'),
+  end_time: dayjs().add(3, 'd'),
   discount_type: true,
   discount_value: '',
 };
 
-export default function PromotionForm() {
+function FlashDealForm() {
   const [discountData, setDiscountData] = useState(initialData);
 
   const onChangeDiscountValue = (e, key, value) => {
     setDiscountData({ ...discountData, [key]: value });
+  };
+
+  const disabledDate = (current) => {
+    return current && current < dayjs().add(-1, 'd').endOf('day');
   };
 
   const onSubmit = () => {
@@ -40,7 +44,7 @@ export default function PromotionForm() {
         layout="vertical"
       >
         <div className="ml-4">
-          <ContentHeader title="Create product discount" />
+          <ContentHeader title="Create product flashsale" />
         </div>
         {/* top */}
         <Row className="p-10 pt-5 justify-between min-h-[465px]">
@@ -68,7 +72,6 @@ export default function PromotionForm() {
                   },
                 }),
               ]}
-              // initialValue={location?.state?.code}
             >
               <Input
                 onChange={(e) => onChangeDiscountValue(e, 'name', e.target.value)}
@@ -104,12 +107,11 @@ export default function PromotionForm() {
                       message: 'Vui lòng chọn ngày bắt đầu!',
                     },
                   ]}
-                  // initialValue={location?.state?.start_time ? dayjs(location?.state?.start_time) : ''}
                 >
                   <DatePicker
                     format="DD-MM-YYYY HH:mm:ss"
                     // onChange={handleChangeStartTime}
-                    // disabledDate={disabledDate}
+                    disabledDate={disabledDate}
                     placeholder="Từ ngày"
                     showTime={{
                       defaultValue: dayjs('00:00:00', 'HH:mm:ss'),
@@ -146,7 +148,6 @@ export default function PromotionForm() {
                       defaultValue: dayjs('00:00:00', 'HH:mm:ss'),
                     }}
                     defaultValue={discountData.end_time}
-                    // defaultValue={location?.state?.end_time ? dayjs(location?.state?.end_time) : ''}
                   />
                 </Form.Item>
               </Col>
@@ -166,7 +167,6 @@ export default function PromotionForm() {
                   message: 'Vui lòng chọn discount type!',
                 },
               ]}
-              // initialValue={discountType}
             >
               <Radio.Group
                 options={[
@@ -198,7 +198,7 @@ export default function PromotionForm() {
               </Col>
             </Row>
           </Col>
-          <Button type="primary" htmlType="submit" className="" onClick={onSubmit}>
+          <Button type="primary" className="" onClick={onSubmit}>
             Agree & publish
           </Button>
         </Row>
@@ -207,3 +207,5 @@ export default function PromotionForm() {
     </div>
   );
 }
+
+export default FlashDealForm;

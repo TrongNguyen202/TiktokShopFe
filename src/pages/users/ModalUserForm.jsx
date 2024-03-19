@@ -21,6 +21,7 @@ export default function ModalUserForm({ isShowModal, setIsShowModal, userSelecte
       ...values,
       user_id: userSelected?.user_id || '',
     };
+    console.log('dataUpdate: ', dataUpdate);
     const onSuccess = (res) => {
       getShopByUser();
       if (res) {
@@ -91,8 +92,8 @@ export default function ModalUserForm({ isShowModal, setIsShowModal, userSelecte
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label="Email Address" name="email">
-                    <Input placeholder="Email Address" />
+                  <Form.Item label="User code" name="user_code">
+                    <Input placeholder="User code" />
                   </Form.Item>
                 </Col>
 

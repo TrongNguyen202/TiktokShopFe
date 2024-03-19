@@ -122,7 +122,6 @@ function Promotion() {
                   <Button type="primary" onClick={() => navigate(`/shops/${shopId}/promotions/discounts`)}>
                     Create
                   </Button>
-                  <Button className="ml-4">Learn more</Button>
                 </div>
               </Card>
             </Col>
@@ -134,10 +133,9 @@ function Promotion() {
                   Offer limited-time deals to incentivize swift purchases, sell excess inventory or attract new buyers.
                 </p>
                 <div className="mt-4">
-                  <Button type="primary" onClick={() => navigate(`/shops/${shopId}/promotions/create-flash-deal`)}>
+                  <Button type="primary" onClick={() => navigate(`/shops/${shopId}/promotions/flash-deal`)}>
                     Create
                   </Button>
-                  <Button className="ml-4">Learn more</Button>
                 </div>
               </Card>
             </Col>

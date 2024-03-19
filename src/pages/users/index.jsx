@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { Button, Input, Space, Table, Tooltip } from 'antd';
+import { Button, Input, Popconfirm, Space, Table, Tooltip, message } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -9,7 +9,7 @@ import PageTitle from '../../components/common/PageTitle';
 import ModalUserForm from './ModalUserForm';
 
 function Users() {
-  const { getShopByUser, shopsByUser } = useUsersStore((state) => state);
+  const { getShopByUser, shopsByUser, updateUser } = useUsersStore((state) => state);
 
   const [userData, setUserData] = useState([]);
   const [isShowModal, setIsShowModal] = useState(false);
@@ -18,11 +18,33 @@ function Users() {
   const handleUseEdit = (record) => {
     setUserSelected(record);
     setIsShowModal(true);
-    // navigate(`/users/edit/${record.user_id}`, { state: { shops: record.shops } })
   };
 
-  const handleUserDelete = (userId, shops) => {
-    console.log(userId, shops);
+  const handleUserDelete = (userId) => {
+    const dataUpdate = {
+      user_id: userId,
+      is_active: false,
+    };
+    console.log('dataUpdate: ', dataUpdate);
+    const onSuccess = (res) => {
+      getShopByUser();
+      if (res) {
+        message.open({
+          type: 'success',
+          content: 'Thành công',
+        });
+        setIsShowModal(false);
+      }
+    };
+
+    const onFail = (err) => {
+      message.open({
+        type: 'error',
+        content: err,
+      });
+    };
+
+    updateUser(dataUpdate, onSuccess, onFail);
   };
 
   const handleAddUser = () => {
@@ -50,14 +72,11 @@ function Users() {
           </>
         )),
     },
-    // {
-    //   title: 'Trạng thái',
-    //   dataIndex: 'is_active',
-    //   key: 'is_active',
-    //   render: (text, record) => (
-    //     <Tag color={record.is_active ? 'green' : 'red'}>{record.is_active ? 'Hoạt động' : 'Không hoạt động'}</Tag>
-    //   )
-    // },
+    {
+      title: 'Mã nhân viên',
+      dataIndex: 'user_code',
+      key: 'user_code',
+    },
     {
       dataIndex: 'Actions',
       key: 'actions',
@@ -68,12 +87,14 @@ function Users() {
           <Tooltip title="Sửa" color="blue" placement="left">
             <Button size="middle" icon={<EditOutlined />} onClick={() => handleUseEdit(record)} />
           </Tooltip>
-          <Tooltip title="Xoá" color="blue" placement="right">
-            <Button
-              size="middle"
-              icon={<DeleteOutlined />}
-              onClick={() => handleUserDelete(record.user_id, record.shops)}
-            />
+          <Tooltip title="Xoá" color="blue" placement="top">
+            <Popconfirm
+              title="Bạn có chắc muốn xoá người dùng này?"
+              onConfirm={() => handleUserDelete(record.user_id)}
+              placement="left"
+            >
+              <Button size="middle" icon={<DeleteOutlined />} />
+            </Popconfirm>
           </Tooltip>
         </Space>
       ),

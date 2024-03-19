@@ -15,6 +15,7 @@ import {
 } from 'antd';
 import { DownOutlined, WarningOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
+import { useNavigate } from "react-router-dom";
 
 import { useShopsOrder } from '../../store/ordersStore';
 import { getPathByIndex } from '../../utils';
@@ -25,6 +26,7 @@ import DesignEdit from '../design-sku/DesignEdit';
 import { useFlashShipStores } from '../../store/flashshipStores';
 
 function OrderForPartner({ toShipInfoData }) {
+  const navigate = useNavigate();
   const shopId = getPathByIndex(2);
   const [messageApi, contextHolder] = message.useMessage();
   const [api, notificationContextHolder] = notification.useNotification();
@@ -172,10 +174,10 @@ function OrderForPartner({ toShipInfoData }) {
       buyer_last_name: item.name_buyer?.split(' ')[1] || '',
       buyer_email: item.buyer_email,
       buyer_phone: '',
-      buyer_address1: item.street.trim(),
+      buyer_address1: item.street?.trim(),
       buyer_address2: '',
       buyer_city: item.city,
-      buyer_province_code: item.state.trim(),
+      buyer_province_code: item.state?.trim(),
       buyer_zip: item.zip_code,
       buyer_country_code: 'US',
       shipment: 1,
@@ -216,8 +218,6 @@ function OrderForPartner({ toShipInfoData }) {
           return flashShipItem;
         });
 
-        console.log('handAddDesignToShipInfoData: ', handAddDesignToShipInfoData);
-
         const orderList = handAddDesignToShipInfoData.flatMap((item) => item.order_list);
         const itemsWithNullImages = orderList.filter(
           (item) => item.image_design_front === null && item.image_design_back === null,
@@ -244,7 +244,9 @@ function OrderForPartner({ toShipInfoData }) {
               });
 
               const onSuccessPackageCreate = (resPackage) => {
-                console.log('resPackage: ', resPackage);
+                if (resPackage) {
+                  navigate(`/shops/${shopId}/orders/fulfillment/completed`)
+                }
               };
 
               const onFailPackageCreate = (errPackage) => {
@@ -288,17 +290,22 @@ function OrderForPartner({ toShipInfoData }) {
     // eslint-disable-next-line array-callback-return
     dataPackageCreateConvert.map((item) => {
       if (fileName === 'PrintCare') {
+        const onSuccess = (res) => {
+          if (res) {
+            navigate(`/shops/${shopId}/orders/fulfillment/completed`)
+          }
+        }
         packageCreatePrintCare(
           shopId,
           item,
-          (res) => console.log(res),
+          onSuccess,
           (err) => console.log(err),
         );
       } else {
         packageCreateFlashShip(
           shopId,
           item,
-          (res) => console.log(res),
+          onSuccess,
           (err) => console.log(err),
         );
       }
@@ -441,7 +448,6 @@ function OrderForPartner({ toShipInfoData }) {
       dataIndex: 'shipping_info',
       key: 'shipping_info',
       render: (_, record) => {
-        console.log('record: ', record)
         return (
           <ul>
             <li>

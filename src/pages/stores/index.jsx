@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { CopyOutlined, DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { Button, Input, Layout, Modal, Popconfirm, Table, Tooltip, message } from 'antd';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { useShopsStore } from '../../store/shopsStore';
 import { constants as c } from '../../constants';
+import { useShopsStore } from '../../store/shopsStore';
 
 import StoreAuthorization from './StoreAuthorization';
 import StoreForm from './StoreForm';
