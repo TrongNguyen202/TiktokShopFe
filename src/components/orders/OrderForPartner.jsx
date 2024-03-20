@@ -335,8 +335,8 @@ function OrderForPartner({ toShipInfoData }) {
 
     const dataExport = productItem.map((product) => {
       const result = {
-        'External ID': key === 'PrintCare' ? 'POD097' : product.variant_id,
-        'Order Id': key === 'PrintCare' ? product.product_id : product.package_id,
+        'External ID': 'POD097',
+        'Order ID': key === 'PrintCare' ? product.product_id : product.package_id,
         'Shipping method': 1,
         'First Name': product.name_buyer.split(' ')[0],
         'Last Name': product.name_buyer.split(' ')[1],
@@ -344,16 +344,17 @@ function OrderForPartner({ toShipInfoData }) {
         Phone: '',
         Country: 'US',
         Region: product.state,
-        'Address 1': product.street,
-        'Address 2': '',
+        'Address line 1': product.street,
+        'Address line 2': '',
         City: product.city,
         Zip: product.zip_code,
         Quantity: product.quantity,
-        'Product ID': product.sku_name,
-        'Frond Design URL': product.image_design_front,
-        'Back Design URL': product.image_design_back,
+        'Variant ID': key=== 'PrintCare' ? product.sku_name : product.variant_id,
+        'Print area front': product.image_design_front,
+        'Print area back': product.image_design_back,
         'Mockup Front': '',
         'Mockup Back': '',
+        'Product note': product.note,
         'Link label': product.label,
       };
 

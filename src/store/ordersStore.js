@@ -9,6 +9,7 @@ export const useShopsOrder = create((set) => ({
   shippingServiceInfo: [],
   loading: false,
   loadingGetInfo: false,
+  loadingFulfillment: false,
   cancelTokenSource: null,
   packageBought: [],
   getAllOrders: async (id, onSuccess = () => {}, onFail = () => {}) => {
@@ -110,13 +111,13 @@ export const useShopsOrder = create((set) => ({
 
   getShippingDoc: async (id, body, onSuccess = () => {}, onFail = () => {}) => {
     try {
-      set({ loading: true });
+      set({ loadingFulfillment: true });
       const response = await RepositoryRemote.orders.getShippingDoc(id, body);
       onSuccess(response.data.data);
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
     }
-    set({ loading: false });
+    set({ loadingFulfillment: false });
   },
 
   getPackageBought: async (onSuccess = () => {}, onFail = () => {}) => {

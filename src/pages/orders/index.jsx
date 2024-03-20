@@ -46,6 +46,7 @@ function Orders() {
     packageBought,
     getShippingDoc,
     loading,
+    loadingFulfillment
   } = useShopsOrder((state) => state);
   const orderList = orders.length ? orders?.map((order) => order?.data?.order_list).flat() : [];
 
@@ -439,7 +440,7 @@ function Orders() {
         </Button>
         <Button type="primary" onClick={handleStartFulfillment}>
           Fulfillment
-          {loading && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
+          {loadingFulfillment && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
         </Button>
         <Button type="primary" onClick={handleCreateLabels} disabled={!orderSelected.length}>
           Create Label &nbsp;<span>({orderSelected.length})</span>
@@ -454,7 +455,7 @@ function Orders() {
         scroll={{ x: true }}
         columns={columns}
         dataSource={orderDataTable}
-        loading={loading}
+        loading={loading || loadingFulfillment}
         bordered
         pagination={{
           pageSize: 20,
