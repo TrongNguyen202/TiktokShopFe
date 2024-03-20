@@ -2,10 +2,10 @@ import { Space } from 'antd';
 import Search from 'antd/es/transfer/search';
 import { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { useDebounced } from '../../hooks/useDebounce';
+import { useDebounce } from '../../hooks/useDebounce';
 
 export default function SearchInput({ keyword, onChange, onSearch }) {
-  const keywordSearch = useDebounced(keyword, 500);
+  const keywordSearch = useDebounce(keyword, 500);
 
   useEffect(() => {
     onSearch(keyword);

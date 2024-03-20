@@ -1,7 +1,10 @@
 import { callApi } from '../apis';
 
-const getPromotions = (id, pageNumber) => {
-  return callApi(`/shops/${id}/promotions?page_number=${pageNumber}`, 'get');
+const getPromotions = (id, pageNumber, searchValue = '', filterStatus = undefined) => {
+  return callApi(
+    `/shops/${id}/promotions?page_number=${pageNumber}&title=${searchValue}${filterStatus && filterStatus !== 'all' ? `&status=${filterStatus}` : ''}`,
+    'get',
+  );
 };
 
 const getPromotionDetail = (shopId, promotionId) => {
