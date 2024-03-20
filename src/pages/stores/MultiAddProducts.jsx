@@ -98,6 +98,19 @@ function MultiAddProducts() {
             };
           });
         }
+        convertJson = convertJson.map((item) => {
+          const { images } = item;
+          const newImages = Object.keys(images).reduce((acc, key) => {
+            if (images[key]) {
+              acc[key] = images[key];
+            }
+            return acc;
+          }, {});
+          return {
+            ...item,
+            images: newImages,
+          };
+        });
         setProductsJSON(convertJson);
       };
       reader.readAsArrayBuffer(files);

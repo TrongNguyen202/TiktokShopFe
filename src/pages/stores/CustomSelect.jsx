@@ -21,32 +21,11 @@ const initialOptions = (optionsSelect, selectedDefault) => {
 export default function CustomSelect({ optionsSelect, type, onChange, selectedDefault }) {
   const [options, setOptions] = useState(initialOptions(optionsSelect, selectedDefault));
   const [valueTextAreas, setValueTextAreas] = useState('');
-  // const [valueInput, setValueInput] = useState('');
   const inputRef = useRef(null);
-
-  // const onChangeName = (event) => {
-  //   setValueInput(event.target.value);
-  // };
 
   const onChangeTextArea = (event) => {
     setValueTextAreas(event.target.value);
   };
-
-  // const addItem = (e) => {
-  //   e.preventDefault();
-  //   indexOption += 1;
-  //   setOptions([
-  //     ...options,
-  //     {
-  //       label: valueInput || `${type} ${indexOption}`,
-  //       value: valueInput || `${type} ${indexOption}`,
-  //     },
-  //   ]);
-  //   setValueInput('');
-  //   setTimeout(() => {
-  //     inputRef.current?.focus();
-  //   }, 0);
-  // };
 
   const addMultipleItem = (e) => {
     e.preventDefault();
@@ -62,6 +41,11 @@ export default function CustomSelect({ optionsSelect, type, onChange, selectedDe
           label: item || `${type} ${indexOption}`,
           value: item || `${type} ${indexOption}`,
         });
+      } else if (!values.find((option) => option === item)) {
+        values.push({
+          value: item,
+          label: item,
+        });
       }
     });
     onChange(values);
@@ -71,7 +55,6 @@ export default function CustomSelect({ optionsSelect, type, onChange, selectedDe
 
   const handleChangeSelect = (value) => {
     const convertValue = value && value.length ? value.map((item) => item.key) : [];
-    console.log('convertValue: ', convertValue);
     onChange(convertValue);
   };
 

@@ -38,10 +38,6 @@ const UserEdit = lazy(() => import('./pages/users/UserEdit'));
 const Account = lazy(() => import('./pages/account'));
 const PromotionFrom = lazy(() => import('./pages/promotions/PromotionForm'));
 const Promotion = lazy(() => import('./pages/promotions'));
-// const HomepageInterface = lazy(
-//   () => import("./pages/settings/homepageInterface")
-// );
-// const IdentityRequest = lazy(() => import("./pages/identityRequest/index.jsx"));
 const Crawl = lazy(() => import('./pages/crawl'));
 
 function PrivateRoute() {
