@@ -217,13 +217,9 @@ async def create_promotion(access_token: str, title: str, begin_time: int, end_t
             }
         )
 
-    response = add_or_update_promotion(access_token, promotion_id, product_list)
+    update_data = add_or_update_promotion(access_token, promotion_id, product_list)
 
-    data = response.json()
-    if (data["code"] != 0):
-        raise BadRequestException(data["message"])
-
-    return data["data"]
+    return update_data
 
 
 def add_or_update_promotion(access_token: str, promotion_id: int, product_list: list):
@@ -279,7 +275,7 @@ def deactivate_promotion(access_token: str, promotion_id: int):
     if (data["code"] != 0):
         raise BadRequestException(data["message"])
 
-    logger.debug("Promotion deactivated " + str(promotion_id))
+    logger.info("Promotion deactivated " + str(promotion_id))
 
     return data["data"]
 
