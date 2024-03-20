@@ -251,7 +251,6 @@ export default function Crawl() {
     productData.forEach((product) => {
       product.images = product.images.slice(0, optionCrawl.imagesLimit);
     });
-    console.log('productData: ', productData);
 
     // lấy danh sách id của sản phẩm để get thông tin sản phẩm
     const ids = productData.map((item) => item.id.split('.')[0]).join(',');
