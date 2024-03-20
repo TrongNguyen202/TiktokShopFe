@@ -32,8 +32,8 @@ export default function ProductItem({
     <div className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-md hover:shadow-blue-300 duration-300 hover:translate-y-[-5px]">
       <div className="w-[100%] h-[13vw] relative">
         <LazyLoadImage
-          src={product.images[0].url}
-          alt={product.title}
+          src={product?.images[0]?.url}
+          alt="Image main"
           className="w-full h-full object-cover cursor-pointer"
           onClick={() => setIsOpenModal(true)}
           loading="lazy"

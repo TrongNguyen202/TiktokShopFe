@@ -15,7 +15,6 @@ export default function ModalUploadProduct({ isShowModalUpload, setShowModalUplo
   const { getWarehousesByShopId, warehousesById, loadingWarehouse } = useWareHousesStore();
 
   const [productsJSON, setProductsJSON] = useState(productList);
-  console.log('productsJSON: ', productsJSON);
   const [templateJSON, setTemplateJSON] = useState();
   const [warehouseId, setWarehouseId] = useState();
   const [shopId, setShopId] = useState();
@@ -94,16 +93,7 @@ export default function ModalUploadProduct({ isShowModalUpload, setShowModalUplo
     }
 
     for (const item of productsJSON) {
-      const { sku, title, warehouse, images } = item;
-      // if (!sku || !title || !warehouse || !images) {
-      // if (!title || !image1) {
-      //   message.error(
-      //     "Excel file is not in the correct format: Missing required field sku, title, warehouse or images"
-      //   );
-      //   return false;
-      // }
-
-      // if (!sku?.trim() || !title?.trim() || !warehouse?.trim()) {
+      const { sku, title, images } = item;
       if (!title?.trim()) {
         message.error('title cannot be empty');
         return false;
@@ -256,7 +246,6 @@ export default function ModalUploadProduct({ isShowModalUpload, setShowModalUplo
       description,
       size_chart,
     };
-    console.log('dataSubmit: ', dataSubmit);
     const onSuccess = () => {
       const nameShop = stores.find((item) => item.id === shopId)?.shop_name;
       message.success(`Thêm sản phẩm vào shop ${nameShop} thành công`);
