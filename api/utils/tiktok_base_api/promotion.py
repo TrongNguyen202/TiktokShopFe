@@ -10,6 +10,8 @@ import requests
 from api.utils.tiktok_base_api import SIGN, TIKTOK_API_URL, app_key, logger, secret
 from tiktok.middleware import BadRequestException
 
+PROMOTION_SKUS_LIMIT = 3000
+
 semaphore = asyncio.Semaphore(10)
 
 async def limiter(func):
@@ -178,21 +180,17 @@ async def create_simple_promotion(access_token: str, title: str, begin_time: int
     return data["data"]
 
 
-async def create_promotion(access_token: str, title: str, begin_time: int, end_time: int, type: str, discount: int, product_type="SKU"):
+async def create_promotion_with_products(access_token: str, title: str, begin_time: int, end_time: str, type: str, discount: int, product_type: str, products = []):
     """
-    Create advanced promotion - deactivated all promotions before and create new one
+    Create promotion with products
     """
-    all_products = await get_all_no_promotion_products(access_token)
-
-    deactivate_all_promotions(access_token)
-
     new_promotion = await create_simple_promotion(access_token=access_token, title=title, begin_time=begin_time, end_time=end_time, type=type, product_type=product_type)  # noqa: E501
 
     promotion_id = new_promotion["promotion_id"]
     logger.info("Promotion created successfully  - " + promotion_id)
 
     product_list = []
-    for product in all_products:
+    for product in products:
         sku_list = []
         for sku in product["skus"]:
             skuData = {
@@ -223,10 +221,51 @@ async def create_promotion(access_token: str, title: str, begin_time: int, end_t
             }
         )
 
-    update_data = add_or_update_promotion(access_token, promotion_id, product_list)
+    add_or_update_promotion(access_token, promotion_id, product_list)
 
-    return update_data
+    return promotion_id
 
+
+async def create_promotion(access_token: str, title: str, begin_time: int, end_time: int, type: str, discount: int, product_type="SKU"):
+    """
+    Create advanced promotion - deactivated all promotions before and create new one
+    """
+    all_products = await get_all_no_promotion_products(access_token)
+
+    # new_promotion = await create_simple_promotion(access_token=access_token, title=title, begin_time=begin_time, end_time=end_time, type=type, discount=discount, product_type=product_type)  # noqa: E501
+
+    # Separate all_products into products_pack
+    products_pack = []
+    pack = []
+    pack_sku_count = 0
+
+    for product in all_products:
+        sku_count = len(product["skus"])
+        if pack_sku_count + sku_count <= PROMOTION_SKUS_LIMIT:
+            pack.append(product)
+            pack_sku_count += sku_count
+        else:
+            products_pack.append(pack)
+            pack = [product]
+            pack_sku_count = sku_count
+
+    if pack:  # Add the last pack if any remaining
+        products_pack.append(pack)
+
+    deactivate_all_promotions(access_token)
+
+    promotion_ids = []
+    for pack in products_pack:
+        promotion_id = await create_promotion_with_products(access_token=access_token, title=title, begin_time=begin_time, end_time=end_time, type=type, discount=discount, product_type=product_type, products=pack)  # noqa: E501
+        print(promotion_id)
+        promotion_ids.append(promotion_id)
+
+    return {"data": {
+        "promotion_ids": promotion_ids,
+        "count": len(promotion_ids),
+        "products_count": len(all_products),
+        "skus_count": sum([len(product["skus"]) for product in all_products]),
+    }}
 
 def add_or_update_promotion(access_token: str, promotion_id: int, product_list: list):
     """
