@@ -1,8 +1,6 @@
-// import { getMeta, store_code } from "../ut: ',
-
 export const constants = {
   // API_URL: 'http://app.folinas.com:9999/api',
-  API_URL: 'https://app.folinas.com:8080/api',
+  API_URL: import.meta.env.VITE_API_URL,
   // API_URL: 'http://127.0.0.1:8000' + '/api',
   API_TIKTOK_SHOP: 'https://auth.tiktok-shops.com/api',
   // STORE_CODE: store_code,
