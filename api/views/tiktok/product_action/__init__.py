@@ -206,6 +206,7 @@ class ProcessExcel(View):
 
     def post(self, request, shop_id):
         try:
+            logger.info(f'User {request.user} : Starting upload products by Excel')
             data = json.loads(request.body.decode('utf-8'))
 
             excel_data = data.get('excel', [])
@@ -241,33 +242,45 @@ class ProcessExcel(View):
             return HttpResponse({'error': str(e)}, status=400)
 
     def process_item(self, item, shop, category_id, warehouse_id, is_cod_open, package_height, package_length,
-                     package_weight, package_width, description, skus, size_chart):
-        images = item.get('images', [])
+                     package_weight, package_width, description, skus, size_chart) -> dict:
+        try:
+            images = item.get('images', [])
 
-        downloaded_image_paths = []
+            downloaded_image_paths = []
 
-        with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
-            image_futures = []
-            base64_images = []
+            with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
+                image_futures = []
+                base64_images = []
 
-            for key, image_url in images.items():
-                if image_url.startswith("https"):
-                    image_futures.append(executor.submit(self.download_image, image_url, key))
-                else:
-                    base64_images.append(image_url)
+                for key, image_url in images.items():
+                    if image_url.startswith("https"):
+                        image_futures.append(executor.submit(self.download_image, image_url, key))
+                    else:
+                        base64_images.append(image_url)
 
-            for future in image_futures:
-                result = future.result()
-                if result:
-                    downloaded_image_paths.append(result)
+                for future in image_futures:
+                    result = future.result()
+                    if result:
+                        downloaded_image_paths.append(result)
 
-        base_temp = self.process_images(downloaded_image_paths)
+            base_temp = self.process_images(downloaded_image_paths)
 
-        base_temp.extend(base64_images)
+            base_temp.extend(base64_images)
 
-        images_ids = self.upload_images(base_temp, shop)
-        self.create_product_fun(shop, item, category_id, warehouse_id, is_cod_open, package_height, package_length,
-                                package_weight, package_width, images_ids, description, skus, size_chart)
+            images_ids = self.upload_images(base_temp, shop)
+            result = self.create_product_fun(shop, item, category_id, warehouse_id, is_cod_open, package_height, package_length,
+                                             package_weight, package_width, images_ids, description, skus, size_chart)
+            return result
+
+        except Exception as e:
+            logger.error(f'Something wrong has happend when process item: {item.get("title", "")}', exc_info=True)
+
+            error_response = {
+                'status': 'error',
+                'message': f'Something wrong has happend when process item: {item.get("title", "")}: {str(e)}'
+            }
+
+            return error_response
 
     def download_image(self, image_url, col):
         if image_url:
@@ -329,8 +342,6 @@ class ProcessExcel(View):
         seller_sku = item.get('sku', '')
         for iteem in skus:
             iteem["seller_sku"] = seller_sku
-        if size_chart !="":
-            print("co size chart")
 
         product_object = objectcreate.ProductCreateMultiObject(
             is_cod_open=is_cod_open,
@@ -346,7 +357,33 @@ class ProcessExcel(View):
             size_chart=size_chart
         )
 
-        product.createProduct(shop.access_token, title, images_ids, product_object)
+        try:
+            response = product.createProduct(shop.access_token, title, images_ids, product_object)
+
+            data = response.json()
+
+            if data.get('data') is None:
+                msg = f'Something wrong happens when creating product: {title}, Shop: {shop.shop_name}'
+
+                return {
+                    'status': 'error',
+                    'message': msg,
+                    'data': response
+                }
+        except Exception as e:
+            msg = f"Something wrong happens when creating product: {title}, Shop: {shop.shop_name}: {str(e)}"
+            logger.error(msg, exc_info=True)
+            return {
+                'status': 'error',
+                'message': msg,
+                'data': None
+            }
+        else:
+            return {
+                'status': 'success',
+                'message': 'Create product successfully',
+                'data': response
+            }
 
 
 class EditProduct(APIView):

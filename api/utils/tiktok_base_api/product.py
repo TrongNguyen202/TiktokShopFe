@@ -262,9 +262,8 @@ def createProduct(access_token, title, images_ids, product_object):
     query_params["sign"] = sign
 
     response = requests.post(url, params=query_params, json=json.loads(body))
-    print(response.text)
 
-    return HttpResponse(response)
+    return response
 
 
 def callCreateOneProduct(access_token: str, product_object) -> requests.Response:
@@ -357,6 +356,7 @@ def callCreateOneProduct(access_token: str, product_object) -> requests.Response
     # logger.info(f'Create product response: {response.text}')
 
     return response
+
 
 def callUploadImage(access_token: str, img_data):
     try:
