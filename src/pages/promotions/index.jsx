@@ -1,109 +1,82 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Tabs, Row, Col, Card, Button, Select, Input, Table } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import PageTitle from '../../components/common/PageTitle';
 import { getPathByIndex } from '../../utils';
+import { alerts } from '../../utils/alerts';
+import { RepositoryRemote } from '../../services';
 
 const { Search } = Input;
 
-// define table
 const columns = [
   {
     title: 'Promotion name',
-    dataIndex: 'shipping_provider',
-    key: 'shipping_provider',
+    dataIndex: 'title',
+    key: 'title',
   },
   {
     title: 'Status',
-    dataIndex: 'shipping_provider',
-    key: 'shipping_provider',
+    dataIndex: 'status',
+    key: 'status',
   },
   {
     title: 'Start time(PST)',
-    dataIndex: 'shipping_provider',
-    key: 'shipping_provider',
+    dataIndex: 'begin_time',
+    key: 'begin_time',
   },
   {
     title: 'End time(PST)',
-    dataIndex: 'shipping_provider',
-    key: 'shipping_provider',
+    dataIndex: 'end_time',
+    key: 'end_time',
   },
   {
     title: 'Type',
-    dataIndex: 'shipping_provider',
-    key: 'shipping_provider',
+    dataIndex: 'promotion_type',
+    key: 'promotion_type',
   },
   {
     title: ' Action',
-    dataIndex: 'shipping_provider',
-    key: 'shipping_provider',
+    dataIndex: 'action',
+    key: 'action',
   },
 ];
 
 function Promotion() {
   const shopId = getPathByIndex(2);
   const navigate = useNavigate();
+  const [promotions, setPromotions] = useState([]);
 
-  const itemsManageTab = [
-    {
-      key: '1',
-      label: 'Tab 1',
-      children: (
-        <div className="w-full">
-          <Row className="mt-8">
-            <Col span={8}>
-              <Select
-                defaultValue="lucy"
-                style={{
-                  width: '90%',
-                }}
-                // onChange={handleChangeCategories}
-                options={[
-                  {
-                    value: 'jack',
-                    label: 'All promotional tools',
-                  },
-                  {
-                    value: 'lucy',
-                    label: 'Coupon',
-                  },
-                  {
-                    value: 'Yiminghe',
-                    label: 'Flash Deal',
-                  },
-                  {
-                    label: 'Shipping fee discount',
-                    value: 'Yiminghe',
-                  },
-                  {
-                    label: 'Product discount',
-                    value: 'Yiminghe',
-                  },
-                ]}
-              />
-            </Col>
-            <Col span={16}>
-              <Search placeholder="Enter promotion name" />
-            </Col>
-          </Row>
-          <div className="mt-8 pr-2">
-            <Table columns={columns} dataSource={[]} bordered pagination={{ pageSize: 100 }} />
-          </div>
-        </div>
-      ),
-    },
-    {
-      key: '2',
-      label: 'Tab 2',
-      children: 'Content of Tab Pane 2',
-    },
-    {
-      key: '3',
-      label: 'Tab 3',
-      children: 'Content of Tab Pane 3',
-    },
-  ];
+  useEffect(async () => {
+    const { data } = await RepositoryRemote.promotions.getPromotions(shopId, 1);
+    if (data.success === false) {
+      alerts.error(data.message);
+      return;
+    }
+
+    const promotions = data.promotion_list.map((promotion) => {
+      return {
+        ...promotion,
+        begin_time: new Date(promotion.begin_time * 1000).toLocaleString({
+          timeZone: 'America/Los_Angeles',
+        }),
+        end_time: new Date(promotion.end_time * 1000).toLocaleString({
+          timeZone: 'America/Los_Angeles',
+        }),
+        promotion_type: promotion.promotion_type === 3 ? 'Flash sale' : 'Discount',
+        status:
+          promotion.status === 1
+            ? 'Upcoming'
+            : promotion.status === 2
+              ? 'Ongoing'
+              : promotion.status === 3
+                ? 'Expired'
+                : 'Deactivated',
+      };
+    });
+
+    setPromotions(promotions);
+  }, []);
 
   const items = [
     {
@@ -148,7 +121,45 @@ function Promotion() {
       label: 'Manage your promotions',
       children: (
         <div className="w-full">
-          <Tabs defaultActiveKey="1" items={itemsManageTab} />
+          <Row className="mt-8">
+            <Col span={8}>
+              <Select
+                defaultValue="all"
+                style={{
+                  width: '90%',
+                }}
+                // onChange={handleChangeCategories}
+                options={[
+                  {
+                    value: 'all',
+                    label: 'All promotions',
+                  },
+                  // {
+                  //   value: 'Coupon',
+                  //   label: 'Coupon',
+                  // },
+                  {
+                    value: 'FlashSale',
+                    label: 'Flash Deal',
+                  },
+                  // {
+                  //   label: 'Shipping fee discount',
+                  //   value: 'Shipping',
+                  // },
+                  {
+                    label: 'Product discount',
+                    value: 'ProductDiscount',
+                  },
+                ]}
+              />
+            </Col>
+            <Col span={16}>
+              <Search placeholder="Enter promotion name" />
+            </Col>
+          </Row>
+          <div className="mt-8 pr-2">
+            <Table columns={columns} dataSource={promotions} bordered pagination={{ pageSize: 100 }} />
+          </div>
         </div>
       ),
     },
@@ -160,8 +171,8 @@ function Promotion() {
         <div>
           <PageTitle title="Promotion" showBack />
         </div>
-        <Row className="mt-8">
-          <Tabs defaultActiveKey="1" items={items} />
+        <Row className="mt-8 w-full">
+          <Tabs className="w-full" defaultActiveKey="1" items={items} />
         </Row>
       </Col>
     </Row>

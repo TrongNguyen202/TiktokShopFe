@@ -13,6 +13,7 @@ import { template } from './template';
 import { google } from './google';
 import { flashShip } from './flashShip';
 import { users } from './users';
+import { promotions } from './promotions';
 
 export const RepositoryRemote = {
   auth,
@@ -30,4 +31,5 @@ export const RepositoryRemote = {
   google,
   flashShip,
   users,
+  promotions,
 };

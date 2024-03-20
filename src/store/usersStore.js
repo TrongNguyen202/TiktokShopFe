@@ -31,7 +31,7 @@ export const useUsersStore = create((set, get) => ({
       const response = await RepositoryRemote.users.updateUser(data);
       const userId = data?.user_id;
       const newShopsByUser = get().shopsByUser;
-      const index = newShopsByUser.users.findIndex((item) => item.user_id == userId);
+      const index = newShopsByUser.users.findIndex((item) => item.user_id === userId);
       newShopsByUser.users[index] = data;
       console.log('newShopsByUser: ', newShopsByUser);
       set({ shopsByUser: newShopsByUser });

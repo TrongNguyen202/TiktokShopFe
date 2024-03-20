@@ -94,7 +94,7 @@ export const contactOrNumber = (data) => {
     .toString()
     .replace(/-/g, '')
     .toString();
-  if (newString == 0) {
+  if (newString === '0') {
     return '0đ';
   }
   return data;

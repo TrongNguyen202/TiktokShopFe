@@ -29,7 +29,7 @@ module.exports = {
     'no-use-before-define': 'off',
     'no-param-reassign': 'off',
     'no-return-assign': 'off',
-    eqeqeq: 'off',
+    // eqeqeq: 'off',
     'no-restricted-syntax': 'off',
     'prefer-destructuring': 'off',
     'no-unused-expressions': 'warn',

@@ -196,7 +196,7 @@ export default function Crawl() {
           return;
         }
         const combineProducts = productData.map((item) => {
-          const product = data.data.find((product) => item.id.split('.')[0] == product.listing_id);
+          const product = data.data.find((product) => item.id.split('.')[0] === product.listing_id);
           return {
             ...item,
             ...product,

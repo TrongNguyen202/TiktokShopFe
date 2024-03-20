@@ -133,7 +133,7 @@ function ProductInformation({ shopId, categories, brands, getAttributeValues }) 
               const getDefaultSelected = (id) => {
                 const categories = productById?.product_attributes;
                 if (!categories || !Array.isArray(categories)) return [];
-                const category = categories.find((item) => item.id == id);
+                const category = categories.find((item) => item.id === id);
                 if (category) {
                   return category.values.map((item) => ({
                     label: item.name,

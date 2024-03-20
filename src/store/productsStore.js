@@ -12,8 +12,8 @@ export const useProductsStore = create((set, get) => ({
     try {
       set({ loading: true });
       const response = await RepositoryRemote.products.getAllProducts(id, page_number);
-      if (response.data.message === 'seller is inactived') {
-        alerts.error('seller is inactived');
+      if (response.data.message === 'seller is inactivated') {
+        alerts.error('seller is inactivated');
         return;
       }
       set({ products: [...get().products, ...response.data.data.products] });

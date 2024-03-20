@@ -273,8 +273,8 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
     }
 
     newData.forEach((item) => {
-      const index = currentData.findIndex((el) => el.id == item.id);
-      if (index == -1) {
+      const index = currentData.findIndex((el) => el.id === item.id);
+      if (index === -1) {
         resultData.push(item);
       } else {
         resultData.push(currentData[index]);
