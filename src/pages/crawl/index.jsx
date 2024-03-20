@@ -1,9 +1,10 @@
-import { Button, Col, Input, Row, Select, message } from 'antd';
+import { Button, Col, Input, Row, Select, Upload, message } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import * as XLSX from 'xlsx';
-import { CloudUploadOutlined, CopyOutlined, DownloadOutlined } from '@ant-design/icons';
+import { CloudUploadOutlined, CopyOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons';
 import TextArea from 'antd/es/input/TextArea';
+import { v4 as uuidv4 } from 'uuid';
 import ModalUploadProduct from './ModalUploadProduct';
 import ProductItem from './ProductItem';
 import { senPrintsData } from '../../constants';
@@ -369,6 +370,53 @@ export default function Crawl() {
 
     document.body.removeChild(tempInput);
   };
+
+  const handleFileUpload = (file) => {
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      // chuyển đổi data từ file excel sang json
+      const data = event.target.result;
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+      let convertJson = [];
+      if (Array.isArray(jsonData) && jsonData.length) {
+        convertJson = jsonData.map((item) => {
+          const { sku, title, warehouse, description } = item;
+          const handleImages = (item) => {
+            const images = [];
+            for (let i = 1; i <= 9; i++) {
+              if (item[`image${i}`] || item[`images${i}`]) {
+                images.push({
+                  url: item[`image${i}`] || item[`images${i}`],
+                  id: uuidv4(),
+                });
+              }
+            }
+            return images;
+          };
+
+          return {
+            id: uuidv4(),
+            sku: sku || null,
+            title: title || null,
+            warehouse: warehouse || null,
+            description: description || null,
+            images: handleImages(item),
+          };
+        });
+      }
+      localStorage.setItem('productList', JSON.stringify(convertJson));
+      setProductList(convertJson);
+    };
+
+    reader.readAsArrayBuffer(file);
+    return false;
+  };
+
   return (
     <div>
       <div className="p-5 bg-[#F7F8F9]">
@@ -418,6 +466,12 @@ export default function Crawl() {
             onClick={() => copyToClipboard('https://www.etsy.com/search?q=shirt&ref=search_bar', 'link')}
           />
         </p>
+
+        <div className="my-6">
+          <Upload accept=".xlsx, .xls" beforeUpload={handleFileUpload} multiple={false}>
+            <Button icon={<UploadOutlined />}>Upload File</Button>
+          </Upload>
+        </div>
 
         <div className="flex items-center gap-4 mt-4">
           <div className="flex gap-2 items-center">
