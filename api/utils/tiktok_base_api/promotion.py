@@ -195,15 +195,21 @@ async def create_promotion(access_token: str, title: str, begin_time: int, end_t
     for product in all_products:
         sku_list = []
         for sku in product["skus"]:
-            sku_list.append(
-                {
+            skuData = {
                     # "discount": discount,
                     "num_limit": -1,
                     "user_limit": -1,
                     "product_id": product["id"],
-                    "promotion_price": round(float(sku["price"]["original_price"]) * (100 - discount) / 100, 2),
+                    # "promotion_price": round(float(sku["price"]["original_price"]) * (100 - discount) / 100, 2),
                     "sku_id": sku["id"],
                 }
+            if (type == 'FlashSale' or type == 'FixedPrice'):
+                skuData["promotion_price"] = round(float(sku["price"]["original_price"]) * (100 - discount) / 100, 2)
+            else :
+                skuData["discount"] = discount
+
+            sku_list.append(
+               skuData
             )
 
         product_list.append(
