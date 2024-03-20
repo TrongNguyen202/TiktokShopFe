@@ -1,6 +1,10 @@
-from ....serializers import TemplateSerializer, TemplatePutSerializer
+import logging
+
+from api import setup_logging
+from api.views import APIView, IsAuthenticated, Response, csrf_exempt, get_object_or_404, method_decorator, status
+
 from ....models import Templates
-from api.views import *
+from ....serializers import TemplatePutSerializer, TemplateSerializer
 
 logger = logging.getLogger('api.views.tiktok.template')
 setup_logging(logger, is_root=False, level=logging.INFO)
@@ -63,7 +67,7 @@ class TemplateList(APIView):  # đổi tên thành TemplateList
             template.delete()
             return Response({'message': 'Template deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
-            logger.error(f'Failed to delete template', exc_info=e)
+            logger.error('Failed to delete template', exc_info=e)
             return Response(
                 {
                     'status': 'error',

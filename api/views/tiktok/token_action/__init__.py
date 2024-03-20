@@ -1,7 +1,10 @@
-from ....models import Shop
+import logging
 
-from api.views import *
+from api import setup_logging
 from api.utils.tiktok_base_api import token
+from api.views import APIView, Response, get_object_or_404
+
+from ....models import Shop
 
 logger = logging.getLogger('api.views.token')
 setup_logging(logger, is_root=False, level=logging.INFO)

@@ -1,23 +1,23 @@
-from api.models import Categories
 from django.contrib import admin
+
+from api.models import Categories
+
 from .models import (
-    Shop,
-    Products,
-    CustomUser,
-    Image,
-    Templates,
-    FlashShipPODVariantList,
-    UserGroup,
-    GroupCustom,
     Brand,
-    UserShop,
     BuyedPackage,
+    CustomUser,
+    CustomUserSendPrint,
     DesignSku,
     DesignSkuChangeHistory,
+    FlashShipPODVariantList,
+    GroupCustom,
+    Image,
     Package,
-    CustomUserSendPrint
-
-
+    Products,
+    Shop,
+    Templates,
+    UserGroup,
+    UserShop,
 )
 
 

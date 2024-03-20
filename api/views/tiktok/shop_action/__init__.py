@@ -1,6 +1,12 @@
-from ....models import UserGroup, Shop, User, UserShop, CustomUserSendPrint
-from ....serializers import ShopSerializers, ShopRequestSerializers
-from api.views import *
+import logging
+
+from api import setup_logging
+from api.utils import constant
+from api.utils.tiktok_base_api import token
+from api.views import APIView, IsAuthenticated, ListAPIView, OpenApiParameter, Response, extend_schema, get_object_or_404, status
+
+from ....models import CustomUserSendPrint, Shop, User, UserGroup, UserShop
+from ....serializers import ShopRequestSerializers, ShopSerializers
 
 logger = logging.getLogger('api.views.tiktok.shop')
 setup_logging(logger, is_root=False, level=logging.INFO)
@@ -11,7 +17,7 @@ class Shops(APIView):
 
     def get_user_group(self, user):
         """
-            Lấy thông tin group (department) của user        
+            Lấy thông tin group (department) của user
         """
         try:
             user_group = UserGroup.objects.get(user=user)

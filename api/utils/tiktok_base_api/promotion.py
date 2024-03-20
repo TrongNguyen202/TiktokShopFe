@@ -1,12 +1,13 @@
 import asyncio
 import json
 import math
+import urllib.parse
 from datetime import datetime
 from uuid import uuid4
 
 import requests
 
-from api.utils.tiktok_base_api import *
+from api.utils.tiktok_base_api import SIGN, TIKTOK_API_URL, app_key, logger, secret
 from tiktok.middleware import BadRequestException
 
 semaphore = asyncio.Semaphore(10)

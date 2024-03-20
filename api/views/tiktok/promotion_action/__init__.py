@@ -1,7 +1,11 @@
-from asgiref.sync import async_to_sync
-from django.http import JsonResponse
+import json
+import logging
 
-from api.views import *
+from asgiref.sync import async_to_sync
+
+from api import setup_logging
+from api.utils.tiktok_base_api import promotion
+from api.views import APIView, JsonResponse, get_object_or_404
 
 from ....models import Shop
 
@@ -44,7 +48,7 @@ class CreatePromotionView(APIView):
 
 
 class AddOrUpdatePromotionView(APIView):
-    def post(self, request, shop_id: str):
+    def patch(self, request, shop_id: str):
         shop = get_object_or_404(Shop, id=shop_id)
         body_raw = request.body.decode("utf-8")
         promotion_data = json.loads(body_raw)

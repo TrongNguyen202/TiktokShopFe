@@ -1,15 +1,16 @@
-import time
-import hmac
 import hashlib
+import hmac
+import time
 from uuid import uuid4
-from ..models import CustomUser
-
-from tiktok.settings import EMAIL_HOST_USER
 
 from django.core.mail import send_mail
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+
+from tiktok.settings import EMAIL_HOST_USER
+
+from ..models import CustomUser
 
 
 def send_mail_verification(request, new_user):

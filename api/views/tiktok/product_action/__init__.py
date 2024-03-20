@@ -1,6 +1,31 @@
-from ....models import Shop, Categories, Brand
+import base64
+import json
+import logging
+import os
+import platform
+import uuid
+from concurrent.futures import ThreadPoolExecutor
 
-from api.views import *
+import requests
+from PIL import Image
+
+from api import helpers, setup_logging
+from api.utils import constant, objectcreate
+from api.utils.tiktok_base_api import product
+from api.views import (
+    APIView,
+    HttpResponse,
+    JsonResponse,
+    ObjectDoesNotExist,
+    Response,
+    View,
+    csrf_exempt,
+    get_object_or_404,
+    method_decorator,
+    status,
+)
+
+from ....models import Brand, Categories, Shop
 
 logger = logging.getLogger('api.views.tiktok.product')
 setup_logging(logger, is_root=False, level=logging.INFO)
@@ -212,7 +237,7 @@ class ProcessExcel(View):
         except ObjectDoesNotExist as e:
             return HttpResponse({'error': str(e)}, status=404)
         except Exception as e:
-            logger.error(f'Error when process excel file', exc_info=e)
+            logger.error('Error when process excel file', exc_info=e)
             return HttpResponse({'error': str(e)}, status=400)
 
     def process_item(self, item, shop, category_id, warehouse_id, is_cod_open, package_height, package_length,
@@ -223,7 +248,6 @@ class ProcessExcel(View):
 
         with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
             image_futures = []
-            fixed_images = []
             base64_images = []
 
             for key, image_url in images.items():
@@ -271,7 +295,7 @@ class ProcessExcel(View):
                 base64_data = base64.b64encode(img_data).decode("utf-8")
                 return base64_data
         except Exception as e:
-            logger.error(f"Error converting image to base64", exc_info=e)
+            logger.error("Error converting image to base64", exc_info=e)
             return None
 
     def process_images(self, downloaded_image_paths):

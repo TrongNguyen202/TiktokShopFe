@@ -1,4 +1,10 @@
-from api.utils.tiktok_base_api import *
+import json
+import urllib.parse
+
+import requests
+
+from api.utils.tiktok_base_api import SIGN, TIKTOK_API_URL, app_key, logger, secret
+from api.views import HttpResponse
 
 
 def callOrderList(access_token: str):
@@ -61,9 +67,9 @@ def callGetShippingDocument(access_token, order_id):
         "document_size": "A6"
     }
 
-    body = json.dumps({
-        "order_id": order_id
-    })
+    # body = json.dumps({
+    #     "order_id": order_id
+    # })
 
     sign = SIGN.cal_sign(
         secret=secret,

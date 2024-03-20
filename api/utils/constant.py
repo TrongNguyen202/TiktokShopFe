@@ -1,4 +1,3 @@
-import os
 
 secret = "df329e59a6f78121409d77c33ee1decfbfa088a4"
 app_key = "6atknvel13hna"
