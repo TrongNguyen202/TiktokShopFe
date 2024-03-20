@@ -3,7 +3,7 @@
 export const constants = {
   // API_URL: 'http://app.folinas.com:9999/api',
   API_URL: 'https://app.folinas.com:8080/api',
-  // API_URL: 'http://127.0.0.1:8000' + '/api',
+  // API_URL: 'https://4jzlk2v8-8000.asse.devtunnels.ms/api',
   API_TIKTOK_SHOP: 'https://auth.tiktok-shops.com/api',
   // STORE_CODE: store_code,
   LINK_STORE_CODE: 'https://services.tiktokshops.us/open/authorize?service_id=7310403104158238510',
@@ -17,8 +17,8 @@ export const constants = {
     'https://docs.google.com/spreadsheets/d/1b6wjVXQ-02jxvPGCXauiQX6_x-1oyrWn_CONOHw_c10/edit#gid=380793677',
   // DESIGN_SKU_FILES_GOOGLE_SHEET: 'https://docs.google.com/spreadsheets/d/1zo6it9m4wMeLJHg0JMIHuDMoHMiY2nFLbF6IlZo3qE8/edit#gid=0',
 
-  API_FLASH_SHIP: 'https://seller.flashship.net/seller-api',
-  // API_FLASH_SHIP: 'https://devpod.flashship.net/seller-api',
+  // API_FLASH_SHIP: 'https://seller.flashship.net/seller-api',
+  API_FLASH_SHIP: 'https://devpod.flashship.net/seller-api',
 };
 
 export const statusIdentity = {
