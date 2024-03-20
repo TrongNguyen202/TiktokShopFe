@@ -30,14 +30,22 @@ class Shops(APIView):
         responses=ShopSerializers,
     )
     def get(self, request):
-        # List ra các cửa hàng mà user đã đăng ký
-        user_shops = UserShop.objects.filter(user=request.user)
+        user = request.user
+        user_group = get_object_or_404(UserGroup, user=user)
 
-        user_shops = user_shops.filter(shop__is_active=True)
+        if user_group.role != 1:
+            user_shops = UserShop.objects.filter(user=request.user)
+            user_shops = user_shops.filter(shop__is_active=True)
+            shop_ids = [user_shop.shop_id for user_shop in user_shops]
+            shops = Shop.objects.filter(id__in=shop_ids)
+            serializer = ShopSerializers(shops, many=True)
+            return Response(serializer.data)
 
-        # Lấy ra thông tin của các cửa hàng
-        shop_ids = [user_shop.shop_id for user_shop in user_shops]
-        shops = Shop.objects.filter(id__in=shop_ids)
+        group_custom = user_group.group_custom
+        users_in_group = group_custom.usergroup_set.values_list('user', flat=True)
+
+        shops = Shop.objects.filter(usershop__user__in=users_in_group).distinct()
+
         serializer = ShopSerializers(shops, many=True)
         return Response(serializer.data)
 
