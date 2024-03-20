@@ -1,6 +1,4 @@
-
 import logging
-
 from django.contrib.auth.hashers import make_password
 
 from api import setup_logging
@@ -77,9 +75,9 @@ class AddUserToGroup(APIView):
 
             user_code = request.data.get('user_code', '')
             shop_ids = request.data.get('shops')
-            new_user = User.objects.create_user(username=username, password=password, email=email, first_name=firstname, last_name=lastname)
+            new_user = User.objects.get_or_create(username=username, password=password, email=email, first_name=firstname, last_name=lastname)
             if user_code:
-                CustomUserSendPrint.objects.create(user=new_user, user_code=user_code)
+                CustomUserSendPrint.objects.get_or_create(user=new_user, user_code=user_code)
 
             group_custom = user_group.group_custom
             UserGroup.objects.create(user=new_user, group_custom=group_custom, role=2)
@@ -134,33 +132,40 @@ class PermissionRole(APIView):
         data = request.data
         user_id = data.get('user_id')
         user = get_object_or_404(User, id=user_id)
-        try:
-            user_custom_senprint = CustomUserSendPrint.objects.get(user=user)
-        except CustomUserSendPrint.DoesNotExist:
-            user_custom_senprint = CustomUserSendPrint.objects.create(user=user)
 
+        # Cập nhật thông tin người dùng
         user.first_name = data.get('first_name', user.first_name)
         user.last_name = data.get('last_name', user.last_name)
         user.username = data.get('username', user.username)
         user.email = data.get('email', user.email)
 
         password = data.get('password')
-        if len(password) <= 60:
+        if password and len(password) <= 60:
             hashed_password = make_password(password)
             user.password = hashed_password
-        user.password = user.password
 
+        user.save()
+
+        # Cập nhật thông tin CustomUserSendPrint
+        user_custom_senprint, created = CustomUserSendPrint.objects.get_or_create(user=user)
         user_custom_senprint.user_code = data.get('user_code', user_custom_senprint.user_code)
-
         user_custom_senprint.save()
 
+        # Cập nhật danh sách cửa hàng của người dùng
         stores = data.get('shops', [])
+        user_shops = UserShop.objects.filter(user=user)
+        user_shop_ids = [user_shop.shop_id for user_shop in user_shops]
 
-        for store_id in stores:
-            UserShop.objects.get_or_create(user=user, shop_id=store_id)
+        for index, store_id in enumerate(stores):
+            if store_id not in user_shop_ids:
+                UserShop.objects.create(user=user, shop_id=store_id)
+
+        # Xóa các cửa hàng không cần thiết
+        user_shops.exclude(shop_id__in=stores).delete()
+
+        # Cập nhật trạng thái hoạt động của người dùng
         user.is_active = data.get('is_active', True)
         user.save()
-        print("hhhh", user.is_active)
 
         return Response({"message": "User information updated successfully."})
 
