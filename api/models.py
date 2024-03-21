@@ -9,11 +9,13 @@ from api.utils import constant
 
 class CustomUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    verify_token = models.CharField(("Verify token"), max_length=255, null=True)
+    verify_token = models.CharField(
+        ("Verify token"), max_length=255, null=True)
 
 
 class GroupCustom(models.Model):
-    group_name = models.CharField(null=False, help_text='ten cua phong ban', max_length=500, default='chua co ten')
+    group_name = models.CharField(
+        null=False, help_text='ten cua phong ban', max_length=500, default='chua co ten')
 
 
 class UserGroup(models.Model):
@@ -36,13 +38,15 @@ class UserGroup(models.Model):
 
 
 class Shop(models.Model):
-    shop_code = models.CharField(null=False, help_text='Shop id lấy từ shop code', max_length=500, default='')
+    shop_code = models.CharField(
+        null=False, help_text='Shop id lấy từ shop code', max_length=500, default='')
     access_token = models.CharField(null=False, max_length=500)
     refresh_token = models.CharField(null=True, max_length=500)
     auth_code = models.CharField(null=False, max_length=500)
     grant_type = models.CharField(default="authorized_code", max_length=500)
     shop_name = models.CharField(max_length=500)
-    group_custom_id = models.ForeignKey(GroupCustom, on_delete=models.SET_NULL,  null=True)
+    group_custom_id = models.ForeignKey(
+        GroupCustom, on_delete=models.SET_NULL,  null=True)
     objects = models.Manager()
     is_active = models.BooleanField(default=True)
 
@@ -52,8 +56,10 @@ class Image(models.Model):
 
 
 class AppKey(models.Model):
-    app_key = models.CharField(null=False, help_text='App key lấy từ tiktok app for developer', max_length=500, default='')
-    secret = models.CharField(null=False, help_text='App secret lấy từ tiktok app for developer', max_length=500, default='')
+    app_key = models.CharField(
+        null=False, help_text='App key lấy từ tiktok app for developer', max_length=500, default='')
+    secret = models.CharField(
+        null=False, help_text='App secret lấy từ tiktok app for developer', max_length=500, default='')
 
 
 class Categories(models.Model):
@@ -98,17 +104,23 @@ class Products(models.Model):
 
 
 class BuyedPackage(models.Model):
-    package_id = models.CharField(null=False, max_length=500, help_text='Package_id da duoc buy label')
+    package_id = models.CharField(
+        null=False, max_length=500, help_text='Package_id da duoc buy label')
 
 
 class DesignSku(models.Model):
     sku_id = models.CharField(null=False, max_length=500, help_text='SKU ID')
-    product_name = models.CharField(null=False, max_length=500, help_text='product_name')
-    variation = models.CharField(null=False, max_length=500, help_text='variation')
-    image_front = models.CharField(null=True, max_length=500, help_text='image_front', blank=True)
-    image_back = models.CharField(null=True, max_length=500, help_text='image_back', blank=True)
+    product_name = models.CharField(
+        null=False, max_length=500, help_text='product_name')
+    variation = models.CharField(
+        null=False, max_length=500, help_text='variation')
+    image_front = models.CharField(
+        null=True, max_length=500, help_text='image_front', blank=True)
+    image_back = models.CharField(
+        null=True, max_length=500, help_text='image_back', blank=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL,  null=True)
-    department = models.ForeignKey(GroupCustom, on_delete=models.SET_NULL,  null=True)
+    department = models.ForeignKey(
+        GroupCustom, on_delete=models.SET_NULL,  null=True)
 
 
 class DesignSkuChangeHistory(models.Model):
@@ -132,7 +144,8 @@ class FlashShipPODVariantList(models.Model):
     variant_id = models.IntegerField()
     color = models.CharField(max_length=500)
     size = models.CharField(max_length=200)
-    product_type = models.CharField(max_length=20, choices=PRODUCT_TYPE_CHOICES)
+    product_type = models.CharField(
+        max_length=20, choices=PRODUCT_TYPE_CHOICES)
 
     def __str__(self):
         return f"{self.variant_id} - {self.color} - {self.size} - {self.product_type}"
@@ -147,7 +160,8 @@ class Package(models.Model):
     buyer_address1 = models.CharField(max_length=1000, blank=True, null=True)
     buyer_address2 = models.CharField(max_length=1000, blank=True)
     buyer_city = models.CharField(max_length=500, blank=True, null=True)
-    buyer_province_code = models.CharField(max_length=20, blank=True, null=True)
+    buyer_province_code = models.CharField(
+        max_length=20, blank=True, null=True)
     buyer_zip = models.CharField(max_length=100, blank=True, null=True)
     buyer_country_code = models.CharField(max_length=2, null=True)
     shipment = models.IntegerField(null=True)
@@ -157,10 +171,13 @@ class Package(models.Model):
 
 
 class ProductPackage(models.Model):
-    package = models.ForeignKey(Package, related_name='products', on_delete=models.SET_NULL, null=True)
+    package = models.ForeignKey(
+        Package, related_name='products', on_delete=models.SET_NULL, null=True)
     variant_id = models.CharField(null=True, blank=True, max_length=500)
-    printer_design_front_url = models.CharField(max_length=1000, blank=True, null=True)
-    printer_design_back_url = models.CharField(max_length=1000, blank=True, null=True)
+    printer_design_front_url = models.CharField(
+        max_length=1000, blank=True, null=True)
+    printer_design_back_url = models.CharField(
+        max_length=1000, blank=True, null=True)
     quantity = models.IntegerField(null=True, blank=True)
     note = models.CharField(max_length=1000, blank=True, null=True)
 

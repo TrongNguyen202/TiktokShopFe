@@ -27,9 +27,11 @@ class AddUsertoGroup(APIView):
             firstname = request.data.get('first_name')
             lastname = request.data.get('last_name')
             shop_ids = request.data.get('shops')
-            new_user = User.objects.create_user(username=username, password=password, email=email, first_name=firstname, last_name=lastname)
+            new_user = User.objects.create_user(
+                username=username, password=password, email=email, first_name=firstname, last_name=lastname)
             group_custom = user_group.group_custom
-            UserGroup.objects.create(user=new_user, group_custom=group_custom, role=2)
+            UserGroup.objects.create(
+                user=new_user, group_custom=group_custom, role=2)
             if shop_ids:  # Check if shop_ids is provided and not empty
                 for shop_id in shop_ids:
                     UserShop.objects.create(user=new_user, shop_id=shop_id)
@@ -69,20 +71,37 @@ class AddUserToGroup(APIView):
             if not user_group.role == 1:
                 return JsonResponse({"status": 404, "error": "you don't have permission to do this bro"}, status=404)
             username = request.data.get('username')
+            print(f"==>> username: {username}")
             password = request.data.get('password')
+            print(f"==>> password: {password}")
             firstname = request.data.get('first_name')
+            print(f"==>> firstname: {firstname}")
             lastname = request.data.get('last_name')
-
+            print(f"==>> lastname: {lastname}")
+            email = request.data.get('email', "folinas@gmail.com")
+            print(f"==>> email: {email}")
             user_code = request.data.get('user_code', '')
+            print(f"==>> user_code: {user_code}")
             shop_ids = request.data.get('shops')
-            new_user = User.objects.get_or_create(username=username, password=password, first_name=firstname, last_name=lastname)
+            print(f"==>> shop_ids: {shop_ids}")
+            new_user = User.objects.get_or_create(
+                username=username, password=password, first_name=firstname, email=email, last_name=lastname)
+            print(f"==>> new_user: {new_user}")
+            print(new_user[0].id)
             if user_code:
-                CustomUserSendPrint.objects.get_or_create(user=new_user, user_code=user_code)
+                CustomUserSendPrint.objects.get_or_create(
+                    user=new_user[0], user_code=user_code)
 
             group_custom = user_group.group_custom
-            UserGroup.objects.create(user=new_user, group_custom=group_custom, role=2)
-            for shop_id in shop_ids:
-                UserShop.objects.create(user=new_user, shop_id=shop_id)
+            UserGroup.objects.get_or_create(
+                user=new_user[0], group_custom=group_custom, role=2)
+
+            if shop_ids:
+                for shop_id in shop_ids:
+                    result = UserShop.objects.get_or_create(
+                        user=new_user[0], shop_id=shop_id)
+
+                    print(result[0].shop.shop_name)
 
             return JsonResponse({"status": 201, "message": "User added to group successfully."}, status=201)
         except ObjectDoesNotExist:
@@ -147,8 +166,10 @@ class PermissionRole(APIView):
         user.save()
 
         # Cập nhật thông tin CustomUserSendPrint
-        user_custom_senprint, created = CustomUserSendPrint.objects.get_or_create(user=user)
-        user_custom_senprint.user_code = data.get('user_code', user_custom_senprint.user_code)
+        user_custom_senprint, created = CustomUserSendPrint.objects.get_or_create(
+            user=user)
+        user_custom_senprint.user_code = data.get(
+            'user_code', user_custom_senprint.user_code)
         user_custom_senprint.save()
 
         # Cập nhật danh sách cửa hàng của người dùng
