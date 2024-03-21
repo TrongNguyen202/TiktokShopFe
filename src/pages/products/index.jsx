@@ -157,7 +157,11 @@ function Products() {
     };
 
     getAllProducts(shopId, pageNumber, onSuccess, onFail);
-  }, [shopId, pageNumber]);
+
+    return () => {
+      resetProductById();
+    };
+  }, []);
 
   return (
     <div className="p-3 md:p-10">

@@ -24,7 +24,7 @@ export default function StoreDetail() {
   const { getStoreById, storeById } = useShopsStore((state) => state);
 
   useEffect(() => {
-    const onSuccess = (res) => console.log(res);
+    const onSuccess = () => { };
     const onFail = (err) => {
       alerts.error(err);
     };

@@ -4,6 +4,7 @@ import { removeToken } from '../utils/auth';
 
 export const useAuthStore = create((set) => ({
   tokenInfo: {},
+  profile: {},
   loading: false,
   login: async (form, onSuccess, onFail) => {
     try {
@@ -70,6 +71,7 @@ export const useAuthStore = create((set) => ({
     try {
       set({ loading: true });
       const response = await RepositoryRemote.auth.getProfileInfo();
+      set({ profile: response.data });
       onSuccess(response);
     } catch (error) {
       onFail(error);
