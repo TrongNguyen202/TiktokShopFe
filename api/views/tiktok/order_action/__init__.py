@@ -49,19 +49,32 @@ class OrderDetail(APIView):
     def get(self, request, shop_id):
         shop = get_object_or_404(Shop, id=shop_id)
         access_token = shop.access_token
-        responseOrderList = order.callOrderList(access_token=access_token)
+
+        responseOrderList = order.callOrderList(access_token=access_token, cursor="")
         data = []
 
         if responseOrderList.json()["data"]["total"] == 0:
             content = {"code": 200, "data": {"order_list": []}, "message": "Success"}
         else:
             orders = responseOrderList.json()["data"]["order_list"]
+
             orderIds = [order["order_id"] for order in orders]
 
-            for i in range(0, len(orderIds), 50):
-                chunk_ids = orderIds[i : i + 50]
-                response = order.callOrderDetail(access_token=access_token, orderIds=chunk_ids)
-                data.append(response.json())
+            while responseOrderList.json()["data"]["more"]:
+                next_cursor = responseOrderList.json()["data"]["next_cursor"]
+                responseOrderList = order.callOrderList(access_token=access_token, cursor=next_cursor)
+                new_orders = responseOrderList.json()["data"]["order_list"]
+                orderIds.extend([order["order_id"] for order in new_orders])
+
+            with ThreadPoolExecutor(max_workers=40) as executor:
+                futures = []
+                for i in range(0, len(orderIds), 50):
+                    chunk_ids = orderIds[i: i + 50]
+                    futures.append(executor.submit(order.callOrderDetail, access_token=access_token, orderIds=chunk_ids))
+
+                for future in futures:
+                    response = future.result()
+                    data.append(response.json())
 
         if not data:
             content = {"code": 200, "data": {"order_list": []}, "message": "Success"}
@@ -417,7 +430,8 @@ class DesignSkuSearch(APIView):
             designskus = designskus.filter(department_id=group_id)
 
         if search_query:
-            designskus = designskus.filter(Q(sku_id__icontains=search_query) | Q(product_name__icontains=search_query) | Q(variation__icontains=search_query))
+            designskus = designskus.filter(Q(sku_id__icontains=search_query) | Q(
+                product_name__icontains=search_query) | Q(variation__icontains=search_query))
 
         paginator = self.pagination_class()
         result_page = paginator.paginate_queryset(designskus, request)
@@ -536,7 +550,8 @@ class ToShipOrderAPI(APIView):
 
             # Check the response from TikTok API
             if order_details.get("data") is None:
-                error_response = {"status": "error", "message": f'Có lỗi xảy ra khi gọi API OrderDetail: {order_details.get("message")}', "data": None}
+                error_response = {"status": "error", "message": f'Có lỗi xảy ra khi gọi API OrderDetail: {
+                    order_details.get("message")}', "data": None}
                 return error_response
             else:
                 order_details["ocr_result"] = process_pdf_to_info(file_path)

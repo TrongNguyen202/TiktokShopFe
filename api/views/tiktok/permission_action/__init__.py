@@ -70,13 +70,12 @@ class AddUserToGroup(APIView):
                 return JsonResponse({"status": 404, "error": "you don't have permission to do this bro"}, status=404)
             username = request.data.get('username')
             password = request.data.get('password')
-            email = request.data.get('email')
             firstname = request.data.get('first_name')
             lastname = request.data.get('last_name')
 
             user_code = request.data.get('user_code', '')
             shop_ids = request.data.get('shops')
-            new_user = User.objects.get_or_create(username=username, password=password, email=email, first_name=firstname, last_name=lastname)
+            new_user = User.objects.get_or_create(username=username, password=password, first_name=firstname, last_name=lastname)
             if user_code:
                 CustomUserSendPrint.objects.get_or_create(user=new_user, user_code=user_code)
 
