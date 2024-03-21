@@ -89,7 +89,8 @@ class CreateOneProduct(APIView):
             futures = [executor.submit(product.callUploadImage, access_token, img_data) for img_data in base64_images]
 
             for idx, future in enumerate(futures):
-                logger.info(f'User {self.request.user}: Upload image [{idx} | {len(futures)}] result: {future.result()}', exc_info=True)
+                logger.info(
+                    f'User {self.request.user}: Upload image [{idx} | {len(futures)}] result: {future.result()}', exc_info=True)
                 img_id = future.result()
                 if img_id:
                     images_ids.append(img_id)
@@ -248,7 +249,7 @@ class ProcessExcel(View):
 
         with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
             image_futures = []
-            fixed_images = []
+            # fixed_images = []
             base64_images = []
 
             for key, image_url in images.items():
@@ -284,7 +285,8 @@ class ProcessExcel(View):
 
                 return image_filename
             else:
-                logger.error(f"Failed to download image: {image_url}, Status code: {response.status_code}", exc_info=True)
+                logger.error(
+                    f"Failed to download image: {image_url}, Status code: {response.status_code}", exc_info=True)
                 return None
 
     def convert_to_base64(self, image_path):
@@ -296,7 +298,7 @@ class ProcessExcel(View):
                 base64_data = base64.b64encode(img_data).decode("utf-8")
                 return base64_data
         except Exception as e:
-            logger.error(f"Error converting image to base64", exc_info=e)
+            logger.error("Error converting image to base64", exc_info=e)
             return None
 
     def process_images(self, downloaded_image_paths):
@@ -317,7 +319,8 @@ class ProcessExcel(View):
     def upload_images(self, base64_images, shop):
         # Sử dụng ThreadPoolExecutor để thực hiện đa luồng cho các công việc upload ảnh
         with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
-            futures = [executor.submit(product.callUploadImage, access_token=shop.access_token, img_data=img_data) for img_data in base64_images]
+            futures = [executor.submit(product.callUploadImage, access_token=shop.access_token,
+                                       img_data=img_data) for img_data in base64_images]
 
             # Chờ cho tất cả các future kết thúc và lấy kết quả
             images_ids = [future.result() for future in futures if future.result()]

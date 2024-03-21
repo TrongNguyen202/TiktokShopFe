@@ -70,7 +70,8 @@ class OrderDetail(APIView):
                 futures = []
                 for i in range(0, len(orderIds), 50):
                     chunk_ids = orderIds[i: i + 50]
-                    futures.append(executor.submit(order.callOrderDetail, access_token=access_token, orderIds=chunk_ids))
+                    futures.append(executor.submit(order.callOrderDetail,
+                                   access_token=access_token, orderIds=chunk_ids))
 
                 for future in futures:
                     response = future.result()
@@ -121,7 +122,8 @@ class ShippingService(APIView):
         print("data_inner", data_inner)
         shipping_services = data_inner.get("shipping_service_info", [])
 
-        simplified_shipping_services = [{"id": service.get("id"), "name": service.get("name")} for service in shipping_services]
+        simplified_shipping_services = [
+            {"id": service.get("id"), "name": service.get("name")} for service in shipping_services]
 
         response_data = {
             "data": simplified_shipping_services,
@@ -372,7 +374,8 @@ class DesignSkuDetailAPIView(APIView):
                 user = request.user if request.user.is_authenticated else None
                 changed_at = datetime.now()
 
-                DesignSkuChangeHistory.objects.create(design_sku=designsku, user=user, change_data=old_data, changed_at=changed_at)
+                DesignSkuChangeHistory.objects.create(
+                    design_sku=designsku, user=user, change_data=old_data, changed_at=changed_at)
                 return Response("DesignSku updated successfully.", status=status.HTTP_200_OK)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -460,7 +463,8 @@ class ShippingDoc(APIView):
             # để thực hiện đồng thời
             futures = []
             for package_id in package_ids:
-                futures.append(executor.submit(order.callGetShippingDoc, package_id=package_id, access_token=access_token))
+                futures.append(executor.submit(order.callGetShippingDoc,
+                               package_id=package_id, access_token=access_token))
 
             # Thu thập kết quả từ các future và thêm vào danh sách doc_urls
             for future in futures:
@@ -522,7 +526,8 @@ class ToShipOrderAPI(APIView):
             response = requests.get(doc_url)
         except Exception as e:
             logger.error("Error when downloading PDF file", exc_info=e)
-            error_response = {"status": "error", "message": f"Có lỗi xảy ra khi tải file PDF label: {str(e)}", "data": None}
+            error_response = {"status": "error",
+                              "message": f"Có lỗi xảy ra khi tải file PDF label: {str(e)}", "data": None}
             return error_response
 
         if response.status_code == 200:
@@ -550,8 +555,11 @@ class ToShipOrderAPI(APIView):
 
             # Check the response from TikTok API
             if order_details.get("data") is None:
-                error_response = {"status": "error", "message": f'Có lỗi xảy ra khi gọi API OrderDetail: {
-                    order_details.get("message")}', "data": None}
+                error_response = {
+                    "status": "error",
+                    "message": f'Có lỗi xảy ra khi gọi API OrderDetail: {order_details.get("message")}',
+                    "data": None
+                }
                 return error_response
             else:
                 order_details["ocr_result"] = process_pdf_to_info(file_path)
