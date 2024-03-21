@@ -18,6 +18,10 @@ jobs:
           docker stop tiktokshop-folinas-fe || true
           docker rm tiktokshop-folinas-fe || true
 
+      - name: Copy .env file to the root of the project
+        run: |
+          cp ~/actions-runner/.env .env
+
       - name: Build the Docker image
         run: |
           docker build -t tiktokshop-folinas-fe .

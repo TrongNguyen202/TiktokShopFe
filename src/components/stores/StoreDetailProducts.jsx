@@ -7,7 +7,7 @@ import StoreDetailSectionTitle from './StoreDetailSectionTitle';
 
 function StoreDetailProducts({ shopId }) {
   const navigate = useNavigate();
-  const { getAllProducts, infoTable } = useProductsStore((state) => state);
+  const { getAllProducts, infoTable, resetProductById } = useProductsStore((state) => state);
 
   useEffect(() => {
     const onSuccess = () => {};
@@ -16,6 +16,9 @@ function StoreDetailProducts({ shopId }) {
     };
 
     getAllProducts(shopId, 1, onSuccess, onFail);
+    return () => {
+      resetProductById();
+    };
   }, [shopId]);
 
   return (

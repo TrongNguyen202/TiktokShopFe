@@ -6,6 +6,7 @@ import PageTitle from '../../components/common/PageTitle';
 import { getPathByIndex } from '../../utils';
 import { alerts } from '../../utils/alerts';
 import { RepositoryRemote } from '../../services';
+import { usePromotionsStore } from '../../store/promotionsStore';
 
 const { Search } = Input;
 
@@ -45,12 +46,14 @@ const columns = [
 function Promotion() {
   const shopId = getPathByIndex(2);
   const navigate = useNavigate();
-  const [promotions, setPromotions] = useState([]);
+  const [promotionsData, setPromotionsData] = useState([]);
+  // const [promotions, getPromotions, loading] = usePromotionsStore((state) => state);
 
-  useEffect(async () => {
+  const getPromotions = async () => {
     const { data } = await RepositoryRemote.promotions.getPromotions(shopId, 1);
     if (data.success === false) {
       alerts.error(data.message);
+
       return;
     }
 
@@ -75,8 +78,18 @@ function Promotion() {
       };
     });
 
-    setPromotions(promotions);
+    setPromotionsData(promotions);
+  };
+
+  useEffect(() => {
+    // getPromotions(shopId);
+
+    getPromotions();
   }, []);
+
+  // useEffect(() => {
+  //   setPromotionsData(promotions);
+  // }, [promotions]);
 
   const items = [
     {
@@ -158,7 +171,7 @@ function Promotion() {
             </Col>
           </Row>
           <div className="mt-8 pr-2">
-            <Table columns={columns} dataSource={promotions} bordered pagination={{ pageSize: 100 }} />
+            <Table columns={columns} dataSource={promotionsData} bordered pagination={{ pageSize: 100 }} />
           </div>
         </div>
       ),

@@ -100,6 +100,6 @@ export const useProductsStore = create((set, get) => ({
     set({ loading: false });
   },
   resetProductById: () => {
-    set({ productById: {} });
+    set({ productById: {}, infoTable: {} });
   },
 }));

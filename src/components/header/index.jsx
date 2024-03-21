@@ -7,9 +7,8 @@ import { useAuthStore } from '../../store/authStore';
 import { StyledHeader } from './Index.style';
 
 function Header({ collapsed, changeCollapsed }) {
-  const { getProfileInfo } = useAuthStore();
+  const { profile } = useAuthStore();
   const { logOut } = useAuthStore((state) => state);
-  const profile = JSON.parse(localStorage.getItem('user'));
   const items = [
     { key: 'link-to-profile', label: <Link to="/account">Tài khoản</Link> },
     {
@@ -21,17 +20,6 @@ function Header({ collapsed, changeCollapsed }) {
       ),
     },
   ];
-
-  useEffect(() => {
-    const onSuccess = (res) => {
-      localStorage.setItem('user', JSON.stringify(res.data));
-    };
-    const onFail = (err) => {
-      console.log(err);
-    };
-
-    getProfileInfo(onSuccess, onFail);
-  }, []);
 
   return (
     <StyledHeader>
