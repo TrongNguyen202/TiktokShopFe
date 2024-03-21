@@ -9,6 +9,7 @@ import { useCategoriesStore } from '../../store/categoriesStore';
 import ProductSectionTitle from './ProuctSectionTitle';
 import CustomSelect from '../../pages/stores/CustomSelect';
 import { useProductsStore } from '../../store/productsStore';
+import ProductEditCustomSelect from './ProductEditCustomSelect';
 
 function ProductInformation({ shopId, categories, brands, getAttributeValues }) {
   const [valueDescription, setValueDescription] = useState('');
@@ -150,10 +151,13 @@ function ProductInformation({ shopId, categories, brands, getAttributeValues }) 
                     {itemAttributeSelect.includes(item.id) ? (
                       <Select style={{ width: '100%' }} options={optionAttribute} />
                     ) : (
-                      <CustomSelect
+                        <ProductEditCustomSelect
                         optionsSelect={optionAttribute}
                         type={item.name}
                         selectedDefault={getDefaultSelected(item.id) || []}
+                          onChange={(value) => {
+                            console.log(value);
+                          }}
                       />
                     )}
                   </Form.Item>

@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { Button, Input, Popconfirm, Space, Table, Tooltip, message } from 'antd';
+import { Button, Col, Input, Popconfirm, Row, Space, Table, Tag, Tooltip, message } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -25,7 +25,6 @@ function Users() {
       user_id: userId,
       is_active: false,
     };
-    console.log('dataUpdate: ', dataUpdate);
     const onSuccess = (res) => {
       getShopByUser();
       if (res) {
@@ -62,15 +61,23 @@ function Users() {
       title: 'Shops quản lý',
       key: 'shops',
       dataIndex: 'shops',
-      render: (_, record) =>
-        record.shops.map((item, index) => (
-          <>
-            {index !== 0 && ', '}
-            <Link to={`/shops/${item.id}`} key={index} target="_blank">
-              {item.name}
+      render: (_, record) => (
+        <Row key={record.id} gutter={[8, 8]}>
+          {record.shops.map((item, index) => (
+            <Link
+              to={`/shops/${item.id}`}
+              key={index}
+              target="_blank"
+              title={item.name}
+              className="text-[#0e2482] font-medium cursor-pointer line-clamp-1"
+            >
+              <Tag color="blue">
+                {index + 1}. {item.name}
+              </Tag>
             </Link>
-          </>
-        )),
+          ))}
+        </Row>
+      ),
     },
     {
       title: 'Mã nhân viên',
