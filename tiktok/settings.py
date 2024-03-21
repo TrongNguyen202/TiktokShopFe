@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+
 import os
 from datetime import timedelta
 from pathlib import Path
@@ -26,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DEV_MODE")
 
 ALLOWED_HOSTS = []
 
@@ -46,23 +47,18 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "widget_tweaks",
     "corsheaders",
-
 ]
 
 MIDDLEWARE = [
-
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
-
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-
     "corsheaders.middleware.CorsMiddleware",
-
-    "tiktok.middleware.BadRequestMiddleware"
+    "tiktok.middleware.BadRequestMiddleware",
 ]
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -79,7 +75,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-
             ],
         },
     },
@@ -89,22 +84,22 @@ WSGI_APPLICATION = "tiktok.wsgi.application"
 
 
 CORS_ORIGIN_WHITELIST = (
-    'http://localhost:8000',
-    'http://localhost:5174',
-    'https://open-api.tiktokglobalshop.com',
-    'http://localhost:9999',
-    'http://app.folinas.com',
-    'https://app.folinas.com',
+    "http://localhost:8000",
+    "http://localhost:5174",
+    "https://open-api.tiktokglobalshop.com",
+    "http://localhost:9999",
     "http://app.folinas.com",
-    'https://folinas.vercel.app',
-    'http://localhost:3000',
-    'https://auth.tiktok-shops.com'
-
-
-
-
+    "https://app.folinas.com",
+    "http://app.folinas.com",
+    "https://folinas.vercel.app",
+    "http://localhost:3000",
+    "https://auth.tiktok-shops.com",
+    "http://dev.folinas.com:8000",
+    "http://seller.folinas.com:8000",
+    "https://seller.folinas.com:8000",
+    "https://dev.folinas.com:8000",
 )
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 
 
 # Database
@@ -185,9 +180,7 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
 }
 
 SPECTACULAR_SETTINGS = {
