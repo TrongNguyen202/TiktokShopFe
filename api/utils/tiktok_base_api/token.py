@@ -1,4 +1,8 @@
-from api.utils.tiktok_base_api import *
+import json
+
+import requests
+
+from api.utils.tiktok_base_api import TIKTOK_API_URL, app_key, logger, secret
 
 
 def getAccessToken(auth_code: str) -> requests.Response:
@@ -11,14 +15,15 @@ def getAccessToken(auth_code: str) -> requests.Response:
         'grant_type': 'authorized_code'
     })
 
-    resposne = requests.post(
+    response = requests.post(
         url=url,
         json=json.loads(body)
     )
 
-    logger.info(f'Get access token status code: {resposne.status_code}')
+    logger.info(f'Get access token status code: {response.status_code}')
+    print(response)
 
-    return resposne
+    return response
 
 
 def refreshToken(refresh_token: str) -> requests.Response:

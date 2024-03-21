@@ -1,4 +1,11 @@
-from api.utils.tiktok_base_api import *
+import json
+import logging
+import urllib.parse
+
+import requests
+
+from api.utils.tiktok_base_api import SIGN, TIKTOK_API_URL, app_key, logger, secret
+from api.views import HttpResponse
 
 
 # Liệt kê danh sách sản phẩm của shop
@@ -196,81 +203,67 @@ def getAttributes(access_token: str, category_id: str) -> requests.Response:
     return response
 
 
-def createProduct(access_token: str, title: str, images_ids: list, product_object):
-    """
-        Use with batch create product (With Excel file)
-    """
+def createProduct(access_token, title, images_ids, product_object):
     url = TIKTOK_API_URL['url_create_product']
-
     query_params = {
-        'app_key': app_key,
-        'access_token': access_token,
-        'timestamp': SIGN.get_timestamp()
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp(),
+
     }
+    if product_object.size_chart is None:
+        product_object.size_chart = ""
 
-    images_list = [{'id': image_id} for image_id in images_ids]
-
+    images_list = [{"id": image_id} for image_id in images_ids]
     skus_list = []
-
     for sku in product_object.skus:
         sales_attributes_list = [
             {
-                'attribute_id': attr.attribute_id,
-                'attribute_name': attr.attribute_name,
-                'custom_value': attr.custom_value
-
+                "attribute_id": attr.attribute_id,
+                "attribute_name": attr.attribute_name,
+                "custom_value": attr.custom_value,
             } for attr in sku.sales_attributes
         ]
-
         stock_infos_list = [
             {
-                'warehouse_id': info.warehouse_id,
-                'available_stock': info.available_stock
+                "warehouse_id": info.warehouse_id,
+                "available_stock": info.available_stock
             } for info in sku.stock_infos
         ]
-
         skus_list.append({
-            'sales_attributes': sales_attributes_list,
-            'original_price': sku.original_price,
-            'stock_infos': stock_infos_list
+            "sales_attributes": sales_attributes_list,
+            "original_price": sku.original_price,
+            "stock_infos": stock_infos_list,
+            "seller_sku": sku.seller_sku
         })
 
-    body_json = {
-        'product_name': title,
-        'images': images_list,
-        'is_cod_open': product_object.is_cod_open,
-        'package_dimension_unit': 'metric',
-        'package_height': product_object.package_height,
-        'package_length': product_object.package_length,
-        'package_weight': product_object.package_weight,
-        'package_width': product_object.package_width,
-        'category_id': product_object.category_id,
-        'description': product_object.description or '',
-        'skus': skus_list
+    bodyjson = {
+        "product_name": title,
+        "images": images_list,
+        "is_cod_open": product_object.is_cod_open,
+        "package_dimension_unit": "imperial",
+        "package_height": product_object.package_height,
+        "package_length": product_object.package_length,
+        "package_weight": product_object.package_weight,
+        "package_width": product_object.package_width,
+        "category_id": product_object.category_id,
+
+        "description": product_object.description or "",
+        "skus": skus_list,
+
     }
+    if product_object.size_chart != "" and product_object.size_chart is not None:
+        size_chart_id = callUploadImage(access_token=access_token, img_data=product_object.size_chart)
+        bodyjson["size_chart"] = {"img_id": size_chart_id}
 
-    body = json.dumps(body_json)
+    body = json.dumps(bodyjson)
 
-    sign = SIGN.cal_sign(
-        secret=secret,
-        url=urllib.parse.urlparse(url),
-        query_params=query_params,
-        body=body
-    )
+    sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
+    query_params["sign"] = sign
 
-    query_params['sign'] = sign
+    response = requests.post(url, params=query_params, json=json.loads(body))
 
-    response = requests.post(
-        url=url,
-        params=query_params,
-        json=json.loads(body)
-    )
-
-    logger.info(f'Create product status code: {response.status_code}')
-    # logger.info(f'Create product response: {response.text}')
-    print(response.text)
-
-    return HttpResponse(response)
+    return response
 
 
 def callCreateOneProduct(access_token: str, product_object) -> requests.Response:
@@ -365,42 +358,6 @@ def callCreateOneProduct(access_token: str, product_object) -> requests.Response
     return response
 
 
-def categoryRecommend(access_token: str, product_name: str) -> requests.Response:
-    url = TIKTOK_API_URL['url_get_category_recommend']
-
-    query_params = {
-        'app_key': app_key,
-        'access_token': access_token,
-        'timestamp': SIGN.get_timestamp()
-    }
-
-    body_json = {
-        'product_name': product_name,
-    }
-
-    body = json.dumps(body_json)
-
-    sign = SIGN.cal_sign(
-        secret=secret,
-        url=urllib.parse.urlparse(url),
-        query_params=query_params,
-        body=body
-    )
-
-    query_params['sign'] = sign
-
-    response = requests.post(
-        url=url,
-        params=query_params,
-        json=json.loads(body)
-    )
-
-    logger.info(f'Category recommend status code: {response.status_code}')
-    # logger.info(f'Category recommend response: {response.text}')
-
-    return response
-
-
 def callUploadImage(access_token: str, img_data):
     try:
         url = TIKTOK_API_URL['url_upload_image']
@@ -442,7 +399,7 @@ def callUploadImage(access_token: str, img_data):
             logger.error(f'Error when upload image: {response.text}')
             return ''
     except Exception as e:
-        logging.error(f'Error when upload image', exc_info=e)
+        logging.error('Error when upload image', exc_info=e)
         return ''
 
 
@@ -548,7 +505,7 @@ def callGetAttribute(access_token, category_id):
         response_data = response.json()
         return response_data
     except Exception as e:
-        logging.error(f'Error when get attribute', exc_info=e)
+        logging.error('Error when get attribute', exc_info=e)
         return None
 
 

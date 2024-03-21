@@ -1,6 +1,31 @@
-from ....models import Shop, Categories, Brand
+import base64
+import json
+import logging
+import os
+import platform
+import uuid
+from concurrent.futures import ThreadPoolExecutor
 
-from api.views import *
+import requests
+from PIL import Image
+
+from api import helpers, setup_logging
+from api.utils import constant, objectcreate
+from api.utils.tiktok_base_api import product
+from api.views import (
+    APIView,
+    HttpResponse,
+    JsonResponse,
+    ObjectDoesNotExist,
+    Response,
+    View,
+    csrf_exempt,
+    get_object_or_404,
+    method_decorator,
+    status,
+)
+
+from ....models import Brand, Categories, Shop
 
 logger = logging.getLogger('api.views.tiktok.product')
 setup_logging(logger, is_root=False, level=logging.INFO)
@@ -64,7 +89,8 @@ class CreateOneProduct(APIView):
             futures = [executor.submit(product.callUploadImage, access_token, img_data) for img_data in base64_images]
 
             for idx, future in enumerate(futures):
-                logger.info(f'User {self.request.user}: Upload image [{idx} | {len(futures)}] result: {future.result()}', exc_info=True)
+                logger.info(
+                    f'User {self.request.user}: Upload image [{idx} | {len(futures)}] result: {future.result()}', exc_info=True)
                 img_id = future.result()
                 if img_id:
                     images_ids.append(img_id)
@@ -212,7 +238,7 @@ class ProcessExcel(View):
         except ObjectDoesNotExist as e:
             return HttpResponse({'error': str(e)}, status=404)
         except Exception as e:
-            logger.error(f'Error when process excel file', exc_info=e)
+            logger.error('Error when process excel file', exc_info=e)
             return HttpResponse({'error': str(e)}, status=400)
 
     def process_item(self, item, shop, category_id, warehouse_id, is_cod_open, package_height, package_length,
@@ -223,7 +249,7 @@ class ProcessExcel(View):
 
         with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
             image_futures = []
-            fixed_images = []
+            # fixed_images = []
             base64_images = []
 
             for key, image_url in images.items():
@@ -238,11 +264,8 @@ class ProcessExcel(View):
                     downloaded_image_paths.append(result)
 
         base_temp = self.process_images(downloaded_image_paths)
-        print("len base_temp", len(base_temp))
-        print("len image_base64", len(base64_images))
-        base_temp.extend(base64_images)
 
-        print("len all", len(base64_images))
+        base_temp.extend(base64_images)
 
         images_ids = self.upload_images(base_temp, shop)
         self.create_product_fun(shop, item, category_id, warehouse_id, is_cod_open, package_height, package_length,
@@ -262,7 +285,8 @@ class ProcessExcel(View):
 
                 return image_filename
             else:
-                logger.error(f"Failed to download image: {image_url}, Status code: {response.status_code}", exc_info=True)
+                logger.error(
+                    f"Failed to download image: {image_url}, Status code: {response.status_code}", exc_info=True)
                 return None
 
     def convert_to_base64(self, image_path):
@@ -274,7 +298,7 @@ class ProcessExcel(View):
                 base64_data = base64.b64encode(img_data).decode("utf-8")
                 return base64_data
         except Exception as e:
-            logger.error(f"Error converting image to base64", exc_info=e)
+            logger.error("Error converting image to base64", exc_info=e)
             return None
 
     def process_images(self, downloaded_image_paths):
@@ -295,7 +319,8 @@ class ProcessExcel(View):
     def upload_images(self, base64_images, shop):
         # Sử dụng ThreadPoolExecutor để thực hiện đa luồng cho các công việc upload ảnh
         with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
-            futures = [executor.submit(product.callUploadImage, access_token=shop.access_token, img_data=img_data) for img_data in base64_images]
+            futures = [executor.submit(product.callUploadImage, access_token=shop.access_token,
+                                       img_data=img_data) for img_data in base64_images]
 
             # Chờ cho tất cả các future kết thúc và lấy kết quả
             images_ids = [future.result() for future in futures if future.result()]
@@ -308,6 +333,8 @@ class ProcessExcel(View):
         seller_sku = item.get('sku', '')
         for iteem in skus:
             iteem["seller_sku"] = seller_sku
+        if size_chart != "":
+            print("co size chart")
 
         product_object = objectcreate.ProductCreateMultiObject(
             is_cod_open=is_cod_open,

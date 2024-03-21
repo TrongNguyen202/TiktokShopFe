@@ -1,6 +1,6 @@
 
-from googleapiclient.discovery import build
 from google.oauth2 import service_account
+from googleapiclient.discovery import build
 
 # Thông tin xác thực từ tệp JSON bạn đã tải xuống
 SERVICE_ACCOUNT_FILE = 'api/utils/google/googledriverconfig.json'
@@ -18,17 +18,17 @@ def authenticate():
     creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
     return creds
 
-def upload_pdf(file_path, order_id):
-    creds = authenticate()
-    service = build('drive', 'v3', credentials=creds)
-    file_metadata = {
-        'name': order_id,
-        'parents': [PARENT_FOLDER_ID]
-    }
-    file = service.files().create(
-        body=file_metadata,
-        media_body=file_path
-    ).execute()
+# def upload_pdf(file_path, order_id):
+#     creds = authenticate()
+#     service = build('drive', 'v3', credentials=creds)
+#     file_metadata = {
+#         'name': order_id,
+#         'parents': [PARENT_FOLDER_ID]
+#     }
+#     file = service.files().create(
+#         body=file_metadata,
+#         media_body=file_path
+#     ).execute()
 
 # upload_pdf("testpdf2.pdf")
 
@@ -55,7 +55,7 @@ def search_file(file_name):
                 'link': f"https://drive.google.com/file/d/{file['id']}"
             }
             search_results.append(file_info)
-            
+
 
     return search_results
 

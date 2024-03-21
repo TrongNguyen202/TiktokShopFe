@@ -1,6 +1,12 @@
-from ....models import UserGroup, Shop, User, UserShop
-from ....serializers import ShopSerializers, ShopRequestSerializers
-from api.views import *
+import logging
+
+from api import setup_logging
+from api.utils import constant
+from api.utils.tiktok_base_api import token
+from api.views import APIView, IsAuthenticated, ListAPIView, OpenApiParameter, Response, extend_schema, get_object_or_404, status
+
+from ....models import CustomUserSendPrint, Shop, User, UserGroup, UserShop
+from ....serializers import ShopRequestSerializers, ShopSerializers
 
 logger = logging.getLogger('api.views.tiktok.shop')
 setup_logging(logger, is_root=False, level=logging.INFO)
@@ -11,7 +17,7 @@ class Shops(APIView):
 
     def get_user_group(self, user):
         """
-            Lấy thông tin group (department) của user        
+            Lấy thông tin group (department) của user
         """
         try:
             user_group = UserGroup.objects.get(user=user)
@@ -24,12 +30,25 @@ class Shops(APIView):
         responses=ShopSerializers,
     )
     def get(self, request):
-        # List ra các cửa hàng mà user đã đăng ký
-        user_shops = UserShop.objects.filter(user=request.user)
+        user = request.user
+        user_group = get_object_or_404(UserGroup, user=user)
 
-        # Lấy ra thông tin của các cửa hàng
-        shop_ids = [user_shop.shop_id for user_shop in user_shops]
-        shops = Shop.objects.filter(id__in=shop_ids)
+        if user_group.role != 1:
+            user_shops = UserShop.objects.filter(user=request.user)
+            user_shops = user_shops.filter(shop__is_active=True)
+            shop_ids = [user_shop.shop_id for user_shop in user_shops]
+            shops = Shop.objects.filter(id__in=shop_ids)
+
+            serializer = ShopSerializers(shops, many=True)
+            return Response(serializer.data)
+
+        group_custom = user_group.group_custom
+        users_in_group = group_custom.usergroup_set.values_list(
+            'user', flat=True)
+
+        shops = Shop.objects.filter(
+            usershop__user__in=users_in_group, is_active=True).distinct()
+
         serializer = ShopSerializers(shops, many=True)
         return Response(serializer.data)
 
@@ -61,14 +80,16 @@ class Shops(APIView):
         else:
             logger.error(f'User {request.user}: Get access token failed: {response.text}')
             return Response(
-                {'error': 'Failed to retrieve access_token or refresh_token from the response', 'detail': response.text},
+                {'error': 'Failed to retrieve access_token or refresh_token from the response',
+                    'detail': response.text},
                 status=response.status_code
             )
 
         if not access_token or not refresh_token:
             logger.error(f'User {request.user}: Get access token failed: {response.text}')
             return Response(
-                {'error': 'Failed to retrieve access_token or refresh_token from the response', 'detail': response.text},
+                {'error': 'Failed to retrieve access_token or refresh_token from the response',
+                    'detail': response.text},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
@@ -82,7 +103,8 @@ class Shops(APIView):
             'refresh_token': refresh_token,
             'shop_name': shop_name,
             'shop_code': shop_code,
-            'group_custom_id': group_custom.id
+            'group_custom_id': group_custom.id,
+            'is_active': True
         }
 
         shop_serializer = ShopSerializers(data=shop_data)
@@ -204,7 +226,8 @@ class UserShopList(APIView):
             return Response({"message": "User does not belong to any group."}, status=404)
 
         group_custom = users_groups.group_custom
-        user_shops_data = {"group_id": group_custom.id, "group_name": group_custom.group_name, "users": []}
+        user_shops_data = {"group_id": group_custom.id,
+                           "group_name": group_custom.group_name, "users": []}
 
         for user_group in group_custom.usergroup_set.filter(role__in=[1, 2]):
             user_data = {
@@ -214,14 +237,29 @@ class UserShopList(APIView):
                 "last_name": user_group.user.last_name,
                 "password": user_group.user.password,
                 "email": user_group.user.email,
+                "user_code": None,
                 "shops": []
             }
+            custom_user = CustomUserSendPrint.objects.filter(
+                user=user_group.user).first()
+            if custom_user:
+                user_data["user_code"] = custom_user.user_code
 
-            user_shops = UserShop.objects.filter(user=user_group.user, shop__group_custom_id=group_custom.id)
-            for user_shop in user_shops:
-                user_data["shops"].append({"id": user_shop.shop.id, "name": user_shop.shop.shop_name})
+            user_shops = UserShop.objects.filter(
+                user=user_group.user, shop__group_custom_id=group_custom.id)
+            for user_shop in user_shops.filter(shop__is_active=True):
+                user_data["shops"].append(
+                    {"id": user_shop.shop.id, "name": user_shop.shop.shop_name})
 
             user_shops_data["users"].append(user_data)
+
+        # Filter out users with is_active = False
+        user_shops_data["users"] = [user_data for user_data in user_shops_data["users"]
+                                    if User.objects.get(id=user_data["user_id"]).is_active]
+
+        # Sort users by creation date in descending order (newest first)
+        user_shops_data["users"].sort(key=lambda x: User.objects.get(
+            id=x["user_id"]).date_joined, reverse=True)
 
         return Response({"data": user_shops_data})
 

@@ -1,42 +1,36 @@
-from django.db import transaction
-from django.db.utils import IntegrityError
-from django.utils.http import urlsafe_base64_decode
-from django.utils.encoding import force_str
-from django.utils.decorators import method_decorator
-from django.forms.models import model_to_dict
-from django.shortcuts import get_object_or_404
-from django.http import FileResponse
-from django.http import HttpResponse, JsonResponse
-from django.views.generic import View
-from django.views.decorators.csrf import csrf_exempt
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q
-
-from drf_spectacular.utils import extend_schema, OpenApiParameter
-
-from rest_framework.permissions import AllowAny
-from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.pagination import PageNumberPagination
-
-from api.utils.tiktok_base_api import product, token, order
-import api.utils.constant as constant
-import api.utils.objectcreate as objectcreate
-import api.helpers as helpers
-from api import setup_logging
-
-from concurrent.futures import ThreadPoolExecutor
-from PIL import Image
-
 import os
-import uuid
-import requests
-import json
-import logging
-import traceback
-import base64
 import platform
-import pandas as pd
+
+from django.core.exceptions import ObjectDoesNotExist as ObjectDoesNotExist
+from django.db import transaction as transaction
+from django.db.models import Q as Q
+from django.db.utils import IntegrityError as IntegrityError
+from django.forms.models import model_to_dict as model_to_dict
+from django.http import FileResponse as FileResponse
+from django.http import HttpResponse as HttpResponse
+from django.http import JsonResponse as JsonResponse
+from django.shortcuts import get_object_or_404 as get_object_or_404
+from django.utils.decorators import method_decorator as method_decorator
+from django.utils.encoding import force_str as force_str
+from django.utils.http import urlsafe_base64_decode as urlsafe_base64_decode
+from django.views import View as View
+from django.views.decorators.csrf import csrf_exempt as csrf_exempt
+from drf_spectacular.utils import OpenApiParameter as OpenApiParameter
+from drf_spectacular.utils import extend_schema as extend_schema
+from rest_framework import status as status
+from rest_framework.generics import ListAPIView as ListAPIView
+from rest_framework.pagination import PageNumberPagination as PageNumberPagination
+from rest_framework.permissions import AllowAny as AllowAny
+from rest_framework.permissions import IsAuthenticated as IsAuthenticated
+from rest_framework.response import Response as Response
+from rest_framework.views import APIView as APIView
+
+from api.utils import constant
+
+if platform.system() == "Windows":
+    dirs_to_setup = [constant.PDF_DIRECTORY_WINDOW, constant.DOWNLOAD_IMAGES_DIR_WINDOW]
+else:
+    dirs_to_setup = [constant.PDF_DIRECTORY_UNIX, constant.DOWNLOAD_IMAGES_DIR_UNIX]
+
+for dir_to_setup in dirs_to_setup:
+    os.makedirs(dir_to_setup, exist_ok=True)

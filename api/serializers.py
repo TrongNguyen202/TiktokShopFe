@@ -1,10 +1,20 @@
 
-from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
+from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+
 from .helpers import check_token
-from .models import *
+from .models import (
+    BuyedPackage,
+    DesignSku,
+    FlashShipPODVariantList,
+    GroupCustom,
+    Package,
+    ProductPackage,
+    Shop,
+    Templates,
+)
 
 
 class SignUpSerializers(serializers.ModelSerializer):
@@ -141,3 +151,30 @@ class FlashShipPODVariantListSerializer(serializers.ModelSerializer):
     class Meta:
         model = FlashShipPODVariantList
         fields = ['variant_id', 'color', 'size', 'product_type']
+
+
+class ProductPackageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductPackage
+        fields = ['quantity', 'variant_id', 'note', 'printer_design_front_url', 'printer_design_back_url']
+        extra_kwargs = {
+            'printer_design_front_url': {'allow_blank': True, 'required': False},
+            'printer_design_back_url': {'allow_blank': True, 'required': False}
+        }
+
+
+class PackageSerializer(serializers.ModelSerializer):
+    products = ProductPackageSerializer(many=True)
+
+    class Meta:
+        model = Package
+        fields = ['order_id', 'buyer_first_name', 'buyer_last_name', 'buyer_email', 'buyer_phone',
+                  'buyer_address1', 'buyer_address2', 'buyer_city', 'buyer_province_code', 'buyer_zip',
+                  'buyer_country_code', 'shipment', 'linkLabel', 'products', 'fulfillment_name', 'shop']
+
+    def create(self, validated_data):
+        products_data = validated_data.pop('products')
+        package = Package.objects.create(**validated_data)
+        for product_data in products_data:
+            ProductPackage.objects.create(package=package, **product_data)
+        return package

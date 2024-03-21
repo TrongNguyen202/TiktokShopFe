@@ -15,7 +15,6 @@ from pathlib import Path
 
 from decouple import config
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -62,6 +61,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 
     "corsheaders.middleware.CorsMiddleware",
+
+    "tiktok.middleware.BadRequestMiddleware"
 ]
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -95,6 +96,10 @@ CORS_ORIGIN_WHITELIST = (
     'http://app.folinas.com',
     'https://app.folinas.com',
     "http://app.folinas.com",
+    'https://folinas.vercel.app',
+    'http://localhost:3000',
+    'https://auth.tiktok-shops.com'
+
 
 
 
@@ -225,4 +230,4 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
-DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800
+DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800000000

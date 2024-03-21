@@ -1,8 +1,11 @@
-from ....models import User
-from ....helpers import send_mail_verification  # TODO: Chuyển helpers vào trong utils
-from ....serializers import SignUpSerializers, VerifySerializers
+import logging
 
-from api.views import *
+from api import setup_logging
+from api.views import AllowAny, APIView, Response, extend_schema, force_str, model_to_dict, status, transaction, urlsafe_base64_decode
+
+from ....helpers import send_mail_verification  # TODO: Chuyển helpers vào trong utils
+from ....models import User
+from ....serializers import SignUpSerializers, VerifySerializers
 
 logger = logging.getLogger('api.views.tiktok.auth')
 setup_logging(logger, is_root=False, level=logging.INFO)

@@ -1,19 +1,19 @@
+import base64
+import hashlib
+import hmac
 import io
-from PIL import Image
+from datetime import datetime
 from uuid import uuid4
 
 from django.core.mail import send_mail
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
-
-from tiktok.settings import EMAIL_HOST_USER
-from api.models import CustomUser
-import hmac
-import hashlib
-from datetime import datetime
-import base64
 from PIL import Image, WebPImagePlugin
+
+from api.models import CustomUser
+from tiktok.settings import EMAIL_HOST_USER
+
 WebPImageFile = WebPImagePlugin.WebPImageFile
 
 
@@ -82,16 +82,6 @@ class GenerateSignNoBody:
         sign_string += secret
         signature = hmac.new(secret.encode(), sign_string.encode(), hashlib.sha256).hexdigest()
         return signature
-
-
-def is_webp_image_without_bits(img):
-
-    if isinstance(img, WebPImageFile):
-        try:
-            bits = img.bits
-        except AttributeError:
-            return True
-    return False
 
 
 class AttributeValue:
@@ -226,5 +216,5 @@ def convert_to_rgb(img_data):
         buffered = io.BytesIO()
         rgb_image.save(buffered, format="JPEG")
         return base64.b64encode(buffered.getvalue()).decode('utf-8')
-    except Exception as e:
+    except Exception:
         return None
