@@ -326,14 +326,14 @@ function Orders() {
         record.package_list.length > 0 ? record.package_list[0].package_id : 'Hiện chưa có package ID',
       // eslint-disable-next-line consistent-return
       onCell: (record, index) => {
-        const rowSpanData = orderDataTable.filter((item) => item.package_id === record.package_id);
+        const rowSpanData = orderDataTable.filter((item) => item.package_id === record.package_id && item.package_id !== null);
         const orderIdRowSpanData = rowSpanData.map((item) => {
           return {
             ...item,
             order_position: item.order_id === record.order_id ? index : null,
-            key: item.order_id === record.order_id ? item.key : '',
+            // key: item.order_id === record.order_id ? item.key : '',
           };
-        });
+        });            
 
         if (rowSpanData.length > 1) {
           if (index === orderIdRowSpanData[0].order_position) {
@@ -343,6 +343,10 @@ function Orders() {
           }
           return {
             rowSpan: 0,
+          };
+        } else {
+          return {
+            rowSpan: 1,
           };
         }
       },
@@ -419,15 +423,7 @@ function Orders() {
   ];
 
   useEffect(() => {
-    const onSuccess = (res) => {
-      console.log(res);
-    };
-
-    const onFail = (err) => {
-      console.log(err);
-    };
-
-    getAllOrders(shopId, onSuccess, onFail);
+    getAllOrders(shopId);
     getPackageBought();
   }, [location.state]);
 

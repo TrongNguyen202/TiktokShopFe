@@ -44,4 +44,15 @@ export const useFlashShipStores = create((set) => ({
     }
     set({ loading: false });
   },
+
+  cancelOrderFlashShip: async (body, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true });
+      const response = await RepositoryRemote.flashShip.cancelOrderFlashShip(body);
+      onSuccess(response);
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
+    }
+    set({ loading: false });
+  },
 }));

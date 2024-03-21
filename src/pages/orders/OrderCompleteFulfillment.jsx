@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Table, Button, Tooltip, Popconfirm, Modal, Form, Input, message } from 'antd';
+import { Table, Button, Tooltip, Popconfirm, Modal, Form, Input, message, Tag } from 'antd';
 import { DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 
 import { getPathByIndex } from '../../utils';
@@ -17,7 +17,7 @@ function OrderCompleteFulfillment() {
   const [dataPackage, setDataPackage] = useState([]);
   const [openLoginFlashShip, setOpenLoginFlashShip ] = useState(false);
   const { packageFulfillmentCompleted, getAllOrders, orders } = useShopsOrder((state) => state);
-  const { LoginFlashShip, detailOrderFlashShip } = useFlashShipStores((state) => state);
+  const { LoginFlashShip, detailOrderFlashShip, cancelOrderFlashShip } = useFlashShipStores((state) => state);
 
   const dataTableFlashShip = dataPackage.filter((item) => item.fulfillment_name === 'FlashShip');
   const dataTablePrintCare = dataPackage.filter((item) => item.fulfillment_name === 'PrintCare');
@@ -34,11 +34,11 @@ function OrderCompleteFulfillment() {
     const packageOrders = orderListHasPackageId.filter((order) => order.package_list[0].package_id === packageId);
 
     return (
-      <ul>
+      <ul className="flex flex-wrap">
         {packageOrders.map((item) => (
           <li key={item.order_id} className="mb-4">
             <Link to={`/shops/${shopId}/orders/${item.order_id}`} state={{ orderData: item }} className="font-medium">
-              {item.order_id}
+              <Tag color="blue">{item.order_id}</Tag>
             </Link>
           </li>
         ))}
@@ -67,7 +67,7 @@ function OrderCompleteFulfillment() {
     LoginFlashShip(values, onSuccess, onFail)
   }
 
-  const handleDetailFlashShip = (id) => {
+  const handleDetailFlashShip = (orderCode) => {
     const onSuccess = (res) => {
       console.log(res);
     }
@@ -75,7 +75,16 @@ function OrderCompleteFulfillment() {
     const onFail = (err) => {
       console.log(err);
     }
-    detailOrderFlashShip(id, onSuccess, onFail)
+    detailOrderFlashShip(orderCode, onSuccess, onFail)
+  }
+
+  const handleCancelOrderFlashShip = (orderCode) => {
+    const data = {
+      "orderCodeList": [orderCode],
+      "rejectNote": "wrong design"
+    }
+
+    cancelOrderFlashShip(data, () => {}, () => {})
   }
   
   const generateColumns = (showActionsColumn) => {
@@ -171,13 +180,13 @@ function OrderCompleteFulfillment() {
               <Button
                 size="small"
                 icon={<EyeOutlined />}
-                onClick={() => handleDetailFlashShip(record.order_id)}
+                onClick={() => handleDetailFlashShip(record.order_code)}
               />
             </Tooltip>
             <Popconfirm
               placement="topRight"
               title="Bạn có thực sự muốn huỷ đơn này"
-              onConfirm={() => {}}
+              onConfirm={() => handleCancelOrderFlashShip(record.order_code)}
             >
               <Tooltip title="Huỷ đơn" color="red">
                 <Button size="small" icon={<DeleteOutlined />} danger />

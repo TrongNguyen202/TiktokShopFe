@@ -18,8 +18,6 @@ function StoreDetailProducts({ shopId }) {
     getAllProducts(shopId, 1, onSuccess, onFail);
   }, [shopId]);
 
-  console.log('infoTable: ', infoTable);
-
   return (
     <Card className="cursor-pointer hover:shadow-md" onClick={() => navigate(`/shops/${shopId}/products`)}>
       <StoreDetailSectionTitle
