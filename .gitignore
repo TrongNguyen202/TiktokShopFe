@@ -160,3 +160,10 @@ cython_debug/
 .idea/
 .vscode
 .temp
+
+# Z
+.ruff_cache
+.venv
+.DS_Store
+~/
+logs/

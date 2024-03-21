@@ -1,26 +1,19 @@
 
-from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
+from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+
 from .helpers import check_token
 from .models import (
-    Shop,
-    Products,
-    CustomUser,
-    Image,
-    Templates,
-    FlashShipPODVariantList,
-    UserGroup,
-    GroupCustom,
-    Brand,
-    UserShop,
     BuyedPackage,
     DesignSku,
-    DesignSkuChangeHistory,
+    FlashShipPODVariantList,
+    GroupCustom,
     Package,
-    ProductPackage
-
+    ProductPackage,
+    Shop,
+    Templates,
 )
 
 

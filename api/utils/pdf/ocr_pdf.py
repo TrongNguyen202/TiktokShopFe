@@ -1,4 +1,3 @@
-import json
 import logging
 import platform
 from pathlib import Path
@@ -54,7 +53,7 @@ def __parse_info(info: str) -> Optional[dict]:
             'zipcode': zipcode
         }
     except Exception as e:
-        logger.error(f"An error occurred while parsing the info: ", exec_info=e)
+        logger.error("An error occurred while parsing the info: ", exec_info=e)
         return None
 
 
@@ -128,7 +127,7 @@ def _ocr_image(file_path: str, image: Image) -> dict:
             'data': data
         }
     except Exception as e:
-        logger.error(f"An error occurred while processing the image", exc_info=e)
+        logger.error("An error occurred while processing the image", exc_info=e)
         return {
             'file': file_path,
             'status': 'error',
@@ -138,7 +137,7 @@ def _ocr_image(file_path: str, image: Image) -> dict:
 
 
 def process_pdf_to_info(pdf_path: str) -> dict:
-    """ 
+    """
         Convert an PDF shipping label into a dictionary of shipping information
     Args:
         pdf_path (str): The path to the PDF file

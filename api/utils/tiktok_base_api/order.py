@@ -1,7 +1,13 @@
-from api.utils.tiktok_base_api import *
+import json
+import urllib.parse
+
+import requests
+
+from api.utils.tiktok_base_api import SIGN, TIKTOK_API_URL, app_key, logger, secret
+from api.views import HttpResponse
 
 
-def callOrderList(access_token: str):
+def callOrderList(access_token: str, cursor):
     url = TIKTOK_API_URL['url_get_orders']
 
     query_params = {
@@ -13,6 +19,11 @@ def callOrderList(access_token: str):
     body = json.dumps({
         'page_size': 100
     })
+    if cursor != "":
+        body = json.dumps({
+            'page_size': 100,
+            'cursor': cursor
+        })
 
     sign = SIGN.cal_sign(secret=secret, url=urllib.parse.urlparse(url), query_params=query_params, body=body)
     query_params['sign'] = sign
@@ -61,9 +72,9 @@ def callGetShippingDocument(access_token, order_id):
         "document_size": "A6"
     }
 
-    body = json.dumps({
-        "order_id": order_id
-    })
+    # body = json.dumps({
+    #     "order_id": order_id
+    # })
 
     sign = SIGN.cal_sign(
         secret=secret,

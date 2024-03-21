@@ -1,11 +1,12 @@
-
-from ....models import Shop, User, UserShop, UserGroup, GroupCustom, CustomUserSendPrint
-
-from ....serializers import GroupCustomSerializer
-
-from api.views import *
+import logging
 
 from django.contrib.auth.hashers import make_password
+
+from api import setup_logging
+from api.views import APIView, IsAuthenticated, JsonResponse, ObjectDoesNotExist, Response, get_object_or_404
+
+from ....models import CustomUserSendPrint, GroupCustom, User, UserGroup, UserShop
+from ....serializers import GroupCustomSerializer
 
 logger = logging.getLogger('api.views.tiktok.permission_action')
 setup_logging(logger, is_root=False, level=logging.INFO)
@@ -40,24 +41,6 @@ class AddUsertoGroup(APIView):
             return JsonResponse({"status": 500, "error": str(e)}, status=500)
 
 
-class InforUserCurrent(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, request):
-        user = request.user
-        user_groups = UserGroup.objects.filter(user=user)
-
-        user_info = {
-            'id': user.id,
-            'username': user.username,
-            'email': user.email,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'groups': [user_group.group_custom.group_name for user_group in user_groups]
-        }
-        return Response(user_info)
-
-
 class UserInfo(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -87,13 +70,12 @@ class AddUserToGroup(APIView):
                 return JsonResponse({"status": 404, "error": "you don't have permission to do this bro"}, status=404)
             username = request.data.get('username')
             password = request.data.get('password')
-            email = request.data.get('email')
             firstname = request.data.get('first_name')
             lastname = request.data.get('last_name')
 
             user_code = request.data.get('user_code', '')
             shop_ids = request.data.get('shops')
-            new_user = User.objects.get_or_create(username=username, password=password, email=email, first_name=firstname, last_name=lastname)
+            new_user = User.objects.get_or_create(username=username, password=password, first_name=firstname, last_name=lastname)
             if user_code:
                 CustomUserSendPrint.objects.get_or_create(user=new_user, user_code=user_code)
 
@@ -106,7 +88,7 @@ class AddUserToGroup(APIView):
         except ObjectDoesNotExist:
             return JsonResponse({"status": 404, "error": "Object does not exist."}, status=404)
         except Exception as e:
-            logger.error(f'Error when adding user to group', exc_info=e)
+            logger.error('Error when adding user to group', exc_info=e)
             return JsonResponse({"status": 500, "error": str(e)}, status=500)
 
 

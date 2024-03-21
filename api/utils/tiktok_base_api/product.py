@@ -1,4 +1,11 @@
-from api.utils.tiktok_base_api import *
+import json
+import logging
+import urllib.parse
+
+import requests
+
+from api.utils.tiktok_base_api import SIGN, TIKTOK_API_URL, app_key, logger, secret
+from api.views import HttpResponse
 
 
 # Liệt kê danh sách sản phẩm của shop
@@ -255,9 +262,8 @@ def createProduct(access_token, title, images_ids, product_object):
     query_params["sign"] = sign
 
     response = requests.post(url, params=query_params, json=json.loads(body))
-    print(response.text)
 
-    return HttpResponse(response)
+    return response
 
 
 def callCreateOneProduct(access_token: str, product_object) -> requests.Response:
@@ -352,42 +358,6 @@ def callCreateOneProduct(access_token: str, product_object) -> requests.Response
     return response
 
 
-def categoryRecommend(access_token: str, product_name: str) -> requests.Response:
-    url = TIKTOK_API_URL['url_get_category_recommend']
-
-    query_params = {
-        'app_key': app_key,
-        'access_token': access_token,
-        'timestamp': SIGN.get_timestamp()
-    }
-
-    body_json = {
-        'product_name': product_name,
-    }
-
-    body = json.dumps(body_json)
-
-    sign = SIGN.cal_sign(
-        secret=secret,
-        url=urllib.parse.urlparse(url),
-        query_params=query_params,
-        body=body
-    )
-
-    query_params['sign'] = sign
-
-    response = requests.post(
-        url=url,
-        params=query_params,
-        json=json.loads(body)
-    )
-
-    logger.info(f'Category recommend status code: {response.status_code}')
-    # logger.info(f'Category recommend response: {response.text}')
-
-    return response
-
-
 def callUploadImage(access_token: str, img_data):
     try:
         url = TIKTOK_API_URL['url_upload_image']
@@ -429,7 +399,7 @@ def callUploadImage(access_token: str, img_data):
             logger.error(f'Error when upload image: {response.text}')
             return ''
     except Exception as e:
-        logging.error(f'Error when upload image', exc_info=e)
+        logging.error('Error when upload image', exc_info=e)
         return ''
 
 
@@ -535,7 +505,7 @@ def callGetAttribute(access_token, category_id):
         response_data = response.json()
         return response_data
     except Exception as e:
-        logging.error(f'Error when get attribute', exc_info=e)
+        logging.error('Error when get attribute', exc_info=e)
         return None
 
 

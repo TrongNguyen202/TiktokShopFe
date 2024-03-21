@@ -15,7 +15,6 @@ from pathlib import Path
 
 from decouple import config
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -62,6 +61,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 
     "corsheaders.middleware.CorsMiddleware",
+
+    "tiktok.middleware.BadRequestMiddleware"
 ]
 CORS_ORIGIN_ALLOW_ALL = True
 

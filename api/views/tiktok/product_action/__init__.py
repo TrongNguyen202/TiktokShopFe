@@ -1,6 +1,31 @@
-from ....models import Shop, Categories, Brand
+import base64
+import json
+import logging
+import os
+import platform
+import uuid
+from concurrent.futures import ThreadPoolExecutor
 
-from api.views import *
+import requests
+from PIL import Image
+
+from api import helpers, setup_logging
+from api.utils import constant, objectcreate
+from api.utils.tiktok_base_api import product
+from api.views import (
+    APIView,
+    HttpResponse,
+    JsonResponse,
+    ObjectDoesNotExist,
+    Response,
+    View,
+    csrf_exempt,
+    get_object_or_404,
+    method_decorator,
+    status,
+)
+
+from ....models import Brand, Categories, Shop
 
 logger = logging.getLogger('api.views.tiktok.product')
 setup_logging(logger, is_root=False, level=logging.INFO)
@@ -212,7 +237,7 @@ class ProcessExcel(View):
         except ObjectDoesNotExist as e:
             return HttpResponse({'error': str(e)}, status=404)
         except Exception as e:
-            logger.error(f'Error when process excel file', exc_info=e)
+            logger.error('Error when process excel file', exc_info=e)
             return HttpResponse({'error': str(e)}, status=400)
 
     def process_item(self, item, shop, category_id, warehouse_id, is_cod_open, package_height, package_length,
@@ -305,7 +330,7 @@ class ProcessExcel(View):
         seller_sku = item.get('sku', '')
         for iteem in skus:
             iteem["seller_sku"] = seller_sku
-        if size_chart !="":
+        if size_chart != "":
             print("co size chart")
 
         product_object = objectcreate.ProductCreateMultiObject(
