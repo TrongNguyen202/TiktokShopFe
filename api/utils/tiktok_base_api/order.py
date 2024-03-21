@@ -7,7 +7,7 @@ from api.utils.tiktok_base_api import SIGN, TIKTOK_API_URL, app_key, logger, sec
 from api.views import HttpResponse
 
 
-def callOrderList(access_token: str):
+def callOrderList(access_token: str, cursor):
     url = TIKTOK_API_URL['url_get_orders']
 
     query_params = {
@@ -19,6 +19,11 @@ def callOrderList(access_token: str):
     body = json.dumps({
         'page_size': 100
     })
+    if cursor != "":
+        body = json.dumps({
+            'page_size': 100,
+            'cursor': cursor
+        })
 
     sign = SIGN.cal_sign(secret=secret, url=urllib.parse.urlparse(url), query_params=query_params, body=body)
     query_params['sign'] = sign
