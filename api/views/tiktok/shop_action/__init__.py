@@ -69,19 +69,16 @@ class Shops(APIView):
         # Từ auth_code, lấy access_token và refresh_token
         response = token.getAccessToken(auth_code=auth_code)
         group_custom = self.get_user_group(user=self.request.user)
-        logger.info(f'User {self.request.user} is in group (department) {
-                    group_custom}')
+        logger.info(f'User {self.request.user} is in group (department) {group_custom}')
 
         if response.status_code == 200:
             json_data = response.json()
             data = json_data.get('data', None)
             access_token = data.get('access_token', None)
             refresh_token = data.get('refresh_token', None)
-            logger.info(f'Access token: {
-                        access_token}, Refresh token: {refresh_token}')
+            logger.info(f'Access token: {access_token}, Refresh token: {refresh_token}')
         else:
-            logger.error(f'User {request.user}: Get access token failed: {
-                         response.text}')
+            logger.error(f'User {request.user}: Get access token failed: {response.text}')
             return Response(
                 {'error': 'Failed to retrieve access_token or refresh_token from the response',
                     'detail': response.text},
@@ -89,8 +86,7 @@ class Shops(APIView):
             )
 
         if not access_token or not refresh_token:
-            logger.error(f'User {request.user}: Get access token failed: {
-                         response.text}')
+            logger.error(f'User {request.user}: Get access token failed: {response.text}')
             return Response(
                 {'error': 'Failed to retrieve access_token or refresh_token from the response',
                     'detail': response.text},
@@ -150,8 +146,7 @@ class Shops(APIView):
             )
 
         # Nếu dữ liệu không hợp lệ, trả về thông báo lỗi
-        logger.error(f'User {request.user}: Invalid shop data: {
-                     shop_serializer.errors}')
+        logger.error(f'User {request.user}: Invalid shop data: {shop_serializer.errors}')
         return Response(
             shop_serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
@@ -167,8 +162,7 @@ class ShopDetail(APIView):
             shop_serializer.save()
             return Response(shop_serializer.data, status=status.HTTP_200_OK)
         else:
-            logger.error(f'User {request.user}: Invalid shop data: {
-                         shop_serializer.errors}')
+            logger.error(f'User {request.user}: Invalid shop data: {shop_serializer.errors}')
             return Response(shop_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, shop_id):
@@ -191,8 +185,7 @@ class ShopDetail(APIView):
         except Exception as e:
             logger.error(f'User {request.user}: Delete shop failed: {e}')
             return Response(
-                {'error': f'Failed to delete shop with id {
-                    shop_id}: {str(e)}'},
+                {'error': f'Failed to delete shop with id {shop_id}: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
