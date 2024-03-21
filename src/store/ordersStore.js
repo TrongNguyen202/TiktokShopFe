@@ -9,6 +9,7 @@ export const useShopsOrder = create((set) => ({
   shippingServiceInfo: [],
   loading: false,
   loadingGetInfo: false,
+  loadingUpload: false,
   loadingFulfillment: false,
   cancelTokenSource: null,
   packageBought: [],
@@ -23,6 +24,7 @@ export const useShopsOrder = create((set) => ({
     }
     set({ loading: false });
   },
+  
   getLabelsById: async (orderId, onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true });
@@ -35,13 +37,13 @@ export const useShopsOrder = create((set) => ({
   },
   uploadLabelToDriver: async (data, onSuccess = () => {}, onFail = () => {}) => {
     try {
-      set({ loading: true });
+      set({ loadingUpload: true });
       const response = await RepositoryRemote.orders.uploadLabelToDriver(data);
       onSuccess(response.data);
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
     }
-    set({ loading: false });
+    set({ loadingUpload: false });
   },
   getToShipInfo: async (shopId, data, onSuccess = () => {}, onFail = () => {}) => {
     try {
@@ -122,14 +124,12 @@ export const useShopsOrder = create((set) => ({
 
   getPackageBought: async (onSuccess = () => {}, onFail = () => {}) => {
     try {
-      set({ loading: true });
       const response = await RepositoryRemote.orders.getPackageBought();
       set({ packageBought: response.data });
       onSuccess(response.data);
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
     }
-    set({ loading: false });
   },
 
   pdfLabelSearch: async (packageId, onSuccess = () => {}, onFail = () => {}) => {
