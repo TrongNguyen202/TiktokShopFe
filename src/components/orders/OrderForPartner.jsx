@@ -53,15 +53,21 @@ function OrderForPartner({ toShipInfoData }) {
   const { getFlashShipPODVariant, LoginFlashShip, createOrderFlashShip } = useFlashShipStores((state) => state);
 
   const checkDataPartner = (data) => {
-    const orderPartnerResult = data?.map((dataItem) => {
+    const dataCheck = data.map(order => {
+      order.order_list[0].item_list = order.order_list[0].item_list.filter(item => item.sku_name !== "Default");
+      return order;
+    }).filter(order => order.order_list[0].item_list.length > 0);
+
+    const orderPartnerResult = dataCheck?.map((dataItem) => {
       const orderPartner = { ...dataItem };
       const itemList = dataItem?.order_list?.flatMap((item) => item.item_list);
+      const itemListRemovePhysical = itemList.filter(item => item.sku_name !== 'Default')
       let isFlashShip = true;
-      const variations = itemList.map((variation) => {
+      const variations = itemListRemovePhysical.map((variation) => {
         if (!isFlashShip) return variation;
         let variationObject = {};
         const result = { ...variation };
-        const variationSplit = variation?.sku_name?.split(', ');
+        const variationSplit = variation?.sku_name.split(', ');
 
         if (variationSplit.length === 3) {
           variationObject = {
@@ -75,32 +81,40 @@ function OrderForPartner({ toShipInfoData }) {
           };
         }
 
-        const checkProductType = flashShipVariants?.filter((variant) =>
-          variationObject?.size?.toUpperCase().includes(variant.product_type.toUpperCase()),
-        );
-
-        if (!checkProductType.length) {
+        if (variationObject.length < 2) {
           isFlashShip = false;
-        }
-
-        if (checkProductType.length) {
-          const checkColor = checkProductType.filter(
-            (color) => color.color.toUpperCase() === variationObject?.color?.replace(' ', '').toUpperCase(),
+        } else {
+          const variationObjectSize = variationObject?.size?.split(/[\s-,]/).filter(Boolean);
+          const checkProductType = flashShipVariants?.filter((variant) => 
+            variationObjectSize.find(item => item.toUpperCase() === variant.product_type.toUpperCase())
           );
-
-          if (checkColor.length) {
-            const checkSize = checkColor.find((size) =>
-              variationObject?.size?.toUpperCase().includes(size.size.replace(' ', '').toUpperCase()),
+          // console.log('checkProductType: ', checkProductType);
+          if (!checkProductType.length) {
+            isFlashShip = false;
+          }
+  
+          if (checkProductType.length) {
+            const checkColor = checkProductType.filter(
+              (color) => color.color.toUpperCase() === variationObject?.color?.replace(' ', '').toUpperCase(),
             );
-            if (checkSize) {
-              result.variant_id = checkSize.variant_id;
+  
+            if (checkColor.length) {
+              const checkSize = checkColor.find((size) => {
+                return variationObjectSize.find(item => item.toUpperCase() === size.size.toUpperCase())
+              });
+  
+              console.log('checkSize: ', checkSize);
+              if (checkSize) {
+                result.variant_id = checkSize.variant_id;
+              } else {
+                isFlashShip = false;
+              }
             } else {
               isFlashShip = false;
             }
-          } else {
-            isFlashShip = false;
           }
         }
+
         return result;
       });
 

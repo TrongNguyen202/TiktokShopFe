@@ -120,49 +120,50 @@ function Orders() {
 
   const getColumnSearchProps = (dataIndex) => ({
     // eslint-disable-next-line react/no-unstable-nested-components
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
-      <div onKeyDown={(e) => e.stopPropagation()} className="px-5 py-3">
-        <RangePicker
-          popupClassName="text-[12px]"
-          presets={[...rangePresets]}
-          format="DD/MM/YYYY"
-          onChange={(date, dateStrings) =>
-            onRangeChange(date, dateStrings, confirm, dataIndex, setSelectedKeys, selectedKeys)
-          }
-        />
-
-        <Space className="mt-3">
-          <Button
-            type="primary"
-            size="small"
-            onClick={() => {
-              confirm({
-                closeDropdown: false,
-              });
-              setSearchText(selectedKeys[0]);
-              setSearchedColumn(dataIndex);
-              close();
-            }}
-          >
-            Tìm kiếm
-          </Button>
-
-          <Button
-            size="small"
-            onClick={() => {
-              clearFilters();
-              setSearchText('');
-              confirm({
-                closeDropdown: false,
-              });
-              close();
-            }}
-          >
-            Xoá
-          </Button>
-        </Space>
-      </div>
-    ),
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => {
+      return (
+        <div onKeyDown={(e) => e.stopPropagation()} className="px-5 py-3">
+          <RangePicker
+            popupClassName="text-[12px]"
+            presets={[...rangePresets]}
+            format="DD/MM/YYYY"
+            onOk={false}
+            onChange={(date, dateStrings) => onRangeChange(date, dateStrings, confirm, dataIndex, setSelectedKeys, selectedKeys)}
+          />
+  
+          <Space className="mt-3 ml-3">
+            <Button
+              type="primary"
+              size="small"
+              onClick={() => {
+                confirm({
+                  closeDropdown: false,
+                });
+                setSearchText(selectedKeys[0]);
+                setSearchedColumn(dataIndex);
+                close();
+              }}
+            >
+              Tìm kiếm
+            </Button>
+  
+            <Button
+              size="small"
+              onClick={() => {
+                clearFilters();
+                setSearchText('');
+                confirm({
+                  closeDropdown: false,
+                });
+                close();
+              }}
+            >
+              Xoá
+            </Button>
+          </Space>
+        </div>
+      )
+    },
 
     // eslint-disable-next-line react/no-unstable-nested-components
     filterIcon: (filtered) => <SearchOutlined className={filtered ? '#1677ff' : undefined} />,
@@ -171,15 +172,10 @@ function Orders() {
       if (searchText.length === 2) {
         const startDate = dayjs(searchText[0], 'DD/MM/YYYY').startOf('day').valueOf();
         const endDate = dayjs(searchText[1], 'DD/MM/YYYY').endOf('day').valueOf();
-        // const createTime = Number(record[dataIndex]);
-        // console.log('createTime: ', createTime, startDate, endDate,);
-
-        // console.log('createTime >= startDate && createTime <= endDate;: ', createTime >= startDate && createTime <= endDate);
-        // return createTime >= startDate && createTime <= endDate;
-        const createTime = dayjs(Number(record[dataIndex]), 'DD/MM/YYYY');
-
-        return createTime.isSameOrAfter(startDate) && createTime.isSameOrBefore(endDate);
+        const createTime = Number(record[dataIndex]);
+        return createTime.valueOf() >= startDate && createTime.valueOf() <= endDate;
       }
+      
       return false;
     },
     render: (text) => formatDate(Number(text), 'DD/MM/YYYY, hh:mm:ss a'),
@@ -455,7 +451,7 @@ function Orders() {
         loading={loading || loadingFulfillment}
         bordered
         pagination={{
-          pageSize: 20,
+          pageSize: 30,
           total: orderDataTable.length,
         }}
         // rowKey={record => record.package_list[0]?.package_id}
