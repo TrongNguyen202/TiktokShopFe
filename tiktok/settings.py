@@ -96,10 +96,10 @@ CORS_ORIGIN_WHITELIST = (
     "https://folinas.vercel.app",
     "http://localhost:3000",
     "https://auth.tiktok-shops.com",
-    "http://dev.folinas.com:8000",
-    "http://seller.folinas.com:8000",
-    "https://seller.folinas.com:8000",
     "https://dev.folinas.com:8000",
+    "https://seller.folinas.com:8000",
+    "https://seller.folinas.com",
+    "https://dev.folinas.com",
 )
 ALLOWED_HOSTS = ["*"]
 
