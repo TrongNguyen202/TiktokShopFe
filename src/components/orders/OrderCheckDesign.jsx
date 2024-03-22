@@ -1,181 +1,399 @@
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { Button, Form, Input, Modal, Popconfirm, Space, Table, Tooltip, message } from 'antd';
 import { useEffect, useState } from 'react';
-import { Table, Button, message, Tooltip, Tag } from 'antd'
 
-import { useGoogleStore } from '../../store/googleSheets'
-import { signInWithGoogle } from '../../Firebase'
-import { IntlNumberFormat } from '../../utils'
-import { statusOrder } from '../../constants'
+import { useShopsOrder } from '../../store/ordersStore';
 
-import PageTitle from "../../components/common/PageTitle";
-import OrdersAddNewDesignData from '../../components/orders/OrdersAddNewDesignData';
-import OrdersAddImageDesignByExcel from '../../components/orders/OrdersAddImageDesignByExcel';
 import SectionTitle from '../common/SectionTitle';
-import OrderProductProver from './OrderProductProver';
 
-const OrderCheckDesign = ({ toShipInfoData, sheetData }) => {
-    const [messageApi, contextHolder] = message.useMessage();
-    const [stepCheckDesign, setStepCheckDesign] = useState(1)
-    const [newDesignData, setNewDesignData] = useState([])
-    const [hasAddDesign, setHasAddDesign] = useState(false)
-    const [hasNewDesignData, setHasNewDesignData] = useState(false)
-    const { AddRowToSheet } = useGoogleStore()
+function OrderCheckDesign({ toShipInfoData }) {
+  const [form] = Form.useForm();
+  const [messageApi, contextHolder] = message.useMessage();
+  const [openNewDesignModal, setOpenNewDesignModal] = useState(false);
+  const [newDesignSku, setNewDesignSku] = useState([]);
+  const [openEditDesignModal, setOpenEditDesignModal] = useState(false);
+  const [designSku, setDesignSku] = useState([]);
+  const [initialDesignSkuUpdated, setInitialDesignSkuUpdated] = useState(false);
+  const [pageIndex, setPageIndex] = useState(1);
+  const { getDesignSku, getDesignSkuSize, postDesignSku, putDesignSku, deleteDesignSku, loading } = useShopsOrder(
+    (state) => state,
+  );
+  const formItemLayout = {
+    labelCol: {
+      span: 4,
+    },
+  };
 
-    const toShipInfoDataConvert = toShipInfoData.reduce((acc, item) => {
-            const rows = item.data?.order_list[0].item_list?.map((subItem, index) => ({
-              ...subItem,
-              order_id: item.data.order_list[0].order_id,
-              linkLabel: item.linkLabel,
-              city: item.city,
-              name_buyer: item.name_buyer,
-              state: item.state,
-              street: item.street.replace(' - ', ''),
-              tracking_id: item.tracking_id,
-              zip_code: item.zip_code,
-              payment_info: item.data.order_list[0].payment_info
-            }));
-        if (!rows) return acc;
-            return [...acc, ...rows];
-        }, []);
+  const handleCheckDesign = (data) => {
+    const dataCheck = data
+      .map((order) => {
+        const productList = order.order_list
+          .map((item, index) => {
+            const productItem = item.item_list
+              .map((product) => ({
+                ...product,
+                order_id: order.order_list[index].order_id,
+              }))
+              .flat();
+            return productItem;
+          })
+          .flat();
 
+        return productList.map((item) => ({
+          order_id: item.order_id,
+          label: order.label,
+          sku_id: item.sku_id,
+          quantity: item.quantity,
+          product_name: item.product_name,
+          variation: item.sku_name,
+          product_id: item.product_id,
+        }));
+      })
+      .flat();
 
-    const columns = [
-        {
-            title: 'STT',
-            dataIndex: 'stt',
-            align: 'center',
-            render: (_, record, index) => index + 1
-        },
-        {
-            title: 'Order ID',
-            dataIndex: 'order_id',
-            render: (_, record) => record.data.order_list[0].order_id
-        },
-        {
-            title: 'Tracking ID',
-            dataIndex: 'tracking_id'
-        },
-        {
-            title: 'Sản phẩm',
-            dataIndex: 'product_item',
-            width: 200,
-            render: (_, record) => (
-                <OrderProductProver data={record} />
-            ),
-        },
-        {
-            title: 'Người mua',
-            dataIndex: 'name_buyer'
-        },       
-        {
-            title: 'Địa chỉ nhận hàng',
-            dataIndex: 'shipping_address',
-            render: (_, record) => `${record.street.replace(' - ', '')}, ${record.city}, ${record.state}, ${record.zip_code}`,
-        },
-        {
-            title: 'Tình trạng',
-            dataIndex: 'order_status',
-            render: (_, record) => statusOrder.map(item => item.value === record.data.order_list[0].order_status && <Tag color={item.color}>{item.title}</Tag>),
-        },
-        {
-            title: 'Tổng giá',
-            dataIndex: "sub_total",
-            align: 'center',
-            render: (_, record) => IntlNumberFormat(record.data.order_list[0].payment_info.currency, 'currency', 4, record.data.order_list[0].payment_info.sub_total)
+    const dataCheckSet = new Set();
+    const dataCheckResult = dataCheck
+      .map((item) => {
+        if (!dataCheckSet.has(item.sku_id)) {
+          dataCheckSet.add(item.sku_id);
+          return item;
         }
-    ]
+        return null;
+      })
+      .filter((item) => item !== null);
 
-    const handleCheckDesign = async() => {
-        const designData = sheetData?.values?.slice(2)
-        const designDataAppend = []
-        const designSkuIdObject = {}
+    const dataDesignSku = dataCheckResult.filter((checkItem) => {
+      return !designSku?.some((designItem) => designItem.sku_id === checkItem.sku_id);
+    });
 
-        designData?.forEach((item, index) => {
-            designSkuIdObject[index] = item[0];
-        })
+    if (dataDesignSku.length) {
+      setOpenNewDesignModal(true);
+      setNewDesignSku(dataDesignSku);
+    } else {
+      messageApi.open({
+        type: 'info',
+        content: 'Tất cả design đều đã tồn tại. Vui lòng kiểm tra lại bằng chức tìm kiếm',
+      });
+    }
+  };
 
-        const designNewId = toShipInfoData.map(item => (
-            item.data?.order_list[0].item_list.map(sku => sku.sku_id)
-        )).flat()
-        
-        designNewId.forEach(item => {
-            if (!Object.values(designSkuIdObject).includes(item)) {
-                messageApi.open({
-                    type: 'success',
-                    content: `${item} là mẫu mới. Hãy thêm mẫu mới vào Google Sheet`,
-                });
-                const newIndex = Object.keys(designDataAppend).length.toString()
-                const newItem = toShipInfoDataConvert?.find(itemFind => itemFind.sku_id === item)
-                
-                designDataAppend[newIndex] = [
-                    newItem.sku_id, newItem.product_name, newItem.sku_name, "", "", newItem.quantity
-                ]
-                setNewDesignData(designDataAppend)
-                setHasAddDesign(true)
-            } else {
-                messageApi.open({
-                    type: 'error',
-                    content: `Mẫu ${item} này đã tồn tại`,
-                });
-            }
+  const handleAddNewDesign = (values) => {
+    const newData = Object.values(values);
+    const onSuccess = (res) => {
+      if (res) {
+        messageApi.open({
+          type: 'success',
+          content: 'Thêm thiết kế thành công',
         });
+
+        getDesignSku(
+          (newRes) => setDesignSku(newRes.results),
+          (err) => console.log('Error when fetching design SKU: ', err),
+        );
+
+        setOpenNewDesignModal(false);
+      }
+    };
+
+    const onFail = (err) => {
+      messageApi.open({
+        type: 'error',
+        content: err,
+      });
+      setOpenNewDesignModal(false);
+    };
+    postDesignSku(newData, onSuccess, onFail);
+  };
+
+  const handleEditDesign = (index) => {
+    form.setFieldsValue(designSku[index]);
+    setOpenEditDesignModal(true);
+  };
+
+  const handleUpdateDesign = (values) => {
+    const updateItem = {
+      image_front: values.image_front,
+      image_back: values.image_back,
+    };
+
+    console.log('updateItem: ', updateItem);
+
+    const onSuccess = (res) => {
+      console.log(res);
+      if (res) {
+        messageApi.open({
+          type: 'success',
+          content: 'Cập nhật design thành công',
+        });
+        getDesignSku(
+          (newRes) => setDesignSku(newRes.results),
+          (err) => console.log('Error when fetching design SKU: ', err),
+        );
+        setOpenEditDesignModal(false);
+      }
+    };
+
+    const onFail = (err) => {
+      messageApi.open({
+        type: 'error',
+        content: err,
+      });
+      setOpenEditDesignModal(false);
+    };
+
+    putDesignSku(updateItem, values.id, onSuccess, onFail);
+  };
+
+  const handleDeleteDesign = (index) => {
+    const onSuccess = (res) => {
+      if (res) {
+        messageApi.open({
+          type: 'success',
+          content: 'Xoá design thành công',
+        });
+
+        getDesignSku(
+          (newRes) => setDesignSku(newRes.results),
+          (err) => console.log('Error when fetching design SKU: ', err),
+        );
+      }
+    };
+
+    const onFail = (err) => {
+      messageApi.open({
+        type: 'error',
+        content: err,
+      });
+    };
+
+    deleteDesignSku(designSku[index].id, onSuccess, onFail);
+  };
+
+  const handleChangePagePagination = (page) => {
+    const onSuccess = (res) => {
+      if (res) {
+        console.log('res: ', res);
+        setPageIndex(page);
+        setDesignSku(res.results);
+      }
+    };
+    getDesignSkuSize(page, onSuccess);
+  };
+
+  const generateColumns = (showActionsColumn) => {
+    const columns = [
+      {
+        title: 'STT',
+        dataIndex: 'stt',
+        align: 'center',
+        render: (_, record, index) => index + 1,
+      },
+      {
+        title: 'Sku ID',
+        dataIndex: 'sku_id',
+        align: 'center',
+        width: '200px',
+        render: (_, record, index) => (
+          <>
+            {record.order_id ? (
+              <Form.Item name={[index, 'sku_id']} initialValue={record.sku_id}>
+                <Input className="pointer-events-none border-none bg-transparent" />
+              </Form.Item>
+            ) : (
+              record.sku_id
+            )}
+          </>
+        ),
+      },
+      {
+        title: 'Product name',
+        dataIndex: 'product_name',
+        width: '200px',
+        render: (_, record, index) => (
+          <>
+            {record.order_id ? (
+              <Tooltip title={record.product_name}>
+                <Form.Item name={[index, 'product_name']} initialValue={record.product_name}>
+                  <Input className="w-full block pointer-events-none border-none bg-transparent text-ellipsis overflow-hidden whitespace-normal" />
+                </Form.Item>
+              </Tooltip>
+            ) : (
+              <p>{record.product_name}</p>
+            )}
+          </>
+        ),
+      },
+      {
+        title: 'Variation',
+        dataIndex: 'variation',
+        render: (_, record, index) => (
+          <>
+            {record.order_id ? (
+              <Form.Item name={[index, 'variation']} initialValue={record.variation}>
+                <Input className="pointer-events-none border-none bg-transparent" />
+              </Form.Item>
+            ) : (
+              record.variation
+            )}
+          </>
+        ),
+      },
+      {
+        title: 'Design front image',
+        dataIndex: 'image_front',
+        render: (_, record, index) => (
+          <>
+            {record.order_id ? (
+              <Form.Item name={[index, 'image_front']}>
+                <Input />
+              </Form.Item>
+            ) : (
+              <p>{record.image_front}</p>
+            )}
+          </>
+        ),
+      },
+      {
+        title: 'Design back image',
+        dataIndex: 'image_back',
+        render: (_, record, index) => (
+          <>
+            {record.order_id ? (
+              <Form.Item name={[index, 'image_back']}>
+                <Input />
+              </Form.Item>
+            ) : (
+              <p>{record.image_back}</p>
+            )}
+          </>
+        ),
+      },
+    ];
+
+    if (showActionsColumn) {
+      columns.push({
+        title: 'Actions',
+        dataIndex: 'actions',
+        align: 'center',
+        render: (_, record, index) => (
+          <>
+            {!record.order_id && (
+              <Space>
+                <Tooltip title="Sửa design">
+                  <Button className="border-none bg-transparent shadow-none" onClick={() => handleEditDesign(index)}>
+                    <EditOutlined />
+                  </Button>
+                </Tooltip>
+                <Popconfirm title="Sure to delete?" onConfirm={() => handleDeleteDesign(index)}>
+                  <Button className="border-none bg-transparent shadow-none">
+                    <DeleteOutlined />
+                  </Button>
+                </Popconfirm>
+              </Space>
+            )}
+          </>
+        ),
+      });
     }
 
-    const handleAddDesign = async () => {
-        let oauthAccessToken = localStorage.getItem('oauthAccessToken')
-        if (!oauthAccessToken) {
-          const response = await signInWithGoogle();
-          localStorage.setItem('oauthAccessToken', response._tokenResponse.oauthAccessToken)
-          oauthAccessToken = response._tokenResponse.oauthAccessToken
-        }
-        const dataAddRowToSheet = {
-            values: newDesignData
-        }
+    return columns;
+  };
 
-        if (oauthAccessToken) {
-            const onSuccess = (res) => {
-                if (res) {
-                    messageApi.open({
-                        type: 'success',
-                        content: `Đã thêm mẫu mới vào Google Sheet. Vui lòng kiểm tra lại`,
-                    });
-                    setHasNewDesignData(true)
-                }
-            }
-            const onFail = () => { }
-            AddRowToSheet('Team Truong', dataAddRowToSheet, oauthAccessToken, onSuccess, onFail)            
+  useEffect(() => {
+    const onSuccess = (res) => {
+      if (res) {
+        setDesignSku(res.results);
+        if (!initialDesignSkuUpdated) {
+          setInitialDesignSkuUpdated(true);
         }
-    }
+      }
+    };
+    getDesignSku(onSuccess, (err) => console.log('Design Sku: ', err));
+  }, [toShipInfoData]);
 
-    const checkDataTable = () => {
-        if (toShipInfoData.length == 0) {
-            return []
-        }
-        let data = []
-        toShipInfoData.forEach(item => {
-            if (item?.data?.order_list) {
-                data.push(item)
-            }
-        })
-        return data
-    }
+  useEffect(() => {
+    if (initialDesignSkuUpdated) handleCheckDesign(toShipInfoData);
+  }, [initialDesignSkuUpdated, toShipInfoData]);
 
-    return (
-        <div className="p-3 md:p-10">
-            <SectionTitle title='Kiểm tra và thêm mẫu' />
-            <div>
-                {stepCheckDesign === 1 && <Button type="primary" className='mb-3' onClick={handleCheckDesign}>Kiểm tra mẫu trên Google Sheet</Button>}
-                {hasAddDesign && 
-                    <Tooltip placement="top" title='Dữ liệu không có Image 1 (front) và Image 2 (back)' className='ml-3'>
-                        <Button type="primary" className='mb-3' onClick={handleAddDesign}>Thêm mẫu trực tiếp trên Google Sheet</Button>
-                    </Tooltip>
-                }
-            </div>
-            {hasNewDesignData && <OrdersAddImageDesignByExcel/>}
-            {!hasAddDesign && <Table rowKey="order_id" scroll={{ x: true }} columns={columns} dataSource={checkDataTable().length ? checkDataTable() : []} bordered pagination={{ position: ['none'] }} />}
-            {hasAddDesign && <OrdersAddNewDesignData dataColumns={newDesignData} /> }
-            {contextHolder}
-        </div>
-    );
+  return (
+    <div className="p-3 md:p-10">
+      <SectionTitle title="Danh sách Design" />
+      <div className="text-right">
+        <Table
+          rowKey="order_id"
+          scroll={{ x: true }}
+          columns={generateColumns(true)}
+          dataSource={designSku}
+          pagination={{
+            current: pageIndex,
+            pageSize: 100,
+            total: designSku.count,
+            onChange: handleChangePagePagination,
+          }}
+          bordered
+          loading={loading}
+        />
+      </div>
+      <Modal
+        title={`Thêm ${newDesignSku.length} design mới`}
+        centered
+        open={openNewDesignModal}
+        onCancel={() => setOpenNewDesignModal(false)}
+        footer={false}
+        width={1000}
+      >
+        <Form name="basic" onFinish={handleAddNewDesign}>
+          <Table
+            columns={generateColumns(false)}
+            dataSource={newDesignSku}
+            pagination={false}
+            bordered
+            className="mt-5"
+          />
+          <Form.Item className="flex flex-wrap items-center justify-end mt-5">
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Modal
+        title="Sửa Design SKU"
+        centered
+        open={openEditDesignModal}
+        onCancel={() => setOpenEditDesignModal(false)}
+        footer={false}
+        width={1000}
+      >
+        <Form name="basic" onFinish={handleUpdateDesign} layout="horizontal" {...formItemLayout} form={form}>
+          <Form.Item name="id" label="Design ID:" className="mb-0 font-bold hidden">
+            <Input className="border-none bg-transparent p-0" />
+          </Form.Item>
+          <Form.Item name="sku_id" label="Sku ID:" className="mb-0 font-bold">
+            <Input className="border-none bg-transparent p-0" />
+          </Form.Item>
+          <Form.Item name="product_name" label="Product name:" className="mb-0 font-bold">
+            <Input className="border-none bg-transparent p-0" />
+          </Form.Item>
+          <Form.Item name="variation" label="Product variation:" className="font-bold">
+            <Input className="border-none bg-transparent p-0" />
+          </Form.Item>
+          <Form.Item name="image_front" label="Image front:" className="font-bold">
+            <Input />
+          </Form.Item>
+          <Form.Item name="image_back" label="Image back:" className="font-bold">
+            <Input />
+          </Form.Item>
+          <Form.Item className="flex flex-wrap items-center justify-end mt-5">
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+      {contextHolder}
+    </div>
+  );
 }
- 
+
 export default OrderCheckDesign;

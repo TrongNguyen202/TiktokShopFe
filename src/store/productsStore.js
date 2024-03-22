@@ -1,96 +1,105 @@
-import { create } from 'zustand'
-import { RepositoryRemote } from '../services'
+import { create } from 'zustand';
+import { RepositoryRemote } from '../services';
+import { alerts } from '../utils/alerts';
 
-export const useProductsStore = create((set) => ({
-  products: {},
+export const useProductsStore = create((set, get) => ({
+  products: [],
   productById: {},
   infoTable: {},
   newProduct: {},
   loading: false,
-  getAllProducts: async (id, onSuccess = () => {}, onFail = () => {}) => {
+  getAllProducts: async (id, page_number, onSuccess = () => {}, onFail = () => {}) => {
     try {
-      set({ loading: true })
-      const response = await RepositoryRemote.products.getAllProducts(id)
-      set({ products: response.data.data.products })
-      set({ infoTable: response.data.data })
-      onSuccess(response.data.data)
+      set({ loading: true });
+      const response = await RepositoryRemote.products.getAllProducts(id, page_number);
+      if (response.data.message === 'seller is inactivated') {
+        alerts.error('seller is inactivated');
+        return;
+      }
+      set({ products: [...get().products, ...response.data.data.products] });
+      set({ infoTable: response.data });
+      onSuccess(response.data.data);
     } catch (error) {
-      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+      onFail(error || 'Có lỗi xảy ra!');
     }
-    set({ loading: false })
+    set({ loading: false });
+  },
+  clearProducts: () => {
+    set({ products: [] });
   },
   getProductsById: async (shopId, productId, onSuccess = () => {}, onFail = () => {}) => {
     try {
-      set({ loading: true })
-      const response = await RepositoryRemote.products.getProductsById(shopId, productId)
-      set({ productById: response.data.data })
-      onSuccess(response.data.data)
+      set({ loading: true });
+      const response = await RepositoryRemote.products.getProductsById(shopId, productId);
+      set({ productById: response.data.data });
+      onSuccess(response.data.data);
     } catch (error) {
-      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
     }
-    set({ loading: false })
+    set({ loading: false });
   },
   changeStatusProduct: async (id, params, onSuccess = () => {}, onFail = () => {}) => {
     try {
-      set({ loading: true })
-      RepositoryRemote.products.changeStatusProduct(id, params)
-      onSuccess()
+      set({ loading: true });
+      RepositoryRemote.products.changeStatusProduct(id, params);
+      onSuccess();
     } catch (error) {
-      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
     }
-    set({ loading: false })
+    set({ loading: false });
   },
   createProductList: async (shopId, params, onSuccess = () => {}, onFail = () => {}) => {
     try {
-      set({ loading: true })
-      const response = await RepositoryRemote.products.createProductList(shopId, params)
-      onSuccess()
+      set({ loading: true });
+      const response = await RepositoryRemote.products.createProductList(shopId, params);
+      console.log(response);
+      onSuccess();
     } catch (error) {
       if (error?.response?.data?.message === 'required qualification is missing') {
-        onFail('Wrong category, please choose another category')
+        onFail('Wrong category, please choose another category');
       } else {
-        onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo sản phẩm!')
+        onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo sản phẩm!');
       }
     }
-    set({ loading: false })
+    set({ loading: false });
   },
-  editProduct: async(shopId, productId, body, onSuccess = () => {}, onFail = () => {}) => {
+  editProduct: async (shopId, productId, body, onSuccess = () => {}, onFail = () => {}) => {
     try {
-      set({ loading: true })
-      const response = await RepositoryRemote.products.editProduct(shopId, productId, body)
-      onSuccess(response.data)
+      set({ loading: true });
+      const response = await RepositoryRemote.products.editProduct(shopId, productId, body);
+      onSuccess(response.data);
     } catch (error) {
-      onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi sửa sản phẩm!')
+      onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi sửa sản phẩm!');
     }
-    set({ loading: false })
+    set({ loading: false });
   },
-  createOneProduct: async(shopId, body, onSuccess = () => {}, onFail = () => {}) => {
+  createOneProduct: async (shopId, body, onSuccess = () => {}, onFail = () => {}) => {
     try {
-      set({ loading: true })
-      const response = await RepositoryRemote.products.createOneProduct(shopId, body)
-      set({ newProduct: response.data.data })
-      onSuccess(response.data)
+      set({ loading: true });
+      const response = await RepositoryRemote.products.createOneProduct(shopId, body);
+      set({ newProduct: response.data.data });
+      onSuccess(response.data);
     } catch (error) {
       if (error?.response?.data?.message === 'required qualification is missing') {
-        onFail('Wrong category, please choose another category')
+        onFail('Wrong category, please choose another category');
       } else {
-        onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo sản phẩm!')
+        onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo sản phẩm!');
       }
     }
-    set({ loading: false })
+    set({ loading: false });
   },
-  createOneProductDraff: async(shopId, body, onSuccess = () => {}, onFail = () => {}) => {
+  createOneProductDraff: async (shopId, body, onSuccess = () => {}, onFail = () => {}) => {
     try {
-      set({ loading: true })
-      const response = await RepositoryRemote.products.createOneProductDraff(shopId, body)
-      set({ newProduct: response.data })
-      onSuccess(response.data)
+      set({ loading: true });
+      const response = await RepositoryRemote.products.createOneProductDraff(shopId, body);
+      set({ newProduct: response.data });
+      onSuccess(response.data);
     } catch (error) {
-      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra khi tạo sản phẩm nháp!')
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra khi tạo sản phẩm nháp!');
     }
-    set({ loading: false })
+    set({ loading: false });
   },
   resetProductById: () => {
-    set({ productById: {} })
-  }
-}))
+    set({ productById: {}, infoTable: {} });
+  },
+}));

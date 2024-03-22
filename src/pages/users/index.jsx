@@ -1,38 +1,88 @@
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { Button, Col, Input, Popconfirm, Row, Space, Table, Tag, Tooltip, message } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'
-import { Space, Table, Tooltip, Button, Input } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
+import { Link } from 'react-router-dom';
 
-import { useUsersStore } from '../../store/usersStore'
+import { useUsersStore } from '../../store/usersStore';
 
-import PageTitle from '../../components/common/PageTitle'
+import PageTitle from '../../components/common/PageTitle';
+import ModalUserForm from './ModalUserForm';
 
-const Users = () => {
-  const navigate = useNavigate()
-  const [userData, setUserData] = useState([])
-  const { getShopByUser} = useUsersStore((state) => state)
+function Users() {
+  const { getShopByUser, shopsByUser, updateUser } = useUsersStore((state) => state);
 
-  const handleUseEdit = (userId, shops) => {
-    navigate(`/users/edit/${userId}`, { state: { shops }})
-  }
-  
-  const handleUserDelete = (userId, shops) => {
-    console.log(userId, shops);
-  }
+  const [userData, setUserData] = useState([]);
+  const [isShowModal, setIsShowModal] = useState(false);
+  const [userSelected, setUserSelected] = useState({});
+
+  const handleUseEdit = (record) => {
+    setUserSelected(record);
+    setIsShowModal(true);
+  };
+
+  const handleUserDelete = (userId) => {
+    const dataUpdate = {
+      user_id: userId,
+      is_active: false,
+    };
+    const onSuccess = (res) => {
+      getShopByUser();
+      if (res) {
+        message.open({
+          type: 'success',
+          content: 'Thành công',
+        });
+        setIsShowModal(false);
+      }
+    };
+
+    const onFail = (err) => {
+      message.open({
+        type: 'error',
+        content: err,
+      });
+    };
+
+    updateUser(dataUpdate, onSuccess, onFail);
+  };
+
+  const handleAddUser = () => {
+    setUserSelected({});
+    setIsShowModal(true);
+  };
 
   const columns = [
     {
       title: 'Tên nhân viên',
       dataIndex: 'user_name',
-      key: 'user_name'
+      key: 'user_name',
     },
     {
       title: 'Shops quản lý',
       key: 'shops',
       dataIndex: 'shops',
-      render: (_, record) => record.shops.map((item, index) => (
-        <>{index !== 0 && ', '}<Link to={`/shops/${item.id}`} key={index} target='_blank'>{item.name}</Link></>
-      )),
+      render: (_, record) => (
+        <Row key={record.id} gutter={[8, 8]}>
+          {record.shops.map((item, index) => (
+            <Link
+              to={`/shops/${item.id}`}
+              key={index}
+              target="_blank"
+              title={item.name}
+              className="text-[#0e2482] font-medium cursor-pointer line-clamp-1"
+            >
+              <Tag color="blue">
+                {index + 1}. {item.name}
+              </Tag>
+            </Link>
+          ))}
+        </Row>
+      ),
+    },
+    {
+      title: 'Mã nhân viên',
+      dataIndex: 'user_code',
+      key: 'user_code',
     },
     {
       dataIndex: 'Actions',
@@ -41,47 +91,53 @@ const Users = () => {
       align: 'center',
       render: (_, record) => (
         <Space size="middle">
-            <Tooltip title="Sửa" color="blue" placement="left">
-              <Button size="middle" icon={<EditOutlined />} onClick={() => handleUseEdit(record.user_id, record.shops)}/>
-            </Tooltip>
-            <Tooltip title="Xoá" color="blue" placement="right">
-              <Button size="middle" icon={<DeleteOutlined />} onClick={handleUserDelete(record.user_id, record.shops)}/>
-            </Tooltip>
+          <Tooltip title="Sửa" color="blue" placement="left">
+            <Button size="middle" icon={<EditOutlined />} onClick={() => handleUseEdit(record)} />
+          </Tooltip>
+          <Tooltip title="Xoá" color="blue" placement="top">
+            <Popconfirm
+              title="Bạn có chắc muốn xoá người dùng này?"
+              onConfirm={() => handleUserDelete(record.user_id)}
+              placement="left"
+            >
+              <Button size="middle" icon={<DeleteOutlined />} />
+            </Popconfirm>
+          </Tooltip>
         </Space>
-      )
-    }
-  ]
-    
+      ),
+    },
+  ];
+
   const onSearch = (e) => {
-    const userFilter = data?.filter((item) => {
-      return item.name.toLowerCase().includes(e.target.value.toLowerCase())
-    })
-    setUserData(userFilter)
-  }
+    const userFilter = shopsByUser?.users?.filter((item) => {
+      return item.user_name.toLowerCase().includes(e.target.value.toLowerCase());
+    });
+    setUserData((prevState) => ({ ...prevState, users: userFilter }));
+  };
 
   useEffect(() => {
-    const onSuccess = (res) => {
-      setUserData(res)
-    }
+    getShopByUser();
+  }, []);
 
-    const onFail = (err) => {
-      console.log(err);
-    }
+  useEffect(() => {
+    setUserData(shopsByUser);
+  }, [JSON.stringify(shopsByUser)]);
 
-    getShopByUser(onSuccess, onFail)
-  }, [])
-    
   return (
-      <div className="p-10">
-        <PageTitle title={`Quản lý nhân viên phòng ${userData&&userData.group_name}`}/>
-        <div className='mb-3 flex justify-between'>
-            <Input.Search placeholder='Tìm kiếm theo tên...' onChange={onSearch} className='max-w-[700px]'/>
-            <Button type='primary' onClick={() => console.log('click')}>Thêm user</Button>
-
-        </div>
-        <Table columns={columns} dataSource={userData&&userData?.users} bordered />
+    <div className="p-10">
+      <PageTitle title={`Quản lý nhân viên phòng ${userData && userData.group_name}`} />
+      <div className="mb-3 flex justify-between">
+        <Input.Search placeholder="Tìm kiếm theo tên..." onChange={onSearch} className="max-w-[700px]" />
+        <Button type="primary" onClick={handleAddUser}>
+          Thêm user
+        </Button>
       </div>
-  )
+      <Table columns={columns} dataSource={userData ? userData.users : []} bordered />
+      {isShowModal && (
+        <ModalUserForm isShowModal={isShowModal} setIsShowModal={setIsShowModal} userSelected={userSelected} />
+      )}
+    </div>
+  );
 }
- 
+
 export default Users;

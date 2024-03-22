@@ -1,21 +1,19 @@
-import axios from 'axios'
-import { callApi } from '../apis'
-import { constants as c } from '../constants'
+import axios from 'axios';
+import { constants as c } from '../constants';
 
 const getAllSheetInfo = (range) => {
-    // return axios.get('https://content-sheets.googleapis.com/v4/spreadsheets/1b6wjVXQ-02jxvPGCXauiQX6_x-1oyrWn_CONOHw_c10/values/Team Dang?majorDimension=ROWS&valueRenderOption=FORMATTED_VALUE&dateTimeRenderOption=FORMATTED_STRING&key=AIzaSyD4wBhrUIOw3GAhPXo2sL767W2U3tvmbxY')
-    const params = new URLSearchParams({
-        key: c.API_GOOGLE_KEY,
-        majorDimension: 'ROWS',
-        valueRenderOption: 'FORMATTED_VALUE',
-        dateTimeRenderOption: 'FORMATTED_STRING',
-    }).toString()
-    return axios({
-        method: "get",
-        url: `${c.API_GOOGLE_SHEETS}/${c.SHEET_ID}/values/${range}${params ? `?${params}` : ''}`,
-
-    })
-}
+  // return axios.get('https://content-sheets.googleapis.com/v4/spreadsheets/1b6wjVXQ-02jxvPGCXauiQX6_x-1oyrWn_CONOHw_c10/values/Team Dang?majorDimension=ROWS&valueRenderOption=FORMATTED_VALUE&dateTimeRenderOption=FORMATTED_STRING&key=AIzaSyD4wBhrUIOw3GAhPXo2sL767W2U3tvmbxY')
+  const params = new URLSearchParams({
+    key: c.API_GOOGLE_KEY,
+    majorDimension: 'ROWS',
+    valueRenderOption: 'FORMATTED_VALUE',
+    dateTimeRenderOption: 'FORMATTED_STRING',
+  }).toString();
+  return axios({
+    method: 'get',
+    url: `${c.API_GOOGLE_SHEETS}/${c.SHEET_ID}/values/${range}${params ? `?${params}` : ''}`,
+  });
+};
 
 // const AddRowToSheet = (range, data, oauthAccessToken) => {
 //     const params = new URLSearchParams({
@@ -41,24 +39,24 @@ const getAllSheetInfo = (range) => {
 // }
 
 const AddRowToSheet = (range, data, oauthAccessToken) => {
-    const params = new URLSearchParams({
-        key: c.API_GOOGLE_KEY,
-        valueInputOption: 'RAW'
-    }).toString();
+  const params = new URLSearchParams({
+    key: c.API_GOOGLE_KEY,
+    valueInputOption: 'RAW',
+  }).toString();
 
-    const url = `${c.API_GOOGLE_SHEETS}/${c.SHEET_ID}/values/${range}:append${params ? `?${params}` : ''}`;
+  const url = `${c.API_GOOGLE_SHEETS}/${c.SHEET_ID}/values/${range}:append${params ? `?${params}` : ''}`;
 
-    return fetch(url, {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${oauthAccessToken}`
-        },
-    }).then(response => response.json());
-}
+  return fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${oauthAccessToken}`,
+    },
+  }).then((response) => response.json());
+};
 
 export const google = {
-    getAllSheetInfo,
-    AddRowToSheet
-}
+  getAllSheetInfo,
+  AddRowToSheet,
+};
