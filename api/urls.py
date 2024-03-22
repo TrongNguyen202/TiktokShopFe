@@ -2,6 +2,8 @@ from django.urls import path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+import api.views.google_trend as google_trend
+
 # Import các views module
 # import api.views.google_trend as google_trend
 import api.views.tiktok as tiktok
@@ -167,6 +169,26 @@ fulfillment_urls = [
     path("shop/<int:shop_id>/packages/list", tiktok.order_action.PackageListByShop.as_view(), name="get_list_package"),
 ]
 
+"""Google Trend"""
+
+google_trend_urls = [
+    path("ggtrend/options", google_trend.GoogleTrendOptions.as_view(), name="ggtrend_options"),
+    path(
+        "ggtrend/query" + "?time_frame=<str:time_frame>&keyword=<str:keyword>&max_results=<int:max_results>",
+        google_trend.QueryGoogleTrend.as_view(),
+        name="ggtrend_query",
+    ),
+]
+
 
 # Tách URLs ra thành các nhóm URLs nhỏ để dễ quản lý
-urlpatterns = swagger_urls + auth_urls + shop_urls + template_urls + global_urls + user_group_urls + fulfillment_urls
+urlpatterns = (
+    swagger_urls
+    + auth_urls
+    + shop_urls
+    + template_urls
+    + global_urls
+    + user_group_urls
+    + fulfillment_urls
+    + google_trend_urls
+)
