@@ -226,3 +226,20 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800000000
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "http://localhost:5174",
+    "https://open-api.tiktokglobalshop.com",
+    "http://localhost:9999",
+    "http://app.folinas.com",
+    "https://app.folinas.com",
+    "http://app.folinas.com",
+    "https://folinas.vercel.app",
+    "http://localhost:3000",
+    "https://auth.tiktok-shops.com",
+    "https://dev.folinas.com:8000",
+    "https://seller.folinas.com:8000",
+    "https://seller.folinas.com",
+    "https://dev.folinas.com",
+]
