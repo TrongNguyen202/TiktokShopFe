@@ -5,7 +5,7 @@ import psycopg2
 from dotenv import load_dotenv
 
 from api import setup_logging
-from api.views import APIView, JsonResponse
+from api.views import APIView, HttpResponse, JsonResponse
 
 load_dotenv(override=True)
 
@@ -48,7 +48,8 @@ def _query_options(conn) -> tuple:
         cur.execute("SELECT DISTINCT name FROM ggtrend.timeframe")
         all_time_frames: list = [time_frame[0] for time_frame in cur.fetchall()]
 
-        logger.info(f"Key words: {', '.join(all_keywords)}\nTime frames: {', '.join(all_time_frames)}")
+        logger.info(f"Key words: {', '.join(all_keywords)}\nTime frames: {
+                    ', '.join(all_time_frames)}")
 
         return all_keywords, all_time_frames
 
@@ -68,7 +69,7 @@ def _query_google_trend(conn, time_frame, keyword, max_results=10) -> list:
                 and tf.name = %s
                 and keyword = %s
             order by time_crawl desc
-            limit %d;
+            limit %s;
             """,
             (time_frame, keyword, max_results),
         )
@@ -94,10 +95,17 @@ class QueryGoogleTrend(APIView):
         try:
             time_frame = request.GET.get("time_frame", "")
             keyword = request.GET.get("keyword", "")
-            max_results = request.GET.get("max_results", 10)  # Default value if max_results is not provided
-            logger.info(f"User {request.user} requested Google Trend data for {keyword} in {time_frame}")
+
+            max_results_str = request.GET.get("max_results", "10")
+
+            if max_results_str.isdigit():
+                max_results = int(max_results_str)
+            else:
+                max_results = 10
+
             result = _query_google_trend(time_frame, keyword, max_results)
-            return JsonResponse(result, status=200)
+
+            return HttpResponse(result)
         except Exception as e:
             logger.error(f"Error: {e}", exc_info=True)
-            return JsonResponse({"error": f"Internal server error {str(e)}"}, status=500)
+            return JsonResponse({"error": f"Internal server error {str(e)}"}, status=500, safe=False)
