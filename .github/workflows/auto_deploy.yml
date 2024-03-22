@@ -1,0 +1,27 @@
+name: Docker Image CI
+
+on:
+    merge:
+        branches:
+            - main
+
+jobs:
+    build:
+        runs-on: self-hosted
+
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v3
+
+            - name: Kill the running container with name tiktokshop-folinas-fe
+              run: |
+                  docker stop tiktokshop-folinas-fe || true
+                  docker rm tiktokshop-folinas-fe || true
+
+            - name: Build the Docker image
+              run: |
+                  docker build -t tiktokshop-folinas-fe .
+
+            - name: Run Docker container
+              run: |
+                  docker run -p 80:5173 -d tiktokshop-folinas-fe
