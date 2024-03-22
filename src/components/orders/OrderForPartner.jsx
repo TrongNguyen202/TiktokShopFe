@@ -23,7 +23,7 @@ import { setToken, getTokenKey } from '../../utils/auth';
 
 import SectionTitle from '../common/SectionTitle';
 import DesignEdit from '../design-sku/DesignEdit';
-import { useFlashShipStores } from '../../store/flashshipStores';
+import { useFlashShipStores } from '../../store/flashShipStores';
 
 function OrderForPartner({ toShipInfoData }) {
   const navigate = useNavigate();
