@@ -23,7 +23,7 @@ import { setToken, getTokenKey } from '../../utils/auth';
 
 import SectionTitle from '../common/SectionTitle';
 import DesignEdit from '../design-sku/DesignEdit';
-import { useFlashShipStores } from '../../store/flashshipStores';
+import { useFlashShipStores } from '../../store/flashShipStores';
 
 function OrderForPartner({ toShipInfoData }) {
   const navigate = useNavigate();
@@ -243,21 +243,21 @@ function OrderForPartner({ toShipInfoData }) {
           if (resCreate) {
             const dataCreateOrder = {
               ...item,
-              orderCode: resCreate.data
-            }
-  
+              orderCode: resCreate.data,
+            };
+
             console.log('dataCreateOrder: ', dataCreateOrder);
-  
+
             const onSuccessPackageCreate = (resPackage) => {
               if (resPackage) {
                 navigate(`/shops/${shopId}/orders/fulfillment/completed`);
               }
             };
-  
+
             const onFailPackageCreate = (errPackage) => {
               console.log('errPackage: ', errPackage);
             };
-  
+
             packageCreateFlashShip(shopId, dataCreateOrder, onSuccessPackageCreate, onFailPackageCreate);
           }
         };
@@ -273,22 +273,22 @@ function OrderForPartner({ toShipInfoData }) {
         createOrderFlashShip(item, onCreateSuccess, onCreateFail);
       });
     }
-  }
+  };
 
   const handleCreateOrderFlashShip = () => {
     if (flashShipToken === null) {
-      setOpenLoginFlashShip(true)
+      setOpenLoginFlashShip(true);
     } else {
-      handleCreateOrderFlashShipAPI()
+      handleCreateOrderFlashShipAPI();
     }
-  }
+  };
 
   const handleLoginFlashShip = (values) => {
     const onSuccess = (res) => {
       if (res) {
         setToken('flash-ship-tk', res.data.access_token);
         setOpenLoginFlashShip(false);
-        handleCreateOrderFlashShipAPI()
+        handleCreateOrderFlashShipAPI();
       }
     };
 
@@ -365,7 +365,7 @@ function OrderForPartner({ toShipInfoData }) {
         City: product.city,
         Zip: product.zip_code,
         Quantity: product.quantity,
-        'Variant ID': key=== 'PrintCare' ? product.sku_name : product.variant_id,
+        'Variant ID': key === 'PrintCare' ? product.sku_name : product.variant_id,
         'Print area front': product.image_design_front,
         'Print area back': product.image_design_back,
         'Mockup Front': '',
@@ -566,11 +566,7 @@ function OrderForPartner({ toShipInfoData }) {
             />
           </div>
           <Space>
-            <Button
-              type="primary"
-              onClick={handleCreateOrderFlashShip}
-              disabled={!tableFlashShipSelected.length}
-            >
+            <Button type="primary" onClick={handleCreateOrderFlashShip} disabled={!tableFlashShipSelected.length}>
               Create Order with FlashShip
             </Button>
             <Button
