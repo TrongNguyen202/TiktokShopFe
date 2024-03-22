@@ -4,10 +4,9 @@ import { Table, Button, Tooltip, Popconfirm, Modal, Form, Input, message, Tag } 
 import { DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 
 import { getPathByIndex } from '../../utils';
-import { getTokenKey, setToken } from '../../utils/auth'
+import { getTokenKey, setToken } from '../../utils/auth';
 import { useShopsOrder } from '../../store/ordersStore';
 import { useFlashShipStores } from '../../store/flashShipStores';
-
 import SectionTitle from '../../components/common/SectionTitle';
 
 function OrderCompleteFulfillment() {
@@ -15,7 +14,7 @@ function OrderCompleteFulfillment() {
   const flashShipToken = getTokenKey('flash-ship-tk');
   const [messageApi, contextHolder] = message.useMessage();
   const [dataPackage, setDataPackage] = useState([]);
-  const [openLoginFlashShip, setOpenLoginFlashShip ] = useState(false);
+  const [openLoginFlashShip, setOpenLoginFlashShip] = useState(false);
   const { packageFulfillmentCompleted, getAllOrders, orders } = useShopsOrder((state) => state);
   const { LoginFlashShip, detailOrderFlashShip, cancelOrderFlashShip } = useFlashShipStores((state) => state);
 
@@ -64,29 +63,33 @@ function OrderCompleteFulfillment() {
         content: `Đăng nhập thất bại. Vui lòng thử lại. ${err}`,
       });
     };
-    LoginFlashShip(values, onSuccess, onFail)
-  }
+    LoginFlashShip(values, onSuccess, onFail);
+  };
 
   const handleDetailFlashShip = (orderCode) => {
     const onSuccess = (res) => {
       console.log(res);
-    }
+    };
 
     const onFail = (err) => {
       console.log(err);
-    }
-    detailOrderFlashShip(orderCode, onSuccess, onFail)
-  }
+    };
+    detailOrderFlashShip(orderCode, onSuccess, onFail);
+  };
 
   const handleCancelOrderFlashShip = (orderCode) => {
     const data = {
-      "orderCodeList": [orderCode],
-      "rejectNote": "wrong design"
-    }
+      orderCodeList: [orderCode],
+      rejectNote: 'wrong design',
+    };
 
-    cancelOrderFlashShip(data, () => {}, () => {})
-  }
-  
+    cancelOrderFlashShip(
+      data,
+      () => { },
+      () => { },
+    );
+  };
+
   const generateColumns = (showActionsColumn) => {
     const columns = [
       {
@@ -165,23 +168,19 @@ function OrderCompleteFulfillment() {
             </li>
           </ul>
         ),
-      }
+      },
     ];
 
     if (showActionsColumn) {
       columns.push({
-        title: "Actions",
-        dataIndex: "actions",
-        key: "actions",
+        title: 'Actions',
+        dataIndex: 'actions',
+        key: 'actions',
         align: 'center',
         render: (_, record) => (
           <div className="flex gap-2 justify-center">
             <Tooltip title="Xem chi tiết" color="blue">
-              <Button
-                size="small"
-                icon={<EyeOutlined />}
-                onClick={() => handleDetailFlashShip(record.order_code)}
-              />
+              <Button size="small" icon={<EyeOutlined />} onClick={() => handleDetailFlashShip(record.order_code)} />
             </Tooltip>
             <Popconfirm
               placement="topRight"
@@ -213,7 +212,7 @@ function OrderCompleteFulfillment() {
     getAllOrders(shopId);
 
     if (flashShipToken === null) {
-      setOpenLoginFlashShip(true)
+      setOpenLoginFlashShip(true);
     }
   }, [flashShipToken]);
 
