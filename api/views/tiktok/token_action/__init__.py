@@ -6,13 +6,13 @@ from api.views import APIView, Response, get_object_or_404
 
 from ....models import Shop
 
-logger = logging.getLogger('api.views.token')
+logger = logging.getLogger("api.views.token")
 setup_logging(logger, is_root=False, level=logging.INFO)
 
 
 class RefreshToken(APIView):
     """
-        Refresh token của shop sau 7 ngày
+    Refresh token của shop sau 7 ngày
     """
 
     def post(self, request, shop_id: int):
@@ -21,13 +21,13 @@ class RefreshToken(APIView):
         # Call TikTok Shop API để refresh token của
         response = token.refreshToken(refresh_token=shop.refresh_token)
         json_data = response.json()
-        data = json_data.get('data', {})
+        data = json_data.get("data", {})
 
         # Lấy ra refresh token mới
-        access_token = data.get('access_token', None)
-        refresh_token = data.get('refresh_token', None)
+        access_token = data.get("access_token", None)
+        refresh_token = data.get("refresh_token", None)
 
-        logger.info(f'Access token: {access_token}, Refresh token: {refresh_token}')
+        logger.info(f"Access token: {access_token}, Refresh token: {refresh_token}")
 
         # Update refresh token mới vào database
         shop.access_token = access_token

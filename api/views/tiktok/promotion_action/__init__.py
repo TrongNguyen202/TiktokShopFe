@@ -22,7 +22,9 @@ class GetPromotionsView(APIView):
         page_number = request.GET.get("page_number")
         page_size = request.GET.get("page_size")
 
-        data = promotion.get_promotions(access_token=shop.access_token, status=status, page_number=page_number, page_size=page_size)
+        data = promotion.get_promotions(
+            access_token=shop.access_token, status=status, page_number=page_number, page_size=page_size
+        )
 
         return JsonResponse(data)
 
@@ -31,7 +33,9 @@ class GetPromotionDetailView(APIView):
     def get(self, request, shop_id: int, promotion_id: int):
         shop = get_object_or_404(Shop, id=shop_id)
 
-        data = promotion.get_promotion_detail(access_token=shop.access_token, shop_id=str(shop_id), promotion_id=str(promotion_id))
+        data = promotion.get_promotion_detail(
+            access_token=shop.access_token, shop_id=str(shop_id), promotion_id=str(promotion_id)
+        )
 
         return JsonResponse(data)
 
