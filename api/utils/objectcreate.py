@@ -12,7 +12,7 @@ class SKU:
             "sales_attributes": sales_attributes_json,
             "original_price": self.original_price,
             "stock_infos": stock_infos_json,
-            "seller_sku": self.seller_sku
+            "seller_sku": self.seller_sku,
         }
 
 
@@ -22,10 +22,7 @@ class AttributeValue:
         self.value_name = value_name
 
     def to_json(self):
-        return {
-            "value_id": self.value_id,
-            "value_name": self.value_name
-        }
+        return {"value_id": self.value_id, "value_name": self.value_name}
 
 
 class ProductAttribute:
@@ -35,10 +32,7 @@ class ProductAttribute:
 
     def to_json(self):
         values_json = [value.to_json() for value in self.attribute_values]
-        return {
-            "attribute_id": self.attribute_id,
-            "attribute_values": values_json
-        }
+        return {"attribute_id": self.attribute_id, "attribute_values": values_json}
 
 
 class SalesAttribute:
@@ -51,7 +45,7 @@ class SalesAttribute:
         return {
             "attribute_id": self.attribute_id,
             "attribute_name": self.attribute_name,
-            "custom_value": self.custom_value
+            "custom_value": self.custom_value,
         }
 
 
@@ -61,17 +55,24 @@ class StockInfo:
         self.available_stock = available_stock
 
     def to_json(self):
-        return {
-            "warehouse_id": self.warehouse_id,
-            "available_stock": self.available_stock
-        }
+        return {"warehouse_id": self.warehouse_id, "available_stock": self.available_stock}
 
 
 class ProductCreateMultiObject:
-    def __init__(self, is_cod_open,
-                 package_dimension_unit, package_height, package_length, package_weight, package_width,
-                 category_id, warehouse_id, description, skus, size_chart):
-
+    def __init__(
+        self,
+        is_cod_open,
+        package_dimension_unit,
+        package_height,
+        package_length,
+        package_weight,
+        package_width,
+        category_id,
+        warehouse_id,
+        description,
+        skus,
+        size_chart,
+    ):
         self.is_cod_open = is_cod_open
         self.package_dimension_unit = package_dimension_unit
         self.package_height = package_height
@@ -98,5 +99,5 @@ class ProductCreateMultiObject:
             "warehouse_id": self.warehouse_id,
             "description": self.description,
             "skus": skus_json,
-            "size_chart": self.size_chart
+            "size_chart": self.size_chart,
         }

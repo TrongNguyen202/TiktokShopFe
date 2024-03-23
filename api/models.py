@@ -51,8 +51,12 @@ class Image(models.Model):
 
 
 class AppKey(models.Model):
-    app_key = models.CharField(null=False, help_text="App key lấy từ tiktok app for developer", max_length=500, default="")
-    secret = models.CharField(null=False, help_text="App secret lấy từ tiktok app for developer", max_length=500, default="")
+    app_key = models.CharField(
+        null=False, help_text="App key lấy từ tiktok app for developer", max_length=500, default=""
+    )
+    secret = models.CharField(
+        null=False, help_text="App secret lấy từ tiktok app for developer", max_length=500, default=""
+    )
 
 
 class Categories(models.Model):

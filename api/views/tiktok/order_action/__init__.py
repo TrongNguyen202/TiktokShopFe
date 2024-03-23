@@ -26,7 +26,13 @@ from api.views import (
 )
 
 from ....models import BuyedPackage, DesignSku, DesignSkuChangeHistory, GroupCustom, Package, Shop, UserGroup
-from ....serializers import BuyedPackageSeri, DesignSkuPutSerializer, DesignSkuSerializer, GroupCustomSerializer, PackageSerializer
+from ....serializers import (
+    BuyedPackageSeri,
+    DesignSkuPutSerializer,
+    DesignSkuSerializer,
+    GroupCustomSerializer,
+    PackageSerializer,
+)
 
 logger = logging.getLogger("views.tiktok.order_action")
 setup_logging(logger, is_root=False, level=logging.INFO)
@@ -69,9 +75,10 @@ class OrderDetail(APIView):
             with ThreadPoolExecutor(max_workers=40) as executor:
                 futures = []
                 for i in range(0, len(orderIds), 50):
-                    chunk_ids = orderIds[i: i + 50]
-                    futures.append(executor.submit(order.callOrderDetail,
-                                   access_token=access_token, orderIds=chunk_ids))
+                    chunk_ids = orderIds[i : i + 50]
+                    futures.append(
+                        executor.submit(order.callOrderDetail, access_token=access_token, orderIds=chunk_ids)
+                    )
 
                 for future in futures:
                     response = future.result()
@@ -123,7 +130,8 @@ class ShippingService(APIView):
         shipping_services = data_inner.get("shipping_service_info", [])
 
         simplified_shipping_services = [
-            {"id": service.get("id"), "name": service.get("name")} for service in shipping_services]
+            {"id": service.get("id"), "name": service.get("name")} for service in shipping_services
+        ]
 
         response_data = {
             "data": simplified_shipping_services,
@@ -375,7 +383,8 @@ class DesignSkuDetailAPIView(APIView):
                 changed_at = datetime.now()
 
                 DesignSkuChangeHistory.objects.create(
-                    design_sku=designsku, user=user, change_data=old_data, changed_at=changed_at)
+                    design_sku=designsku, user=user, change_data=old_data, changed_at=changed_at
+                )
                 return Response("DesignSku updated successfully.", status=status.HTTP_200_OK)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -433,8 +442,11 @@ class DesignSkuSearch(APIView):
             designskus = designskus.filter(department_id=group_id)
 
         if search_query:
-            designskus = designskus.filter(Q(sku_id__icontains=search_query) | Q(
-                product_name__icontains=search_query) | Q(variation__icontains=search_query))
+            designskus = designskus.filter(
+                Q(sku_id__icontains=search_query)
+                | Q(product_name__icontains=search_query)
+                | Q(variation__icontains=search_query)
+            )
 
         paginator = self.pagination_class()
         result_page = paginator.paginate_queryset(designskus, request)
@@ -463,8 +475,9 @@ class ShippingDoc(APIView):
             # để thực hiện đồng thời
             futures = []
             for package_id in package_ids:
-                futures.append(executor.submit(order.callGetShippingDoc,
-                               package_id=package_id, access_token=access_token))
+                futures.append(
+                    executor.submit(order.callGetShippingDoc, package_id=package_id, access_token=access_token)
+                )
 
             # Thu thập kết quả từ các future và thêm vào danh sách doc_urls
             for future in futures:
@@ -526,8 +539,11 @@ class ToShipOrderAPI(APIView):
             response = requests.get(doc_url)
         except Exception as e:
             logger.error("Error when downloading PDF file", exc_info=e)
-            error_response = {"status": "error",
-                              "message": f"Có lỗi xảy ra khi tải file PDF label: {str(e)}", "data": None}
+            error_response = {
+                "status": "error",
+                "message": f"Có lỗi xảy ra khi tải file PDF label: {str(e)}",
+                "data": None,
+            }
             return error_response
 
         if response.status_code == 200:
@@ -558,7 +574,7 @@ class ToShipOrderAPI(APIView):
                 error_response = {
                     "status": "error",
                     "message": f'Có lỗi xảy ra khi gọi API OrderDetail: {order_details.get("message")}',
-                    "data": None
+                    "data": None,
                 }
                 return error_response
             else:
