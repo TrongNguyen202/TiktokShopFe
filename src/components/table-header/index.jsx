@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { Button, DatePicker, Space } from 'antd';
 import Search from 'antd/es/transfer/search';
 import { useEffect } from 'react';
-import { useDebounced } from '../../hooks/useDebounce';
+import { useDebounce } from '../../hooks/useDebounce';
 
 export default function TableHeader({ onSearch, params, setParams, titleDatePicker1, titleDatePicker2, isStore }) {
   const {
@@ -14,7 +14,7 @@ export default function TableHeader({ onSearch, params, setParams, titleDatePick
     begin_date_expried,
     end_date_expried,
   } = params;
-  const keywordSearch = useDebounced(search, 500);
+  const keywordSearch = useDebounce(search, 500);
   const query = `page=1&search=${search}&begin_date_register=${begin_date_register}&end_date_register=${end_date_register}&begin_last_visit_time=${begin_last_visit_time}&end_last_visit_time=${end_last_visit_time}`;
   const queryStore = `page=1&search=${search}&begin_date_register=${begin_date_register}&end_date_register=${end_date_register}&begin_date_expried=${begin_date_expried}&end_date_expried=${end_date_expried}`;
 
