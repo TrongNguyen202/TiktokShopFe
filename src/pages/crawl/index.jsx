@@ -197,17 +197,18 @@ export default function Crawl() {
           return;
         }
         const combineProducts = productData.map((item) => {
-          const product = data.data.find((product) => item.id.split('.')[0] === product.listing_id);
+          const product = data.data.find((product) => item.siteProductId === String(product.listing_id));
           return {
             ...item,
             ...product,
           };
         });
+        console.log('combineProducts: ', combineProducts);
         setProductList(combineProducts);
         localStorage.setItem('productList', JSON.stringify(combineProducts));
       })
       .catch((error) => {
-        message.error(error.data.message);
+        message.error(error?.data?.message);
       })
       .finally(() => {
         setLoading(false);

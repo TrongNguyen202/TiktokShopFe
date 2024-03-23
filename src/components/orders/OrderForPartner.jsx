@@ -88,7 +88,7 @@ function OrderForPartner({ toShipInfoData }) {
           const checkProductType = flashShipVariants?.filter((variant) => 
             variationObjectSize.find(item => item.toUpperCase() === variant.product_type.toUpperCase())
           );
-          // console.log('checkProductType: ', checkProductType);
+
           if (!checkProductType.length) {
             isFlashShip = false;
           }
@@ -103,7 +103,6 @@ function OrderForPartner({ toShipInfoData }) {
                 return variationObjectSize.find(item => item.toUpperCase() === size.size.toUpperCase())
               });
   
-              console.log('checkSize: ', checkSize);
               if (checkSize) {
                 result.variant_id = checkSize.variant_id;
               } else {
@@ -121,6 +120,7 @@ function OrderForPartner({ toShipInfoData }) {
       orderPartner.buyer_email = dataItem.order_list[0].buyer_email;
       orderPartner.order_list = variations;
       orderPartner.is_FlashShip = isFlashShip;
+      orderPartner.order_id = dataItem.order_list[0].order_id;
       return orderPartner;
     });
 
@@ -183,31 +183,34 @@ function OrderForPartner({ toShipInfoData }) {
   };
 
   const handleConvertDataPackageCreate = (data, key) => {
-    const result = data.map((item) => ({
-      order_id: item.package_id,
-      buyer_first_name: item.name_buyer?.split(' ')[0] || '',
-      buyer_last_name: item.name_buyer?.split(' ')[1] || '',
-      buyer_email: item.buyer_email,
-      buyer_phone: '',
-      buyer_address1: item.street?.trim(),
-      buyer_address2: '',
-      buyer_city: item.city,
-      buyer_province_code: item.state?.trim(),
-      buyer_zip: item.zip_code,
-      buyer_country_code: 'US',
-      shipment: 1,
-      linkLabel: item.label,
-      products: item.order_list.map((product) => {
-        return {
-          variant_id: key === 'PrintCare' ? 'POD097' : product.variant_id,
-          printer_design_front_url: product.image_design_front || null,
-          printer_design_back_url: product.image_design_back || null,
-          quantity: product.quantity,
-          note: '',
-        };
-      }),
-    }));
-
+    const result = data.map((item) => {
+      const orderList = item.order_list.map(order => ({
+        package_id: item.package_id,
+        order_id: item.order_id,
+        buyer_first_name: item.name_buyer?.split(' ')[0] || '',
+        buyer_last_name: item.name_buyer?.split(' ')[1] || '',
+        buyer_email: item.buyer_email,
+        buyer_phone: '',
+        buyer_address1: item.street?.trim(),
+        buyer_address2: '',
+        buyer_city: item.city,
+        buyer_province_code: item.state?.trim(),
+        buyer_zip: item.zip_code,
+        buyer_country_code: 'US',
+        shipment: 1,
+        linkLabel: item.label,
+        products: [
+          {
+            variant_id: key === 'PrintCare' ? 'POD097' : order.variant_id,
+            printer_design_front_url: order.image_design_front || null,
+            printer_design_back_url: order.image_design_back || null,
+            quantity: order.quantity,
+            note: '',
+          }
+        ],
+      }));
+      return orderList;
+    }).flat();
     return result;
   };
 
@@ -233,6 +236,7 @@ function OrderForPartner({ toShipInfoData }) {
     const itemsWithNullImages = orderList.filter(
       (item) => item.image_design_front === null && item.image_design_back === null,
     );
+
     if (itemsWithNullImages.length > 0) {
       const productIds = itemsWithNullImages.map((product) => product.product_id);
       api.open({
@@ -244,9 +248,9 @@ function OrderForPartner({ toShipInfoData }) {
       });
     } else {
       const dataSubmitFlashShip = handleConvertDataPackageCreate(handAddDesignToShipInfoData, 'FlashShip');
-
-      // eslint-disable-next-line array-callback-return
       dataSubmitFlashShip.map((item) => {
+        const dataCreateOrder = {...item};
+        delete dataCreateOrder.package_id;
         const onCreateSuccess = (resCreate) => {
           api.open({
             message: `Đơn hàng ${item.order_id}`,
@@ -260,31 +264,28 @@ function OrderForPartner({ toShipInfoData }) {
               orderCode: resCreate.data
             }
   
-            console.log('dataCreateOrder: ', dataCreateOrder);
-  
-            const onSuccessPackageCreate = (resPackage) => {
-              if (resPackage) {
-                navigate(`/shops/${shopId}/orders/fulfillment/completed`);
-              }
-            };
-  
-            const onFailPackageCreate = (errPackage) => {
-              console.log('errPackage: ', errPackage);
-            };
-  
-            packageCreateFlashShip(shopId, dataCreateOrder, onSuccessPackageCreate, onFailPackageCreate);
+            if (resCreate.data !== null) {
+              const onSuccessPackageCreate = (resPackage) => {
+                if (resPackage) {
+                  navigate(`/shops/${shopId}/orders/fulfillment/completed`);
+                }
+              };
+    
+              const onFailPackageCreate = (errPackage) => {};
+    
+              packageCreateFlashShip(shopId, dataCreateOrder, onSuccessPackageCreate, onFailPackageCreate);
+            }
           }
         };
 
         const onCreateFail = (errCreate) => {
-          console.log(errCreate);
           messageApi.open({
             type: 'error',
             content: `Đơn hàng ${item.order_id} có lỗi : ${errCreate.err}`,
           });
         };
 
-        createOrderFlashShip(item, onCreateSuccess, onCreateFail);
+        createOrderFlashShip(dataCreateOrder, onCreateSuccess, onCreateFail);
       });
     }
   }
@@ -435,6 +436,11 @@ function OrderForPartner({ toShipInfoData }) {
       dataIndex: 'package_id',
       key: 'package_id',
     },
+    // {
+    //   title: 'Order ID',
+    //   dataIndex: 'package_id',
+    //   key: 'package_id',
+    // },
     {
       title: 'Product items',
       dataIndex: 'product_items',

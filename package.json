@@ -11,7 +11,7 @@
     "lint:fix": "eslint . --ext .js,.jsx --fix --cache",
     "prettier": "prettier --check \"src/**/(*.tsx|*.ts|*.css|*.scss)\"",
     "prettier:fix": "prettier --write \"src/**/(*.tsx|*.ts|*.css|*.scss)\"",
-    "preview": "vite preview --port 5173",
+    "preview": "vite preview --host --port 5173",
     "pre-commit": "npm run format && npm run lint"
   },
   "husky": {
