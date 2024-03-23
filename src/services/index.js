@@ -14,6 +14,7 @@ import { google } from './google';
 import { flashShip } from './flashShip';
 import { users } from './users';
 import { promotions } from './promotions';
+import { googleTrends } from './googleTrends';
 
 export const RepositoryRemote = {
   auth,
@@ -32,4 +33,5 @@ export const RepositoryRemote = {
   flashShip,
   users,
   promotions,
+  googleTrends,
 };
