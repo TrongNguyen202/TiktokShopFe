@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { Tabs, Row, Col, Card, Button, Select, Input, Table } from 'antd';
+import { Tabs, Row, Col, Card, Button, Select, Input, Table, Tag } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import PageTitle from '../../components/common/PageTitle';
 import { getPathByIndex } from '../../utils';
@@ -54,6 +54,19 @@ function Promotion() {
 
   const debouncedSearchValue = useDebounce(searchValue, 1000);
 
+  const renderStatusPromotion = (record) => {
+    if (record.status === 1) {
+      return <Tag color="processing">Upcoming</Tag>;
+    }
+    if (record.status === 2) {
+      return <Tag color="success">Ongoing</Tag>;
+    }
+    if (record.status === 3) {
+      return <Tag color="error">Expired</Tag>;
+    }
+    return <Tag color="default">Deactivated</Tag>;
+  };
+
   const fetchPromotions = async () => {
     const { data } = await RepositoryRemote.promotions.getPromotions(shopId, 1, searchValue, filterStatus);
     if (data.success === false) {
@@ -72,14 +85,7 @@ function Promotion() {
           timeZone: 'America/Los_Angeles',
         }),
         promotion_type: promotion.promotion_type === 3 ? 'Flash sale' : 'Discount',
-        status:
-          promotion.status === 1
-            ? 'Upcoming'
-            : promotion.status === 2
-              ? 'Ongoing'
-              : promotion.status === 3
-                ? 'Expired'
-                : 'Deactivated',
+        status: renderStatusPromotion(promotion),
       };
     });
 
