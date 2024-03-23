@@ -53,15 +53,17 @@ function OrderForPartner({ toShipInfoData }) {
   const { getFlashShipPODVariant, LoginFlashShip, createOrderFlashShip } = useFlashShipStores((state) => state);
 
   const checkDataPartner = (data) => {
-    const dataCheck = data.map(order => {
-      order.order_list[0].item_list = order.order_list[0].item_list.filter(item => item.sku_name !== "Default");
-      return order;
-    }).filter(order => order.order_list[0].item_list.length > 0);
+    const dataCheck = data
+      .map((order) => {
+        order.order_list[0].item_list = order.order_list[0].item_list.filter((item) => item.sku_name !== 'Default');
+        return order;
+      })
+      .filter((order) => order.order_list[0].item_list.length > 0);
 
     const orderPartnerResult = dataCheck?.map((dataItem) => {
       const orderPartner = { ...dataItem };
       const itemList = dataItem?.order_list?.flatMap((item) => item.item_list);
-      const itemListRemovePhysical = itemList.filter(item => item.sku_name !== 'Default')
+      const itemListRemovePhysical = itemList.filter((item) => item.sku_name !== 'Default');
       let isFlashShip = true;
       const variations = itemListRemovePhysical.map((variation) => {
         if (!isFlashShip) return variation;
@@ -85,24 +87,24 @@ function OrderForPartner({ toShipInfoData }) {
           isFlashShip = false;
         } else {
           const variationObjectSize = variationObject?.size?.split(/[\s-,]/).filter(Boolean);
-          const checkProductType = flashShipVariants?.filter((variant) => 
-            variationObjectSize.find(item => item.toUpperCase() === variant.product_type.toUpperCase())
+          const checkProductType = flashShipVariants?.filter((variant) =>
+            variationObjectSize.find((item) => item.toUpperCase() === variant.product_type.toUpperCase()),
           );
 
           if (!checkProductType.length) {
             isFlashShip = false;
           }
-  
+
           if (checkProductType.length) {
             const checkColor = checkProductType.filter(
               (color) => color.color.toUpperCase() === variationObject?.color?.replace(' ', '').toUpperCase(),
             );
-  
+
             if (checkColor.length) {
               const checkSize = checkColor.find((size) => {
-                return variationObjectSize.find(item => item.toUpperCase() === size.size.toUpperCase())
+                return variationObjectSize.find((item) => item.toUpperCase() === size.size.toUpperCase());
               });
-  
+
               if (checkSize) {
                 result.variant_id = checkSize.variant_id;
               } else {
@@ -183,34 +185,36 @@ function OrderForPartner({ toShipInfoData }) {
   };
 
   const handleConvertDataPackageCreate = (data, key) => {
-    const result = data.map((item) => {
-      const orderList = item.order_list.map(order => ({
-        package_id: item.package_id,
-        order_id: item.order_id,
-        buyer_first_name: item.name_buyer?.split(' ')[0] || '',
-        buyer_last_name: item.name_buyer?.split(' ')[1] || '',
-        buyer_email: item.buyer_email,
-        buyer_phone: '',
-        buyer_address1: item.street?.trim(),
-        buyer_address2: '',
-        buyer_city: item.city,
-        buyer_province_code: item.state?.trim(),
-        buyer_zip: item.zip_code,
-        buyer_country_code: 'US',
-        shipment: 1,
-        linkLabel: item.label,
-        products: [
-          {
-            variant_id: key === 'PrintCare' ? 'POD097' : order.variant_id,
-            printer_design_front_url: order.image_design_front || null,
-            printer_design_back_url: order.image_design_back || null,
-            quantity: order.quantity,
-            note: '',
-          }
-        ],
-      }));
-      return orderList;
-    }).flat();
+    const result = data
+      .map((item) => {
+        const orderList = item.order_list.map((order) => ({
+          package_id: item.package_id,
+          order_id: item.order_id,
+          buyer_first_name: item.name_buyer?.split(' ')[0] || '',
+          buyer_last_name: item.name_buyer?.split(' ')[1] || '',
+          buyer_email: item.buyer_email,
+          buyer_phone: '',
+          buyer_address1: item.street?.trim(),
+          buyer_address2: '',
+          buyer_city: item.city,
+          buyer_province_code: item.state?.trim(),
+          buyer_zip: item.zip_code,
+          buyer_country_code: 'US',
+          shipment: 1,
+          linkLabel: item.label,
+          products: [
+            {
+              variant_id: key === 'PrintCare' ? 'POD097' : order.variant_id,
+              printer_design_front_url: order.image_design_front || null,
+              printer_design_back_url: order.image_design_back || null,
+              quantity: order.quantity,
+              note: '',
+            },
+          ],
+        }));
+        return orderList;
+      })
+      .flat();
     return result;
   };
 
@@ -249,7 +253,7 @@ function OrderForPartner({ toShipInfoData }) {
     } else {
       const dataSubmitFlashShip = handleConvertDataPackageCreate(handAddDesignToShipInfoData, 'FlashShip');
       dataSubmitFlashShip.map((item) => {
-        const dataCreateOrder = {...item};
+        const dataCreateOrder = { ...item };
         delete dataCreateOrder.package_id;
         const onCreateSuccess = (resCreate) => {
           api.open({
@@ -261,18 +265,18 @@ function OrderForPartner({ toShipInfoData }) {
           if (resCreate) {
             const dataCreateOrder = {
               ...item,
-              orderCode: resCreate.data
-            }
-  
+              orderCode: resCreate.data,
+            };
+
             if (resCreate.data !== null) {
               const onSuccessPackageCreate = (resPackage) => {
                 if (resPackage) {
                   navigate(`/shops/${shopId}/orders/fulfillment/completed`);
                 }
               };
-    
-              const onFailPackageCreate = (errPackage) => {};
-    
+
+              const onFailPackageCreate = (errPackage) => { };
+
               packageCreateFlashShip(shopId, dataCreateOrder, onSuccessPackageCreate, onFailPackageCreate);
             }
           }
@@ -288,22 +292,22 @@ function OrderForPartner({ toShipInfoData }) {
         createOrderFlashShip(dataCreateOrder, onCreateSuccess, onCreateFail);
       });
     }
-  }
+  };
 
   const handleCreateOrderFlashShip = () => {
     if (flashShipToken === null) {
-      setOpenLoginFlashShip(true)
+      setOpenLoginFlashShip(true);
     } else {
-      handleCreateOrderFlashShipAPI()
+      handleCreateOrderFlashShipAPI();
     }
-  }
+  };
 
   const handleLoginFlashShip = (values) => {
     const onSuccess = (res) => {
       if (res) {
         setToken('flash-ship-tk', res.data.access_token);
         setOpenLoginFlashShip(false);
-        handleCreateOrderFlashShipAPI()
+        handleCreateOrderFlashShipAPI();
       }
     };
 
@@ -380,7 +384,7 @@ function OrderForPartner({ toShipInfoData }) {
         City: product.city,
         Zip: product.zip_code,
         Quantity: product.quantity,
-        'Variant ID': key=== 'PrintCare' ? product.sku_name : product.variant_id,
+        'Variant ID': key === 'PrintCare' ? product.sku_name : product.variant_id,
         'Print area front': product.image_design_front,
         'Print area back': product.image_design_back,
         'Mockup Front': '',
@@ -586,11 +590,7 @@ function OrderForPartner({ toShipInfoData }) {
             />
           </div>
           <Space>
-            <Button
-              type="primary"
-              onClick={handleCreateOrderFlashShip}
-              disabled={!tableFlashShipSelected.length}
-            >
+            <Button type="primary" onClick={handleCreateOrderFlashShip} disabled={!tableFlashShipSelected.length}>
               Create Order with FlashShip
             </Button>
             <Button
