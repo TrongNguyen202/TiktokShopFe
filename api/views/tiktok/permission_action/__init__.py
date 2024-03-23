@@ -193,3 +193,7 @@ class PermissionRole(APIView):
     def isManagerOrAdmin(self, user):
         user_group = get_object_or_404(UserGroup, user=user)
         return user_group.role
+
+
+
+

@@ -94,6 +94,7 @@ fulfillment_urls = [
     path("shop/<int:shop_id>/packages/create_flash", tiktok.order_action.PackageCreateForFlash.as_view(), name="package_create_flash_ship"),
     path("shop/<int:shop_id>/packages/create_print", tiktok.order_action.PackageCreateForPrint.as_view(), name="package_create_prin_care"),
     path("shop/<int:shop_id>/packages/list", tiktok.order_action.PackageListByShop.as_view(), name="get_list_package"),
+    path("flashship/account", flashshipapi.FlashShipAccountApi.as_view(), name="flashship_account"),
 ]
 
 
