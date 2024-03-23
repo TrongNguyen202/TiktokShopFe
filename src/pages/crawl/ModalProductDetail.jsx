@@ -43,6 +43,7 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
   const [imageLink, setImageLink] = useState('');
   const [productTitle, setProductTitle] = useState(product.title);
   const [productDescription, setProductDescription] = useState(product.description);
+  const [sellerSku, setSellerSku] = useState(product.sku);
 
   const handlePreview = async (file) => {
     if (!file.url && !file.preview) file.preview = await getBase64(file.originFileObj);
@@ -92,6 +93,7 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
       images: fileList,
       title: productTitle,
       description: productDescription,
+      sku: sellerSku,
     };
     handleChangeProduct(newProduct);
     setIsOpenModal(false);
@@ -147,6 +149,11 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
         <Form.Item label="Title:" labelCol={{ span: 24 }}>
           <Input value={productTitle} onChange={(e) => setProductTitle(e.target.value)} />
         </Form.Item>
+
+        <Form.Item label="Seller sku:" labelCol={{ span: 24 }}>
+          <Input value={sellerSku} onChange={(e) => setSellerSku(e.target.value)} placeholder="Enter seller sku here" />
+        </Form.Item>
+
         <Form.Item label="Description" wrapperCol={{ span: 24 }}>
           <Input.TextArea
             value={productDescription}

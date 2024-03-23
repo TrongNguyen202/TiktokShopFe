@@ -250,8 +250,18 @@ export default function Crawl() {
     // giới hạn ảnh theo imagesLimit
     productData.forEach((product) => {
       product.images = product.images.slice(0, optionCrawl.imagesLimit);
+      // kiểm tra từng phần tử trong product.images, nếu url chứa 'https://i.etsystatic.com' thì giảm dung lượng link ảnh bằng 1200x1200
+      const newImages = product.images.map((image) => {
+        if (image.url.includes('https://i.etsystatic.com')) {
+          return {
+            ...image,
+            url: image.url.replace('fullxfull', '1200x1200'),
+          };
+        }
+        return image;
+      });
+      product.images = newImages;
     });
-    console.log('productData: ', productData);
 
     // lấy danh sách id của sản phẩm để get thông tin sản phẩm
     const ids = productData.map((item) => item.id.split('.')[0]).join(',');

@@ -17,6 +17,14 @@ export default function ModalUserForm({ isShowModal, setIsShowModal, userSelecte
     }));
 
   const onFinish = (values) => {
+    if (!values?.username) {
+      message.warning('');
+      return;
+    }
+    if (!values?.password) {
+      message.warning('Password is required');
+      return;
+    }
     const dataUpdate = {
       ...values,
       user_id: userSelected?.user_id || '',
@@ -62,7 +70,7 @@ export default function ModalUserForm({ isShowModal, setIsShowModal, userSelecte
   return (
     <div className="">
       <Modal
-        title="Chỉnh sửa thông tin nhân viên"
+        title="Thông tin nhân viên"
         visible={isShowModal}
         // onOk={onFinish}
         okText="Save"
@@ -87,17 +95,29 @@ export default function ModalUserForm({ isShowModal, setIsShowModal, userSelecte
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label="User Name" name="username">
+                  <Form.Item
+                    label="User Name"
+                    name="username"
+                    rules={[{ required: true, message: 'User name is required' }]}
+                  >
                     <Input placeholder="User Name" />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label="Password" name="password">
+                  <Form.Item
+                    label="Password"
+                    name="password"
+                    rules={[{ required: true, message: 'Password is required' }]}
+                  >
                     <Input.Password placeholder="password" />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label="User code" name="user_code">
+                  <Form.Item
+                    label="User code"
+                    name="user_code"
+                    rules={[{ required: true, message: 'User code is required' }]}
+                  >
                     <Input placeholder="User code" />
                   </Form.Item>
                 </Col>

@@ -65,7 +65,6 @@ function OrderCheckDesign({ toShipInfoData }) {
     const dataDesignSku = dataCheckResult.filter((checkItem) => {
       return !designSku?.some((designItem) => designItem.sku_id === checkItem.sku_id);
     });
-    console.log('dataDesignSku: ', dataDesignSku);
 
     if (dataDesignSku.length) {
       setOpenNewDesignModal(true);

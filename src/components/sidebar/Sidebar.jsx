@@ -18,13 +18,14 @@ import LogoCollapse from '../../assets/images/favicon.png';
 import Logo from '../../assets/images/text_logo_FLN.png';
 import { hasDesignerPermission, hasManagerPermission, hasSellerPermission } from '../../utils/permission';
 import { StyledLogo, StyledSidebar } from './Sidebar.style';
+import { useAuthStore } from '../../store/authStore';
 
 function Sidebar({ collapsed }) {
   const path = window.location.pathname;
   const navigate = useNavigate();
+  const { profile } = useAuthStore();
   const [showMenuMobile, setShowMenuMobile] = useState(false);
   const [menuSidebar, setMenuSidebar] = useState([]);
-  // const { stores, loading, getAllStores, refreshToken } = useShopsStore((state) => state)
 
   useEffect(() => {
     window.addEventListener('beforeunload', () => {});
@@ -109,7 +110,7 @@ function Sidebar({ collapsed }) {
 
   useEffect(() => {
     setMenuSidebar(initMenuSidebar);
-  }, [JSON.stringify(localStorage.getItem('user'))]);
+  }, [profile]);
 
   if (!hasManagerPermission() && !hasSellerPermission() && !hasDesignerPermission()) {
     return null;

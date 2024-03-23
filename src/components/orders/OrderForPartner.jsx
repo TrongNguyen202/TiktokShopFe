@@ -19,15 +19,16 @@ import { useNavigate } from 'react-router-dom';
 
 import { useShopsOrder } from '../../store/ordersStore';
 import { getPathByIndex } from '../../utils';
-import { setToken } from '../../utils/auth';
+import { setToken, getTokenKey } from '../../utils/auth';
 
 import SectionTitle from '../common/SectionTitle';
 import DesignEdit from '../design-sku/DesignEdit';
-import { useFlashShipStores } from '../../store/flashshipStores';
+import { useFlashShipStores } from '../../store/flashShipStores';
 
 function OrderForPartner({ toShipInfoData }) {
   const navigate = useNavigate();
   const shopId = getPathByIndex(2);
+  const flashShipToken = getTokenKey('flash-ship-tk');
   const [messageApi, contextHolder] = message.useMessage();
   const [api, notificationContextHolder] = notification.useNotification();
   const [designSku, setDesignSku] = useState([]);
@@ -52,15 +53,21 @@ function OrderForPartner({ toShipInfoData }) {
   const { getFlashShipPODVariant, LoginFlashShip, createOrderFlashShip } = useFlashShipStores((state) => state);
 
   const checkDataPartner = (data) => {
-    const orderPartnerResult = data?.map((dataItem) => {
+    const dataCheck = data.map(order => {
+      order.order_list[0].item_list = order.order_list[0].item_list.filter(item => item.sku_name !== "Default");
+      return order;
+    }).filter(order => order.order_list[0].item_list.length > 0);
+
+    const orderPartnerResult = dataCheck?.map((dataItem) => {
       const orderPartner = { ...dataItem };
       const itemList = dataItem?.order_list?.flatMap((item) => item.item_list);
+      const itemListRemovePhysical = itemList.filter(item => item.sku_name !== 'Default')
       let isFlashShip = true;
-      const variations = itemList.map((variation) => {
+      const variations = itemListRemovePhysical.map((variation) => {
         if (!isFlashShip) return variation;
         let variationObject = {};
         const result = { ...variation };
-        const variationSplit = variation?.sku_name?.split(', ');
+        const variationSplit = variation?.sku_name.split(', ');
 
         if (variationSplit.length === 3) {
           variationObject = {
@@ -74,32 +81,40 @@ function OrderForPartner({ toShipInfoData }) {
           };
         }
 
-        const checkProductType = flashShipVariants?.filter((variant) =>
-          variationObject?.size?.toUpperCase().includes(variant.product_type.toUpperCase()),
-        );
-
-        if (!checkProductType.length) {
+        if (variationObject.length < 2) {
           isFlashShip = false;
-        }
-
-        if (checkProductType.length) {
-          const checkColor = checkProductType.filter(
-            (color) => color.color.toUpperCase() === variationObject?.color?.replace(' ', '').toUpperCase(),
+        } else {
+          const variationObjectSize = variationObject?.size?.split(/[\s-,]/).filter(Boolean);
+          const checkProductType = flashShipVariants?.filter((variant) => 
+            variationObjectSize.find(item => item.toUpperCase() === variant.product_type.toUpperCase())
           );
-
-          if (checkColor.length) {
-            const checkSize = checkColor.find((size) =>
-              variationObject?.size?.toUpperCase().includes(size.size.replace(' ', '').toUpperCase()),
+          // console.log('checkProductType: ', checkProductType);
+          if (!checkProductType.length) {
+            isFlashShip = false;
+          }
+  
+          if (checkProductType.length) {
+            const checkColor = checkProductType.filter(
+              (color) => color.color.toUpperCase() === variationObject?.color?.replace(' ', '').toUpperCase(),
             );
-            if (checkSize) {
-              result.variant_id = checkSize.variant_id;
+  
+            if (checkColor.length) {
+              const checkSize = checkColor.find((size) => {
+                return variationObjectSize.find(item => item.toUpperCase() === size.size.toUpperCase())
+              });
+  
+              console.log('checkSize: ', checkSize);
+              if (checkSize) {
+                result.variant_id = checkSize.variant_id;
+              } else {
+                isFlashShip = false;
+              }
             } else {
               isFlashShip = false;
             }
-          } else {
-            isFlashShip = false;
           }
         }
+
         return result;
       });
 
@@ -196,77 +211,98 @@ function OrderForPartner({ toShipInfoData }) {
     return result;
   };
 
+  const handleCreateOrderFlashShipAPI = () => {
+    const handAddDesignToShipInfoData = tableFlashShipSelected.map((item) => {
+      const orderItem = item.order_list.map((order) => {
+        const design = designSku?.results?.find((skuItem) => skuItem.sku_id === order.sku_id);
+        if (design) {
+          order.image_design_front = design.image_front;
+          order.image_design_back = design.image_back;
+        }
+        return order;
+      });
+
+      const flashShipItem = {
+        ...item,
+        order_list: orderItem,
+      };
+      return flashShipItem;
+    });
+
+    const orderList = handAddDesignToShipInfoData.flatMap((item) => item.order_list);
+    const itemsWithNullImages = orderList.filter(
+      (item) => item.image_design_front === null && item.image_design_back === null,
+    );
+    if (itemsWithNullImages.length > 0) {
+      const productIds = itemsWithNullImages.map((product) => product.product_id);
+      api.open({
+        message: 'Lỗi khi tạo order',
+        description: `Ảnh design mặt trước và sau của ${productIds.join(
+          ', ',
+        )} không thể cùng trống. Vui lòng quay lại và thêm design`,
+        icon: <WarningOutlined style={{ color: 'red' }} />,
+      });
+    } else {
+      const dataSubmitFlashShip = handleConvertDataPackageCreate(handAddDesignToShipInfoData, 'FlashShip');
+
+      // eslint-disable-next-line array-callback-return
+      dataSubmitFlashShip.map((item) => {
+        const onCreateSuccess = (resCreate) => {
+          api.open({
+            message: `Đơn hàng ${item.order_id}`,
+            description: resCreate.err,
+            icon: <WarningOutlined style={{ color: 'red' }} />,
+          });
+
+          if (resCreate) {
+            const dataCreateOrder = {
+              ...item,
+              orderCode: resCreate.data
+            }
+  
+            console.log('dataCreateOrder: ', dataCreateOrder);
+  
+            const onSuccessPackageCreate = (resPackage) => {
+              if (resPackage) {
+                navigate(`/shops/${shopId}/orders/fulfillment/completed`);
+              }
+            };
+  
+            const onFailPackageCreate = (errPackage) => {
+              console.log('errPackage: ', errPackage);
+            };
+  
+            packageCreateFlashShip(shopId, dataCreateOrder, onSuccessPackageCreate, onFailPackageCreate);
+          }
+        };
+
+        const onCreateFail = (errCreate) => {
+          console.log(errCreate);
+          messageApi.open({
+            type: 'error',
+            content: `Đơn hàng ${item.order_id} có lỗi : ${errCreate.err}`,
+          });
+        };
+
+        createOrderFlashShip(item, onCreateSuccess, onCreateFail);
+      });
+    }
+  }
+
+  const handleCreateOrderFlashShip = () => {
+    if (flashShipToken === null) {
+      setOpenLoginFlashShip(true)
+    } else {
+      handleCreateOrderFlashShipAPI()
+    }
+  }
+
   const handleLoginFlashShip = (values) => {
     const onSuccess = (res) => {
       if (res) {
         setToken('flash-ship-tk', res.data.access_token);
         setOpenLoginFlashShip(false);
-        const handAddDesignToShipInfoData = tableFlashShipSelected.map((item) => {
-          const orderItem = item.order_list.map((order) => {
-            const design = designSku?.results?.find((skuItem) => skuItem.sku_id === order.sku_id);
-            if (design) {
-              order.image_design_front = design.image_front;
-              order.image_design_back = design.image_back;
-            }
-            return order;
-          });
-
-          const flashShipItem = {
-            ...item,
-            order_list: orderItem,
-          };
-          return flashShipItem;
-        });
-
-        const orderList = handAddDesignToShipInfoData.flatMap((item) => item.order_list);
-        const itemsWithNullImages = orderList.filter(
-          (item) => item.image_design_front === null && item.image_design_back === null,
-        );
-        if (itemsWithNullImages.length > 0) {
-          const productIds = itemsWithNullImages.map((product) => product.product_id);
-          api.open({
-            message: 'Lỗi khi tạo order',
-            description: `Ảnh design mặt trước và sau của ${productIds.join(
-              ', ',
-            )} không thể cùng trống. Vui lòng quay lại và thêm design`,
-            icon: <WarningOutlined style={{ color: 'red' }} />,
-          });
-        } else {
-          const dataSubmitFlashShip = handleConvertDataPackageCreate(handAddDesignToShipInfoData, 'FlashShip');
-
-          // eslint-disable-next-line array-callback-return
-          dataSubmitFlashShip.map((item) => {
-            const onCreateSuccess = (resCreate) => {
-              api.open({
-                message: `Đơn hàng ${item.order_id}`,
-                description: resCreate.err,
-                icon: <WarningOutlined style={{ color: 'red' }} />,
-              });
-
-              const onSuccessPackageCreate = (resPackage) => {
-                if (resPackage) {
-                  navigate(`/shops/${shopId}/orders/fulfillment/completed`);
-                }
-              };
-
-              const onFailPackageCreate = (errPackage) => {
-                console.log('errPackage: ', errPackage);
-              };
-
-              packageCreateFlashShip(shopId, item, onSuccessPackageCreate, onFailPackageCreate);
-            };
-
-            const onCreateFail = (errCreate) => {
-              console.log(errCreate);
-              messageApi.open({
-                type: 'error',
-                content: `Đơn hàng ${item.order_id} có lỗi : ${errCreate.err}`,
-              });
-            };
-
-            createOrderFlashShip(item, onCreateSuccess, onCreateFail);
-          });
-        }
+        handleCreateOrderFlashShipAPI()
       }
     };
 
@@ -379,9 +415,9 @@ function OrderForPartner({ toShipInfoData }) {
     onChange: (_, selectedRows) => {
       setTableFlashShipSelected(selectedRows);
     },
-    getCheckboxProps: () => ({
-      disabled: !allowCreateOrderPartner,
-    }),
+    // getCheckboxProps: () => ({
+    //   disabled: !allowCreateOrderPartner,
+    // }),
   };
 
   const rowSelectionPrintCare = {
@@ -546,7 +582,7 @@ function OrderForPartner({ toShipInfoData }) {
           <Space>
             <Button
               type="primary"
-              onClick={() => setOpenLoginFlashShip(true)}
+              onClick={handleCreateOrderFlashShip}
               disabled={!tableFlashShipSelected.length}
             >
               Create Order with FlashShip

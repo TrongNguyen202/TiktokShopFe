@@ -14,7 +14,7 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
   const [ordersCompleted, setOrderCompleted] = useState([]);
   const [labelSelected, setLabelSelected] = useState([]);
   const [messageApi, contextHolder] = message.useMessage();
-  const { uploadLabelToDriver, packageFulfillmentCompleted, loading } = useShopsOrder((state) => state);
+  const { uploadLabelToDriver, packageFulfillmentCompleted, loadingUpload } = useShopsOrder((state) => state);
 
   const columns = [
     {
@@ -50,8 +50,6 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
         ),
     },
   ];
-
-  console.log('ordersCompleted: ', ordersCompleted);
 
   const rowSelection = {
     onChange: (_, selectedRows) => {
@@ -124,7 +122,7 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
         dataSource={shippingDoc}
         bordered
         pagination={false}
-        loading={loading}
+        loading={loadingUpload}
         rowKey={(record) => record.package_id}
       />
     </div>

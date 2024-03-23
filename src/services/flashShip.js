@@ -19,18 +19,11 @@ const createOrderFlashShip = (body) => {
 };
 
 const cancelOrderFlashShip = (body) => {
-  return axios({
-    method: 'post',
-    url: `${c.API_FLASH_SHIP}/orders/seller-reject`,
-    data: body,
-  });
+  return callApiFlashShip(`/orders/seller-reject`, 'post', body);
 };
 
 const detailOrderFlashShip = (id) => {
-  return axios({
-    method: 'get',
-    url: `${c.API_FLASH_SHIP}/orders/${id}`,
-  });
+  return callApiFlashShip(`/orders/${id}`, 'get');
 };
 
 export const flashShip = {
