@@ -90,10 +90,7 @@ class AttributeValue:
         self.value_name = value_name
 
     def to_json(self):
-        return {
-            "value_id": self.value_id,
-            "value_name": self.value_name
-        }
+        return {"value_id": self.value_id, "value_name": self.value_name}
 
 
 class ProductAttribute:
@@ -103,16 +100,29 @@ class ProductAttribute:
 
     def to_json(self):
         values_json = [value.to_json() for value in self.attribute_values]
-        return {
-            "attribute_id": self.attribute_id,
-            "attribute_values": values_json
-        }
+        return {"attribute_id": self.attribute_id, "attribute_values": values_json}
 
 
 class ProductObject:
-    def __init__(self, product_id, product_name, images, price, is_cod_open,
-                 package_dimension_unit, package_height, package_length, package_weight, package_width,
-                 category_id, brand_id, description, skus, product_attributes, size_chart):
+    def __init__(
+        self,
+        product_id,
+        product_name,
+        images,
+        price,
+        is_cod_open,
+        package_dimension_unit,
+        package_height,
+        package_length,
+        package_weight,
+        package_width,
+        category_id,
+        brand_id,
+        description,
+        skus,
+        product_attributes,
+        size_chart,
+    ):
         self.product_id = product_id
         self.product_name = product_name
         self.images = images
@@ -149,7 +159,7 @@ class ProductObject:
             "description": self.description,
             "skus": skus_json,
             "product_attributes": attributes_json,
-            "size_chart": self.size_chart
+            "size_chart": self.size_chart,
         }
 
 
@@ -167,7 +177,7 @@ class SKU:
             "sales_attributes": sales_attributes_json,
             "original_price": self.original_price,
             "stock_infos": stock_infos_json,
-            "seller_sku": self.seller_sku
+            "seller_sku": self.seller_sku,
         }
 
 
@@ -183,7 +193,7 @@ class SalesAttribute:
             "attribute_id": self.attribute_id,
             "attribute_name": self.attribute_name,
             "value_id": self.value_id,
-            "value_name": self.value_name
+            "value_name": self.value_name,
         }
 
 
@@ -193,16 +203,12 @@ class StockInfo:
         self.available_stock = available_stock
 
     def to_json(self):
-        return {
-            "warehouse_id": self.warehouse_id,
-            "available_stock": self.available_stock
-        }
+        return {"warehouse_id": self.warehouse_id, "available_stock": self.available_stock}
 
 
 def count_bits(img_data):
-
     image = Image.open(io.BytesIO(base64.b64decode(img_data)))
-    mode_to_bpp = {'1': 1, 'L': 8, 'P': 8, 'RGB': 24, 'RGBA': 32, 'CMYK': 32, 'YCbCr': 24, 'I': 32, 'F': 32}
+    mode_to_bpp = {"1": 1, "L": 8, "P": 8, "RGB": 24, "RGBA": 32, "CMYK": 32, "YCbCr": 24, "I": 32, "F": 32}
     data = mode_to_bpp[image.mode]
     print(data)
     return data
@@ -215,6 +221,6 @@ def convert_to_rgb(img_data):
         rgb_image.paste(image)
         buffered = io.BytesIO()
         rgb_image.save(buffered, format="JPEG")
-        return base64.b64encode(buffered.getvalue()).decode('utf-8')
+        return base64.b64encode(buffered.getvalue()).decode("utf-8")
     except Exception:
         return None

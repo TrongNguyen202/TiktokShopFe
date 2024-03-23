@@ -8,7 +8,7 @@ exclude = [
     "venv",
 ]
 lint.ignore = []
-line-length = 160
+line-length = 120
 lint.select = [
     "E",
     "F",
@@ -16,3 +16,7 @@ lint.select = [
     "I001",
 ]
 src = ["./"]
+
+[tool.ruff.format]
+quote-style = "double"
+

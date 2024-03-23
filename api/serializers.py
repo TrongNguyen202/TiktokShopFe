@@ -1,4 +1,3 @@
-
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
@@ -97,7 +96,7 @@ class VerifySerializers(serializers.ModelSerializer):
 class ShopSerializers(serializers.ModelSerializer):
     class Meta:
         model = Shop
-        fields = '__all__'
+        fields = "__all__"
 
 
 class ShopRequestSerializers(serializers.ModelSerializer):
@@ -109,57 +108,73 @@ class ShopRequestSerializers(serializers.ModelSerializer):
 class TemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Templates
-        fields = '__all__'
+        fields = "__all__"
 
 
 class TemplatePutSerializer(serializers.ModelSerializer):
     class Meta:
         model = Templates
-        fields = ['name', 'category_id', 'description', 'is_cod_open', 'package_height', 'package_length',
-                  'package_weight', 'package_width', 'sizes', 'colors', 'type', 'types', 'badWords', 'suffixTitle', 'size_chart', 'fixed_images']
+        fields = [
+            "name",
+            "category_id",
+            "description",
+            "is_cod_open",
+            "package_height",
+            "package_length",
+            "package_weight",
+            "package_width",
+            "sizes",
+            "colors",
+            "type",
+            "types",
+            "badWords",
+            "suffixTitle",
+            "size_chart",
+            "fixed_images",
+        ]
 
 
 class BuyedPackageSeri(serializers.ModelSerializer):
     class Meta:
         model = BuyedPackage
-        fields = '__all__'
+        fields = "__all__"
 
 
 class DesignSkuSerializer(serializers.ModelSerializer):
     class Meta:
         model = DesignSku
-        fields = '__all__'
+        fields = "__all__"
 
 
 class DesignSkuPutSerializer(serializers.ModelSerializer):
     class Meta:
         model = DesignSku
-        fields = ['image_front', 'image_back']
+        fields = ["image_front", "image_back"]
         extra_kwargs = {
-            'image_front': {'required': False},
-            'image_back': {'required': False},
+            "image_front": {"required": False},
+            "image_back": {"required": False},
         }
 
 
 class GroupCustomSerializer(serializers.ModelSerializer):
     class Meta:
         model = GroupCustom
-        fields = ['id', 'group_name']
+        fields = ["id", "group_name"]
 
 
 class FlashShipPODVariantListSerializer(serializers.ModelSerializer):
     class Meta:
         model = FlashShipPODVariantList
-        fields = ['variant_id', 'color', 'size', 'product_type']
+        fields = ["variant_id", "color", "size", "product_type"]
 
 
 class ProductPackageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductPackage
-        fields = ['quantity', 'variant_id', 'note', 'printer_design_front_url', 'printer_design_back_url']
+        fields = ["quantity", "variant_id", "note", "printer_design_front_url", "printer_design_back_url"]
         extra_kwargs = {
-            'printer_design_front_url': {'allow_blank': True, 'required': False},
-            'printer_design_back_url': {'allow_blank': True, 'required': False}
+            "printer_design_front_url": {"allow_blank": True, "required": False},
+            "printer_design_back_url": {"allow_blank": True, "required": False},
         }
 
 
@@ -168,12 +183,27 @@ class PackageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Package
-        fields = ['order_id', 'buyer_first_name', 'buyer_last_name', 'buyer_email', 'buyer_phone',
-                  'buyer_address1', 'buyer_address2', 'buyer_city', 'buyer_province_code', 'buyer_zip',
-                  'buyer_country_code', 'shipment', 'linkLabel', 'products', 'fulfillment_name', 'shop']
+        fields = [
+            "order_id",
+            "buyer_first_name",
+            "buyer_last_name",
+            "buyer_email",
+            "buyer_phone",
+            "buyer_address1",
+            "buyer_address2",
+            "buyer_city",
+            "buyer_province_code",
+            "buyer_zip",
+            "buyer_country_code",
+            "shipment",
+            "linkLabel",
+            "products",
+            "fulfillment_name",
+            "shop",
+        ]
 
     def create(self, validated_data):
-        products_data = validated_data.pop('products')
+        products_data = validated_data.pop("products")
         package = Package.objects.create(**validated_data)
         for product_data in products_data:
             ProductPackage.objects.create(package=package, **product_data)
