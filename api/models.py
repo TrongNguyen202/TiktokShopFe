@@ -157,6 +157,7 @@ class Package(models.Model):
     linkLabel = models.CharField(max_length=1000, blank=True, null=True)
     fulfillment_name = models.CharField(max_length=500, null=True)
     shop = models.ForeignKey(Shop, on_delete=models.SET_NULL, null=True)
+    order_code = models.CharField(max_length=500, blank=True, null=True)
 
 
 class ProductPackage(models.Model):

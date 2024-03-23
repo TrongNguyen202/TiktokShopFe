@@ -174,7 +174,6 @@ class DesignSkuAdmin(admin.ModelAdmin):
         "department",
     )
 
-
 class DesignSkuChangeHistoryAdmin(admin.ModelAdmin):
     list_display = ("design_sku", "user", "changed_at")
     list_filter = ("user", "changed_at")
