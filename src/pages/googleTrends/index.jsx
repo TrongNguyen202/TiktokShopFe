@@ -1,4 +1,4 @@
-import { Button, Select, message } from 'antd';
+import { Button, Select, Spin, message } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useGoogleTrendStore } from '../../store/googleTrendStore';
 
@@ -84,7 +84,7 @@ const initTrendData = {
 };
 
 export default function GoogleTrends() {
-  const { getGoogleTrendOptions, googleTrendsOptions, loading } = useGoogleTrendStore();
+  const { getGoogleTrendOptions, loading, getGoogleTrendData, loadingCrawl } = useGoogleTrendStore();
 
   const [keywordOptions, setKeywordOptions] = useState(initDataKeyword);
   const [timeOptions, setTimeOptions] = useState(initDataTimes);
@@ -120,22 +120,21 @@ export default function GoogleTrends() {
   }, []);
 
   const onSubmit = () => {
-    // const onSuccess = (data) => {
-    //   setTrendsData(data);
-    // }
-    // const onFail = (error) => {
-    //   message.error(error);
-    // }
-    // getGoogleTrendOptions(params, onSuccess, onFail);
-    console.log('params: ', params);
+    const onSuccess = (data) => {
+      setTrendsData(data);
+    };
+    const onFail = (error) => {
+      message.error(error);
+    };
+    const query = `?keyword=${params.keyword}&time_frame=${params.time_frame}&max_results=20`;
+    getGoogleTrendData(query, onSuccess, onFail);
   };
 
-  const { keyword, time_frame, data } = trendsData ?? {};
   return (
     <div className="p-10">
       <div className="flex gap-3 items-end ">
         <div className="flex flex-col gap-1">
-          <label>Keywords</label>
+          <label>Keyword</label>
           <Select
             value={params.keyword}
             style={{
@@ -162,31 +161,37 @@ export default function GoogleTrends() {
           Xem dữ liệu
         </Button>
       </div>
+      <Spin spinning={loadingCrawl}>
+        <div>
+          <p className="text-[22px] mt-10">
+            Dữ liệu cho keyword: <span className="font-semibold">{params.keyword}</span>, timeframe:{' '}
+            <span className="font-semibold">{params.time_frame}</span>
+          </p>
 
-      <div>
-        <p className="text-[22px] mt-10">
-          Dữ liệu cho keyword: <span className="font-semibold">{keyword}</span>, timeframe:{' '}
-          <span className="font-semibold">{time_frame}</span>
-        </p>
+          {trendsData && trendsData.length ? (
+            trendsData.map((item, index) => {
+              return (
+                <div
+                  key={index}
+                  className="border-solid border-gray-300 py-3 mt-3 border-t-0 border-r-0 border-l-0 border-[1px]"
+                >
+                  <p>
+                    Cào lúc: <span className="font-semibold">{item.time_crawl}</span>
+                  </p>
 
-        {data && data.length ? (
-          data.map((item, index) => {
-            return (
-              <div
-                key={index}
-                className="border-solid border-gray-300 py-3 mt-3 border-t-0 border-r-0 border-l-0 border-[1px]"
-              >
-                <p>
-                  Cào lúc: <span className="font-semibold">{item.crawled_at}</span>
-                </p>
-                <p className="p-5 rounded-md bg-[#F8F9FB] mt-2">{item.content}</p>
-              </div>
-            );
-          })
-        ) : (
-          <p>Không lấy được dữ liệu</p>
-        )}
-      </div>
+                  <p className="p-5 py-2 rounded-md bg-[#F8F9FB] mt-2">
+                    <code style={{ whiteSpace: 'pre' }}>{item.content.replace('```', '')}</code>
+                  </p>
+                  {/* <p className="p-5 rounded-md bg-[#F8F9FB] mt-2">{item.content}</p> */}
+                  {/* <div dangerouslySetInnerHTML={{ __html: item.content.replace('```', '') }} /> */}
+                </div>
+              );
+            })
+          ) : (
+            <p className="mt-5">Không có dữ liệu</p>
+          )}
+        </div>
+      </Spin>
     </div>
   );
 }
