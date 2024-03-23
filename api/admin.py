@@ -9,6 +9,7 @@ from .models import (
     CustomUserSendPrint,
     DesignSku,
     DesignSkuChangeHistory,
+    FlashShipAccount,
     FlashShipPODVariantList,
     GroupCustom,
     Image,
@@ -199,3 +200,4 @@ admin.site.register(DesignSku, DesignSkuAdmin)
 admin.site.register(DesignSkuChangeHistory, DesignSkuChangeHistoryAdmin)
 admin.site.register(Package)
 admin.site.register(CustomUserSendPrint)
+admin.site.register(FlashShipAccount)

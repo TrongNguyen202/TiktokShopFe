@@ -167,6 +167,7 @@ fulfillment_urls = [
         name="package_create_prin_care",
     ),
     path("shop/<int:shop_id>/packages/list", tiktok.order_action.PackageListByShop.as_view(), name="get_list_package"),
+    path("flashship/account", flashshipapi.FlashShipAccountApi.as_view(), name="flashship_account"),
 ]
 
 """Google Trend"""

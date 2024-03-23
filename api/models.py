@@ -172,3 +172,9 @@ class ProductPackage(models.Model):
 class CustomUserSendPrint(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     user_code = models.CharField(max_length=1000, blank=True, null=True)
+
+
+class FlashShipAccount(models.Model):
+    user_name = models.CharField(max_length=1000, blank=True, null=True)
+    pass_word = models.CharField(max_length=1000, blank=True, null=True)
+    group = models.ForeignKey(GroupCustom, related_name="group", on_delete=models.SET_NULL, null=True)
