@@ -1,5 +1,7 @@
+import json
 import logging
 import os
+from datetime import datetime
 
 import psycopg2
 from dotenv import load_dotenv
@@ -48,8 +50,7 @@ def _query_options(conn) -> tuple:
         cur.execute("SELECT DISTINCT name FROM ggtrend.timeframe")
         all_time_frames: list = [time_frame[0] for time_frame in cur.fetchall()]
 
-        logger.info(f"Key words: {', '.join(all_keywords)}\nTime frames: {
-                    ', '.join(all_time_frames)}")
+        logger.info(f"Key words: {', '.join(all_keywords)}\nTime frames: {', '.join(all_time_frames)}")
 
         return all_keywords, all_time_frames
 
@@ -74,7 +75,9 @@ def _query_google_trend(conn, time_frame, keyword, max_results=10) -> list:
             (time_frame, keyword, max_results),
         )
         data = cur.fetchall()
-        print(f"==>> data: {data}")
+        data = [{"content": row[0], "time_crawl": datetime.strftime(row[1], "%Y-%m-%d %H:%M:%S")} for row in data]
+
+        return json.dumps(data, ensure_ascii=False)
 
 
 class GoogleTrendOptions(APIView):
@@ -105,7 +108,7 @@ class QueryGoogleTrend(APIView):
 
             result = _query_google_trend(time_frame, keyword, max_results)
 
-            return HttpResponse(result)
+            return HttpResponse(result, status=200)
         except Exception as e:
             logger.error(f"Error: {e}", exc_info=True)
             return JsonResponse({"error": f"Internal server error {str(e)}"}, status=500, safe=False)

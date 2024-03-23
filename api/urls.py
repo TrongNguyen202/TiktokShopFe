@@ -174,7 +174,7 @@ fulfillment_urls = [
 google_trend_urls = [
     path("ggtrend/options", google_trend.GoogleTrendOptions.as_view(), name="ggtrend_options"),
     path(
-        "ggtrend/query/",
+        "ggtrend/query",
         google_trend.QueryGoogleTrend.as_view(),
         name="ggtrend_query",
     ),
