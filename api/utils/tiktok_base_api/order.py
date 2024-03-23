@@ -3,57 +3,65 @@ import urllib.parse
 
 import requests
 
-from api.utils.tiktok_base_api import SIGN, TIKTOK_API_URL, app_key, logger, secret
+from api.utils.tiktok_base_api import (
+    SIGN,
+    TIKTOK_API_URL,
+    app_key,
+    logger,
+    secret,
+)
 from api.views import HttpResponse
 
 
 def callOrderList(access_token: str, cursor):
-    url = TIKTOK_API_URL['url_get_orders']
+    url = TIKTOK_API_URL["url_get_orders"]
 
     query_params = {
-        'app_key': app_key,
-        'access_token': access_token,
-        'timestamp': SIGN.get_timestamp(),
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp(),
     }
 
-    body = json.dumps({
-        'page_size': 100
-    })
+    body = json.dumps({"page_size": 100})
     if cursor != "":
-        body = json.dumps({
-            'page_size': 100,
-            'cursor': cursor
-        })
+        body = json.dumps({"page_size": 100, "cursor": cursor})
 
-    sign = SIGN.cal_sign(secret=secret, url=urllib.parse.urlparse(url), query_params=query_params, body=body)
-    query_params['sign'] = sign
+    sign = SIGN.cal_sign(
+        secret=secret,
+        url=urllib.parse.urlparse(url),
+        query_params=query_params,
+        body=body,
+    )
+    query_params["sign"] = sign
     response = requests.post(url, params=query_params, json=json.loads(body))
 
     return response
 
 
 def callOrderDetail(access_token, orderIds):
-    url = TIKTOK_API_URL['url_get_order_detail']
+    url = TIKTOK_API_URL["url_get_order_detail"]
 
     query_params = {
-        'app_key': app_key,
-        'access_token': access_token,
-        'timestamp': SIGN.get_timestamp(),
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp(),
     }
 
-    body = json.dumps({
-        "order_id_list": orderIds,
-        "page_size": 50,
-    })
+    body = json.dumps(
+        {
+            "order_id_list": orderIds,
+            "page_size": 50,
+        }
+    )
 
     sign = SIGN.cal_sign(
         secret=secret,
         url=urllib.parse.urlparse(url),
         query_params=query_params,
-        body=body
+        body=body,
     )
 
-    query_params['sign'] = sign
+    query_params["sign"] = sign
 
     response = requests.post(url, params=query_params, json=json.loads(body))
 
@@ -61,7 +69,7 @@ def callOrderDetail(access_token, orderIds):
 
 
 def callGetShippingDocument(access_token, order_id):
-    url = TIKTOK_API_URL['url_get_shipping_document']
+    url = TIKTOK_API_URL["url_get_shipping_document"]
 
     query_params = {
         "app_key": app_key,
@@ -69,7 +77,7 @@ def callGetShippingDocument(access_token, order_id):
         "timestamp": SIGN.get_timestamp(),
         "order_id": order_id,
         "document_type": "SHIPPING_LABEL",
-        "document_size": "A6"
+        "document_size": "A6",
     }
 
     # body = json.dumps({
@@ -79,52 +87,54 @@ def callGetShippingDocument(access_token, order_id):
     sign = SIGN.cal_sign(
         secret=secret,
         url=urllib.parse.urlparse(url),
-        query_params=query_params
+        query_params=query_params,
     )
 
-    query_params['sign'] = sign
+    query_params["sign"] = sign
 
     response = requests.get(url, params=query_params)
 
     try:
         response_data = response.json()
-        doc_url = response_data['data']['doc_url']
+        doc_url = response_data["data"]["doc_url"]
 
         if doc_url:
             return doc_url
         else:
-            logger.warning(f'No shipping label for order {order_id}')
+            logger.warning(f"No shipping label for order {order_id}")
             return None
     except Exception as e:
-        logger.error(f'Error when getting shipping label for order {order_id}', exc_info=e)
+        logger.error(
+            f"Error when getting shipping label for order {order_id}",
+            exc_info=e,
+        )
         return None
 
 
 def callPreCombinePackage(access_token):
-    url = TIKTOK_API_URL['url_pre_combine_package']
+    url = TIKTOK_API_URL["url_pre_combine_package"]
     query_params = {
         "app_key": app_key,
         "access_token": access_token,
         "timestamp": SIGN.get_timestamp(),
-        "page_size": 10
-
+        "page_size": 10,
     }
     sign = SIGN.cal_sign(
         secret=secret,
         url=urllib.parse.urlparse(url),
-        query_params=query_params
+        query_params=query_params,
     )
-    query_params['sign'] = sign
+    query_params["sign"] = sign
 
     response = requests.get(url, params=query_params)
 
-    logger.info(f'PreCombinePackage response: {response.text}')
+    logger.info(f"PreCombinePackage response: {response.text}")
 
     return HttpResponse(response)
 
 
 def callConFirmCombinePackage(access_token, body_raw_json):
-    url = TIKTOK_API_URL['url_confirm_combine_package']
+    url = TIKTOK_API_URL["url_confirm_combine_package"]
     query_params = {
         "app_key": app_key,
         "access_token": access_token,
@@ -139,13 +149,13 @@ def callConFirmCombinePackage(access_token, body_raw_json):
 
     response = requests.post(url, params=query_params, json=json.loads(body))
 
-    logger.info(f'ConfirmCombinePackage response: {response.text}')
+    logger.info(f"ConfirmCombinePackage response: {response.text}")
 
     return HttpResponse(response)
 
 
 def callGetShippingService(access_token, body_raw_json):
-    url = TIKTOK_API_URL['url_get_shipping_service']
+    url = TIKTOK_API_URL["url_get_shipping_service"]
     query_params = {
         "app_key": app_key,
         "access_token": access_token,
@@ -160,22 +170,20 @@ def callGetShippingService(access_token, body_raw_json):
 
     response = requests.post(url, params=query_params, json=json.loads(body))
 
-    logger.info(f'GetShippingService response: {response.text}')
+    logger.info(f"GetShippingService response: {response.text}")
 
     return HttpResponse(response)
 
 
 def callSearchPackage(access_token):
-    url = TIKTOK_API_URL['url_search_package']
+    url = TIKTOK_API_URL["url_search_package"]
     query_params = {
         "app_key": app_key,
         "access_token": access_token,
         "timestamp": SIGN.get_timestamp(),
     }
 
-    bodyjson = {
-        "page_size": 10000
-    }
+    bodyjson = {"page_size": 10000}
 
     body = json.dumps(bodyjson)
 
@@ -184,25 +192,24 @@ def callSearchPackage(access_token):
 
     response = requests.post(url, params=query_params, json=json.loads(body))
 
-    logger.info(f'SearchPackage response: {response.text}')
+    logger.info(f"SearchPackage response: {response.text}")
 
     return HttpResponse(response)
 
 
 def callGetPackageDetail(access_token, package_id):
-    url = TIKTOK_API_URL['url_get_package_detail']
+    url = TIKTOK_API_URL["url_get_package_detail"]
     query_params = {
         "app_key": app_key,
         "access_token": access_token,
         "timestamp": SIGN.get_timestamp(),
-        "package_id": package_id
-
+        "package_id": package_id,
     }
 
     sign = SIGN.cal_sign(
         secret=secret,
         url=urllib.parse.urlparse(url),
-        query_params=query_params
+        query_params=query_params,
     )
     query_params["sign"] = sign
 
@@ -214,7 +221,7 @@ def callGetPackageDetail(access_token, package_id):
 
 
 def callCreateLabel(access_token, body_raw_json):
-    url = TIKTOK_API_URL['url_create_label']
+    url = TIKTOK_API_URL["url_create_label"]
     query_params = {
         "app_key": app_key,
         "access_token": access_token,
@@ -232,8 +239,8 @@ def callCreateLabel(access_token, body_raw_json):
     return HttpResponse(response)
 
 
-def callGetShippingDoc(access_token,  package_id):
-    url = TIKTOK_API_URL['url_get_shipping_doc']
+def callGetShippingDoc(access_token, package_id):
+    url = TIKTOK_API_URL["url_get_shipping_doc"]
 
     query_params = {
         "app_key": app_key,
@@ -241,7 +248,7 @@ def callGetShippingDoc(access_token,  package_id):
         "timestamp": SIGN.get_timestamp(),
         "package_id": package_id,
         "document_type": 1,
-        "document_size": 0
+        "document_size": 0,
     }
 
     sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params)
@@ -259,5 +266,8 @@ def callGetShippingDoc(access_token,  package_id):
             logger.warning(f"No shipping label for package {package_id}")
             return None
     except Exception as e:
-        logger.error(f"Error when getting shipping label for package {package_id}", exc_info=e)
+        logger.error(
+            f"Error when getting shipping label for package {package_id}",
+            exc_info=e,
+        )
         return None
