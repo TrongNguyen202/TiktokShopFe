@@ -3,6 +3,7 @@ import {
   CloseOutlined,
   DashboardOutlined,
   FileDoneOutlined,
+  GoogleOutlined,
   MenuOutlined,
   SearchOutlined,
   ShopOutlined,
@@ -82,6 +83,16 @@ function Sidebar({ collapsed }) {
       label: (
         <Link className="flex justify-between" to="crawl">
           Crawl products
+        </Link>
+      ),
+      hasPer: hasManagerPermission() || hasSellerPermission(),
+    },
+    {
+      key: '/google-trends',
+      icon: <GoogleOutlined style={{ color: '#230fff' }} className="w-[16px]" />,
+      label: (
+        <Link className="flex justify-between" to="google-trends">
+          Google Trends
         </Link>
       ),
       hasPer: hasManagerPermission() || hasSellerPermission(),
