@@ -14,7 +14,7 @@ COPY . .
 RUN npm install --legacy-peer-deps
 RUN npm run build   
 
-EXPOSE 5173
+EXPOSE 2001
 
 CMD [ "npm", "run", "dev"]
 

@@ -56,13 +56,13 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
       setLabelSelected(selectedRows);
       if (selectedRows.length > 0) changeNextStep(true);
     },
-    getCheckboxProps: (record) => {
-      const disabledOrderCompleted = ordersCompleted.find((item) => item.order_id === record.package_id);
+    // getCheckboxProps: (record) => {
+    //   const disabledOrderCompleted = ordersCompleted.find((item) => item.order_id === record.package_id);
 
-      return {
-        disabled: record.label === null || disabledOrderCompleted,
-      };
-    },
+    //   return {
+    //     disabled: record.label === null || disabledOrderCompleted,
+    //   };
+    // },
   };
 
   const handlePushToDriver = (data) => {
@@ -98,6 +98,7 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
       () => {},
     );
   }, [labelSelected]);
+
   return (
     <div className="p-3 md:p-10">
       {contextHolder}
@@ -106,11 +107,6 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
         <p>
           <i>(Vui lòng tick vào ô để chọn những đơn hàng cần Fulfillment)</i>
         </p>
-        {/* <Button type="primary" onClick={handlePushToDriver} className="mt-3" disabled={!labelSelected.length}>
-          Lưu file Label đã mua vào Server &nbsp;
-          <span>({labelSelected.length})</span>
-          <LoadingButton loading={loading} />
-        </Button> */}
       </div>
       <Table
         rowSelection={{
@@ -119,7 +115,7 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
         }}
         scroll={{ x: true }}
         columns={columns}
-        dataSource={shippingDoc}
+        dataSource={shippingDoc.reverse()}
         bordered
         pagination={false}
         loading={loadingUpload}

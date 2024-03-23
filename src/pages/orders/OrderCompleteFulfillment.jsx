@@ -21,10 +21,12 @@ function OrderCompleteFulfillment() {
   const dataTableFlashShip = dataPackage.filter((item) => item.fulfillment_name === 'FlashShip');
   const dataTablePrintCare = dataPackage.filter((item) => item.fulfillment_name === 'PrintCare');
   const ConvertDataTable = (data) => {
-    return data.map((item, index) => ({
+    const result = data.reverse().map((item, index) => ({
       stt: index + 1,
       ...item,
     }));
+
+    return result;
   };
 
   const handleOrderPackage = (packageId) => {
@@ -67,6 +69,10 @@ function OrderCompleteFulfillment() {
   };
 
   const handleDetailFlashShip = (orderCode) => {
+    if (flashShipToken === null) {
+      setOpenLoginFlashShip(true);
+    }
+
     const onSuccess = (res) => {
       console.log(res);
     };
@@ -78,6 +84,10 @@ function OrderCompleteFulfillment() {
   };
 
   const handleCancelOrderFlashShip = (orderCode) => {
+    if (flashShipToken === null) {
+      setOpenLoginFlashShip(true);
+    }
+
     const data = {
       orderCodeList: [orderCode],
       rejectNote: 'wrong design',
@@ -210,11 +220,7 @@ function OrderCompleteFulfillment() {
 
     packageFulfillmentCompleted(shopId, onSuccess, onFail);
     getAllOrders(shopId);
-
-    if (flashShipToken === null) {
-      setOpenLoginFlashShip(true);
-    }
-  }, [flashShipToken]);
+  }, []);
 
   return (
     <div className="p-10">

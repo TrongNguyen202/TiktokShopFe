@@ -53,15 +53,23 @@ function OrderForPartner({ toShipInfoData }) {
   const { getFlashShipPODVariant, LoginFlashShip, createOrderFlashShip } = useFlashShipStores((state) => state);
 
   const checkDataPartner = (data) => {
-    const orderPartnerResult = data?.map((dataItem) => {
+    const dataCheck = data
+      .map((order) => {
+        order.order_list[0].item_list = order.order_list[0].item_list.filter((item) => item.sku_name !== 'Default');
+        return order;
+      })
+      .filter((order) => order.order_list[0].item_list.length > 0);
+
+    const orderPartnerResult = dataCheck?.map((dataItem) => {
       const orderPartner = { ...dataItem };
       const itemList = dataItem?.order_list?.flatMap((item) => item.item_list);
+      const itemListRemovePhysical = itemList.filter((item) => item.sku_name !== 'Default');
       let isFlashShip = true;
-      const variations = itemList.map((variation) => {
+      const variations = itemListRemovePhysical.map((variation) => {
         if (!isFlashShip) return variation;
         let variationObject = {};
         const result = { ...variation };
-        const variationSplit = variation?.sku_name?.split(', ');
+        const variationSplit = variation?.sku_name.split(', ');
 
         if (variationSplit.length === 3) {
           variationObject = {
@@ -75,38 +83,46 @@ function OrderForPartner({ toShipInfoData }) {
           };
         }
 
-        const checkProductType = flashShipVariants?.filter((variant) =>
-          variationObject?.size?.toUpperCase().includes(variant.product_type.toUpperCase()),
-        );
-
-        if (!checkProductType.length) {
+        if (variationObject.length < 2) {
           isFlashShip = false;
-        }
-
-        if (checkProductType.length) {
-          const checkColor = checkProductType.filter(
-            (color) => color.color.toUpperCase() === variationObject?.color?.replace(' ', '').toUpperCase(),
+        } else {
+          const variationObjectSize = variationObject?.size?.split(/[\s-,]/).filter(Boolean);
+          const checkProductType = flashShipVariants?.filter((variant) =>
+            variationObjectSize.find((item) => item.toUpperCase() === variant.product_type.toUpperCase()),
           );
 
-          if (checkColor.length) {
-            const checkSize = checkColor.find((size) =>
-              variationObject?.size?.toUpperCase().includes(size.size.replace(' ', '').toUpperCase()),
+          if (!checkProductType.length) {
+            isFlashShip = false;
+          }
+
+          if (checkProductType.length) {
+            const checkColor = checkProductType.filter(
+              (color) => color.color.toUpperCase() === variationObject?.color?.replace(' ', '').toUpperCase(),
             );
-            if (checkSize) {
-              result.variant_id = checkSize.variant_id;
+
+            if (checkColor.length) {
+              const checkSize = checkColor.find((size) => {
+                return variationObjectSize.find((item) => item.toUpperCase() === size.size.toUpperCase());
+              });
+
+              if (checkSize) {
+                result.variant_id = checkSize.variant_id;
+              } else {
+                isFlashShip = false;
+              }
             } else {
               isFlashShip = false;
             }
-          } else {
-            isFlashShip = false;
           }
         }
+
         return result;
       });
 
       orderPartner.buyer_email = dataItem.order_list[0].buyer_email;
       orderPartner.order_list = variations;
       orderPartner.is_FlashShip = isFlashShip;
+      orderPartner.order_id = dataItem.order_list[0].order_id;
       return orderPartner;
     });
 
@@ -169,31 +185,36 @@ function OrderForPartner({ toShipInfoData }) {
   };
 
   const handleConvertDataPackageCreate = (data, key) => {
-    const result = data.map((item) => ({
-      order_id: item.package_id,
-      buyer_first_name: item.name_buyer?.split(' ')[0] || '',
-      buyer_last_name: item.name_buyer?.split(' ')[1] || '',
-      buyer_email: item.buyer_email,
-      buyer_phone: '',
-      buyer_address1: item.street?.trim(),
-      buyer_address2: '',
-      buyer_city: item.city,
-      buyer_province_code: item.state?.trim(),
-      buyer_zip: item.zip_code,
-      buyer_country_code: 'US',
-      shipment: 1,
-      linkLabel: item.label,
-      products: item.order_list.map((product) => {
-        return {
-          variant_id: key === 'PrintCare' ? 'POD097' : product.variant_id,
-          printer_design_front_url: product.image_design_front || null,
-          printer_design_back_url: product.image_design_back || null,
-          quantity: product.quantity,
-          note: '',
-        };
-      }),
-    }));
-
+    const result = data
+      .map((item) => {
+        const orderList = item.order_list.map((order) => ({
+          package_id: item.package_id,
+          order_id: item.order_id,
+          buyer_first_name: item.name_buyer?.split(' ')[0] || '',
+          buyer_last_name: item.name_buyer?.split(' ')[1] || '',
+          buyer_email: item.buyer_email,
+          buyer_phone: '',
+          buyer_address1: item.street?.trim(),
+          buyer_address2: '',
+          buyer_city: item.city,
+          buyer_province_code: item.state?.trim(),
+          buyer_zip: item.zip_code,
+          buyer_country_code: 'US',
+          shipment: 1,
+          linkLabel: item.label,
+          products: [
+            {
+              variant_id: key === 'PrintCare' ? 'POD097' : order.variant_id,
+              printer_design_front_url: order.image_design_front || null,
+              printer_design_back_url: order.image_design_back || null,
+              quantity: order.quantity,
+              note: '',
+            },
+          ],
+        }));
+        return orderList;
+      })
+      .flat();
     return result;
   };
 
@@ -219,6 +240,7 @@ function OrderForPartner({ toShipInfoData }) {
     const itemsWithNullImages = orderList.filter(
       (item) => item.image_design_front === null && item.image_design_back === null,
     );
+
     if (itemsWithNullImages.length > 0) {
       const productIds = itemsWithNullImages.map((product) => product.product_id);
       api.open({
@@ -230,9 +252,9 @@ function OrderForPartner({ toShipInfoData }) {
       });
     } else {
       const dataSubmitFlashShip = handleConvertDataPackageCreate(handAddDesignToShipInfoData, 'FlashShip');
-
-      // eslint-disable-next-line array-callback-return
       dataSubmitFlashShip.map((item) => {
+        const dataCreateOrder = { ...item };
+        delete dataCreateOrder.package_id;
         const onCreateSuccess = (resCreate) => {
           api.open({
             message: `Đơn hàng ${item.order_id}`,
@@ -246,31 +268,28 @@ function OrderForPartner({ toShipInfoData }) {
               orderCode: resCreate.data,
             };
 
-            console.log('dataCreateOrder: ', dataCreateOrder);
+            if (resCreate.data !== null) {
+              const onSuccessPackageCreate = (resPackage) => {
+                if (resPackage) {
+                  navigate(`/shops/${shopId}/orders/fulfillment/completed`);
+                }
+              };
 
-            const onSuccessPackageCreate = (resPackage) => {
-              if (resPackage) {
-                navigate(`/shops/${shopId}/orders/fulfillment/completed`);
-              }
-            };
+              const onFailPackageCreate = (errPackage) => { };
 
-            const onFailPackageCreate = (errPackage) => {
-              console.log('errPackage: ', errPackage);
-            };
-
-            packageCreateFlashShip(shopId, dataCreateOrder, onSuccessPackageCreate, onFailPackageCreate);
+              packageCreateFlashShip(shopId, dataCreateOrder, onSuccessPackageCreate, onFailPackageCreate);
+            }
           }
         };
 
         const onCreateFail = (errCreate) => {
-          console.log(errCreate);
           messageApi.open({
             type: 'error',
             content: `Đơn hàng ${item.order_id} có lỗi : ${errCreate.err}`,
           });
         };
 
-        createOrderFlashShip(item, onCreateSuccess, onCreateFail);
+        createOrderFlashShip(dataCreateOrder, onCreateSuccess, onCreateFail);
       });
     }
   };
@@ -421,6 +440,11 @@ function OrderForPartner({ toShipInfoData }) {
       dataIndex: 'package_id',
       key: 'package_id',
     },
+    // {
+    //   title: 'Order ID',
+    //   dataIndex: 'package_id',
+    //   key: 'package_id',
+    // },
     {
       title: 'Product items',
       dataIndex: 'product_items',
