@@ -95,7 +95,8 @@ class UserShopAdmin(admin.ModelAdmin):
 
 class DesignSkuAdmin(admin.ModelAdmin):
     list_display = ('sku_id', 'product_name', 'variation', 'image_front', 'image_back', 'user', 'department')
-
+class PackageAdmin(admin.ModelAdmin):
+    list_display = ('order_id', 'buyer_first_name', 'buyer_last_name', 'buyer_email', 'buyer_phone', 'buyer_address1', 'buyer_address2', 'buyer_city', 'buyer_province_code', 'buyer_zip', 'buyer_country_code', 'shipment', 'linkLabel', 'fulfillment_name', 'shop', 'order_code')  # noqa: E501
 
 class DesignSkuChangeHistoryAdmin(admin.ModelAdmin):
     list_display = ('design_sku', 'user', 'changed_at')
