@@ -200,6 +200,8 @@ class PackageSerializer(serializers.ModelSerializer):
             "products",
             "fulfillment_name",
             "shop",
+            "order_code",
+            "pack_id"
         ]
 
     def create(self, validated_data):
