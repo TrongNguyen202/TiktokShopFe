@@ -56,13 +56,13 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
       setLabelSelected(selectedRows);
       if (selectedRows.length > 0) changeNextStep(true);
     },
-    // getCheckboxProps: (record) => {
-    //   const disabledOrderCompleted = ordersCompleted.find((item) => item.order_id === record.package_id);
+    getCheckboxProps: (record) => {
+      const disabledOrderCompleted = ordersCompleted.find((item) => item.order_id === record.package_id);
 
-    //   return {
-    //     disabled: record.label === null || disabledOrderCompleted,
-    //   };
-    // },
+      return {
+        disabled: record.label === null || disabledOrderCompleted,
+      };
+    },
   };
 
   const handlePushToDriver = (data) => {
