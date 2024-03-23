@@ -170,7 +170,7 @@ class PackageSerializer(serializers.ModelSerializer):
         model = Package
         fields = ['order_id', 'buyer_first_name', 'buyer_last_name', 'buyer_email', 'buyer_phone',
                   'buyer_address1', 'buyer_address2', 'buyer_city', 'buyer_province_code', 'buyer_zip',
-                  'buyer_country_code', 'shipment', 'linkLabel', 'products', 'fulfillment_name', 'shop']
+                  'buyer_country_code', 'shipment', 'linkLabel', 'products', 'fulfillment_name', 'shop','order_code']
 
     def create(self, validated_data):
         products_data = validated_data.pop('products')
