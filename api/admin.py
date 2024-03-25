@@ -9,6 +9,7 @@ from .models import (
     CustomUserSendPrint,
     DesignSku,
     DesignSkuChangeHistory,
+    ErrorCodes,
     FlashShipAccount,
     FlashShipPODVariantList,
     GroupCustom,
@@ -175,6 +176,7 @@ class DesignSkuAdmin(admin.ModelAdmin):
         "department",
     )
 
+
 class DesignSkuChangeHistoryAdmin(admin.ModelAdmin):
     list_display = ("design_sku", "user", "changed_at")
     list_filter = ("user", "changed_at")
@@ -188,8 +190,13 @@ class FlashShipPODVariantListAdmin(admin.ModelAdmin):
     search_fields = ("variant_id", "color", "size")
 
 
+@admin.register(ErrorCodes)
+class ErrorCodesAdmin(admin.ModelAdmin):
+    list_display = ("code", "message", "description")
+    search_fields = ("code", "message")
+
+
 admin.site.register(FlashShipPODVariantList, FlashShipPODVariantListAdmin)
-# Đăng ký các lớp admin mới được tạo
 admin.site.register(Categories, CategoriesAdmin)
 admin.site.register(UserGroup, UserGroupAdmin)
 admin.site.register(GroupCustom, GroupCustomAdmin)
