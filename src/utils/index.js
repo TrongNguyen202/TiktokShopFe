@@ -210,41 +210,49 @@ export const ConvertProductAttribute = (product_attributes, attributeValues) => 
       id,
       values,
     }));
-  const newAttributeConvert = newAttributes?.filter((item) => item.values !== undefined);
+  const newAttributeConvert = newAttributes?.filter((item) => item.values);
+  if (!newAttributeConvert) return [];
+  return newAttributeConvert.map((item) => ({
+    attribute_id: item.id,
+    attribute_values: item.values.map((value) => ({
+      value_id: value.value,
+      value_name: value.label,
+    })),
+  }));
 
   // eslint-disable-next-line array-callback-return, consistent-return
-  const convertAttributeData = newAttributeConvert?.map((item) => {
-    const attributeFilter = attributeValues?.find((attr) => attr.id === item.id);
+  // const convertAttributeData = newAttributeConvert?.map((item) => {
+  //   const attributeFilter = attributeValues?.find((attr) => attr.id === item.id);
 
-    if (attributeFilter) {
-      const attribute_id = item.id;
-      let valuesAttr = [];
-      let attribute_values = [];
-      if (typeof item?.values === 'string') {
-        const valuesAttr = attributeFilter?.values?.find((value) => value.id === item.values);
-        attribute_values = [
-          {
-            value_id: valuesAttr?.id,
-            value_name: valuesAttr?.name,
-          },
-        ];
-      } else {
-        valuesAttr = item?.values?.map((value) => attributeFilter?.values?.find((attrValue) => attrValue.id === value));
+  //   if (attributeFilter) {
+  //     const attribute_id = item.id;
+  //     let valuesAttr = [];
+  //     let attribute_values = [];
+  //     if (typeof item?.values === 'string') {
+  //       const valuesAttr = attributeFilter?.values?.find((value) => value.id === item.values);
+  //       attribute_values = [
+  //         {
+  //           value_id: valuesAttr?.id,
+  //           value_name: valuesAttr?.name,
+  //         },
+  //       ];
+  //     } else {
+  //       valuesAttr = item?.values?.map((value) => attributeFilter?.values?.find((attrValue) => attrValue.id === value));
 
-        attribute_values = valuesAttr?.map((attr) => ({
-          value_id: attr?.id,
-          value_name: attr?.name,
-        }));
-      }
+  //       attribute_values = valuesAttr?.map((attr) => ({
+  //         value_id: attr?.id,
+  //         value_name: attr?.name,
+  //       }));
+  //     }
 
-      if (!attribute_values) return null;
+  //     if (!attribute_values) return null;
 
-      return {
-        attribute_id,
-        attribute_values,
-      };
-    }
-  });
-  const productAttribute = convertAttributeData?.filter((item) => item !== null);
-  return productAttribute;
+  //     return {
+  //       attribute_id,
+  //       attribute_values,
+  //     };
+  //   }
+  // });
+  // const productAttribute = convertAttributeData?.filter((item) => item !== null);
+  // return productAttribute;
 };

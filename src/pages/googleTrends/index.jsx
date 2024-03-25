@@ -1,5 +1,5 @@
-import { Button, Select, Spin, message } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { Button, Divider, Input, Select, Space, Spin, message } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
 import { useGoogleTrendStore } from '../../store/googleTrendStore';
 
 const initDataKeyword = [
@@ -89,6 +89,9 @@ export default function GoogleTrends() {
   const [keywordOptions, setKeywordOptions] = useState(initDataKeyword);
   const [timeOptions, setTimeOptions] = useState(initDataTimes);
   const [trendsData, setTrendsData] = useState(initTrendData);
+  const [inputValue, setInputValue] = useState('');
+
+  const inputRef = useRef(null);
 
   const [params, setParams] = useState({
     keyword: 'poster',
@@ -130,6 +133,16 @@ export default function GoogleTrends() {
     getGoogleTrendData(query, onSuccess, onFail);
   };
 
+  const addItem = (e) => {
+    e.preventDefault();
+    setKeywordOptions((prev) => [...prev, { label: inputValue, value: inputValue }]);
+    setParams((prev) => ({ ...prev, keyword: inputValue }));
+    setInputValue('');
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
+  };
+
   return (
     <div className="p-10">
       <div className="flex gap-3 items-end ">
@@ -143,6 +156,25 @@ export default function GoogleTrends() {
             loading={loading}
             onChange={(value) => setParams((prev) => ({ ...prev, keyword: value }))}
             options={keywordOptions}
+            // dropdownRender={(menu) => (
+            //   <>
+            //     {menu}
+            //     <Divider style={{ margin: '8px 0' }} />
+            //     <Space style={{ padding: '0 8px 4px' }}>
+            //       <Input
+            //         placeholder="Please enter item"
+            //         ref={inputRef}
+            //         value={inputValue}
+            //         onChange={(e) => setInputValue(e.target.value)}
+            //         onKeyDown={(e) => e.stopPropagation()}
+            //         onPressEnter={addItem}
+            //       />
+            //       <Button type="text" ghost onClick={addItem} type="primary">
+            //         Add
+            //       </Button>
+            //     </Space>
+            //   </>
+            // )}
           />
         </div>
         <div className="flex flex-col gap-1">

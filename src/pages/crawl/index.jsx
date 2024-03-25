@@ -1,4 +1,4 @@
-import { Button, Col, Input, Row, Select, Upload, message } from 'antd';
+import { Button, Col, Input, Row, Select, Switch, Upload, message } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import * as XLSX from 'xlsx';
@@ -88,14 +88,15 @@ export default function Crawl() {
   const [loading, setLoading] = useState(false);
   const [isShowModalUpload, setShowModalUpload] = useState(false);
   const [showSkeleton, setShowSkeleton] = useState(false);
+  const [showOutsideImages, setShowOutsideImages] = useState(true);
   const [licenseCode, setLicenseCode] = useState({
     code: localStorage.getItem('licenseCode'),
     invalid: !localStorage.getItem('licenseCode'),
   });
 
   useEffect(() => {
-    setProductList(productListStorage);
-  }, [JSON.stringify(productListStorage)]);
+    localStorage.setItem('productList', JSON.stringify(productList));
+  }, [productList]);
 
   useEffect(() => {
     if (checkedItems && checkedItems.length === 0) return;
@@ -151,6 +152,7 @@ export default function Crawl() {
                 handleCheckChange={handleCheckChange}
                 handleChangeProduct={handleChangeProduct}
                 showSkeleton={showSkeleton}
+                showOutsideImages={showOutsideImages}
               />
             </Col>
           );
@@ -205,7 +207,7 @@ export default function Crawl() {
         });
         console.log('combineProducts: ', combineProducts);
         setProductList(combineProducts);
-        localStorage.setItem('productList', JSON.stringify(combineProducts));
+        // localStorage.setItem('productList', JSON.stringify(combineProducts));
       })
       .catch((error) => {
         message.error(error?.data?.message);
@@ -252,21 +254,21 @@ export default function Crawl() {
     productData.forEach((product) => {
       product.images = product.images.slice(0, optionCrawl.imagesLimit);
       // kiểm tra từng phần tử trong product.images, nếu url chứa 'https://i.etsystatic.com' thì giảm dung lượng link ảnh bằng 1200x1200
-      const newImages = product.images.map((image) => {
-        if (image.url.includes('https://i.etsystatic.com')) {
-          return {
-            ...image,
-            url: image.url.replace('fullxfull', '1200x1200'),
-          };
-        }
-        return image;
-      });
-      product.images = newImages;
+      // const newImages = product.images.map((image) => {
+      //   if (image.url.includes('https://i.etsystatic.com')) {
+      //     return {
+      //       ...image,
+      //       url: image.url.replace('fullxfull', '1200x1200'),
+      //     };
+      //   }
+      //   return image;
+      // });
+      // product.images = newImages;
     });
 
     // lấy danh sách id của sản phẩm để get thông tin sản phẩm
     const ids = productData.map((item) => item.id.split('.')[0]).join(',');
-    localStorage.setItem('productList', JSON.stringify(productData));
+    setProductList(productData);
     setCheckedItems([]);
     setIsAllChecked(false);
     setShowSkeleton(true);
@@ -420,7 +422,7 @@ export default function Crawl() {
           };
         });
       }
-      localStorage.setItem('productList', JSON.stringify(convertJson));
+      // localStorage.setItem('productList', JSON.stringify(convertJson));
       setProductList(convertJson);
     };
 
@@ -493,33 +495,38 @@ export default function Crawl() {
             Total: <span className="font-semibold">{productList ? productList.length : 0} products</span>
           </div>
         </div>
-        <div className="flex gap-2 items-center mt-5">
-          <Button
-            type="primary"
-            disabled={CountSelectedItems === 0}
-            icon={<DownloadOutlined />}
-            onClick={handleExportSenPrints}
-          >
-            Export SenPrints
-          </Button>
-          <Button
-            type="primary"
-            disabled={CountSelectedItems === 0}
-            icon={<DownloadOutlined />}
-            onClick={handleExportExcel}
-          >
-            Export excel
-          </Button>
-          <Button
-            type="primary"
-            disabled={CountSelectedItems === 0}
-            icon={<CloudUploadOutlined />}
-            onClick={() => setShowModalUpload(true)}
-          >
-            Upload products
-          </Button>
-          <div>
-            <span className="font-semibold">{CountSelectedItems} products</span>
+        <div className="flex justify-between items-center">
+          <div className="flex gap-2 items-center mt-5">
+            <Button
+              type="primary"
+              disabled={CountSelectedItems === 0}
+              icon={<DownloadOutlined />}
+              onClick={handleExportSenPrints}
+            >
+              Export SenPrints
+            </Button>
+            <Button
+              type="primary"
+              disabled={CountSelectedItems === 0}
+              icon={<DownloadOutlined />}
+              onClick={handleExportExcel}
+            >
+              Export excel
+            </Button>
+            <Button
+              type="primary"
+              disabled={CountSelectedItems === 0}
+              icon={<CloudUploadOutlined />}
+              onClick={() => setShowModalUpload(true)}
+            >
+              Upload products
+            </Button>
+            <div>
+              <span className="font-semibold">{CountSelectedItems} products</span>
+            </div>
+          </div>
+          <div className="font-semibold">
+            Show the outside images <Switch defaultChecked onChange={() => setShowOutsideImages(!showOutsideImages)} />
           </div>
         </div>
         {productList && productList?.length ? renderProductList() : null}

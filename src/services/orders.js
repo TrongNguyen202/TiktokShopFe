@@ -100,6 +100,10 @@ const packageFulfillmentCompleted = (shopId) => {
   return callApi(`/shop/${shopId}/packages/list`, 'get');
 };
 
+const packageFulfillmentCompletedInActive = (packageId) => {
+  return callApi(`/package/${packageId}/deactive`, 'put', body);
+};
+
 export const orders = {
   getAllOrders,
   getLabelsById,
@@ -126,4 +130,5 @@ export const orders = {
   packageCreateFlashShip,
   packageCreatePrintCare,
   packageFulfillmentCompleted,
+  packageFulfillmentCompletedInActive
 };

@@ -8,14 +8,21 @@ import { getTokenKey, setToken } from '../../utils/auth';
 import { useShopsOrder } from '../../store/ordersStore';
 import { useFlashShipStores } from '../../store/flashShipStores';
 import SectionTitle from '../../components/common/SectionTitle';
+import OrderCompleteFulfillmentDetail from '../../components/orders/OrderCompleteFulfillmentDetail';
+import OrderCompleteFulfillmentReject from '../../components/orders/OrderCompleteFulfillmentReject';
 
 function OrderCompleteFulfillment() {
   const shopId = getPathByIndex(2);
   const flashShipToken = getTokenKey('flash-ship-tk');
   const [messageApi, contextHolder] = message.useMessage();
   const [dataPackage, setDataPackage] = useState([]);
+  const [dataOrderDetail, setDataOrderDetail] = useState([]);
+  const [rejectOrderNote, setRejectOrderNote] = useState("");
+  const [rejectOrder, setRejectOrder] = useState({});
   const [openLoginFlashShip, setOpenLoginFlashShip] = useState(false);
-  const { packageFulfillmentCompleted, getAllOrders, orders } = useShopsOrder((state) => state);
+  const [openFlashShipDetail, setOpenFlashShipDetail] = useState(false);
+  const [openFlashShipReject, setOpenFlashShipReject] = useState(false);
+  const { packageFulfillmentCompleted, packageFulfillmentCompletedInActive, getAllOrders, orders } = useShopsOrder((state) => state);
   const { LoginFlashShip, detailOrderFlashShip, cancelOrderFlashShip } = useFlashShipStores((state) => state);
 
   const dataTableFlashShip = dataPackage.filter((item) => item.fulfillment_name === 'FlashShip');
@@ -29,17 +36,18 @@ function OrderCompleteFulfillment() {
     return result;
   };
 
-  const handleOrderPackage = (packageId) => {
+  const handleOrderPackage = (index) => {
+    const orderPackageFlashShip = dataTableFlashShip[index]
     const orderList = orders.flatMap((order) => order.data.order_list);
     const orderListHasPackageId = orderList.filter((order) => order.package_list.length);
-    const packageOrders = orderListHasPackageId.filter((order) => order.package_list[0].package_id === packageId);
+    const packageOrders = orderListHasPackageId.filter((order) => order.package_list[0].package_id === orderPackageFlashShip.pack_id.toString());
 
     return (
       <ul className="flex flex-wrap">
         {packageOrders.map((item) => (
           <li key={item.order_id} className="mb-4">
             <Link to={`/shops/${shopId}/orders/${item.order_id}`} state={{ orderData: item }} className="font-medium">
-              <Tag color="blue">{item.order_id}</Tag>
+              <Tag color="blue">{orderPackageFlashShip.order_id}</Tag>
             </Link>
           </li>
         ))}
@@ -56,6 +64,7 @@ function OrderCompleteFulfillment() {
           type: 'success',
           content: `Đăng nhập thành công`,
         });
+        setOpenFlashShipDetail(true)
       }
     };
 
@@ -74,7 +83,8 @@ function OrderCompleteFulfillment() {
     }
 
     const onSuccess = (res) => {
-      console.log(res);
+      setOpenFlashShipDetail(true)
+      setDataOrderDetail(res)
     };
 
     const onFail = (err) => {
@@ -83,21 +93,47 @@ function OrderCompleteFulfillment() {
     detailOrderFlashShip(orderCode, onSuccess, onFail);
   };
 
-  const handleCancelOrderFlashShip = (orderCode) => {
-    if (flashShipToken === null) {
-      setOpenLoginFlashShip(true);
-    }
-
+  const handleCancelOrderFlashShipAPI = () => {
     const data = {
-      orderCodeList: [orderCode],
-      rejectNote: 'wrong design',
+      orderCodeList: [rejectOrderNote.orderCode],
+      rejectNote: rejectOrderNote.note,
     };
+
+    const onSuccess = (res) => {
+      if (res.data !== null) {
+        messageApi.open({
+          type: 'success',
+          content: `Đã huỷ đơn ${rejectOrderNote.orderCode} (${rejectOrderNote.orderId})`,
+        });
+        packageFulfillmentCompletedInActive(rejectOrderNote.packageId, {package_status : false})
+      } else {
+        messageApi.open({
+          type: 'error',
+          content: res.err,
+        });
+      }
+    }
 
     cancelOrderFlashShip(
       data,
-      () => { },
-      () => { },
+      onSuccess,
+      () => {},
     );
+  }
+
+  const handleRejectOrderNote = (note) => {
+    setRejectOrderNote(note);
+    setOpenFlashShipReject(false);
+    handleCancelOrderFlashShipAPI()
+  }
+
+  const handleCancelOrderFlashShip = (orderCode, orderId, packageId) => {
+    if (flashShipToken === null) {
+      setOpenLoginFlashShip(true);
+    } else {
+      setOpenFlashShipReject(true)
+      setRejectOrder({orderCode, orderId, packageId})
+    }
   };
 
   const generateColumns = (showActionsColumn) => {
@@ -108,16 +144,20 @@ function OrderCompleteFulfillment() {
         key: 'stt',
       },
       {
-        title: 'Package Id',
-        dataIndex: 'package_id',
-        key: 'package_id',
-        render: (_, record) => record.order_id,
+        title: 'Order code',
+        dataIndex: 'order_code',
+        key: 'order_code'
       },
       {
         title: 'Order Id',
         dataIndex: 'order_id',
         key: 'order_id',
-        render: (text) => handleOrderPackage(text),
+        render: (_, record, index) => handleOrderPackage(index),
+      },
+      {
+        title: 'Package Id',
+        dataIndex: 'pack_id',
+        key: 'pack_id'
       },
       {
         title: 'Product items',
@@ -192,15 +232,9 @@ function OrderCompleteFulfillment() {
             <Tooltip title="Xem chi tiết" color="blue">
               <Button size="small" icon={<EyeOutlined />} onClick={() => handleDetailFlashShip(record.order_code)} />
             </Tooltip>
-            <Popconfirm
-              placement="topRight"
-              title="Bạn có thực sự muốn huỷ đơn này"
-              onConfirm={() => handleCancelOrderFlashShip(record.order_code)}
-            >
-              <Tooltip title="Huỷ đơn" color="red">
-                <Button size="small" icon={<DeleteOutlined />} danger />
-              </Tooltip>
-            </Popconfirm>
+            <Tooltip title="Huỷ đơn" color="red">
+              <Button size="small" icon={<DeleteOutlined />} danger onClick={() => handleCancelOrderFlashShip(record.order_code, record.order_id, record.pack_id)} />
+            </Tooltip>
           </div>
         ),
       });
@@ -221,6 +255,13 @@ function OrderCompleteFulfillment() {
     packageFulfillmentCompleted(shopId, onSuccess, onFail);
     getAllOrders(shopId);
   }, []);
+
+  const titleModalOrderFlashShipDetail = (
+    <>
+      Order {dataOrderDetail.orderCode} ({dataOrderDetail.partnerOrderId}) List Items{' '}
+      <Tag color={dataOrderDetail.status?.includes('REJECT') ? '#f46a6a' : '#008000'}>{dataOrderDetail.status}</Tag>
+    </>
+  );
 
   return (
     <div className="p-10">
@@ -270,6 +311,28 @@ function OrderCompleteFulfillment() {
             </Button>
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        title={titleModalOrderFlashShipDetail}
+        centered
+        open={openFlashShipDetail}
+        onCancel={() => setOpenFlashShipDetail(false)}
+        footer={false}
+        width={1000}
+      >
+        <OrderCompleteFulfillmentDetail data={dataOrderDetail}/>
+      </Modal>
+
+      <Modal
+        title="Reject Order"
+        centered
+        open={openFlashShipReject}
+        onCancel={() => setOpenFlashShipReject(false)}
+        footer={false}
+        width={1000}
+      >
+        <OrderCompleteFulfillmentReject rejectOrderNoteData={handleRejectOrderNote} data={rejectOrder} />
       </Modal>
     </div>
   );

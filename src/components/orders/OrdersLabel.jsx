@@ -57,10 +57,10 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
       if (selectedRows.length > 0) changeNextStep(true);
     },
     getCheckboxProps: (record) => {
-      const disabledOrderCompleted = ordersCompleted.find((item) => item.order_id === record.package_id);
-
+      const disabledOrderCompleted = ordersCompleted.filter((item) => item.pack_id === record.package_id && item.package_status === true);
+      console.log('disabledOrderCompleted: ', disabledOrderCompleted);
       return {
-        disabled: record.label === null || disabledOrderCompleted,
+        disabled: record.label === null || disabledOrderCompleted.length > 0,
       };
     },
   };
