@@ -207,7 +207,7 @@ export default function Crawl() {
         });
         console.log('combineProducts: ', combineProducts);
         setProductList(combineProducts);
-        localStorage.setItem('productList', JSON.stringify(combineProducts));
+        // localStorage.setItem('productList', JSON.stringify(combineProducts));
       })
       .catch((error) => {
         message.error(error?.data?.message);
@@ -268,7 +268,7 @@ export default function Crawl() {
 
     // lấy danh sách id của sản phẩm để get thông tin sản phẩm
     const ids = productData.map((item) => item.id.split('.')[0]).join(',');
-    localStorage.setItem('productList', JSON.stringify(productData));
+    setProductList(productData);
     setCheckedItems([]);
     setIsAllChecked(false);
     setShowSkeleton(true);
@@ -422,7 +422,7 @@ export default function Crawl() {
           };
         });
       }
-      localStorage.setItem('productList', JSON.stringify(convertJson));
+      // localStorage.setItem('productList', JSON.stringify(convertJson));
       setProductList(convertJson);
     };
 
