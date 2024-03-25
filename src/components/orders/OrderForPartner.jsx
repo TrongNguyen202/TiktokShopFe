@@ -12,6 +12,7 @@ import {
   message,
   notification,
   Tooltip,
+  Select,
 } from 'antd';
 import { DownOutlined, WarningOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
@@ -32,9 +33,11 @@ function OrderForPartner({ toShipInfoData }) {
   const [messageApi, contextHolder] = message.useMessage();
   const [api, notificationContextHolder] = notification.useNotification();
   const [designSku, setDesignSku] = useState([]);
+  const [flashShipShipment, setFlashShipShipment] = useState(1);
   const [designSkuById, setDesignSkuById] = useState({});
   const [openEditModal, setOpenEditModal] = useState(false);
   const [dataOCRCheck, setDataOCRCheck] = useState([]);
+  const [orderFulfillmentCompleted, setOrderFulfillmentCompleted] = useState([]);
   const [tableFlashShipSelected, setTableFlashShipSelected] = useState([]);
   const [tablePrintCareSelected, setTablePrintCareSelected] = useState([]);
   const [flashShipTable, setFlashShipTable] = useState([]);
@@ -49,21 +52,20 @@ function OrderForPartner({ toShipInfoData }) {
     getDesignSkuById,
     packageCreateFlashShip,
     packageCreatePrintCare,
+    packageFulfillmentCompleted,
   } = useShopsOrder((state) => state);
   const { getFlashShipPODVariant, LoginFlashShip, createOrderFlashShip } = useFlashShipStores((state) => state);
 
   const checkDataPartner = (data) => {
-    const dataCheck = data
-      .map((order) => {
-        order.order_list[0].item_list = order.order_list[0].item_list.filter((item) => item.sku_name !== 'Default');
-        return order;
-      })
-      .filter((order) => order.order_list[0].item_list.length > 0);
+    const dataCheck = data.map(order => {
+      order.order_list[0].item_list = order.order_list[0].item_list.filter(item => item.sku_name !== "Default");
+      return order;
+    }).filter(order => order.order_list[0].item_list.length > 0);
 
     const orderPartnerResult = dataCheck?.map((dataItem) => {
       const orderPartner = { ...dataItem };
       const itemList = dataItem?.order_list?.flatMap((item) => item.item_list);
-      const itemListRemovePhysical = itemList.filter((item) => item.sku_name !== 'Default');
+      const itemListRemovePhysical = itemList.filter(item => item.sku_name !== 'Default')
       let isFlashShip = true;
       const variations = itemListRemovePhysical.map((variation) => {
         if (!isFlashShip) return variation;
@@ -87,24 +89,24 @@ function OrderForPartner({ toShipInfoData }) {
           isFlashShip = false;
         } else {
           const variationObjectSize = variationObject?.size?.split(/[\s-,]/).filter(Boolean);
-          const checkProductType = flashShipVariants?.filter((variant) =>
-            variationObjectSize.find((item) => item.toUpperCase() === variant.product_type.toUpperCase()),
+          const checkProductType = flashShipVariants?.filter((variant) => 
+            variationObjectSize.find(item => item.toUpperCase() === variant.product_type.toUpperCase())
           );
 
           if (!checkProductType.length) {
             isFlashShip = false;
           }
-
+  
           if (checkProductType.length) {
             const checkColor = checkProductType.filter(
               (color) => color.color.toUpperCase() === variationObject?.color?.replace(' ', '').toUpperCase(),
             );
-
+  
             if (checkColor.length) {
               const checkSize = checkColor.find((size) => {
-                return variationObjectSize.find((item) => item.toUpperCase() === size.size.toUpperCase());
+                return variationObjectSize.find(item => item.toUpperCase() === size.size.toUpperCase())
               });
-
+  
               if (checkSize) {
                 result.variant_id = checkSize.variant_id;
               } else {
@@ -185,10 +187,10 @@ function OrderForPartner({ toShipInfoData }) {
   };
 
   const handleConvertDataPackageCreate = (data, key) => {
-    const result = data
-      .map((item) => {
-        const orderList = item.order_list.map((order) => ({
-          package_id: item.package_id,
+    const result = data.map((item) => {
+      const orderList = item.order_list.map((order) => {
+        const orderItem = {
+          pack_id: item.package_id,
           order_id: item.order_id,
           buyer_first_name: item.name_buyer?.split(' ')[0] || '',
           buyer_last_name: item.name_buyer?.split(' ')[1] || '',
@@ -200,7 +202,7 @@ function OrderForPartner({ toShipInfoData }) {
           buyer_province_code: item.state?.trim(),
           buyer_zip: item.zip_code,
           buyer_country_code: 'US',
-          shipment: 1,
+          shipment: flashShipShipment,
           linkLabel: item.label,
           products: [
             {
@@ -209,12 +211,19 @@ function OrderForPartner({ toShipInfoData }) {
               printer_design_back_url: order.image_design_back || null,
               quantity: order.quantity,
               note: '',
-            },
+            }
           ],
-        }));
-        return orderList;
-      })
-      .flat();
+        }
+        const orderFulfillmentCompletedRejected = orderFulfillmentCompleted.find(order => order.order_id === item.order_id);
+        if (orderFulfillmentCompletedRejected && orderFulfillmentCompletedRejected?.package_status === false) {
+          orderItem['order_id'] = `${item.order_id}-${Math.floor(Math.random() * 10)}`;
+        }
+
+        return orderItem;
+      });
+      return orderList;
+
+    }).flat();
     return result;
   };
 
@@ -253,32 +262,30 @@ function OrderForPartner({ toShipInfoData }) {
     } else {
       const dataSubmitFlashShip = handleConvertDataPackageCreate(handAddDesignToShipInfoData, 'FlashShip');
       dataSubmitFlashShip.map((item) => {
-        const dataCreateOrder = { ...item };
+        const dataCreateOrder = {...item};
         delete dataCreateOrder.package_id;
-        const onCreateSuccess = (resCreate) => {
-          api.open({
-            message: `Đơn hàng ${item.order_id}`,
-            description: resCreate.err,
-            icon: <WarningOutlined style={{ color: 'red' }} />,
-          });
-
-          if (resCreate) {
+        const onCreateSuccess = (resCreate) => {          
+          if (resCreate.data !== null) {
             const dataCreateOrder = {
               ...item,
-              orderCode: resCreate.data,
+              order_code: resCreate.data
+            }
+
+            const onSuccessPackageCreate = (resPackage) => {
+              if (resPackage) {
+                navigate(`/shops/${shopId}/orders/fulfillment/completed`);
+              }
             };
 
-            if (resCreate.data !== null) {
-              const onSuccessPackageCreate = (resPackage) => {
-                if (resPackage) {
-                  navigate(`/shops/${shopId}/orders/fulfillment/completed`);
-                }
-              };
-
-              const onFailPackageCreate = (errPackage) => { };
-
-              packageCreateFlashShip(shopId, dataCreateOrder, onSuccessPackageCreate, onFailPackageCreate);
-            }
+            const onFailPackageCreate = (errPackage) => {};  
+            packageCreateFlashShip(shopId, dataCreateOrder, onSuccessPackageCreate, onFailPackageCreate);
+            
+          } else {
+            api.open({
+              message: `Đơn hàng ${item.order_id}`,
+              description: resCreate.err,
+              icon: <WarningOutlined style={{ color: 'red' }} />,
+            });
           }
         };
 
@@ -292,22 +299,22 @@ function OrderForPartner({ toShipInfoData }) {
         createOrderFlashShip(dataCreateOrder, onCreateSuccess, onCreateFail);
       });
     }
-  };
+  }
 
   const handleCreateOrderFlashShip = () => {
     if (flashShipToken === null) {
-      setOpenLoginFlashShip(true);
+      setOpenLoginFlashShip(true)
     } else {
-      handleCreateOrderFlashShipAPI();
+      handleCreateOrderFlashShipAPI()
     }
-  };
+  }
 
   const handleLoginFlashShip = (values) => {
     const onSuccess = (res) => {
       if (res) {
         setToken('flash-ship-tk', res.data.access_token);
         setOpenLoginFlashShip(false);
-        handleCreateOrderFlashShipAPI();
+        handleCreateOrderFlashShipAPI()
       }
     };
 
@@ -384,7 +391,7 @@ function OrderForPartner({ toShipInfoData }) {
         City: product.city,
         Zip: product.zip_code,
         Quantity: product.quantity,
-        'Variant ID': key === 'PrintCare' ? product.sku_name : product.variant_id,
+        'Variant ID': key=== 'PrintCare' ? product.sku_name : product.variant_id,
         'Print area front': product.image_design_front,
         'Print area back': product.image_design_back,
         'Mockup Front': '',
@@ -440,11 +447,11 @@ function OrderForPartner({ toShipInfoData }) {
       dataIndex: 'package_id',
       key: 'package_id',
     },
-    // {
-    //   title: 'Order ID',
-    //   dataIndex: 'package_id',
-    //   key: 'package_id',
-    // },
+    {
+      title: 'Order ID',
+      dataIndex: 'order_id',
+      key: 'order_id',
+    },
     {
       title: 'Product items',
       dataIndex: 'product_items',
@@ -555,6 +562,10 @@ function OrderForPartner({ toShipInfoData }) {
       }
     };
 
+    const onSuccessFulfillmentCompleted = (res) => {
+      setOrderFulfillmentCompleted(res)
+    }
+
     const onFail = (err) => {
       console.log(err);
     };
@@ -569,6 +580,7 @@ function OrderForPartner({ toShipInfoData }) {
     );
     getFlashShipPODVariant(onSuccessVariant, onFailVariant);
     getToShipInfo(shopId, data, onSuccess, onFail);
+    packageFulfillmentCompleted(shopId, onSuccessFulfillmentCompleted, () => {})
   }, [shopId, toShipInfoData]);
 
   useEffect(() => {
@@ -590,7 +602,32 @@ function OrderForPartner({ toShipInfoData }) {
             />
           </div>
           <Space>
-            <Button type="primary" onClick={handleCreateOrderFlashShip} disabled={!tableFlashShipSelected.length}>
+            <div className="flex flex-wrap items-center">
+              <label className="mr-3">Shipment method: </label>
+              <Select
+                defaultValue="1"
+                onChange={(value) => setFlashShipShipment(value)}
+                options={[
+                  {
+                    value: '1',
+                    label: 'FirstClass',
+                  },
+                  {
+                    value: '2',
+                    label: 'Priority',
+                  },
+                  {
+                    value: '3',
+                    label: 'RushProduction',
+                  },
+                ]}
+              />
+            </div>
+            <Button
+              type="primary"
+              onClick={handleCreateOrderFlashShip}
+              disabled={!tableFlashShipSelected.length}
+            >
               Create Order with FlashShip
             </Button>
             <Button

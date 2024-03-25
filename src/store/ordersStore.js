@@ -284,4 +284,15 @@ export const useShopsOrder = create((set) => ({
     }
     set({ loading: false });
   },
+
+  packageFulfillmentCompletedInActive: async (packageId, body, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true });
+      const response = await RepositoryRemote.orders.packageFulfillmentCompletedInActive(packageId, body);
+      onSuccess(response.data);
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
+    }
+    set({ loading: false });
+  },
 }));
