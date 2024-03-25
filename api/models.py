@@ -172,3 +172,9 @@ class ProductPackage(models.Model):
 class CustomUserSendPrint(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     user_code = models.CharField(max_length=1000, blank=True, null=True)
+
+
+class ErrorCodes(models.Model):
+    code = models.CharField(max_length=500)
+    message = models.CharField(max_length=500)
+    description = models.CharField(max_length=500)
