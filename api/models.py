@@ -124,7 +124,7 @@ class DesignSkuChangeHistory(models.Model):
 class FlashShipPODVariantList(models.Model):
     SHIRT = "SHIRT"
     HOODIE = "HOODIE"
-    SWEATSHIRT = "SWEATSHIRT"
+    SWEATSHIRT = "SWEATSHIRT"https://github.com/2uanDM/TikTokShop-Folinas-Backend/pull/59/conflict?name=api%252Fmodels.py&ancestor_oid=c87081428747e5d677917c3f26fee34709748fcc&base_oid=420ac0b741901887c7fa09826c55a123dcdab513&head_oid=791fcf912680feedfc8accc8c7f7a81dac8e07be
 
     PRODUCT_TYPE_CHOICES = [
         (SHIRT, "Shirt"),
@@ -158,6 +158,8 @@ class Package(models.Model):
     fulfillment_name = models.CharField(max_length=500, null=True)
     shop = models.ForeignKey(Shop, on_delete=models.SET_NULL, null=True)
     order_code = models.CharField(max_length=500, blank=True, null=True)
+    pack_id = models.CharField(max_length=500, blank=True, null=True)
+    package_status = models.BooleanField(default=True)
 
 
 class ProductPackage(models.Model):
@@ -173,8 +175,14 @@ class CustomUserSendPrint(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     user_code = models.CharField(max_length=1000, blank=True, null=True)
 
-
+    
 class ErrorCodes(models.Model):
     code = models.CharField(max_length=500)
     message = models.CharField(max_length=500)
     description = models.CharField(max_length=500)
+
+    
+class FlashShipAccount(models.Model):
+    user_name = models.CharField(max_length=1000, blank=True, null=True)
+    pass_word = models.CharField(max_length=1000, blank=True, null=True)
+    group = models.ForeignKey(GroupCustom, related_name="group", on_delete=models.SET_NULL, null=True)

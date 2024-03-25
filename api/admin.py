@@ -10,6 +10,7 @@ from .models import (
     DesignSku,
     DesignSkuChangeHistory,
     ErrorCodes,
+    FlashShipAccount,
     FlashShipPODVariantList,
     GroupCustom,
     Image,
@@ -204,5 +205,9 @@ admin.site.register(UserShop, UserShopAdmin)
 admin.site.register(BuyedPackage)
 admin.site.register(DesignSku, DesignSkuAdmin)
 admin.site.register(DesignSkuChangeHistory, DesignSkuChangeHistoryAdmin)
-admin.site.register(Package)
 admin.site.register(CustomUserSendPrint)
+admin.site.register(FlashShipAccount)
+
+@admin.register(Package)
+class PackageAdmin(admin.ModelAdmin):
+    list_display = ('order_id', 'pack_id', 'buyer_first_name', 'buyer_last_name', 'buyer_email', 'package_status')
