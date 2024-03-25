@@ -12,7 +12,7 @@ import requests
 from api.utils.tiktok_base_api import SIGN, TIKTOK_API_URL, app_key, logger, secret
 from tiktok.middleware import BadRequestException
 
-PROMOTION_SKUS_LIMIT = 2000
+PROMOTION_SKUS_LIMIT = 2999
 
 semaphore = asyncio.Semaphore(10)
 
@@ -84,7 +84,8 @@ async def get_all_no_promotion_products(access_token: str):
     for result in results:
         all_products.extend(result["products"])
 
-    # no_promotion_products = [product for product in all_products if not (product.get("promotion_infos") and len(product["promotion_infos"]) > 0)]
+    # no_promotion_products = [product for product in all_products
+    # if not (product.get("promotion_infos") and len(product["promotion_infos"]) > 0)]
 
     return all_products
 
@@ -152,7 +153,9 @@ def get_promotion_detail(access_token: str, shop_id: str, promotion_id: str):
     return data
 
 
-async def create_simple_promotion(access_token: str, title: str, begin_time: int, end_time: int, type: str, product_type="SKU"):
+async def create_simple_promotion(
+    access_token: str, title: str, begin_time: int, end_time: int, type: str, product_type="SKU"
+):
     """
     Create simple promotion - flash sale or product discount
     """
@@ -188,13 +191,25 @@ async def create_simple_promotion(access_token: str, title: str, begin_time: int
 
 
 async def create_promotion_with_products(
-    access_token: str, title: str, begin_time: int, end_time: str, type: str, discount: int, product_type: str, products=[]
+    access_token: str,
+    title: str,
+    begin_time: int,
+    end_time: str,
+    type: str,
+    discount: int,
+    product_type: str,
+    products=[],
 ):
     """
     Create promotion with products
     """
     new_promotion = await create_simple_promotion(
-        access_token=access_token, title=title, begin_time=begin_time, end_time=end_time, type=type, product_type=product_type
+        access_token=access_token,
+        title=title,
+        begin_time=begin_time,
+        end_time=end_time,
+        type=type,
+        product_type=product_type,
     )  # noqa: E501
 
     promotion_id = new_promotion["promotion_id"]
@@ -222,7 +237,8 @@ async def create_promotion_with_products(
         product_list.append(
             {
                 # "discount": discount,
-                # "promotion_price":round(float(product["skus"][0]["price"]["original_price"]) * (100 - discount) / 100, 2),
+                # "promotion_price":round(float(product["skus"][0]["price"]["original_price"])\
+                # * (100 - discount) / 100, 2),
                 "num_limit": -1,
                 "user_limit": -1,
                 "product_id": product["id"],
@@ -235,7 +251,9 @@ async def create_promotion_with_products(
     return promotion_id
 
 
-async def create_promotion(access_token: str, title: str, begin_time: int, end_time: int, type: str, discount: int, product_type="SKU"):
+async def create_promotion(
+    access_token: str, title: str, begin_time: int, end_time: int, type: str, discount: int, product_type="SKU"
+):
     """
     Create advanced promotion - deactivated all promotions before and create new one
     """
@@ -264,7 +282,7 @@ async def create_promotion(access_token: str, title: str, begin_time: int, end_t
     await deactivate_all_promotions(access_token)
     await asyncio.sleep(4)
 
-    logger.info(f"Creating promotion with {len(all_products)} products - {len(products_pack)} packs")
+    logger.info(f"Creating promotion with {len(all_products)} products - {len(products_pack)} packs of {PROMOTION_SKUS_LIMIT} skus")
 
     promotion_ids = []
     for pack in products_pack:
@@ -279,7 +297,7 @@ async def create_promotion(access_token: str, title: str, begin_time: int, end_t
             products=pack,
         )  # noqa: E501
         print(promotion_id)
-        await asyncio.sleep(4)
+        await asyncio.sleep(6)
         promotion_ids.append(promotion_id)
 
     return {

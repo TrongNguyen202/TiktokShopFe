@@ -34,7 +34,9 @@ class GetPromotionDetailView(APIView):
     def get(self, request, shop_id: int, promotion_id: int):
         shop = get_object_or_404(Shop, id=shop_id)
 
-        data = promotion.get_promotion_detail(access_token=shop.access_token, shop_id=str(shop_id), promotion_id=str(promotion_id))
+        data = promotion.get_promotion_detail(
+            access_token=shop.access_token, shop_id=str(shop_id), promotion_id=str(promotion_id)
+        )
 
         return JsonResponse(data)
 

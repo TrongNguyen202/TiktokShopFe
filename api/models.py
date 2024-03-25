@@ -1,4 +1,3 @@
-
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -13,7 +12,7 @@ class CustomUser(models.Model):
 
 
 class GroupCustom(models.Model):
-    group_name = models.CharField(null=False, help_text='ten cua phong ban', max_length=500, default='chua co ten')
+    group_name = models.CharField(null=False, help_text="ten cua phong ban", max_length=500, default="chua co ten")
 
 
 class UserGroup(models.Model):
@@ -36,13 +35,13 @@ class UserGroup(models.Model):
 
 
 class Shop(models.Model):
-    shop_code = models.CharField(null=False, help_text='Shop id lấy từ shop code', max_length=500, default='')
+    shop_code = models.CharField(null=False, help_text="Shop id lấy từ shop code", max_length=500, default="")
     access_token = models.CharField(null=False, max_length=500)
     refresh_token = models.CharField(null=True, max_length=500)
     auth_code = models.CharField(null=False, max_length=500)
     grant_type = models.CharField(default="authorized_code", max_length=500)
     shop_name = models.CharField(max_length=500)
-    group_custom_id = models.ForeignKey(GroupCustom, on_delete=models.SET_NULL,  null=True)
+    group_custom_id = models.ForeignKey(GroupCustom, on_delete=models.SET_NULL, null=True)
     objects = models.Manager()
     is_active = models.BooleanField(default=True)
 
@@ -52,8 +51,12 @@ class Image(models.Model):
 
 
 class AppKey(models.Model):
-    app_key = models.CharField(null=False, help_text='App key lấy từ tiktok app for developer', max_length=500, default='')
-    secret = models.CharField(null=False, help_text='App secret lấy từ tiktok app for developer', max_length=500, default='')
+    app_key = models.CharField(
+        null=False, help_text="App key lấy từ tiktok app for developer", max_length=500, default=""
+    )
+    secret = models.CharField(
+        null=False, help_text="App secret lấy từ tiktok app for developer", max_length=500, default=""
+    )
 
 
 class Categories(models.Model):
@@ -73,9 +76,9 @@ class UserShop(models.Model):
 
 class Templates(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField(null=False, max_length=500, default='')
+    name = models.CharField(null=False, max_length=500, default="")
     category_id = JSONField()
-    description = models.TextField(null=False, max_length=50000, default='')
+    description = models.TextField(null=False, max_length=50000, default="")
     is_cod_open = models.BooleanField(default=False)
     package_height = models.FloatField(default=1)
     package_length = models.FloatField(default=1)
@@ -86,29 +89,29 @@ class Templates(models.Model):
     type = ArrayField(models.CharField(20), null=False, default=[])
     types = JSONField()
     badWords = ArrayField(models.CharField(200), null=True, default=[])
-    suffixTitle = models.CharField(null=True, max_length=500, default='')
+    suffixTitle = models.CharField(null=True, max_length=500, default="")
     size_chart = models.TextField(null=True)
     fixed_images = ArrayField(models.CharField(20000), null=True, default=[])
     objects = models.Manager()
 
 
 class Products(models.Model):
-    shop = models.ForeignKey(Shop, on_delete=models.SET_NULL,  null=True)
+    shop = models.ForeignKey(Shop, on_delete=models.SET_NULL, null=True)
     data = models.JSONField()
 
 
 class BuyedPackage(models.Model):
-    package_id = models.CharField(null=False, max_length=500, help_text='Package_id da duoc buy label')
+    package_id = models.CharField(null=False, max_length=500, help_text="Package_id da duoc buy label")
 
 
 class DesignSku(models.Model):
-    sku_id = models.CharField(null=False, max_length=500, help_text='SKU ID')
-    product_name = models.CharField(null=False, max_length=500, help_text='product_name')
-    variation = models.CharField(null=False, max_length=500, help_text='variation')
-    image_front = models.CharField(null=True, max_length=500, help_text='image_front', blank=True)
-    image_back = models.CharField(null=True, max_length=500, help_text='image_back', blank=True)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL,  null=True)
-    department = models.ForeignKey(GroupCustom, on_delete=models.SET_NULL,  null=True)
+    sku_id = models.CharField(null=False, max_length=500, help_text="SKU ID")
+    product_name = models.CharField(null=False, max_length=500, help_text="product_name")
+    variation = models.CharField(null=False, max_length=500, help_text="variation")
+    image_front = models.CharField(null=True, max_length=500, help_text="image_front", blank=True)
+    image_back = models.CharField(null=True, max_length=500, help_text="image_back", blank=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    department = models.ForeignKey(GroupCustom, on_delete=models.SET_NULL, null=True)
 
 
 class DesignSkuChangeHistory(models.Model):
@@ -119,14 +122,14 @@ class DesignSkuChangeHistory(models.Model):
 
 
 class FlashShipPODVariantList(models.Model):
-    SHIRT = 'SHIRT'
-    HOODIE = 'HOODIE'
-    SWEATSHIRT = 'SWEATSHIRT'
+    SHIRT = "SHIRT"
+    HOODIE = "HOODIE"
+    SWEATSHIRT = "SWEATSHIRT"
 
     PRODUCT_TYPE_CHOICES = [
-        (SHIRT, 'Shirt'),
-        (HOODIE, 'Hoodie'),
-        (SWEATSHIRT, 'Sweatshirt'),
+        (SHIRT, "Shirt"),
+        (HOODIE, "Hoodie"),
+        (SWEATSHIRT, "Sweatshirt"),
     ]
 
     variant_id = models.IntegerField()
@@ -153,11 +156,13 @@ class Package(models.Model):
     shipment = models.IntegerField(null=True)
     linkLabel = models.CharField(max_length=1000, blank=True, null=True)
     fulfillment_name = models.CharField(max_length=500, null=True)
-    shop = models.ForeignKey(Shop, on_delete=models.SET_NULL,  null=True)
+    shop = models.ForeignKey(Shop, on_delete=models.SET_NULL, null=True)
+    order_code = models.CharField(max_length=500, blank=True, null=True)
+    pack_id = models.CharField(max_length=500, blank=True, null=True)
 
 
 class ProductPackage(models.Model):
-    package = models.ForeignKey(Package, related_name='products', on_delete=models.SET_NULL, null=True)
+    package = models.ForeignKey(Package, related_name="products", on_delete=models.SET_NULL, null=True)
     variant_id = models.CharField(null=True, blank=True, max_length=500)
     printer_design_front_url = models.CharField(max_length=1000, blank=True, null=True)
     printer_design_back_url = models.CharField(max_length=1000, blank=True, null=True)
@@ -168,3 +173,9 @@ class ProductPackage(models.Model):
 class CustomUserSendPrint(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     user_code = models.CharField(max_length=1000, blank=True, null=True)
+
+
+class FlashShipAccount(models.Model):
+    user_name = models.CharField(max_length=1000, blank=True, null=True)
+    pass_word = models.CharField(max_length=1000, blank=True, null=True)
+    group = models.ForeignKey(GroupCustom, related_name="group", on_delete=models.SET_NULL, null=True)
