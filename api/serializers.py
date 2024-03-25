@@ -210,3 +210,11 @@ class PackageSerializer(serializers.ModelSerializer):
         for product_data in products_data:
             ProductPackage.objects.create(package=package, **product_data)
         return package
+class PackageDeactiveSerializer(serializers.ModelSerializer):
+
+
+    class Meta:
+        model = Package
+        fields = [
+           "package_status"
+        ]

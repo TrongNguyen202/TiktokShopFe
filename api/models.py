@@ -159,6 +159,7 @@ class Package(models.Model):
     shop = models.ForeignKey(Shop, on_delete=models.SET_NULL, null=True)
     order_code = models.CharField(max_length=500, blank=True, null=True)
     pack_id = models.CharField(max_length=500, blank=True, null=True)
+    package_status = models.BooleanField(default=True)
 
 
 class ProductPackage(models.Model):
