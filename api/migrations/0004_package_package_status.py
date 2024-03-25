@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("api", "0002_package_pack_id"),
+        ("api", "0003_errorcodes_package_order_code"),
     ]
 
     operations = [

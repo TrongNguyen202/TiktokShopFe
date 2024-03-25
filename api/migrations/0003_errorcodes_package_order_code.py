@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("api", "0002_customusersendprint"),
+        ("api", "0002_package_pack_id"),
     ]
 
     operations = [
