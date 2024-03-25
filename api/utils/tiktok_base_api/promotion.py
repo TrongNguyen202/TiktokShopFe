@@ -1,6 +1,8 @@
 import asyncio
 import json
 import math
+import random
+import string
 import urllib.parse
 from datetime import datetime
 from uuid import uuid4
@@ -10,7 +12,7 @@ import requests
 from api.utils.tiktok_base_api import SIGN, TIKTOK_API_URL, app_key, logger, secret
 from tiktok.middleware import BadRequestException
 
-PROMOTION_SKUS_LIMIT = 3000
+PROMOTION_SKUS_LIMIT = 2999
 
 semaphore = asyncio.Semaphore(10)
 
@@ -88,7 +90,7 @@ async def get_all_no_promotion_products(access_token: str):
     return all_products
 
 
-def get_promotions(access_token: str, status: int = None, page_number=1, page_size=100):
+async def get_promotions(access_token: str, status: int = None, title: str = None, page_number=1, page_size=100):
     """
     Get promotion campaigns
     """
@@ -106,6 +108,9 @@ def get_promotions(access_token: str, status: int = None, page_number=1, page_si
         "page_number": page_number,
         "page_size": page_size,
     }
+
+    if title:
+        body_json["title"] = title
 
     if status is not None:
         body_json["status"] = status
@@ -160,7 +165,7 @@ async def create_simple_promotion(
 
     now = datetime.now()
 
-    formatted_date = now.strftime("%y-%m-%d--%H-%M-%S")
+    formatted_date = now.strftime("%y-%m-%d--%H-%M-%S") + "--" + "".join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))  # noqa: E501
     body_json = {
         "begin_time": begin_time,
         "end_time": end_time,
@@ -241,7 +246,7 @@ async def create_promotion_with_products(
             }
         )
 
-    add_or_update_promotion(access_token, promotion_id, product_list)
+    await add_or_update_promotion(access_token, promotion_id, product_list)
 
     return promotion_id
 
@@ -274,7 +279,10 @@ async def create_promotion(
     if pack:  # Add the last pack if any remaining
         products_pack.append(pack)
 
-    deactivate_all_promotions(access_token)
+    await deactivate_all_promotions(access_token)
+    await asyncio.sleep(4)
+
+    logger.info(f"Creating promotion with {len(all_products)} products - {len(products_pack)} packs of {PROMOTION_SKUS_LIMIT} skus")
 
     promotion_ids = []
     for pack in products_pack:
@@ -289,6 +297,7 @@ async def create_promotion(
             products=pack,
         )  # noqa: E501
         print(promotion_id)
+        await asyncio.sleep(6)
         promotion_ids.append(promotion_id)
 
     return {
@@ -301,7 +310,7 @@ async def create_promotion(
     }
 
 
-def add_or_update_promotion(access_token: str, promotion_id: int, product_list: list):
+async def add_or_update_promotion(access_token: str, promotion_id: int, product_list: list):
     """
     Add or update skus for promotion
     """
@@ -330,7 +339,7 @@ def add_or_update_promotion(access_token: str, promotion_id: int, product_list: 
     return data["data"]
 
 
-def deactivate_promotion(access_token: str, promotion_id: int):
+async def deactivate_promotion(access_token: str, promotion_id: int):
     """
     Deactivate promotion
     """
@@ -360,13 +369,13 @@ def deactivate_promotion(access_token: str, promotion_id: int):
     return data["data"]
 
 
-def deactivate_all_promotions(access_token: str):
+async def deactivate_all_promotions(access_token: str):
     """
     Deactivate all promotions
     """
-    active_promotions = get_promotions(access_token, 2)["promotion_list"]
+    active_promotions = (await get_promotions(access_token, 2))["promotion_list"]
 
     for promotion in active_promotions:
-        deactivate_promotion(access_token, promotion["promotion_id"])
+        await deactivate_promotion(access_token, promotion["promotion_id"])
 
     return True
