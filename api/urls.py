@@ -168,6 +168,7 @@ fulfillment_urls = [
     ),
     path("shop/<int:shop_id>/packages/list", tiktok.order_action.PackageListByShop.as_view(), name="get_list_package"),
     path("flashship/account", flashshipapi.FlashShipAccountApi.as_view(), name="flashship_account"),
+    path("package/<str:pack_id>/deactive", tiktok.order_action.DeactivePack.as_view(), name="deactive_package"),
 ]
 
 """Google Trend"""
