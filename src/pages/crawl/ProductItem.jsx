@@ -1,8 +1,41 @@
 import { CreditCardOutlined, DeleteOutlined, EyeOutlined, HourglassOutlined, StarOutlined } from '@ant-design/icons';
-import { Skeleton, Tag, Tooltip } from 'antd';
-import React, { useState } from 'react';
+import { Input, Modal, Skeleton, Tag, Tooltip, Upload } from 'antd';
+import React, { useEffect, useState } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
+import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
+import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import ModalProductDetail from './ModalProductDetail';
+
+const getBase64 = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+
+function DraggableUploadListItem({ originNode, file }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: file.uid,
+  });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    cursor: 'move',
+  };
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={isDragging ? 'is-dragging h-[100%] w-[100%]' : ' h-[100%] w-[100%]'}
+      {...attributes}
+      {...listeners}
+    >
+      {file.status === 'error' && isDragging ? originNode.props.children : originNode}
+    </div>
+  );
+}
 
 export default function ProductItem({
   product,
@@ -12,8 +45,13 @@ export default function ProductItem({
   handleCheckChange,
   handleChangeProduct,
   showSkeleton,
+  showOutsideImages,
 }) {
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const [fileList, setFileList] = useState(product.images);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
+  const [previewTitle, setPreviewTitle] = useState('');
   const {
     listing_id,
     last_modified,
@@ -28,8 +66,42 @@ export default function ProductItem({
     hey,
   } = product ?? {};
 
+  useEffect(() => {
+    handleChangeProduct({ ...product, images: fileList });
+  }, [fileList]);
+
+  const handlePreview = async (file) => {
+    if (!file.url && !file.preview) file.preview = await getBase64(file.originFileObj);
+    setPreviewImage(file.url || file.preview);
+    setPreviewOpen(true);
+    setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
+  };
+
+  const handleChange = ({ fileList: newFileList }) => {
+    setFileList(newFileList);
+    // imgBase64(newFileList);
+  };
+
+  const sensor = useSensor(PointerSensor, {
+    activationConstraint: {
+      distance: 10,
+    },
+  });
+
+  const handleCancel = () => setPreviewOpen(false);
+
+  const onDragEnd = ({ active, over }) => {
+    if (active.id !== over?.id) {
+      setFileList((prev) => {
+        const activeIndex = prev.findIndex((i) => i.uid === active.id);
+        const overIndex = prev.findIndex((i) => i.uid === over?.id);
+        return arrayMove(prev, activeIndex, overIndex);
+      });
+    }
+  };
+
   return (
-    <div className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-md hover:shadow-blue-300 duration-300 hover:translate-y-[-5px]">
+    <div className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-md hover:shadow-blue-300 duration-300 hover:translate-y-[-5px] h-full">
       <div className="w-[100%] h-[13vw] relative">
         <LazyLoadImage
           src={product?.images[0]?.url}
@@ -60,7 +132,7 @@ export default function ProductItem({
         </p>
       </div>
       <div className="p-2">
-        <a className="h-[76px] line-clamp-4 block text-black" href={product.url} target="blank">
+        <a className="h-[20px] webkit-box text-black line-clamp-1" href={product.url} target="blank">
           {product.title}
         </a>
         <div className="flex justify-between items-center mt-2">
@@ -72,6 +144,37 @@ export default function ProductItem({
           </p>
           <p className="font-semibold text-green-600">${product.price}</p>
         </div>
+      </div>
+      <div className="p-2 my-2">
+        <Input
+          value={product.sku}
+          placeholder="Enter seller sku here"
+          onBlur={(e) => handleChangeProduct({ ...product, sku: e.target.value })}
+        />
+      </div>
+      <div className={`flex justify-center px-2 ${showOutsideImages ? 'block' : 'hidden'}`}>
+        <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
+          <SortableContext items={fileList?.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
+            <Upload
+              listType="picture-card"
+              fileList={fileList}
+              onPreview={handlePreview}
+              onChange={handleChange}
+              beforeUpload={() => false}
+              previewFile={getBase64}
+              multiple
+              // eslint-disable-next-line react/no-unstable-nested-components
+              itemRender={(originNode, file) => <DraggableUploadListItem originNode={originNode} file={file} />}
+            >
+              {/* {fileList?.length >= 8 ? null : (
+                <button style={{ border: 0, background: "none" }} type="button">
+                  <PlusOutlined />
+                  <div style={{ marginTop: 8 }}> Upload</div>
+                </button>
+              )} */}
+            </Upload>
+          </SortableContext>
+        </DndContext>
       </div>
       {listing_id ? (
         <div className="rounded-md flex flex-col gap-1 p-2 px-3 text-[14px] font-semibold">
@@ -147,6 +250,10 @@ export default function ProductItem({
           handleChangeProduct={handleChangeProduct}
         />
       )}
+
+      <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
+        <img alt={previewTitle} style={{ width: '100%' }} src={previewImage} />
+      </Modal>
     </div>
   );
 }
