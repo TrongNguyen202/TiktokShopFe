@@ -13,6 +13,7 @@ import { alerts } from '../../utils/alerts';
 import { getToken } from '../../utils/auth';
 import { getPathByIndex } from '../../utils/index';
 import TemplateForm from './TemplateForm';
+import ModalShowError from '../crawl/ModalShowError';
 
 function MultiAddProducts() {
   const navigate = useNavigate();
@@ -27,6 +28,11 @@ function MultiAddProducts() {
   const [templateJSON, setTemplateJSON] = useState();
   const [isShowModalAddTemplate, setShowModalAddTemplate] = useState(false);
   const [warehouseId, setWarehouseId] = useState();
+  const [modalErrorInfo, setModalErrorInfo] = useState({
+    isShow: false,
+    data: [],
+    title: '',
+  });
 
   useEffect(() => {
     getAllTemplate();
@@ -305,14 +311,41 @@ function MultiAddProducts() {
       size_chart,
     };
     console.log('dataSubmit: ', dataSubmit);
-    const onSuccess = () => {
-      message.success('Thêm sản phẩm thành công');
-      navigate(`/shops/${shopId}/products`);
+    const onSuccess = (res) => {
+      // message.success('Thêm sản phẩm thành công');
+      // navigate(`/shops/${shopId}/products`);
+      handleResponse(res);
     };
     const onFail = () => {
       message.error('Thêm sản phẩm thất bại');
     };
     createProductList(shopId, dataSubmit, onSuccess, onFail);
+  };
+
+  const handleResponse = (res) => {
+    const countProductSuccess = res.filter((item) => item.status === 'success').length;
+    const countProductFail = res.filter((item) => item.status === 'error').length;
+    if (countProductSuccess === productsJSON.length) {
+      message.success(`Upload products successfully ${countProductSuccess}/${countProductSuccess}`);
+      return;
+    }
+    if (countProductSuccess < productsJSON.length && countProductSuccess > 0) {
+      message.success(`Upload products successfully ${productsJSON.length - countProductFail}/${productsJSON.length}`);
+      setModalErrorInfo({
+        isShow: true,
+        data: res,
+        title: `Upload failed ${countProductFail} products`,
+      });
+      return;
+    }
+    if (countProductSuccess === 0) {
+      message.error('Upload failed all products');
+      setModalErrorInfo({
+        isShow: true,
+        data: res,
+        title: 'Upload failed all products',
+      });
+    }
   };
 
   const props = {
@@ -439,6 +472,10 @@ function MultiAddProducts() {
         >
           <TemplateForm onSaveTemplate={setTemplateJSON} setShowModalAddTemplate={setShowModalAddTemplate} />
         </Modal>
+      )}
+
+      {modalErrorInfo.isShow && (
+        <ModalShowError setModalErrorInfo={setModalErrorInfo} modalErrorInfo={modalErrorInfo} />
       )}
     </div>
   );
