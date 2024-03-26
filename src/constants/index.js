@@ -84,7 +84,7 @@ export const OrderPackageWeightSize = [
     ],
   },
   {
-    name: 'T-shirt',
+    name: 'shirt',
     items: [
       { name: 'S', weight: '0.3', size: '9x9x2' },
       { name: 'M', weight: '0.375', size: '9x9x2' },

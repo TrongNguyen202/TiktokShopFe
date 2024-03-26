@@ -72,7 +72,7 @@ function OrderCompleteFulfillment() {
     const onFail = (err) => {
       messageApi.open({
         type: 'error',
-        content: `${err}. Không lấy được thông tin order ${orderCode}`,
+        content: `${err}. Không lấy được thông tin order`,
       });
     };
     detailOrderFlashShip(orderCode, onSuccess, onFail);
