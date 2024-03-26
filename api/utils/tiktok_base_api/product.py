@@ -350,42 +350,35 @@ def callCreateOneProduct(access_token: str, product_object) -> requests.Response
     return response
 
 
-def callUploadImage(access_token: str, img_data):
-    try:
-        url = TIKTOK_API_URL["url_upload_image"]
+def callUploadImage(access_token: str, img_data: str, return_id: bool = True) -> requests.Response | str:
+    url = TIKTOK_API_URL["url_upload_image"]
 
-        query_params = {
-            "app_key": app_key,
-            "access_token": access_token,
-            "timestamp": SIGN.get_timestamp(),
-        }
+    query_params = {
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp(),
+    }
 
-        body = json.dumps({"img_data": img_data, "img_scene": 1})
+    body = json.dumps({"img_data": img_data, "img_scene": 1})
 
-        sign = SIGN.cal_sign(
-            secret=secret,
-            url=urllib.parse.urlparse(url),
-            query_params=query_params,
-            body=body,
-        )
+    sign = SIGN.cal_sign(
+        secret=secret,
+        url=urllib.parse.urlparse(url),
+        query_params=query_params,
+        body=body,
+    )
 
-        query_params["sign"] = sign
+    query_params["sign"] = sign
 
-        response = requests.post(url=url, params=query_params, json=json.loads(body))
+    response = requests.post(url=url, params=query_params, json=json.loads(body))
 
-        # Check if the image is uploaded successfully
-        data = json.loads(response.text)
+    if return_id:
+        response_data = json.loads(response.text)
+        if "data" in response_data and "img_id" in response_data["data"]:
+            image_id = response_data["data"]["img_id"]
+            return image_id
 
-        if data and "data" in data and "img_id" in data["data"]:
-            img_id = data["data"]["img_id"]
-            logger.info(f"Upload image success: {img_id}")
-            return img_id
-        else:
-            logger.error(f"Error when upload image: {response.text}")
-            return ""
-    except Exception as e:
-        logging.error("Error when upload image", exc_info=e)
-        return ""
+    return response
 
 
 def callEditProduct(access_token, product_object, imgBase64) -> requests.Response:
@@ -393,7 +386,12 @@ def callEditProduct(access_token, product_object, imgBase64) -> requests.Respons
     images_list = [image for image in product_object.images]
     if imgBase64:
         for item in imgBase64:
-            img_id = callUploadImage(access_token=access_token, img_data=item)
+            response = callUploadImage(access_token=access_token, img_data=item)
+            data = json.loads(response.text)
+
+            if data and "data" in data and "img_id" in data["data"]:
+                img_id = data["data"]["img_id"]
+
             images_list.append({"id": img_id})
 
     query_params = {

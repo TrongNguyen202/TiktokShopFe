@@ -21,9 +21,10 @@ class GetPromotionsView(APIView):
         status = request.GET.get("status")
         page_number = request.GET.get("page_number")
         page_size = request.GET.get("page_size")
+        title = request.GET.get("title")
 
-        data = promotion.get_promotions(
-            access_token=shop.access_token, status=status, page_number=page_number, page_size=page_size
+        data = async_to_sync(promotion.get_promotions)(
+            access_token=shop.access_token, status=status, title=title, page_number=page_number, page_size=page_size
         )
 
         return JsonResponse(data)

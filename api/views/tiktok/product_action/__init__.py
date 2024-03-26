@@ -1,13 +1,9 @@
 import base64
 import json
 import logging
-import os
-import platform
-import uuid
 from concurrent.futures import ThreadPoolExecutor
 
 import requests
-from PIL import Image
 
 from api import helpers, setup_logging
 from api.utils import constant, objectcreate
@@ -25,7 +21,7 @@ from api.views import (
     status,
 )
 
-from ....models import Brand, Categories, Shop
+from ....models import Brand, Categories, ErrorCodes, Shop
 
 logger = logging.getLogger("api.views.tiktok.product")
 setup_logging(logger, is_root=False, level=logging.INFO)
@@ -192,11 +188,12 @@ class CreateOneProductDraf(APIView):
 class ProcessExcel(View):
     def post(self, request, shop_id):
         try:
-            data = json.loads(request.body.decode("utf-8"))
+            self.request = request  # Set request to self to use in other functions
+            data = json.loads(self.request.body.decode("utf-8"))
 
+            # Parse data from request
             excel_data = data.get("excel", [])
             category_id = data.get("category_id", "")
-
             warehouse_id = data.get("warehouse_id", "")
             is_cod_open = data.get("is_cod_open", "")
             package_height = data.get("package_height", 1)
@@ -207,33 +204,61 @@ class ProcessExcel(View):
             skus = data.get("skus", [])
             size_chart = data.get("size_chart", "")
 
-            shop = Shop.objects.get(id=shop_id)
+            # Get shop object that user want to create product
+            self.shop = Shop.objects.get(id=shop_id)
 
+            # Process each item in excel file
+            processing_result = []  # Storing result of each item in excel file
             with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
-                futures = []
-                for item in excel_data:
-                    futures.append(
-                        executor.submit(
-                            self.process_item,
-                            item,
-                            shop,
-                            category_id,
-                            warehouse_id,
-                            is_cod_open,
-                            package_height,
-                            package_length,
-                            package_weight,
-                            package_width,
-                            description,
-                            skus,
-                            size_chart,
-                        )
+                futures = {}
+
+                # Submit each item to process
+                for order, item in enumerate(excel_data):
+                    future = executor.submit(
+                        self.process_item,
+                        item,
+                        category_id,
+                        warehouse_id,
+                        is_cod_open,
+                        package_height,
+                        package_length,
+                        package_weight,
+                        package_width,
+                        description,
+                        skus,
+                        size_chart,
                     )
+                    futures[future] = (order, item)
 
-                for future in futures:
-                    future.result()
+                for idx, future in enumerate(list(futures.keys())):
+                    order_in_excel_file, item = futures[future]
+                    result = future.result()
 
-            return JsonResponse({"status": "success"}, status=201)
+                    if result["status"] == "error":
+                        # Return error response
+                        error_response = {
+                            "order_in_excel": order_in_excel_file + 1,
+                            "title": item.get("title", ""),
+                            "status": "error",
+                            "detail": {
+                                "message": result["message"],
+                                "data": result["data"],
+                            },
+                        }
+                        processing_result.append(error_response)
+                    else:
+                        # Return success response
+                        success_response = {
+                            "order_in_excel": order_in_excel_file + 1,
+                            "title": item.get("title", ""),
+                            "status": "success",
+                            "detail": None,
+                        }
+                        processing_result.append(success_response)
+
+                    logger.info(f"Done item [{idx + 1} | {len(futures)}]")
+
+            return JsonResponse(processing_result, status=201, json_dumps_params={"ensure_ascii": False}, safe=False)
 
         except ObjectDoesNotExist as e:
             return HttpResponse({"error": str(e)}, status=404)
@@ -241,10 +266,11 @@ class ProcessExcel(View):
             logger.error("Error when process excel file", exc_info=e)
             return HttpResponse({"error": str(e)}, status=400)
 
+    """ Main function to process each item in excel file"""
+
     def process_item(
         self,
         item,
-        shop,
         category_id,
         warehouse_id,
         is_cod_open,
@@ -255,34 +281,67 @@ class ProcessExcel(View):
         description,
         skus,
         size_chart,
-    ):
+    ) -> dict:
+        # ============ STEP 1: Download images and convert to base64 ============
+        logger.info(f"User {self.request.user} | Start download images and convert to base64: {item.get('title', '')}")
         images = item.get("images", [])
-
-        downloaded_image_paths = []
+        base64_size_chart_images = []  # To store size chart images that are already in base64 format
+        success_images = []  # To store success images, each item would be (image_url: str, base64: str)
+        error_images = []  # To store error images, each item would be {"image_url": str, "response": dict}
 
         with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
-            image_futures = []
-            # fixed_images = []
-            base64_images = []
+            futures = {}
 
-            for key, image_url in images.items():
-                if image_url.startswith("https"):
-                    image_futures.append(executor.submit(self.download_image, image_url, key))
+            for col, value in images.items():
+                if value.startswith("https"):
+                    image_url = value
+                    future = executor.submit(self._process_image_url, image_url)
+                    futures[future] = (col, image_url)
                 else:
-                    base64_images.append(image_url)
+                    # Size chart images are already in base64 format
+                    base64_size_chart_images.append({"column": col, "image_url": "", "base64": value})
 
-            for future in image_futures:
+            for future in list(futures.keys()):
+                col, image_url = futures[future]
                 result = future.result()
-                if result:
-                    downloaded_image_paths.append(result)
+                if result["status"] == "success":
+                    success_images.append({"column": col, "image_url": image_url, "base64": result["data"]})
+                else:
+                    error_images.append({"column": col, "image_url": image_url, "response": result})
 
-        base_temp = self.process_images(downloaded_image_paths)
+        # Checkpoint 1: If there is any error when download and convert images to
+        code = "E001"
+        message = ErrorCodes.objects.get(code=code).message
+        if len(error_images) == len(images):  # All images are error
+            logger.error(f"User {self.request.user} | message", exc_info=True)
+            return {
+                "status": "error",
+                "message": message,
+                "data": error_images,
+            }
 
-        base_temp.extend(base64_images)
+        # ============ STEP 2: Upload images to TikTok and get images ids ============
 
-        images_ids = self.upload_images(base_temp, shop)
-        self.create_product_fun(
-            shop,
+        logger.info(f"User {self.request.user} | Start upload images to TikTok")
+        success_images.extend(base64_size_chart_images)
+        result = self._upload_images(success_images)
+
+        code = "E002"
+        message = ErrorCodes.objects.get(code=code).message
+        if result["status"] == "error":
+            logger.error(f"User {self.request.user} | {message}: {result['message']}")
+            return {
+                "status": "error",
+                "code": code,
+                "message": message,
+                "data": result["data"],
+            }
+
+        # Get images ids
+        images_ids = [x.get("img_id") for x in result["data"]]
+
+        # STEP 3: Create product with images ids and other data
+        result = self._call_create_product(
             item,
             category_id,
             warehouse_id,
@@ -297,107 +356,241 @@ class ProcessExcel(View):
             size_chart,
         )
 
-    def download_image(self, image_url, col):
-        if image_url:
-            download_dir = (
-                constant.DOWNLOAD_IMAGES_DIR_WINDOW
-                if platform.system() == "Windows"
-                else constant.DOWNLOAD_IMAGES_DIR_UNIX
+        return result
+
+    """ Utils function for bigger function"""
+
+    def __convert_to_base64(self, image_url: str, image_data: bytes) -> dict:
+        try:
+            base64_data = base64.b64encode(image_data).decode("utf-8")
+            return {
+                "status": "success",
+                "message": None,
+                "data": base64_data,
+            }
+        except Exception as e:
+            logger.error(f"User {self.request.user} | Failed when convert base64: {image_url}", exc_info=True)
+            return {
+                "status": "error",
+                "message": f"User {self.request.user} | Failed when convert base64 {image_url}: {str(e)}",
+                "data": None,
+            }
+
+    def __upload_single_image(self, item: dict) -> dict:
+        """
+            This function will upload a single image to TikTok and return the image id
+        Args:
+            item (dict): The item contains column name, image url and base64 string
+
+        Returns:
+            dict:
+            ```
+            {
+                "status": "success" or "error",
+                "message": "Error message" | None,
+                "data": "Image id" | None
+            }
+            ```
+        """
+        try:
+            response = product.callUploadImage(self.shop.access_token, img_data=item["base64"], return_id=False)
+
+            data = json.loads(response.text)
+
+            if data:
+                if data.get("data") is None:
+                    code = "E002"
+                    message = ErrorCodes.objects.get(code=code).message
+                    return {
+                        "status": "error",
+                        "code": code,
+                        "message": message,
+                        "data": data,
+                    }
+                else:
+                    img_id = data["data"]["img_id"]
+                    return {
+                        "status": "success",
+                        "message": None,
+                        "data": img_id,
+                    }
+            else:
+                return {
+                    "status": "error",
+                    "message": f"Response status code: {response.status_code}\nResponse text: {response.text}",
+                    "data": None,
+                }
+        except Exception as e:
+            logger.error(
+                f"User {self.request.user} | Failed to upload image: {item['image_url']}",
+                exc_info=True,
             )
-            os.makedirs(download_dir, exist_ok=True)
-            random_string = str(uuid.uuid4())[:8]
-            image_filename = os.path.join(download_dir, f"_{col}_{random_string}.jpg")
-            response = requests.get(image_url)
+            return {
+                "status": "error",
+                "message": str(e),
+                "data": None,
+            }
+
+    """ Utils for main function"""
+
+    def _process_image_url(self, image_url: str) -> dict:
+        """
+            This function will convert from a valid image url to a base64 string
+        Args:
+            image_url (str): The url of the image
+
+        Returns:
+            dict:
+            ```
+            {
+                "status": "success" or "error",
+                "message": "Error message" | None,
+                "data": "Base64 string" | None
+            }
+            ```
+        """
+        if image_url:
+            try:
+                response = requests.get(image_url, timeout=constant.REQUEST_TIMEOUT)
+            except Exception as e:
+                logger.error(f"User {self.request.user} | Failed to download image: {image_url}", exc_info=True)
+                return {
+                    "status": "error",
+                    "message": f"User {self.request.user} | Failed to download image: {image_url}: {str(e)}",
+                    "data": None,
+                }
 
             if response.status_code == 200:
-                with open(image_filename, "wb") as f:
-                    f.write(response.content)
-
-                return image_filename
+                # Convert image to base64
+                convert_result = self.__convert_to_base64(image_url, response.content)
+                return convert_result
             else:
                 logger.error(
-                    f"Failed to download image: {image_url}, Status code: {response.status_code}", exc_info=True
+                    f"User {self.request.user} | Failed to download image ({response.status_code}): {image_url}\nResponse:{response.text}",  # noqa: E501
                 )
-                return None
+                return {
+                    "status": "error",
+                    "message": f"User {self.request.user} | Failed to download image ({response.status_code}): {image_url}",  # noqa: E501
+                    "data": None,
+                }
 
-    def convert_to_base64(self, image_path):
-        try:
-            with open(image_path, "rb") as img_file:
-                # Đọc dữ liệu từ tệp ảnh
-                img_data = img_file.read()
-                # Chuyển đổi dữ liệu ảnh thành chuỗi base64
-                base64_data = base64.b64encode(img_data).decode("utf-8")
-                return base64_data
-        except Exception as e:
-            logger.error("Error converting image to base64", exc_info=e)
-            return None
+    def _upload_images(self, success_images: list[dict]) -> list:
+        images_ids = []
+        error_images = []
 
-    def process_images(self, downloaded_image_paths):
-        base64_images = []
-        for image_path in downloaded_image_paths:
-            try:
-                img = Image.open(image_path)
-                if img is None:
-                    continue
-                with open(image_path, "rb") as img_file:
-                    base64_image = base64.b64encode(img_file.read()).decode("utf-8")
-                    base64_images.append(base64_image)
-            except Exception as e:
-                logger.error(f"Error processing image: {image_path}", exc_info=e)
-
-        return base64_images
-
-    def upload_images(self, base64_images, shop):
-        # Sử dụng ThreadPoolExecutor để thực hiện đa luồng cho các công việc upload ảnh
         with ThreadPoolExecutor(max_workers=constant.MAX_WORKER) as executor:
-            futures = [
-                executor.submit(product.callUploadImage, access_token=shop.access_token, img_data=img_data)
-                for img_data in base64_images
-            ]
+            futures = {}
 
-            # Chờ cho tất cả các future kết thúc và lấy kết quả
-            images_ids = [future.result() for future in futures if future.result()]
+            for item in success_images:
+                future = executor.submit(self.__upload_single_image, item)
+                futures[future] = item
 
-        return images_ids
+            for future in list(futures.keys()):
+                item = futures[future]
+                result = future.result()
 
-    def create_product_fun(
+                if result["status"] == "success":
+                    images_ids.append(
+                        {"column": item["column"], "image_url": item["image_url"], "img_id": result["data"]}
+                    )
+                else:
+                    error_images.append({"column": item["column"], "image_url": item["image_url"], "response": result})
+
+        if len(error_images) == len(success_images):  # All images are error
+            return {
+                "status": "error",
+                "message": "Error when upload images to TikTok",
+                "data": error_images,
+            }
+
+        return {
+            "status": "success",
+            "message": None,
+            "data": images_ids,
+        }
+
+    def _call_create_product(
         self,
-        shop,
-        item,
-        category_id,
-        warehouse_id,
-        is_cod_open,
-        package_height,
-        package_length,
-        package_weight,
-        package_width,
-        images_ids,
-        description,
-        skus,
-        size_chart,
+        item: dict,
+        category_id: str,
+        warehouse_id: str,
+        is_cod_open: bool,
+        package_height: float,
+        package_length: float,
+        package_weight: float,
+        package_width: float,
+        images_ids: list,
+        description: str,
+        skus: list,
+        size_chart: str,
     ):
-        title = item.get("title", "")
-        seller_sku = item.get("sku", "")
-        for iteem in skus:
-            iteem["seller_sku"] = seller_sku
-        if size_chart != "":
-            print("co size chart")
+        try:
+            title = item.get("title", "")
+            seller_sku = item.get("sku", "")
 
-        product_object = objectcreate.ProductCreateMultiObject(
-            is_cod_open=is_cod_open,
-            package_dimension_unit="metric",
-            package_height=package_height,
-            package_length=package_length,
-            package_weight=package_weight,
-            package_width=package_width,
-            category_id=category_id,
-            warehouse_id=warehouse_id,
-            description=description,
-            skus=skus,
-            size_chart=size_chart,
-        )
+            # Add seller_sku to each sku that will be created with product
+            for item in skus:
+                item["seller_sku"] = seller_sku
 
-        product.createProduct(shop.access_token, title, images_ids, product_object)
+            product_object = objectcreate.ProductCreateMultiObject(
+                is_cod_open=is_cod_open,
+                package_dimension_unit="metric",
+                package_height=package_height,
+                package_length=package_length,
+                package_weight=package_weight,
+                package_width=package_width,
+                category_id=category_id,
+                warehouse_id=warehouse_id,
+                description=description,
+                skus=skus,
+                size_chart=size_chart,
+            )
+        except Exception as e:
+            message = f"Error occurred while creating product object: {str(e)}"
+            logger.error(f"User {self.request.user} | {message}", exc_info=True)
+            return {
+                "status": "error",
+                "message": message,
+                "data": None,
+            }
+
+        # Call the create product API
+        try:
+            print(images_ids)
+            response = product.createProduct(self.shop.access_token, title, images_ids, product_object)
+        except Exception as e:
+            logger.error(
+                f"User {self.request.user} | Error when call API create product: {title}",
+                exc_info=True,
+            )
+            return {
+                "status": "error",
+                "message": f"User {self.request.user} | Error occurred while calling create product API: {str(e)}",
+                "data": None,
+            }
+        else:
+            logger.info(
+                f"User {self.request.user} | Call create product API for item with title {title}'s response: \
+                \n{json.dumps(response.json(), indent=4)}\n"
+            )
+
+            response_json: dict = json.loads(response.text)
+
+            if response_json.get("data") is None:
+                code = "E003"
+                message = ErrorCodes.objects.get(code=code).message
+                return {
+                    "status": "error",
+                    "code": code,
+                    "message": message,
+                    "data": response_json,
+                }
+
+            return {
+                "status": "success",
+                "message": None,
+                "data": response_json,
+            }
 
 
 class EditProduct(APIView):
