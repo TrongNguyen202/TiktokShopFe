@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import ModalUploadProduct from './ModalUploadProduct';
 import ProductItem from './ProductItem';
 import { senPrintsData } from '../../constants';
+import ModalShowError from './ModalShowError';
 
 const crawlerOptions = [
   {
@@ -92,6 +93,11 @@ export default function Crawl() {
   const [licenseCode, setLicenseCode] = useState({
     code: localStorage.getItem('licenseCode'),
     invalid: !localStorage.getItem('licenseCode'),
+  });
+  const [modalErrorInfo, setModalErrorInfo] = useState({
+    isShow: false,
+    data: [],
+    title: '',
   });
 
   useEffect(() => {
@@ -537,7 +543,13 @@ export default function Crawl() {
           setShowModalUpload={setShowModalUpload}
           productList={convertDataProducts(true)}
           imagesLimit={optionCrawl.imagesLimit}
+          modalErrorInfo={modalErrorInfo}
+          setModalErrorInfo={setModalErrorInfo}
         />
+      )}
+
+      {modalErrorInfo.isShow && (
+        <ModalShowError setModalErrorInfo={setModalErrorInfo} modalErrorInfo={modalErrorInfo} />
       )}
     </div>
   );

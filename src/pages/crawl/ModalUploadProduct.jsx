@@ -6,7 +6,14 @@ import { useTemplateStore } from '../../store/templateStore';
 import { useWareHousesStore } from '../../store/warehousesStore';
 import { alerts } from '../../utils/alerts';
 
-export default function ModalUploadProduct({ isShowModalUpload, setShowModalUpload, productList, imagesLimit }) {
+export default function ModalUploadProduct({
+  isShowModalUpload,
+  setShowModalUpload,
+  productList,
+  imagesLimit,
+  modalErrorInfo,
+  setModalErrorInfo,
+}) {
   // const shopId = getPathByIndex(2);
 
   const { getAllTemplate, templates } = useTemplateStore();
@@ -247,15 +254,41 @@ export default function ModalUploadProduct({ isShowModalUpload, setShowModalUplo
       description,
       size_chart,
     };
-    const onSuccess = () => {
-      const nameShop = stores.find((item) => item.id === shopId)?.shop_name;
-      message.success(`Thêm sản phẩm vào shop ${nameShop} thành công`);
-      handleCancel();
+    const onSuccess = (res) => {
+      handleResponse(res);
     };
     const onFail = () => {
       message.error('Thêm sản phẩm thất bại');
     };
     createProductList(shopId, dataSubmit, onSuccess, onFail);
+  };
+
+  const handleResponse = (res) => {
+    const countProductSuccess = res.filter((item) => item.status === 'success').length;
+    const countProductFail = res.filter((item) => item.status === 'error').length;
+    if (countProductSuccess === productsJSON.length) {
+      message.success(`Upload products successfully ${countProductSuccess}/${countProductSuccess}`);
+      handleCancel();
+      return;
+    }
+    if (countProductSuccess < productsJSON.length && countProductSuccess > 0) {
+      message.success(`Upload products successfully ${productsJSON.length - countProductFail}/${productsJSON.length}`);
+      setModalErrorInfo({
+        isShow: true,
+        data: res,
+        title: `Upload failed ${countProductFail} products`,
+      });
+      handleCancel();
+      return;
+    }
+    if (countProductSuccess === 0) {
+      message.error('Upload failed all products');
+      setModalErrorInfo({
+        isShow: true,
+        data: res,
+        title: 'Upload failed all products',
+      });
+    }
   };
 
   return (
