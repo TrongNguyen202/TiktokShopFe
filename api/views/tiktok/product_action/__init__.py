@@ -312,7 +312,7 @@ class ProcessExcel(View):
         # Checkpoint 1: If there is any error when download and convert images to
         code = "E001"
         message = ErrorCodes.objects.get(code=code).message
-        if len(error_images) > 0:
+        if len(error_images) == len(images):  # All images are error
             logger.error(f"User {self.request.user} | message", exc_info=True)
             return {
                 "status": "error",
@@ -496,7 +496,7 @@ class ProcessExcel(View):
                 else:
                     error_images.append({"column": item["column"], "image_url": item["image_url"], "response": result})
 
-        if len(error_images) > 0:
+        if len(error_images) == len(success_images):  # All images are error
             return {
                 "status": "error",
                 "message": "Error when upload images to TikTok",
