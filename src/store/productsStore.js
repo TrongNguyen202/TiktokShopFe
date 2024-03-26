@@ -52,8 +52,7 @@ export const useProductsStore = create((set, get) => ({
     try {
       set({ loading: true });
       const response = await RepositoryRemote.products.createProductList(shopId, params);
-      console.log(response);
-      onSuccess();
+      onSuccess(response.data);
     } catch (error) {
       if (error?.response?.data?.message === 'required qualification is missing') {
         onFail('Wrong category, please choose another category');
