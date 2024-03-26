@@ -34,3 +34,8 @@ export function setRefreshToken(refreshToken, maxAge) {
 }
 
 export const removeRefreshToken = () => Cookies.remove(refreshTokenKey);
+
+export function setTokenExpand(tokenKey, token, expirationTime) {
+  localStorage.setItem(tokenKey, token);
+  localStorage.setItem(tokenKey + '-expiration', expirationTime);
+}

@@ -31,11 +31,15 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
       title: 'Order ID',
       dataIndex: 'order_id',
       render: (_, record) =>
-        record.order_list.map((item) => (
-          <p className="py-4 border-0 border-b-[1px] border-solid border-[#0505050f] last:border-b-0">
-            {item.order_id}
-          </p>
-        )),
+        (
+          <ul className="flex flex-wrap">
+            {record.order_list.map((item) => (
+              <Link to={`/shops/${shopId}/orders/${item.order_id}`} state={{ orderData: item }} className="font-medium mb-5 last:mb-0">
+                <Tag color="blue">{item.order_id}</Tag>
+              </Link>
+            ))}
+          </ul>
+        )
     },
     {
       title: 'Label URL',
@@ -58,7 +62,7 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
     },
     getCheckboxProps: (record) => {
       const disabledOrderCompleted = ordersCompleted.filter((item) => item.pack_id === record.package_id && item.package_status === true);
-      console.log('disabledOrderCompleted: ', disabledOrderCompleted);
+
       return {
         disabled: record.label === null || disabledOrderCompleted.length > 0,
       };
