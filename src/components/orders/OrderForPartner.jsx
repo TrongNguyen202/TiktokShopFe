@@ -72,7 +72,7 @@ function OrderForPartner({ toShipInfoData }) {
         if (!isFlashShip) return variation;
         let variationObject = {};
         const result = { ...variation };
-        const variationSplit = variation?.sku_name.split(', ');
+        const variationSplit = variation?.sku_name.split(',').map(item => item.trim());
 
         if (variationSplit.length === 3) {
           variationObject = {

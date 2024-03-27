@@ -40,7 +40,7 @@ function CreateLabel() {
       const orderList = label.data.order_info_list.map((order) => {
         const productList = order.item_list.map((product) => {
           let variationSize = "";
-          const variationSplit = product.sku_name.split(', ');
+          const variationSplit = product?.sku_name.split(',').map(item => item.trim());
           if (variationSplit.length === 3) {
             variationSize = variationSplit[1] - variationSplit[2];
           } else {
@@ -371,14 +371,14 @@ function CreateLabel() {
         return (
           <Popover
             title="Sửa cân nặng"
-            className="flex flex-wrap items-center gap-3 cursor-pointer group relative"
+            className="flex flex-wrap items-center gap-3 cursor-pointer relative"
             trigger="click"
             content={contentPopover(record.package_weight, 'weight', index)}
           >
             <p>
               {record.package_weight} <span>lb</span>
             </p>
-            <span className="cursor-pointer hidden absolute top-[50%] right-5 -translate-y-[50%] group-hover:inline-block">
+            <span className="cursor-pointer absolute top-[50%] right-5 -translate-y-[50%]">
               <EditOutlined />
             </span>
           </Popover>
@@ -394,14 +394,14 @@ function CreateLabel() {
         return (
           <Popover
             title="Sửa kích thước"
-            className="flex flex-wrap items-center gap-3 cursor-pointer group relative"
+            className="flex flex-wrap items-center gap-3 cursor-pointer relative"
             trigger="click"
             content={contentPopover(record.package_size, 'size', index)}
           >
             <p>
               {record.package_size[0]} x {record.package_size[1]} x {record.package_size[2]} <span>in</span>
             </p>
-            <span className="cursor-pointer hidden absolute top-[50%] right-5 -translate-y-[50%] group-hover:inline-block">
+            <span className="cursor-pointer absolute top-[50%] right-5 -translate-y-[50%]">
               <EditOutlined />
             </span>
           </Popover>
@@ -419,13 +419,13 @@ function CreateLabel() {
 
         return (
           <Popover
-            className="flex flex-wrap items-center gap-3 cursor-pointer group relative"
+            className="flex flex-wrap items-center gap-3 cursor-pointer relative"
             trigger="click"
             content={contentPopoverShipping(index)}
             onOpenChange={(newStatus) => handleGetShippingService(newStatus, shippingServiceData)}
           >
             <p className="flex-1">{record.data.shipping_provider}</p>
-            <span className="cursor-pointer hidden absolute top-[50%] right-5 -translate-y-[50%] group-hover:inline-block">
+            <span className="cursor-pointer absolute top-[50%] right-5 -translate-y-[50%]">
               <EditOutlined />
             </span>
           </Popover>
