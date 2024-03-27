@@ -102,7 +102,7 @@ export default function Crawl() {
 
   useEffect(() => {
     localStorage.setItem('productList', JSON.stringify(productList));
-  }, [productList]);
+  }, [JSON.stringify(productList)]);
 
   useEffect(() => {
     if (checkedItems && checkedItems.length === 0) return;

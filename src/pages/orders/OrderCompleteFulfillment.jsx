@@ -4,7 +4,7 @@ import { Table, Button, Tooltip, Popconfirm, Modal, Form, Input, message, Tag } 
 import { DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 
 import { getPathByIndex } from '../../utils';
-import { getTokenKey, setToken } from '../../utils/auth';
+import { getTokenKey, setToken, setTokenExpand } from '../../utils/auth';
 import { useShopsOrder } from '../../store/ordersStore';
 import { useFlashShipStores } from '../../store/flashShipStores';
 import SectionTitle from '../../components/common/SectionTitle';
@@ -14,6 +14,7 @@ import OrderCompleteFulfillmentReject from '../../components/orders/OrderComplet
 function OrderCompleteFulfillment() {
   const shopId = getPathByIndex(2);
   const flashShipToken = getTokenKey('flash-ship-tk');
+  const flashShipTokenExpiration = getTokenKey('flash-ship-tk-expiration');
   const [messageApi, contextHolder] = message.useMessage();
   const [dataPackage, setDataPackage] = useState([]);
   const [dataOrderDetail, setDataOrderDetail] = useState([]);
@@ -37,16 +38,16 @@ function OrderCompleteFulfillment() {
   };
 
   const handleOrderPackage = (index) => {
-    const orderPackageFlashShip = dataTableFlashShip[index]
-    const orderList = orders.flatMap((order) => order.data.order_list);
-    const orderListHasPackageId = orderList.filter((order) => order.package_list.length);
-    const packageOrders = orderListHasPackageId.filter((order) => order.package_list[0].package_id === orderPackageFlashShip.pack_id.toString());
+    const orderPackageFlashShip = dataTableFlashShip[index];
+    const orderList = orders?.flatMap((order) => order.data.order_list);
+    const orderListHasPackageId = orderList?.filter((order) => order.package_list.length);
+    const packageOrders = orderListHasPackageId?.filter((order) => order.package_list[0].package_id === orderPackageFlashShip?.pack_id?.toString());
 
     return (
       <ul className="flex flex-wrap">
         {packageOrders.map((item) => (
           <li key={item.order_id} className="mb-4">
-            <Link to={`/shops/${shopId}/orders/${item.order_id}`} state={{ orderData: item }} className="font-medium">
+            <Link to={`/shops/${shopId}/orders/${item.order_id}`} state={{ orderData: item }} className="font-medium mb-5 last:mb-0">
               <Tag color="blue">{orderPackageFlashShip.order_id}</Tag>
             </Link>
           </li>
@@ -55,16 +56,37 @@ function OrderCompleteFulfillment() {
     );
   };
 
+  const handleDetailFlashShipAPI = (orderCode) => {
+    const onSuccess = (res) => {
+      if (res) {
+        setOpenFlashShipDetail(true);
+        setDataOrderDetail(res);        
+      } else {
+        messageApi.open({
+          type: 'info',
+          content: `Không có thông tin order ${orderCode}`,
+        });
+      }
+    };
+
+    const onFail = (err) => {
+      messageApi.open({
+        type: 'error',
+        content: `${err}. Không lấy được thông tin order`,
+      });
+    };
+    detailOrderFlashShip(orderCode, onSuccess, onFail);
+  }
+
   const handleLoginFlashShip = (values) => {
     const onSuccess = (res) => {
       if (res) {
-        setToken('flash-ship-tk', res.data.access_token);
+        setTokenExpand('flash-ship-tk', res.data.access_token, Date.now() + (2 * 60 * 60 * 1000));
         setOpenLoginFlashShip(false);
         messageApi.open({
           type: 'success',
-          content: `Đăng nhập thành công`,
+          content: `Đăng nhập thành công.`,
         });
-        setOpenFlashShipDetail(true)
       }
     };
 
@@ -78,19 +100,16 @@ function OrderCompleteFulfillment() {
   };
 
   const handleDetailFlashShip = (orderCode) => {
-    if (flashShipToken === null) {
+    const currentTime = Date.now();
+    if (flashShipToken === null || currentTime >= parseInt(flashShipTokenExpiration, 10)) {
+      messageApi.open({
+        type: 'error',
+        content: 'Đăng nhập tài khoản Flashship để có thể xem hoặc huỷ đơn.',
+      });
       setOpenLoginFlashShip(true);
+    } else {
+      handleDetailFlashShipAPI(orderCode);
     }
-
-    const onSuccess = (res) => {
-      setOpenFlashShipDetail(true)
-      setDataOrderDetail(res)
-    };
-
-    const onFail = (err) => {
-      console.log(err);
-    };
-    detailOrderFlashShip(orderCode, onSuccess, onFail);
   };
 
   const handleCancelOrderFlashShipAPI = () => {
@@ -321,7 +340,7 @@ function OrderCompleteFulfillment() {
         footer={false}
         width={1000}
       >
-        <OrderCompleteFulfillmentDetail data={dataOrderDetail}/>
+        {dataOrderDetail && <OrderCompleteFulfillmentDetail data={dataOrderDetail}/>}        
       </Modal>
 
       <Modal

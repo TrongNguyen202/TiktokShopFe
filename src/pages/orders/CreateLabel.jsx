@@ -39,37 +39,51 @@ function CreateLabel() {
     const labelItems = dataInput.map((label) => {
       const orderList = label.data.order_info_list.map((order) => {
         const productList = order.item_list.map((product) => {
-          let orderPackageList = dataSizeChart.find((orderPackage) => product.sku_name.includes(orderPackage.name));
+          let variationSize = "";
+          const variationSplit = product.sku_name.split(', ');
+          if (variationSplit.length === 3) {
+            variationSize = variationSplit[1] - variationSplit[2];
+          } else {
+            variationSize = variationSplit[1];
+          }
+
+          const variationSizeSplit = variationSize?.split(/[\s-,]/).filter(Boolean);
+          let orderPackageList = dataSizeChart?.find((variant) => 
+            variationSizeSplit?.find(item => item.toUpperCase() === variant.name.toUpperCase())
+          );
 
           if (orderPackageList === undefined) {
-            orderPackageList = dataSizeChart.find((orderPackage) => orderPackage.name === 'T-shirt');
+            orderPackageList = dataSizeChart.find((orderPackage) => orderPackage.name === 'shirt');
           }
 
           let orderPackageSizeChart = orderPackageList?.items.find(
-            (orderPackage) => product.sku_name.includes(orderPackage.name) || orderPackageList[0],
+            (orderPackage) => variationSizeSplit?.find(item => item.toUpperCase() === orderPackage.name.toUpperCase())
           );
+
           if (orderPackageSizeChart === undefined) {
-            orderPackageSizeChart = dataSizeChart.find((orderPackage) => orderPackage.name === 'T-shirt').items[0];
+            orderPackageSizeChart = dataSizeChart.find((orderPackage) => orderPackage.name === 'shirt').items[0];
           }
-          const orderPackageWeight = orderPackageSizeChart.weight * product.quantity;
+
+          const orderPackageWeight = Number(orderPackageSizeChart.weight) * product.quantity;
           const orderPackageSize = orderPackageSizeChart?.size;
           return { orderPackageWeight, orderPackageSize };
         });
 
-        const sumWeight = productList
-          .map((product) => parseFloat(product.orderPackageWeight))
-          .reduce((partialSum, current) => partialSum + current, 0)
-          .toFixed(1);
+        let sumWeight = productList
+          .map((product) => product.orderPackageWeight)
+          .reduce((partialSum, current) => partialSum + current, 0);
+          sumWeight = parseFloat(sumWeight.toFixed(4));
         const sumSize =
           order.item_list.length > 1 ? '10x10x3'.split('x') : productList[0]?.orderPackageSize?.split('x');
         return { sumWeight, sumSize };
       });
 
+      let packageWeight =  orderList
+      .map((item) => parseFloat(item.sumWeight))
+      .reduce((partialSum, current) => partialSum + current, 0);
+      packageWeight = parseFloat(packageWeight.toFixed(4));
       const sumPackageCombine = {
-        package_weight: orderList
-          .map((item) => parseFloat(item.sumWeight))
-          .reduce((partialSum, current) => partialSum + current, 0)
-          .toFixed(1),
+        package_weight: packageWeight,
         package_size: orderList.length > 1 ? '10x10x3'.split('x') : orderList[0]?.sumSize,
       };
 

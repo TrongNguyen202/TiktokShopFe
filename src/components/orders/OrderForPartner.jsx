@@ -20,7 +20,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { useShopsOrder } from '../../store/ordersStore';
 import { getPathByIndex } from '../../utils';
-import { setToken, getTokenKey } from '../../utils/auth';
+import { setTokenExpand, getTokenKey } from '../../utils/auth';
 
 import SectionTitle from '../common/SectionTitle';
 import DesignEdit from '../design-sku/DesignEdit';
@@ -30,6 +30,7 @@ function OrderForPartner({ toShipInfoData }) {
   const navigate = useNavigate();
   const shopId = getPathByIndex(2);
   const flashShipToken = getTokenKey('flash-ship-tk');
+  const flashShipTokenExpiration = getTokenKey('flash-ship-tk-expiration');
   const [messageApi, contextHolder] = message.useMessage();
   const [api, notificationContextHolder] = notification.useNotification();
   const [designSku, setDesignSku] = useState([]);
@@ -302,8 +303,13 @@ function OrderForPartner({ toShipInfoData }) {
   }
 
   const handleCreateOrderFlashShip = () => {
-    if (flashShipToken === null) {
-      setOpenLoginFlashShip(true)
+    const currentTime = Date.now();
+    if (flashShipToken === null || currentTime >= parseInt(flashShipTokenExpiration, 10)) {
+      messageApi.open({
+        type: 'error',
+        content: 'Đăng nhập tài khoản Flashship để có thể tạo đơn.',
+      });
+      setOpenLoginFlashShip(true);
     } else {
       handleCreateOrderFlashShipAPI()
     }
@@ -312,8 +318,12 @@ function OrderForPartner({ toShipInfoData }) {
   const handleLoginFlashShip = (values) => {
     const onSuccess = (res) => {
       if (res) {
-        setToken('flash-ship-tk', res.data.access_token);
+        setTokenExpand('flash-ship-tk', res.data.access_token, Date.now() + (0.1 * 60 * 60 * 1000));
         setOpenLoginFlashShip(false);
+        messageApi.open({
+          type: 'success',
+          content: `Đăng nhập thành công.`,
+        });
         handleCreateOrderFlashShipAPI()
       }
     };
@@ -427,9 +437,9 @@ function OrderForPartner({ toShipInfoData }) {
     onChange: (_, selectedRows) => {
       setTableFlashShipSelected(selectedRows);
     },
-    // getCheckboxProps: () => ({
-    //   disabled: !allowCreateOrderPartner,
-    // }),
+    getCheckboxProps: () => ({
+      disabled: !allowCreateOrderPartner,
+    }),
   };
 
   const rowSelectionPrintCare = {
