@@ -5,11 +5,13 @@ import TextArea from 'antd/es/input/TextArea';
 import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import ReactQuill from 'react-quill';
 import CustomSelect from './CustomSelect';
 import EditPriceForm from './EditPriceForm';
 import { useCategoriesStore } from '../../store/categoriesStore';
 import { buildNestedArraysMenu, getPathByIndex } from '../../utils';
 import { useTemplateStore } from '../../store/templateStore';
+import 'react-quill/dist/quill.snow.css';
 // import { useShopsBrand } from '../../store/brandStore';
 
 const getBase64 = (file) =>
@@ -124,6 +126,7 @@ const initBadWordOptions = [
 ];
 
 export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, templateJson }) {
+  console.log('templateJson: ', templateJson);
   // const { getAllBrand, brands } = useShopsBrand();
   const { getAllCategoriesIsLeaf, categoriesIsLeaf } = useCategoriesStore();
   const { createTemplate, loading, getAllTemplate, updateTemplate } = useTemplateStore();
@@ -159,7 +162,8 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
   const [dataPriceState, setDataPriceState] = useState([]);
-  console.log('dataPriceState: ', dataPriceState);
+  const [description, setDescription] = useState(templateJson?.id ? templateJson.description : '');
+  console.log('description: ', description);
 
   const dataPrice = useRef(templateJson?.id ? templateJson.types : null);
 
@@ -198,7 +202,6 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
       colors,
       sizes,
       type,
-      description,
       category,
       warehouse,
       is_cod_open,
@@ -412,7 +415,8 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
                 sx={{ justifyContent: 'space-between' }}
                 initialValue={templateJson?.id ? templateJson.description : ''}
               >
-                <TextArea placeholder="Nhập mô tả" rows={4} />
+                {/* <TextArea placeholder="Nhập mô tả" rows={4} /> */}
+                <ReactQuill theme="snow" value={description} onChange={setDescription} />
               </Form.Item>
 
               <div className="mb-3">
