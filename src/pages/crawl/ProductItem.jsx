@@ -49,6 +49,7 @@ export default function ProductItem({
 }) {
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [fileList, setFileList] = useState(product.images);
+  const [productSku, setProductSku] = useState(product.sku);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
   const [previewTitle, setPreviewTitle] = useState('');
@@ -69,6 +70,14 @@ export default function ProductItem({
   useEffect(() => {
     handleChangeProduct({ ...product, images: fileList });
   }, [fileList]);
+
+  useEffect(() => {
+    setFileList(product.images);
+  }, [product.images]);
+
+  useEffect(() => {
+    setProductSku(product.sku);
+  }, [product.sku]);
 
   const handlePreview = async (file) => {
     if (!file.url && !file.preview) file.preview = await getBase64(file.originFileObj);
@@ -147,7 +156,8 @@ export default function ProductItem({
       </div>
       <div className="p-2 my-2">
         <Input
-          value={product.sku}
+          value={productSku}
+          onChange={(e) => setProductSku(e.target.value)}
           placeholder="Enter seller sku here"
           onBlur={(e) => handleChangeProduct({ ...product, sku: e.target.value })}
         />

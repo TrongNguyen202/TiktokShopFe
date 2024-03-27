@@ -87,6 +87,11 @@ function Template() {
       title: 'Mô tả',
       dataIndex: 'description',
       key: 'description',
+      render: (description) => (
+        <div>
+          <div dangerouslySetInnerHTML={{ __html: description }} className="line-clamp-4" />
+        </div>
+      ),
     },
     // {
     //   title: "Cân nặng",
