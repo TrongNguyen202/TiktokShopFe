@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Button, Col, Input, Row, Select, Switch, Upload, message } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
@@ -89,7 +90,7 @@ export default function Crawl() {
   const [loading, setLoading] = useState(false);
   const [isShowModalUpload, setShowModalUpload] = useState(false);
   const [showSkeleton, setShowSkeleton] = useState(false);
-  const [showOutsideImages, setShowOutsideImages] = useState(true);
+  const [showOutsideImages, setShowOutsideImages] = useState(false);
   const [licenseCode, setLicenseCode] = useState({
     code: localStorage.getItem('licenseCode'),
     invalid: !localStorage.getItem('licenseCode'),
@@ -532,7 +533,7 @@ export default function Crawl() {
             </div>
           </div>
           <div className="font-semibold">
-            Show the outside images <Switch defaultChecked onChange={() => setShowOutsideImages(!showOutsideImages)} />
+            Show the outside images <Switch defaultChecked={false} onChange={() => setShowOutsideImages(!showOutsideImages)} />
           </div>
         </div>
         {productList && productList?.length ? renderProductList() : null}

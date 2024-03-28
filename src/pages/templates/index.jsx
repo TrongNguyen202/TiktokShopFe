@@ -11,6 +11,7 @@ function Template() {
 
   const [templateSelected, setTemplateSelected] = useState(null);
   const [isShowModal, setShowModal] = useState(false);
+  const [templatesData, setTemplateData] = useState([]);
 
   useEffect(() => {
     const onSuccess = (res) => {
@@ -21,6 +22,10 @@ function Template() {
     };
     getAllTemplate(onSuccess, onFail);
   }, []);
+
+  useEffect(() => {
+    setTemplateData(templates);
+  }, [JSON.stringify(templates)]);
 
   const handleDeleteTemplate = (id) => {
     const onSuccess = () => {
@@ -149,12 +154,19 @@ function Template() {
     setShowModal(value);
   };
 
+  const onSearch = (e) => {
+    const storesFilter = templates?.filter((item) => {
+      return item.name.toLowerCase().includes(e.target.value.toLowerCase());
+    });
+    setTemplateData(storesFilter);
+  };
+
   return (
     <Layout.Content className="mt-4 px-5">
       <p className="my-5 font-semibold text-[20px]">Danh sách template</p>
       <div className="mb-4 flex justify-between">
         <div className="w-[400px]">
-          <Search placeholder="Tìm kiếm..." name="search" />
+          <Search placeholder="Tìm kiếm..." name="search" onChange={onSearch} />
         </div>
         <div className="flex gap-2">
           <Tooltip title="Upload" color="blue">
@@ -179,7 +191,7 @@ function Template() {
         scroll={{ x: true }}
         size="middle"
         bordered
-        dataSource={templates && templates.length ? templates : []}
+        dataSource={templatesData && templatesData.length ? templatesData : []}
         loading={loading}
         pagination={{
           pageSize: 20,

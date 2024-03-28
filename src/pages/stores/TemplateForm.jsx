@@ -6,6 +6,7 @@ import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import ReactQuill from 'react-quill';
+import { Label } from 'recharts';
 import CustomSelect from './CustomSelect';
 import EditPriceForm from './EditPriceForm';
 import { useCategoriesStore } from '../../store/categoriesStore';
@@ -162,7 +163,7 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
   const [dataPriceState, setDataPriceState] = useState([]);
-  const [description, setDescription] = useState(templateJson?.id ? templateJson.description : '');
+  const [description, setDescription] = useState('');
   console.log('description: ', description);
 
   const dataPrice = useRef(templateJson?.id ? templateJson.types : null);
@@ -175,6 +176,9 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
 
   useEffect(() => {
     getAllCategoriesIsLeaf();
+    if (templateJson?.id) {
+      setDescription(templateJson.description);
+    }
   }, []);
 
   useEffect(() => {
@@ -301,7 +305,6 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
   };
 
   const onChangeSizeChart = ({ fileList: newFileList }) => {
-    console.log('newFileList: ', newFileList);
     setSizeChart(newFileList);
   };
 
@@ -382,42 +385,10 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
                 />
               </Form.Item>
 
-              {/* <Form.Item label="Thương hiệu:" name="brand_id">
-                <Select
-                  showSearch
-                  style={{ width: "100%" }}
-                  placeholder="Chọn 1 thương hiệu"
-                  onChange={() => { }}
-                  options={optionsBranch}
-                  filterOption={(input, options) => {
-                    return (
-                      options.label
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0 ||
-                      options.value
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
-                    );
-                  }}
-                />
-              </Form.Item> */}
-
-              <Form.Item
-                label="Mô tả"
-                name="description"
-                labelAlign="left"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Vui lòng nhập mô tả!',
-                  },
-                ]}
-                sx={{ justifyContent: 'space-between' }}
-                initialValue={templateJson?.id ? templateJson.description : ''}
-              >
-                {/* <TextArea placeholder="Nhập mô tả" rows={4} /> */}
+              <div className="block mt-3 mb-5">
+                <span className="text-red-500">* </span>Mô tả:
                 <ReactQuill theme="snow" value={description} onChange={setDescription} />
-              </Form.Item>
+              </div>
 
               <div className="mb-3">
                 <Form.Item
