@@ -36,6 +36,27 @@ export function setRefreshToken(refreshToken, maxAge) {
 export const removeRefreshToken = () => Cookies.remove(refreshTokenKey);
 
 export function setTokenExpand(tokenKey, token, expirationTime) {
+  const currentTime = new Date().getTime();
+  const expireAt = currentTime + expirationTime;
+
   localStorage.setItem(tokenKey, token);
-  localStorage.setItem(tokenKey + '-expiration', expirationTime);
+  localStorage.setItem(tokenKey + '-expiration', expireAt);
 }
+
+export function removeExpiredTokens() {
+  const keys = Object.keys(localStorage);
+  const currentTime = new Date().getTime();
+
+  keys.forEach(key => {
+    if (key.endsWith('-expiration')) {
+      const tokenKey = key.replace('-expiration', '');
+      const expirationTime = localStorage.getItem(key);
+      if (expirationTime && currentTime > parseInt(expirationTime)) {
+        localStorage.removeItem(tokenKey);
+        localStorage.removeItem(key);
+      }
+    }
+  });
+}
+
+removeExpiredTokens();

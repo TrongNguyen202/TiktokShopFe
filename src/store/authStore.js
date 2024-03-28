@@ -84,6 +84,8 @@ export const useAuthStore = create((set) => ({
       // localStorage.removeItem("profile")
       // localStorage.removeItem("badges")
       localStorage.removeItem('user');
+      localStorage.removeItem('flash-ship-tk');
+      localStorage.removeItem('flash-ship-tk-expiration');
       set({ tokenInfo: {} });
       onSuccess();
     } catch (error) {

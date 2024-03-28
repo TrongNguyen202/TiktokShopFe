@@ -72,7 +72,7 @@ function OrderForPartner({ toShipInfoData }) {
         if (!isFlashShip) return variation;
         let variationObject = {};
         const result = { ...variation };
-        const variationSplit = variation?.sku_name.split(', ');
+        const variationSplit = variation?.sku_name.split(',').map(item => item.trim());
 
         if (variationSplit.length === 3) {
           variationObject = {
@@ -125,7 +125,7 @@ function OrderForPartner({ toShipInfoData }) {
       orderPartner.buyer_email = dataItem.order_list[0].buyer_email;
       orderPartner.order_list = variations;
       orderPartner.is_FlashShip = isFlashShip;
-      orderPartner.order_id = dataItem.order_list[0].order_id;
+      orderPartner.order_id = dataItem.order_list.map((item, index) => (index !== 0 ? '-' + item.order_id : item.order_id)).join('');
       return orderPartner;
     });
 
