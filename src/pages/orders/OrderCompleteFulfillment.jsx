@@ -81,11 +81,11 @@ function OrderCompleteFulfillment() {
   const handleLoginFlashShip = (values) => {
     const onSuccess = (res) => {
       if (res) {
-        setTokenExpand('flash-ship-tk', res.data.access_token, Date.now() + (2 * 60 * 60 * 1000));
+        setTokenExpand('flash-ship-tk', res.data.access_token, Date.now() + (0.05 * 60 * 60 * 1000));
         setOpenLoginFlashShip(false);
         messageApi.open({
           type: 'success',
-          content: `Đăng nhập thành công.`,
+          content: `Đăng nhập thành công. Vui lòng click lại để xem hoặc huỷ đơn`,
         });
       }
     };

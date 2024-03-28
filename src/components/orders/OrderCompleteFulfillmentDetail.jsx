@@ -1,6 +1,7 @@
 import { Table, Image, Tag } from "antd";
 import { useEffect, useState } from "react";
 import { formatDate } from "../../utils/date";
+import { Link } from "react-router-dom";
 
 const OrderCompleteFulfillmentDetail = ({data}) => {
     const [dataTable, setDataTable] = useState([]);
@@ -30,14 +31,20 @@ const OrderCompleteFulfillmentDetail = ({data}) => {
             dataIndex: "front",
             key: "front",
             align: 'center',
-            render: (_, record) =><Image width={70} src={record.products[0].frontPrintUrl} alt="Front image" />
+            render: (_, record) =>
+                <Link to={record.products[0].frontPrintUrl} target="_blank">
+                    <Image width={70} src={record.products[0].frontPrintUrl} preview={false} alt="Front image" />
+                </Link>
         },
         {
             title: "Back",
             dataIndex: "back",
             key: "back",
             align: 'center',
-            render: (_, record) => <Image width={70} src={record.products[0].backPrintUrl} alt="Back image" />
+            render: (_, record) =>
+                <Link to={record.products[0].frontPrintUrl} target="_blank">
+                    <Image width={70} src={record.products[0].backPrintUrl} preview={false} alt="Back image" />
+                </Link>
         },
         {
             title: "Note",
