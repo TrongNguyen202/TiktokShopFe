@@ -1,5 +1,6 @@
 import { DownOutlined, LoadingOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Image, Popover, Space, Spin, Table, Tag, Tooltip, Modal, message, DatePicker } from 'antd';
+import { Button, Image, Popover, Space, Spin, Table, Tag, Tooltip, Modal, message, DatePicker, Form, Input } from 'antd';
+import { EditOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
@@ -28,9 +29,11 @@ function Orders() {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const [openOrderCustom, setOpenOrderCustom] = useState(false);
+  const [orderCustomEdit, setOrderCustomEdit] = useState({});
   const [searchText, setSearchText] = useState('');
   const [orderSelected, setOrderSelected] = useState([]);
-  // eslint-disable-next-line no-unused-vars
+  const [orderDataTable, setOrderDataTable] = useState([]);
   const [searchedColumn, setSearchedColumn] = useState('');
   const [messageApi, contextHolder] = message.useMessage();
   const {
@@ -46,7 +49,6 @@ function Orders() {
     loading,
     loadingFulfillment
   } = useShopsOrder((state) => state);
-  const orderList = orders.length ? orders?.map((order) => order?.data?.order_list).flat() : [];
 
   const sortByPackageId = (arr) => {
     const grouped = arr.reduce((acc, item) => {
@@ -67,12 +69,6 @@ function Orders() {
     const sortedArray = [].concat(...sortedGroups);
     return sortedArray;
   };
-
-  const orderDataTable = sortByPackageId(orderList).map((item, index) => ({
-    key: index + 1,
-    package_id: item.package_list.length ? item.package_list[0].package_id : null,
-    ...item,
-  }));
 
   const renderListItemProduct = (record) => {
     const { item_list } = record;
@@ -103,12 +99,6 @@ function Orders() {
       );
     });
   };
-
-  // const handleSearch = (selectedKeys, confirm, dataIndex) => {
-  //   confirm();
-  //   setSearchText(selectedKeys[0]);
-  //   setSearchedColumn(dataIndex);
-  // };
 
   const onRangeChange = (dates, dateStrings, confirm, dataIndex, setSelectedKeys, selectedKeys) => {
     console.warn(dates, selectedKeys);
@@ -204,6 +194,34 @@ function Orders() {
     setOpen(isOpenModal);
     getAllOrders(shopId);
   };
+
+  const handleOpenModalOrderCustom = (orderId) => {
+    const orderCustom = orderDataTable.find((order) => order.order_id === orderId);
+    setOpenOrderCustom(true);
+    setOrderCustomEdit(orderCustom);
+  }
+
+  const onFinishOrderCustom = (values) => {
+    const valuesArray = Object.values(values);
+    const orderCustomTable = orderDataTable.map((order) => {
+      const newOrder = {...order};
+      if (newOrder.order_id === orderCustomEdit.order_id) {
+        const itemListUpdate = valuesArray.map((value) => {
+          const checkOrderEdit = order.item_list?.find(item => item.sku_id === value.sku_id);
+          return {
+            ...checkOrderEdit,
+            sku_name: value.sku_name
+          }
+        })
+
+        newOrder.item_list = itemListUpdate;
+      }
+
+      return newOrder;
+    });
+    setOrderDataTable(orderCustomTable);
+    setOpenOrderCustom(false);
+  }
 
   const handleCreateLabels = () => {
     const onSuccess = (res) => {
@@ -416,17 +434,41 @@ function Orders() {
       dataIndex: 'shipping_provider',
       key: 'shipping_provider',
     },
+    {
+      title: 'Action (Cho đơn custom)',
+      dataIndex: 'action',
+      key: 'action',
+      align: 'center',
+      render: (_, record) => (
+        <Tooltip placement="top" title="Thêm thông tin đơn hàng">
+          <Button onClick={() => handleOpenModalOrderCustom(record.order_id)}><EditOutlined /></Button>
+        </Tooltip>
+      )
+    },
   ];
 
   useEffect(() => {
-    getAllOrders(shopId);
+    const onSuccess = (res) => {
+      if (res) {
+        const orderList = res?.flatMap((order) => order?.data?.order_list);
+        const orderListSort = sortByPackageId(orderList).map((item, index) => ({
+          key: index + 1,
+          package_id: item.package_list.length ? item.package_list[0].package_id : null,
+          ...item,
+        }));
+        setOrderDataTable(orderListSort)
+      }
+    };
+    const onFail = () => {};
+    getAllOrders(shopId, onSuccess, onFail);
     getPackageBought();
-  }, [location.state]);
+    
+  }, [location.state, shopId]);
 
   return (
     <div className="p-3 md:p-10">
       {contextHolder}
-      <PageTitle title="Danh sách đơn hàng" showBack count={orderList?.length ? orderList?.length : '0'} />
+      <PageTitle title="Danh sách đơn hàng" showBack count={orderDataTable?.length ? orderDataTable?.length : '0'} />
       <Space className="mb-3">
         <Button type="primary" onClick={handleGetAllCombine}>
           Get All Combinable
@@ -454,16 +496,34 @@ function Orders() {
           pageSize: 30,
           total: orderDataTable.length,
         }}
-        // rowKey={record => record.package_list[0]?.package_id}
       />
 
       <Modal title="Combine" centered open={open} onCancel={() => setOpen(false)} width={1000} footer={false}>
         <OrderCombinable
           data={combineList}
           popOverContent={renderListItemProduct}
-          dataOrderDetail={orderList}
+          dataOrderDetail={orderDataTable}
           isOpenModal={handleOpenModal}
         />
+      </Modal>
+
+      <Modal title={`Thêm, chỉnh sửa thông tin cho đơn custom (${orderCustomEdit.order_id})`} centered open={openOrderCustom} onCancel={() => setOpenOrderCustom(false)} width={1000} footer={false}>
+        <Form onFinish={onFinishOrderCustom}>
+          {orderCustomEdit?.item_list?.map((item, index) => (
+            <>
+              <h3 className="mb-3 text-[#1677ff]">{index+1}. {item.product_name}</h3>
+              <Form.Item label='Sku id' key={index} name={[index, "sku_id"]} initialValue={item.sku_id}>
+                <Input disabled/>
+              </Form.Item>
+              <Form.Item label='Sku' key={index} name={[index, "sku_name"]} initialValue={item.sku_name}>
+                <Input placeholder='VD: White, T-shirt-S'/>
+              </Form.Item>
+            </>
+          ))}
+          <Form.Item>
+            <Button type="primary" htmlType="submit">Submit</Button>
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );
