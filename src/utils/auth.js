@@ -51,6 +51,7 @@ export function removeExpiredTokens() {
       const tokenKey = key.replace('-expiration', '');
       const expirationTime = localStorage.getItem(key);
       if (expirationTime && currentTime > parseInt(expirationTime)) {
+        console.log('true');
         localStorage.removeItem(tokenKey);
         localStorage.removeItem(key);
       }
