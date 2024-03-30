@@ -49,4 +49,25 @@ export const usePromotionsStore = create((set, get) => ({
     }
     set({ loading: false });
   },
+  listProductNoPromotion: async (shopId, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true });
+      const response = await RepositoryRemote.promotions.listProductNoPromotion(shopId);
+      onSuccess(response.data.data);
+    } catch (error) {
+      onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo promotion!');
+    }
+    set({ loading: false });
+  },
+
+  createFlashDeal: async (shopId, data, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true });
+      const response = await RepositoryRemote.promotions.createFlashDeal(shopId, data);
+      onSuccess(response.data.data);
+    } catch (error) {
+      onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo promotion!');
+    }
+    set({ loading: false });
+  },
 }));
