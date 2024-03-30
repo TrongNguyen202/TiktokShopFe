@@ -36,16 +36,15 @@ export function setRefreshToken(refreshToken, maxAge) {
 export const removeRefreshToken = () => Cookies.remove(refreshTokenKey);
 
 export function setTokenExpand(tokenKey, token, expirationTime) {
-  const currentTime = new Date().getTime();
+  const currentTime = Date.now();
   const expireAt = currentTime + expirationTime;
-
   localStorage.setItem(tokenKey, token);
   localStorage.setItem(tokenKey + '-expiration', expireAt);
 }
 
 export function removeExpiredTokens() {
   const keys = Object.keys(localStorage);
-  const currentTime = new Date().getTime();
+  const currentTime = Date.now();
 
   keys.forEach(key => {
     if (key.endsWith('-expiration')) {
