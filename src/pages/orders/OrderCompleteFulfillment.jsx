@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Table, Button, Tooltip, Popconfirm, Modal, Form, Input, message, Tag } from 'antd';
 import { DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 
+import { constants as c } from '../../constants';
 import { getPathByIndex } from '../../utils';
 import { getTokenKey, setToken, setTokenExpand } from '../../utils/auth';
 import { useShopsOrder } from '../../store/ordersStore';
@@ -23,7 +24,7 @@ function OrderCompleteFulfillment() {
   const [openLoginFlashShip, setOpenLoginFlashShip] = useState(false);
   const [openFlashShipDetail, setOpenFlashShipDetail] = useState(false);
   const [openFlashShipReject, setOpenFlashShipReject] = useState(false);
-  const { packageFulfillmentCompleted, packageFulfillmentCompletedInActive, getAllOrders, orders } = useShopsOrder((state) => state);
+  const { packageFulfillmentCompleted, packageFulfillmentCompletedInActive, getAllOrders, orders, loading } = useShopsOrder((state) => state);
   const { LoginFlashShip, detailOrderFlashShip, cancelOrderFlashShip } = useFlashShipStores((state) => state);
 
   const dataTableFlashShip = dataPackage.filter((item) => item.fulfillment_name === 'FlashShip');
@@ -39,8 +40,8 @@ function OrderCompleteFulfillment() {
 
   const handleOrderPackage = (index) => {
     const orderPackageFlashShip = dataTableFlashShip[index];
-    const orderList = orders?.flatMap((order) => order.data.order_list);
-    const orderListHasPackageId = orderList?.filter((order) => order.package_list.length);
+    const orderList = orders?.flatMap((order) => order?.data?.order_list);
+    const orderListHasPackageId = orderList?.filter((order) => order?.package_list.length);
     const packageOrders = orderListHasPackageId?.filter((order) => order.package_list[0].package_id === orderPackageFlashShip?.pack_id?.toString());
 
     return (
@@ -81,7 +82,7 @@ function OrderCompleteFulfillment() {
   const handleLoginFlashShip = (values) => {
     const onSuccess = (res) => {
       if (res) {
-        setTokenExpand('flash-ship-tk', res.data.access_token, Date.now() + (0.05 * 60 * 60 * 1000));
+        setTokenExpand('flash-ship-tk', res.data.access_token, c.TOKEN_FLASH_SHIP_EXPIRATION);
         setOpenLoginFlashShip(false);
         messageApi.open({
           type: 'success',
@@ -273,7 +274,7 @@ function OrderCompleteFulfillment() {
 
     packageFulfillmentCompleted(shopId, onSuccess, onFail);
     getAllOrders(shopId);
-  }, []);
+  }, [shopId]);
 
   const titleModalOrderFlashShipDetail = (
     <>
@@ -298,7 +299,7 @@ function OrderCompleteFulfillment() {
           title="Orders that have been Fulfillment completed and sent to PrintCare"
           count={dataTablePrintCare.length ? dataTablePrintCare.length : '0'}
         />
-        <Table columns={generateColumns(false)} dataSource={ConvertDataTable(dataTablePrintCare)} bordered />
+        <Table columns={generateColumns(false)} loading={loading} dataSource={ConvertDataTable(dataTablePrintCare)} bordered />
       </div>
 
       <Modal
