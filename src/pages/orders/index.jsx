@@ -277,7 +277,7 @@ function Orders() {
   };
 
   const handleStartFulfillment = () => {
-    const ordersHasPackageId = orderList.filter((order) => order.package_list.length > 0);
+    const ordersHasPackageId = orderDataTable.filter((order) => order.package_list.length > 0);
     const orderBoughtLabel = packageBought
       .map((item) => ordersHasPackageId.filter((order) => item.package_id === order.package_list[0].package_id))
       .filter((item) => item.length);
