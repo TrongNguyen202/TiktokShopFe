@@ -1,4 +1,4 @@
-import { Button, Col, DatePicker, Form, Image, Input, Radio, Row, Tooltip, message } from 'antd';
+import { Button, Col, DatePicker, Form, Image, Input, Radio, Row, Tooltip, message, Modal } from 'antd';
 
 import dayjs from 'dayjs';
 import { useState } from 'react';
@@ -9,18 +9,23 @@ import { validateName } from '../../utils/validate';
 import { usePromotionsStore } from '../../store/promotionsStore';
 
 import { getPathByIndex } from '../../utils';
+import PromotionProduct from '../../components/promotion/PromotionProduct';
+import PromotionSelectedProduct from '../../components/promotion/PromotionSelectedProduct';
 
 export default function PromotionForm() {
+  const shopId = getPathByIndex(2);
   const initialData = {
     title: 'Discount',
     begin_time: dayjs().add(2, 'm'),
     end_time: dayjs().add(2, 'm').add(30, 'd'),
     type: 'DirectDiscount',
     discount: '15',
-    product_type: 'SKU',
+    product_type: 'SPU',
   };
 
   const [discountData, setDiscountData] = useState(initialData);
+  const [openSelectProduct, setOpenSelectProduct] = useState(false);
+  const [productSelected, setProductSelected] = useState([]);
   const { createPromotion, loading } = usePromotionsStore((state) => state);
 
   const onChangeDiscountData = (e, key, value) => {
@@ -28,24 +33,39 @@ export default function PromotionForm() {
   };
 
   const onSubmit = () => {
-    console.log(discountData);
+    // console.log(discountData);
     const onSuccess = () => {
       message.success(`Tạo promotion ${discountData?.title}  thành công`);
     };
-    const onFail = () => {
-      message.error('Tạo promotion thất bại');
+    const onFail = (err) => {
+      message.error(`Tạo promotion thất bại. ${err}`);
     };
 
-    const shopId = getPathByIndex(2);
-
-    const submitData = {
+    let submitData = {
       ...discountData,
-      discount: Number(discountData.discount),
       begin_time: discountData.begin_time.unix(),
       end_time: discountData.end_time.unix(),
+      product_list: productSelected.map(item => ({
+        product_id: item.id,
+        num_limit: -1, 
+        user_limit: -1,
+        discount: discountData.discount
+      }))
     };
 
+    delete submitData.discount;
+
+    console.log('submitData: ', submitData);
+
     createPromotion(shopId, submitData, onSuccess, onFail);
+  };
+
+  const handleChangeStatusModal = (status) => {
+    setOpenSelectProduct(status)
+  };
+
+  const handleGetProductSelected = (data) => {
+    setProductSelected(data);
   };
 
   return (
@@ -177,7 +197,7 @@ export default function PromotionForm() {
 
             <Form.Item
               label="Discount type"
-              name="set_limit_total"
+              name="type"
               className="font-medium mb-[11px]"
               labelAlign="left"
               labelCol={{
@@ -189,7 +209,7 @@ export default function PromotionForm() {
                   message: 'Vui lòng chọn discount type!',
                 },
               ]}
-              // initialValue={discountType}
+              initialValue={discountData.type}
             >
               <Radio.Group
                 options={[
@@ -202,6 +222,8 @@ export default function PromotionForm() {
                 buttonStyle="solid"
               />
             </Form.Item>
+
+            <Button className="mb-5" onClick={() => setOpenSelectProduct(true)}>Select Product</Button>
 
             <Form.Item
               label={`Discount ${discountData.type === 'DirectDiscount' ? '(%)' : '($)'}`}
@@ -236,12 +258,26 @@ export default function PromotionForm() {
               </Col>
             </Row>
           </Col>
+
+          {productSelected.length > 0 && <PromotionSelectedProduct data={productSelected}/>}
+
           <Button disabled={loading} type="primary" htmlType="submit" className="" onClick={onSubmit}>
             Publish
           </Button>
         </Row>
         {/* bottom */}
       </Form>
+
+      <Modal
+        title="Select Products"
+        centered
+        open={openSelectProduct}
+        onCancel={() => setOpenSelectProduct(false)}
+        width={1000}
+        footer={false}
+      >
+        <PromotionProduct changeStatusModal={handleChangeStatusModal} dataProductSelected={handleGetProductSelected}/>
+      </Modal>
     </div>
   );
 }
