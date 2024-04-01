@@ -46,6 +46,7 @@ def callProductList(access_token: str, page_number: str) -> requests.Response:
 
     logger.info(f"Get product list status code: {response.status_code}")
     # logger.info(f'Get product list response: {response.text}')
+    print("resssss", response.text)
 
     return response
 
