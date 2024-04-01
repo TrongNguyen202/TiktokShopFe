@@ -614,18 +614,8 @@ class EditProduct(APIView):
 
         try:
             response = product.callEditProduct(access_token, product_object, img_base64)
-            response_data = response.json()
-            if response_data["data"] is None:
-                error_message = response_data["message"]
 
-                logger.error(
-                    f"User {request.user}: Error when edit product with product_id {product_id}: {error_message}"
-                )
-
-                return JsonResponse({"message": error_message}, status=400)
-
-            else:
-                return HttpResponse(response.text, content_type="text/plain", status=200)
+            return HttpResponse(response, content_type="text/plain", status=200)
 
         except Exception as e:
             logger.error(f"User {request.user}: Error when edit product with product_id {product_id}", exc_info=e)

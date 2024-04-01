@@ -8,9 +8,13 @@ from datetime import datetime
 from uuid import uuid4
 
 import requests
+from rest_framework import status
+from rest_framework.response import Response
 
 from api.utils.tiktok_base_api import SIGN, TIKTOK_API_URL, app_key, logger, secret
 from tiktok.middleware import BadRequestException
+
+from .product import callProductList
 
 PROMOTION_SKUS_LIMIT = 2999
 
@@ -22,7 +26,7 @@ async def limiter(func):
         return await func()
 
 
-async def get_active_products(access_token: str, page_number: int, page_size: int):
+def get_active_products(access_token: str, page_number: int, page_size: int):
     """
     Get products
     """
@@ -130,7 +134,7 @@ async def get_promotions(access_token: str, status: int = None, title: str = Non
     return data["data"]
 
 
-def get_promotion_detail(access_token: str, shop_id: str, promotion_id: str):
+def get_promotion_detail(access_token: str, promotion_id: str):
     """
     Get promotion detail
     """
@@ -165,7 +169,11 @@ async def create_simple_promotion(
 
     now = datetime.now()
 
-    formatted_date = now.strftime("%y-%m-%d--%H-%M-%S") + "--" + "".join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))  # noqa: E501
+    formatted_date = (
+        now.strftime("%y-%m-%d--%H-%M-%S")
+        + "--"
+        + "".join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
+    )  # noqa: E501
     body_json = {
         "begin_time": begin_time,
         "end_time": end_time,
@@ -246,7 +254,7 @@ async def create_promotion_with_products(
             }
         )
 
-    await add_or_update_promotion(access_token, promotion_id, product_list)
+    await add_or_update_promotion_discount(access_token, promotion_id, product_list)
 
     return promotion_id
 
@@ -279,10 +287,12 @@ async def create_promotion(
     if pack:  # Add the last pack if any remaining
         products_pack.append(pack)
 
-    await deactivate_all_promotions(access_token)
+    # await deactivate_all_promotions(access_token)
     await asyncio.sleep(4)
 
-    logger.info(f"Creating promotion with {len(all_products)} products - {len(products_pack)} packs of {PROMOTION_SKUS_LIMIT} skus")
+    logger.info(
+        f"Creating promotion with {len(all_products)} products - {len(products_pack)} packs of {PROMOTION_SKUS_LIMIT} skus"
+    )
 
     promotion_ids = []
     for pack in products_pack:
@@ -310,7 +320,36 @@ async def create_promotion(
     }
 
 
-async def add_or_update_promotion(access_token: str, promotion_id: int, product_list: list):
+def add_or_update_promotion_discount(access_token: str, promotion_id: int, product_list: list):
+    """
+    Add or update skus for promotion
+    """
+    url = TIKTOK_API_URL["url_add_or_update_promotion"]
+
+    query_params = {"app_key": app_key, "access_token": access_token, "timestamp": SIGN.get_timestamp()}
+
+    body_json = {
+        "product_list": product_list,
+        "promotion_id": promotion_id,
+        "request_serial_no": "update_promo" + str(uuid4()),
+    }
+
+    body = json.dumps(body_json)
+
+    sign = SIGN.cal_sign(secret=secret, url=urllib.parse.urlparse(url), query_params=query_params, body=body)
+
+    query_params["sign"] = sign
+
+    response = requests.post(url=url, params=query_params, json=json.loads(body))
+
+    data = response.json()
+    if data["code"] != 0:
+        raise BadRequestException(data["message"])
+
+    return data["data"]
+
+
+def add_or_update_promotion_flashdeal(access_token: str, promotion_id: int, product_list: list):
     """
     Add or update skus for promotion
     """
@@ -379,3 +418,228 @@ async def deactivate_all_promotions(access_token: str):
         await deactivate_promotion(access_token, promotion["promotion_id"])
 
     return True
+
+
+def get_promotions_discount(access_token: str, status: int = 2, title: str = "Discount", page_number=1, page_size=100):
+    """
+    Get promotion campaigns
+    """
+    url = TIKTOK_API_URL["url_get_promotions"]
+
+    if page_number is None:
+        page_number = 1
+
+    if page_size is None:
+        page_size = 100
+
+    query_params = {"app_key": app_key, "access_token": access_token, "timestamp": SIGN.get_timestamp()}
+
+    body_json = {
+        "page_number": page_number,
+        "page_size": page_size,
+    }
+
+    if title:
+        body_json["title"] = title
+
+    if status is not None:
+        body_json["status"] = status
+
+    body = json.dumps(body_json)
+
+    sign = SIGN.cal_sign(secret=secret, url=urllib.parse.urlparse(url), query_params=query_params, body=body)
+
+    query_params["sign"] = sign
+
+    response = requests.post(url=url, params=query_params, json=json.loads(body))
+
+    data = response.json()
+    if data["code"] != 0:
+        raise BadRequestException(data["message"])
+
+    return data["data"]
+
+
+def get_promotions_flashdeal(
+    access_token: str, status: int = 2, title: str = "Flashdeal", page_number=1, page_size=100
+):
+    """
+    Get promotion campaigns
+    """
+    url = TIKTOK_API_URL["url_get_promotions"]
+
+    if page_number is None:
+        page_number = 1
+
+    if page_size is None:
+        page_size = 100
+
+    query_params = {"app_key": app_key, "access_token": access_token, "timestamp": SIGN.get_timestamp()}
+
+    body_json = {
+        "page_number": page_number,
+        "page_size": page_size,
+    }
+
+    if title:
+        body_json["title"] = title
+
+    if status is not None:
+        body_json["status"] = status
+
+    body = json.dumps(body_json)
+
+    sign = SIGN.cal_sign(secret=secret, url=urllib.parse.urlparse(url), query_params=query_params, body=body)
+
+    query_params["sign"] = sign
+
+    response = requests.post(url=url, params=query_params, json=json.loads(body))
+
+    data = response.json()
+    if data["code"] != 0:
+        raise BadRequestException(data["message"])
+
+    return data["data"]
+
+
+# hien tai dang lay 100 san pham dau tien
+def get_unpromotion_products(access_token):
+    """
+    Get products
+    """
+    response = callProductList(access_token=access_token, page_number=1)
+
+    data = response.json()
+    product_active_ids = []
+    for product in data["data"]["products"]:
+        product_active_ids.append(product["id"])
+
+    promoted_product_list = get_promotions_discount(access_token=access_token)
+
+    product_promoted_ids = []
+    for promotion in promoted_product_list.get("promotion_list"):
+        promotion_id = promotion.get("promotion_id")
+        promotion_detail = get_promotion_detail(access_token, promotion_id)
+        for product in promotion_detail["data"]["product_list"]:
+            product_promoted_ids.append(product["product_id"])
+    active_set = set(product_active_ids)
+    promoted_set = set(product_promoted_ids)
+    unique_active = active_set.difference(promoted_set)
+    print("len productpromoted", len(promoted_set))
+    new_product_list = []
+    for product in data["data"]["products"]:
+        if product["id"] in unique_active:
+            new_product_list.append(product)
+
+    new_data = data.copy()
+    new_data["data"]["products"] = new_product_list
+
+    return new_data
+
+
+def create_promotion_form(access_token: str, title: str, begin_time: int, end_time: int, type: str, product_type):
+    """
+    Create simple promotion - flash sale or product discount
+    """
+    url = TIKTOK_API_URL["url_create_promotion"]
+
+    query_params = {"app_key": app_key, "access_token": access_token, "timestamp": SIGN.get_timestamp()}
+
+    now = datetime.now()
+
+    formatted_date = (
+        now.strftime("%y-%m-%d--%H-%M-%S")
+        + "--"
+        + "".join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
+    )  # noqa: E501
+    body_json = {
+        "begin_time": begin_time,
+        "end_time": end_time,
+        "product_type": 2 if product_type == "SKU" else 1,  # SPU
+        "promotion_type": 3 if type == "FlashSale" else 2 if type == "DirectDiscount" else 1,  # FixedPrice
+        "request_serial_no": "create" + str(uuid4()),
+        "title": title + "-" + formatted_date,
+    }
+
+    body = json.dumps(body_json)
+
+    sign = SIGN.cal_sign(secret=secret, url=urllib.parse.urlparse(url), query_params=query_params, body=body)
+
+    query_params["sign"] = sign
+
+    response = requests.post(url=url, params=query_params, json=json.loads(body))
+
+    data = response.json()
+    if data["code"] != 0:
+        raise BadRequestException(data["message"])
+
+    return data["data"]
+
+
+def add_update_discount(access_token, title, begin_time, end_time, type, product_type, product_list):
+    promotion = create_promotion_form(
+        access_token=access_token,
+        title=title,
+        begin_time=begin_time,
+        end_time=end_time,
+        type=type,
+        product_type=product_type,
+    )
+    promotion_id = promotion.get("promotion_id")
+
+    response = add_or_update_promotion_discount(
+        access_token=access_token, promotion_id=promotion_id, product_list=product_list
+    )
+
+    return Response(response, status=status.HTTP_200_OK)
+
+
+def add_update_flashdeal(access_token, title, begin_time, end_time, type, product_type, product_list):
+    promotion = create_promotion_form(
+        access_token=access_token,
+        title=title,
+        begin_time=begin_time,
+        end_time=end_time,
+        type=type,
+        product_type=product_type,
+    )
+    promotion_id = promotion.get("promotion_id")
+    response = add_or_update_promotion_flashdeal(
+        access_token=access_token, promotion_id=promotion_id, product_list=product_list
+    )
+
+    return Response(response, status=status.HTTP_200_OK)
+
+
+def get_unpromotion_sku(access_token):
+    """
+    Get products
+    """
+    response = callProductList(access_token=access_token, page_number=2)
+
+    data = response.json()
+    product_active_ids = []
+    for product in data["data"]["products"]:
+        product_active_ids.append(product["id"])
+
+    promoted_product_list = get_promotions_flashdeal(access_token=access_token)
+
+    product_promoted_ids = []
+    for promotion in promoted_product_list.get("promotion_list"):
+        promotion_id = promotion.get("promotion_id")
+        promotion_detail = get_promotion_detail(access_token, promotion_id)
+        for product in promotion_detail["data"]["product_list"]:
+            product_promoted_ids.append(product["product_id"])
+    active_set = set(product_active_ids)
+    promoted_set = set(product_promoted_ids)
+    unique_active = active_set.difference(promoted_set)
+    print("len unique_active", len(unique_active))
+    new_product_list = []
+    for product in data["data"]["products"]:
+        if product["id"] in unique_active:
+            new_product_list.append(product)
+
+    new_data = data.copy()
+    new_data["data"]["products"] = new_product_list
+
+    return new_data
