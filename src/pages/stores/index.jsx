@@ -95,7 +95,6 @@ function Stores() {
         <Link
           to={`/shops/${store.id}`}
           key={store.id}
-          target="_blank"
           title={store.name}
           className="text-[#0e2482] font-medium cursor-pointer line-clamp-1"
         >

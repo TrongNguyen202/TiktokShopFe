@@ -4,10 +4,47 @@ import { Link } from "react-router-dom";
 
 import { getPathByIndex } from "../../utils";
 
-const PromotionSelectedProduct = ({data}) => {
+const PromotionSelectedProduct = ({data, promotionType, discount}) => {
     const shopId = getPathByIndex(2);
 
+    const expandedRowRender = (record) => {
+        const columnsRow = [
+            {
+                title: 'SKU Name',
+                dataIndex: 'seller_sku',
+                key: 'seller_sku',
+            },
+            {
+                title: 'Original Price',
+                dataIndex: 'price',
+                key: 'price',
+                align: 'center',
+                render: (text) => <p><span>$</span><span>{text.original_price}</span></p>
+            },
+            {
+                title: 'Deal Price',
+                dataIndex: 'price',
+                key: 'price',
+                align: 'center',
+                render: (text) => {
+                    const dealPrice = Number(text.original_price) - Number(text.original_price) * (discount/100);
+                    return (
+                        <p><span>$</span><span>{dealPrice.toFixed(2)}</span></p>
+                    )
+                }
+            },
+        ];
+
+        return (
+            <div className="py-2">
+                <p className="mb-3 text-[#1677ff] font-bold"><i>({record.skus.length} items)</i></p>
+                <Table columns={columnsRow} dataSource={record.skus} pagination={false}/>
+            </div>
+        );
+      };    
+
     const columns = [
+        // Table.EXPAND_COLUMN,
         {
             title: "Product Id",
             dataIndex: 'id',
@@ -31,13 +68,22 @@ const PromotionSelectedProduct = ({data}) => {
     return (
         <div className="w-full">
             <p className="mb-2 text-sm font-semibold">{data.length} products selected</p>
-            <Table
+            <Table 
+                showHeader={false}
                 columns={columns} 
-                dataSource={data} 
-                bordered
+                dataSource={data}
                 pagination={{
                     pageSize: 50
                 }}
+                {...(promotionType === 'FlashSale' && {
+                    expandable: {
+                        expandedRowRender: (record) => expandedRowRender(record)
+                    }
+                })}
+                rowKey={(record) => record.id}
+                onRow={(record) => ({
+                    onClick: () => handleRowClick(record),
+                })}
             />
         </div>
     );
