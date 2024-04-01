@@ -615,9 +615,10 @@ def get_unpromotion_sku(access_token):
     """
     Get products
     """
-    response = callProductList(access_token=access_token, page_number=2)
+    response = callProductList(access_token=access_token, page_number=1)
 
     data = response.json()
+    print(data)
     product_active_ids = []
     for product in data["data"]["products"]:
         product_active_ids.append(product["id"])
