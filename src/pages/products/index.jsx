@@ -146,10 +146,15 @@ function Products() {
     setFilterData([]);
   };
 
+  const handleChangePagination = (current, pageSize) => {
+    setPageNumber(current);
+  }
+
   useEffect(() => {
     const onSuccess = (res) => {
       if (res.products.length > 0) {
-        setProductDataTable([...productDataTable, ...res.products]);
+        // setProductDataTable([...productDataTable, ...res.products]);
+        setProductDataTable(res.products);
       }
     };
     const onFail = (err) => {
@@ -161,7 +166,9 @@ function Products() {
     return () => {
       resetProductById();
     };
-  }, []);
+  }, [pageNumber]);
+
+  console.log('productDataTable: ', productDataTable);
 
   return (
     <div className="p-3 md:p-10">
@@ -185,10 +192,10 @@ function Products() {
         <Button size="small" type="primary" onClick={() => navigate(`/shops/${shopId}/add-many-products`)}>
           Thêm hàng loạt
         </Button>
-        <div className="flex-1 text-right">
-          {(filterData.product_name || filterData.product_id) && <span>Tìm kiếm theo: </span>}
-          {filterData.product_name && <Tag color="blue">Tên sản phẩm: {filterData.product_name}</Tag>}
-          {filterData.product_id && <Tag color="orange">Mã sản phẩm: {filterData.product_id}</Tag>}
+        <div className="flex-1 justify-end items-center flex flex-wrap">
+          {(filterData.product_name || filterData.product_id) && <span>Tìm kiếm theo: </span>}&nbsp;
+          {filterData.product_name && <Tag color="blue" className='max-w-[300px] whitespace-nowrap text-ellipsis overflow-hidden'>Tên sản phẩm: {filterData.product_name}</Tag>}
+          {filterData.product_id && <Tag color="orange" className='max-w-[300px] whitespace-nowrap text-ellipsis overflow-hidden'>Mã sản phẩm: {filterData.product_id}</Tag>}
           {(filterData.product_name || filterData.product_id) && (
             <Button type="primary" onClick={handleRemoveFilter}>
               Quay lại
@@ -203,7 +210,11 @@ function Products() {
         scroll={{ x: true }}
         dataSource={productDataTable?.length ? productDataTable : []}
         loading={loading}
-        pagination={{ total: infoTable?.data?.total }}
+        pagination={{
+          pageSize: 100,
+          total: infoTable?.data?.total,
+          onChange: handleChangePagination
+        }}
       />
 
       <Modal

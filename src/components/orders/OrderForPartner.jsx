@@ -18,9 +18,10 @@ import { DownOutlined, WarningOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 import { useNavigate } from 'react-router-dom';
 
-import { useShopsOrder } from '../../store/ordersStore';
+import { constants as c } from '../../constants';
 import { getPathByIndex } from '../../utils';
 import { setTokenExpand, getTokenKey } from '../../utils/auth';
+import { useShopsOrder } from '../../store/ordersStore';
 
 import SectionTitle from '../common/SectionTitle';
 import DesignEdit from '../design-sku/DesignEdit';
@@ -318,7 +319,7 @@ function OrderForPartner({ toShipInfoData }) {
   const handleLoginFlashShip = (values) => {
     const onSuccess = (res) => {
       if (res) {
-        setTokenExpand('flash-ship-tk', res.data.access_token, Date.now() + (0.1 * 60 * 60 * 1000));
+        setTokenExpand('flash-ship-tk', res.data.access_token, c.TOKEN_FLASH_SHIP_EXPIRATION);
         setOpenLoginFlashShip(false);
         messageApi.open({
           type: 'success',

@@ -29,6 +29,7 @@ function Orders() {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const [openFilterDate, setOpenFilterDate] = useState(false);
   const [openOrderCustom, setOpenOrderCustom] = useState(false);
   const [orderCustomEdit, setOrderCustomEdit] = useState({});
   const [searchText, setSearchText] = useState('');
@@ -101,7 +102,6 @@ function Orders() {
   };
 
   const onRangeChange = (dates, dateStrings, confirm, dataIndex, setSelectedKeys, selectedKeys) => {
-    console.warn(dates, selectedKeys);
     confirm();
     setSelectedKeys(dateStrings);
     setSearchText(dateStrings);
@@ -132,6 +132,7 @@ function Orders() {
                 setSearchText(selectedKeys[0]);
                 setSearchedColumn(dataIndex);
                 close();
+                setOpenFilterDate(false);
               }}
             >
               Tìm kiếm
@@ -146,6 +147,7 @@ function Orders() {
                   closeDropdown: false,
                 });
                 close();
+                setOpenFilterDate(false);
               }}
             >
               Xoá
@@ -156,7 +158,8 @@ function Orders() {
     },
 
     // eslint-disable-next-line react/no-unstable-nested-components
-    filterIcon: (filtered) => <SearchOutlined className={filtered ? '#1677ff' : undefined} />,
+    filterIcon: (filtered) => <SearchOutlined onClick={() => setOpenFilterDate(!openFilterDate)} className={filtered ? '#1677ff' : undefined} />,
+    filterDropdownOpen: openFilterDate,
 
     onFilter: (value, record) => {
       if (searchText.length === 2) {
@@ -277,7 +280,7 @@ function Orders() {
   };
 
   const handleStartFulfillment = () => {
-    const ordersHasPackageId = orderList.filter((order) => order.package_list.length > 0);
+    const ordersHasPackageId = orderDataTable.filter((order) => order.package_list.length > 0);
     const orderBoughtLabel = packageBought
       .map((item) => ordersHasPackageId.filter((order) => item.package_id === order.package_list[0].package_id))
       .filter((item) => item.length);

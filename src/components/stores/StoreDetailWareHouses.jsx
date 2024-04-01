@@ -28,7 +28,7 @@ function StoreDetailWareHouses({ shopId }) {
         </p>
       )}
       {!loading && (
-        <Row className="mb-5" gutter={30}>
+        <Row className="mb-5" gutter={[30, 30]}>
           {warehouse_list?.map((item) => (
             <Col key={item.warehouse_id} md={{ span: 12 }} span={24} className="mb-3 md:mb-0">
               <Card className="relative">

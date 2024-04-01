@@ -1,7 +1,8 @@
 import { Row, Col, Tooltip, Image } from 'antd';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import dayjs from 'dayjs';
 import PageTitle from '../../components/common/PageTitle';
+import { getPathByIndex } from '../../utils';
 
 function OrderDetail() {
   const location = useLocation();
@@ -101,6 +102,7 @@ function OrderDetail() {
   const renderPackageInfo = (orderData) => {
     const renderListItemProduct = (record) => {
       const { item_list } = record;
+      const shopId = getPathByIndex(2);
       return item_list.map((item) => {
         return (
           <div>
@@ -115,9 +117,11 @@ function OrderDetail() {
                   />
                 </div>
                 <div>
-                  <Tooltip title={item.product_name}>
-                    <p className="font-semibold line-clamp-1">{item.product_name}</p>
-                  </Tooltip>
+                  <Link to={`/shops/${shopId}/products/${item.product_id}`}>
+                    <Tooltip title={item.product_name}>
+                      <p className="font-semibold line-clamp-1">{item.product_name}</p>
+                    </Tooltip>
+                  </Link>
                   <p className="text-[12px] text-gray-500">{item.sku_name}</p>
                   <p className="text-[12px] text-gray-500">{item.seller_sku}</p>
                 </div>

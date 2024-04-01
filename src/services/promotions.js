@@ -12,7 +12,7 @@ const getPromotionDetail = (shopId, promotionId) => {
 };
 
 const createPromotion = (shopId, params) => {
-  return callApi(`/shops/${shopId}/promotions/create`, 'post', params);
+  return callApi(`/shops/${shopId}/promotions/create_discount`, 'post', params);
 };
 
 const deactivatePromotion = (shopId, promotionId, body) => {
@@ -23,10 +23,25 @@ const editOrUpdatePromotion = (id, params) => {
   return callApi(`/admin/v1/promotions/${id}`, 'patch', params);
 };
 
+const listProductNoDiscount = (shopId) => {
+  return callApi(`/shops/${shopId}/promotions/list_unpromotion`, 'get');
+};
+
+const listProductNoFlashDeal = (shopId) => {
+  return callApi(`/shops/${shopId}/promotions/list_unpromotion_sku`, 'get');
+};
+
+const createFlashDeal = (shopId, params) => {
+  return callApi(`/shops/${shopId}/promotions/create_flashsale`, 'post', params);
+};
+
 export const promotions = {
   getPromotions,
   getPromotionDetail,
   createPromotion,
   deactivatePromotion,
   editOrUpdatePromotion,
+  listProductNoDiscount,
+  listProductNoFlashDeal,
+  createFlashDeal
 };
