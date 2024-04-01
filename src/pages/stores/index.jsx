@@ -1,7 +1,7 @@
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { Button, Input, Layout, Modal, Popconfirm, Table, Tooltip, message } from 'antd';
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { constants as c } from '../../constants';
 import { useShopsStore } from '../../store/shopsStore';
@@ -92,14 +92,14 @@ function Stores() {
       dataIndex: 'shop_name',
       key: 'shop_name',
       render: (name, store) => (
-        <p
-          className="text-[#0e2482] font-medium cursor-pointer"
-          onClick={() => {
-            navigate(`/shops/${store.id}`, { state: { store } });
-          }}
+        <Link
+          to={`/shops/${store.id}`}
+          key={store.id}
+          title={store.name}
+          className="text-[#0e2482] font-medium cursor-pointer line-clamp-1"
         >
           {name}
-        </p>
+        </Link>
       ),
     },
     {
