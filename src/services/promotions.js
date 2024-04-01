@@ -23,8 +23,12 @@ const editOrUpdatePromotion = (id, params) => {
   return callApi(`/admin/v1/promotions/${id}`, 'patch', params);
 };
 
-const listProductNoPromotion = (shopId) => {
+const listProductNoDiscount = (shopId) => {
   return callApi(`/shops/${shopId}/promotions/list_unpromotion`, 'get');
+};
+
+const listProductNoFlashDeal = (shopId) => {
+  return callApi(`/shops/${shopId}/promotions/list_unpromotion_sku`, 'get');
 };
 
 const createFlashDeal = (shopId, params) => {
@@ -37,6 +41,7 @@ export const promotions = {
   createPromotion,
   deactivatePromotion,
   editOrUpdatePromotion,
-  listProductNoPromotion,
+  listProductNoDiscount,
+  listProductNoFlashDeal,
   createFlashDeal
 };

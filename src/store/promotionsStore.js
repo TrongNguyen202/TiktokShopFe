@@ -49,10 +49,21 @@ export const usePromotionsStore = create((set, get) => ({
     }
     set({ loading: false });
   },
-  listProductNoPromotion: async (shopId, onSuccess = () => {}, onFail = () => {}) => {
+  listProductNoDiscount: async (shopId, onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true });
-      const response = await RepositoryRemote.promotions.listProductNoPromotion(shopId);
+      const response = await RepositoryRemote.promotions.listProductNoDiscount(shopId);
+      onSuccess(response.data.data);
+    } catch (error) {
+      onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo promotion!');
+    }
+    set({ loading: false });
+  },
+
+  listProductNoFlashDeal: async (shopId, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true });
+      const response = await RepositoryRemote.promotions.listProductNoFlashDeal(shopId);
       onSuccess(response.data.data);
     } catch (error) {
       onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo promotion!');
