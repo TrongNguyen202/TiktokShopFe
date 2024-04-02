@@ -42,7 +42,7 @@ const PromotionCreateForm = ({initialData, loading, onSubmit}) => {
                 layout="vertical"
             >
                 <div className="ml-4">
-                <ContentHeader title="Create flash sale" />
+                <ContentHeader title={`Create ${discountData.type === "DirectDiscount" ? "Product Discount" : "Flash Deal"}`} />
                 </div>
 
                 <Row className="p-10 pt-5 justify-between min-h-[465px]">
