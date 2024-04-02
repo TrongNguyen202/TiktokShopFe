@@ -306,7 +306,7 @@ async def create_promotion(
             product_type=product_type,
             products=pack,
         )  # noqa: E501
-        print(promotion_id)
+
         await asyncio.sleep(6)
         promotion_ids.append(promotion_id)
 
@@ -433,27 +433,41 @@ def get_promotions_discount(access_token: str, status: int = 2, title: str = "Di
         page_size = 100
 
     query_params = {"app_key": app_key, "access_token": access_token, "timestamp": SIGN.get_timestamp()}
+    query_params_upcomming = {"app_key": app_key, "access_token": access_token, "timestamp": SIGN.get_timestamp()}
 
     body_json = {
         "page_number": page_number,
         "page_size": page_size,
     }
+    body_upcomming = {"page_number": page_number, "page_size": page_size, "status": 1}
 
     if title:
         body_json["title"] = title
+        body_upcomming["title"] = title
 
     if status is not None:
         body_json["status"] = status
 
     body = json.dumps(body_json)
+    body_upcomming_json = json.dumps(body_upcomming)
 
     sign = SIGN.cal_sign(secret=secret, url=urllib.parse.urlparse(url), query_params=query_params, body=body)
 
     query_params["sign"] = sign
+    sign_upcomming = SIGN.cal_sign(
+        secret=secret, url=urllib.parse.urlparse(url), query_params=query_params, body=body_upcomming_json
+    )
+
+    query_params_upcomming["sign"] = sign_upcomming
 
     response = requests.post(url=url, params=query_params, json=json.loads(body))
+    response_upcomming = requests.post(url=url, params=query_params_upcomming, json=json.loads(body_upcomming_json))
 
     data = response.json()
+    data_comming = response_upcomming.json()
+    if data_comming["code"] == 0:
+        for product in data_comming["data"]["promotion_list"]:
+            data["data"]["promotion_list"].append(product)
     if data["code"] != 0:
         raise BadRequestException(data["message"])
 
@@ -475,27 +489,41 @@ def get_promotions_flashdeal(
         page_size = 100
 
     query_params = {"app_key": app_key, "access_token": access_token, "timestamp": SIGN.get_timestamp()}
+    query_params_upcomming = {"app_key": app_key, "access_token": access_token, "timestamp": SIGN.get_timestamp()}
 
     body_json = {
         "page_number": page_number,
         "page_size": page_size,
     }
+    body_upcomming = {"page_number": page_number, "page_size": page_size, "status": 1}
 
     if title:
         body_json["title"] = title
+        body_upcomming["title"] = title
 
     if status is not None:
         body_json["status"] = status
 
     body = json.dumps(body_json)
+    body_upcomming_json = json.dumps(body_upcomming)
 
     sign = SIGN.cal_sign(secret=secret, url=urllib.parse.urlparse(url), query_params=query_params, body=body)
 
     query_params["sign"] = sign
+    sign_upcomming = SIGN.cal_sign(
+        secret=secret, url=urllib.parse.urlparse(url), query_params=query_params, body=body_upcomming_json
+    )
+
+    query_params_upcomming["sign"] = sign_upcomming
 
     response = requests.post(url=url, params=query_params, json=json.loads(body))
+    response_upcomming = requests.post(url=url, params=query_params_upcomming, json=json.loads(body_upcomming_json))
 
     data = response.json()
+    data_comming = response_upcomming.json()
+    if data_comming["code"] == 0:
+        for product in data_comming["data"]["promotion_list"]:
+            data["data"]["promotion_list"].append(product)
     if data["code"] != 0:
         raise BadRequestException(data["message"])
 
@@ -516,7 +544,7 @@ def get_unpromotion_products(access_token):
         data_page_2 = response_page_2.json()
         for product in data_page_2["data"]["products"]:
             data_loop.append(product)
-    print("lennnnnnnn", len(data_loop))
+
     for product in data_loop:
         product_active_ids.append(product["id"])
 
@@ -531,7 +559,6 @@ def get_unpromotion_products(access_token):
     active_set = set(product_active_ids)
     promoted_set = set(product_promoted_ids)
     unique_active = active_set.difference(promoted_set)
-    print("len productpromoted", len(promoted_set))
     new_product_list = []
     for product in data["data"]["products"]:
         if product["id"] in unique_active:
@@ -624,7 +651,6 @@ def get_unpromotion_sku(access_token):
     response = callProductList(access_token=access_token, page_number=1)
     response_page_2 = callProductList(access_token=access_token, page_number=2)
     data = response.json()
-    print("Data", data)
     product_active_ids = []
     data_loop = data["data"]["products"]
     if data["data"]["total"] > 100:
@@ -646,7 +672,6 @@ def get_unpromotion_sku(access_token):
     active_set = set(product_active_ids)
     promoted_set = set(product_promoted_ids)
     unique_active = active_set.difference(promoted_set)
-    print("len unique_active", len(unique_active))
     new_product_list = []
     for product in data["data"]["products"]:
         if product["id"] in unique_active:
