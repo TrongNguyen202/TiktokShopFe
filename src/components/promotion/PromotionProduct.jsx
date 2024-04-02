@@ -57,10 +57,9 @@ const PromotionProduct = ({changeStatusModal, dataProductSelected, promotionType
             listProductNoDiscount(shopId, onSuccess, OnFail);
         }
     }, [shopId]);
-
     return (
         <>
-            <p className="mb-2">{productSelected.length} / {productSelect.total} products selected</p>
+            {!loading && <p className="mb-2">{productSelected.length} / {productSelect?.products?.length} products selected</p>}
             <Table 
                 rowSelection={{
                     type: 'checkbox',

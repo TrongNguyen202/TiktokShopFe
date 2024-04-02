@@ -1,4 +1,5 @@
 import { message } from 'antd';
+import { useNavigate } from "react-router-dom";
 
 import dayjs from 'dayjs';
 import { getPathByIndex } from '../../utils';
@@ -7,6 +8,7 @@ import { usePromotionsStore } from '../../store/promotionsStore';
 import PromotionCreateForm from '../../components/promotion/PromotionCreateForm';
 
 export default function PromotionForm() {
+  const navigate = useNavigate();
   const initialData = {
     title: 'Discount',
     begin_time: dayjs().add(2, 'm'),
@@ -19,14 +21,15 @@ export default function PromotionForm() {
   const { createPromotion, loading } = usePromotionsStore((state) => state);
 
   const onSubmit = (dataForm, productSelected ) => {
+    const shopId = getPathByIndex(2);
     const onSuccess = () => {
       message.success(`Tạo promotion ${dataForm?.title}  thành công`);
+      navigate(`/shops/${shopId}/promotions`);
     };
     const onFail = (err) => {
       message.error(`Tạo promotion thất bại. ${err}`);
     };
 
-    const shopId = getPathByIndex(2);
     let submitData = {
       ...dataForm,
       title: `Discount ${dataForm.title}`,
