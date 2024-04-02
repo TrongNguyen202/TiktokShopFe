@@ -26,7 +26,7 @@ export const validatePassword = (password) => {
 
 // validate length longer than 50
 export const validateName = (name) => {
-  if (name.length > 50) {
+  if (name.length > 40) {
     return 'Tên không được vượt quá 50 ký tự';
   }
   return null;
