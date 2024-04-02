@@ -508,10 +508,16 @@ def get_unpromotion_products(access_token):
     Get products
     """
     response = callProductList(access_token=access_token, page_number=1)
-
+    response_page_2 = callProductList(access_token=access_token, page_number=2)
     data = response.json()
     product_active_ids = []
-    for product in data["data"]["products"]:
+    data_loop = data["data"]["products"]
+    if data["data"]["total"] > 100:
+        data_page_2 = response_page_2.json()
+        for product in data_page_2["data"]["products"]:
+            data_loop.append(product)
+    print("lennnnnnnn", len(data_loop))
+    for product in data_loop:
         product_active_ids.append(product["id"])
 
     promoted_product_list = get_promotions_discount(access_token=access_token)
@@ -616,11 +622,17 @@ def get_unpromotion_sku(access_token):
     Get products
     """
     response = callProductList(access_token=access_token, page_number=1)
-
+    response_page_2 = callProductList(access_token=access_token, page_number=2)
     data = response.json()
-    print(data)
+    print("Data", data)
     product_active_ids = []
-    for product in data["data"]["products"]:
+    data_loop = data["data"]["products"]
+    if data["data"]["total"] > 100:
+        data_page_2 = response_page_2.json()
+        for product in data_page_2["data"]["products"]:
+            data_loop.append(product)
+
+    for product in data_loop:
         product_active_ids.append(product["id"])
 
     promoted_product_list = get_promotions_flashdeal(access_token=access_token)
