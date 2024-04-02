@@ -26,7 +26,7 @@ def callProductList(access_token: str, page_number: str) -> requests.Response:
 
     body = json.dumps(
         {
-            "page_size": 99,
+            "page_size": 100,
             "page_number": str(page_number),
             "search_status": 0,
             "seller_sku_list": [],
@@ -46,6 +46,7 @@ def callProductList(access_token: str, page_number: str) -> requests.Response:
 
     logger.info(f"Get product list status code: {response.status_code}")
     # logger.info(f'Get product list response: {response.text}')
+    print("resssss", response.text)
 
     return response
 
@@ -373,7 +374,7 @@ def callUploadImage(access_token: str, img_data: str, return_id: bool = True) ->
     response = requests.post(url=url, params=query_params, json=json.loads(body))
 
     if return_id:
-        response_data = json.loads(response.text)
+        response_data = response.json()
         if "data" in response_data and "img_id" in response_data["data"]:
             image_id = response_data["data"]["img_id"]
             return image_id
@@ -387,12 +388,8 @@ def callEditProduct(access_token, product_object, imgBase64) -> requests.Respons
     if imgBase64:
         for item in imgBase64:
             response = callUploadImage(access_token=access_token, img_data=item)
-            data = json.loads(response.text)
 
-            if data and "data" in data and "img_id" in data["data"]:
-                img_id = data["data"]["img_id"]
-
-            images_list.append({"id": img_id})
+            images_list.append({"id": response})
 
     query_params = {
         "app_key": app_key,

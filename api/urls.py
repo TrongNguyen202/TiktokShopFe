@@ -84,12 +84,27 @@ shop_urls = [
         name="get_promotion_detail",
     ),
     path(
-        "shops/<int:shop_id>/promotions/create",
-        tiktok.promotion_action.CreatePromotionView.as_view(),
-        name="create_promotion",
+        "shops/<int:shop_id>/promotions/create_discount",
+        tiktok.promotion_action.AddOrUpdateDiscount.as_view(),
+        name="create_promotion_discount",
     ),
     # path("shops/<int:shop_id>/promotions/add_or_update",
     # tiktok.promotion_action.AddOrUpdatePromotion.as_view(), name="add_or_update_promotion"),
+    path(
+        "shops/<int:shop_id>/promotions/list_unpromotion",
+        tiktok.promotion_action.GetAllUnPromotionProduct.as_view(),
+        name="list_unpromotion",
+    ),
+    path(
+        "shops/<int:shop_id>/promotions/list_unpromotion_sku",
+        tiktok.promotion_action.GetAllUnPromotionSKU.as_view(),
+        name="list_unpromotion_sku",
+    ),
+    path(
+        "shops/<int:shop_id>/promotions/create_flashsale",
+        tiktok.promotion_action.AddOrUpdateFlashDeal.as_view(),
+        name="create_promotion_flashdeal",
+    ),
 ]
 
 template_urls = [
