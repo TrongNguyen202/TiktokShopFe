@@ -17,7 +17,7 @@ export const constants = {
   // DESIGN_SKU_FILES_GOOGLE_SHEET: 'https://docs.google.com/spreadsheets/d/1zo6it9m4wMeLJHg0JMIHuDMoHMiY2nFLbF6IlZo3qE8/edit#gid=0',
 
   API_FLASH_SHIP: 'https://seller.flashship.net/seller-api',
-  //API_FLASH_SHIP: 'https://devpod.flashship.net/seller-api',
+  // API_FLASH_SHIP: 'https://devpod.flashship.net/seller-api',
   TOKEN_FLASH_SHIP_EXPIRATION: 2*60*60*1000,
 };
 
@@ -77,22 +77,22 @@ export const OrderPackageWeightSize = [
     name: 'loại 1',
     items: [
       { name: 'S', weight: '0.3', size: '9x9x2' },
-      { name: 'M', weight: '0.375', size: '9x9x2' },
-      { name: 'L', weight: '0.4375', size: '9x9x2' },
+      { name: 'M', weight: '0.38', size: '9x9x2' },
+      { name: 'L', weight: '0.44', size: '9x9x2' },
       { name: 'XL', weight: '0.45', size: '10x10x3' },
-      { name: '2XL', weight: '0.5625', size: '10x10x3' },
-      { name: '3XL', weight: '0.5625', size: '10x10x3' },
+      { name: '2XL', weight: '0.56', size: '10x10x3' },
+      { name: '3XL', weight: '0.56', size: '10x10x3' },
     ],
   },
   {
     name: 'shirt',
     items: [
       { name: 'S', weight: '0.3', size: '9x9x2' },
-      { name: 'M', weight: '0.375', size: '9x9x2' },
-      { name: 'L', weight: '0.4375', size: '9x9x2' },
+      { name: 'M', weight: '0.38', size: '9x9x2' },
+      { name: 'L', weight: '0.44', size: '9x9x2' },
       { name: 'XL', weight: '0.45', size: '10x10x3' },
-      { name: '2XL', weight: '0.5625', size: '10x10x3' },
-      { name: '3XL', weight: '0.5625', size: '10x10x3' },
+      { name: '2XL', weight: '0.56', size: '10x10x3' },
+      { name: '3XL', weight: '0.56', size: '10x10x3' },
     ],
   },
   {
@@ -100,10 +100,10 @@ export const OrderPackageWeightSize = [
     items: [
       { name: 'S', weight: '1', size: '9x9x2' },
       { name: 'M', weight: '1.25', size: '9x9x2' },
-      { name: 'L', weight: '1.3125', size: '9x9x2' },
-      { name: 'XL', weight: '1.375', size: '10x10x3' },
-      { name: '2XL', weight: '1.4375', size: '10x10x3' },
-      { name: '3XL', weight: '1.5625', size: '10x10x3' },
+      { name: 'L', weight: '1.31', size: '9x9x2' },
+      { name: 'XL', weight: '1.38', size: '10x10x3' },
+      { name: '2XL', weight: '1.44', size: '10x10x3' },
+      { name: '3XL', weight: '1.56', size: '10x10x3' },
     ],
   },
   {
@@ -111,10 +111,10 @@ export const OrderPackageWeightSize = [
     items: [
       { name: 'S', weight: '1', size: '9x9x2' },
       { name: 'M', weight: '1.25', size: '9x9x2' },
-      { name: 'L', weight: '1.3125', size: '9x9x2' },
-      { name: 'XL', weight: '1.375', size: '10x10x3' },
-      { name: '2XL', weight: '1.4375', size: '10x10x3' },
-      { name: '3XL', weight: '1.5625', size: '10x10x3' },
+      { name: 'L', weight: '1.31', size: '9x9x2' },
+      { name: 'XL', weight: '1.38', size: '10x10x3' },
+      { name: '2XL', weight: '1.44', size: '10x10x3' },
+      { name: '3XL', weight: '1.56', size: '10x10x3' },
     ],
   },
 ];
