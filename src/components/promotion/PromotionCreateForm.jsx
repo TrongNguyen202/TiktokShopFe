@@ -112,7 +112,7 @@ const PromotionCreateForm = ({initialData, loading, onSubmit}) => {
                             disabledDate={disabledDate}
                             placeholder="Từ ngày"
                             showTime={{
-                            defaultValue: dayjs('00:00:00', 'HH:mm:ss'),
+                                defaultValue: dayjs('00:00:00', 'HH:mm:ss'),
                             }}
                             defaultValue={discountData.begin_time}
                             // defaultValue={
