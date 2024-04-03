@@ -25,8 +25,8 @@ function FlashDealForm() {
       message.success(`Tạo promotion ${dataForm?.title}  thành công`);
       navigate(`/shops/${shopId}/promotions`);
     };
-    const onFail = () => {
-      message.error('Tạo promotion thất bại');
+    const onFail = (err) => {
+      message.error(`Tạo promotion thất bại. ${err}`);
     };
 
     const shopId = getPathByIndex(2);
