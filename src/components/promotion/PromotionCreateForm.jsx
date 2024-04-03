@@ -182,7 +182,7 @@ const PromotionCreateForm = ({initialData, loading, onSubmit}) => {
                     <Button className="mb-5" onClick={() => setOpenSelectProduct(true)}>Select Product</Button>
 
                     <Form.Item
-                    label={`Discount ${discountData.type === 'FlashSale' ? '(%)' : '($)'}`}
+                    label={`Discount (%)`}
                     name="discount"
                     labelAlign="left"
                     className="font-medium"
