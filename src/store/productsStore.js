@@ -8,6 +8,7 @@ export const useProductsStore = create((set, get) => ({
   infoTable: {},
   newProduct: {},
   loading: false,
+  loadingImage: false,
   getAllProducts: async (id, page_number, onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true });
@@ -100,5 +101,15 @@ export const useProductsStore = create((set, get) => ({
   },
   resetProductById: () => {
     set({ productById: {}, infoTable: {} });
+  },
+  changeProductImageToWhite: async (body, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loadingImage: true });
+      const response = await RepositoryRemote.products.changeProductImageToWhite(body);
+      onSuccess(response.data);
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra khi thay nền ảnh!');
+    }
+    set({ loadingImage: false });
   },
 }));
