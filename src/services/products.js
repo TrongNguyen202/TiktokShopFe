@@ -28,6 +28,10 @@ const createOneProductDraff = (shopId, body) => {
   return callApi(`/shops/${shopId}/products/create_product_draf`, 'post', body);
 };
 
+const changeProductImageToWhite = (body) => {
+  return callApi(`/crawl/process_image`, 'post', body);
+}
+
 export const products = {
   getAllProducts,
   getProductsById,
@@ -36,4 +40,5 @@ export const products = {
   editProduct,
   createOneProduct,
   createOneProductDraff,
+  changeProductImageToWhite
 };
