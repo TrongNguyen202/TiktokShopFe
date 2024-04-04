@@ -323,7 +323,7 @@ class ProcessExcel(View):
         # ============ STEP 2: Upload images to TikTok and get images ids ============
 
         logger.info(f"User {self.request.user} | Start upload images to TikTok")
-        success_images.extend(base64_size_chart_images)
+        success_images = base64_size_chart_images[0:1] + success_images + base64_size_chart_images[1:]
         result = self._upload_images(success_images)
 
         code = "E002"
