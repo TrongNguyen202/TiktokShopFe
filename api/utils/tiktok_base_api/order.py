@@ -235,6 +235,7 @@ def callCreateLabel(access_token, body_raw_json):
     query_params["sign"] = sign
 
     response = requests.post(url, params=query_params, json=json.loads(body))
+    print("resss", response.text)
 
     return HttpResponse(response)
 
