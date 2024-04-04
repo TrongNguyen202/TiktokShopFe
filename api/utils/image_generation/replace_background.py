@@ -22,7 +22,14 @@ def remove_background_and_paste(img_url, background_img_path=background_img_path
             img.save(f, format="JPEG")
             input_data = f.getvalue()
 
-            subject = remove(input_data, alpha_matting=True, alpha_matting_background_threshold=50000)
+            subject = remove(
+                input_data,
+                alpha_matting=True,
+                alpha_matting_foreground_threshold=240,
+                alpha_matting_background_threshold=10,
+                alpha_matting_erode_structure_size=10,
+                alpha_matting_base_size=1000,
+            )
 
         with BytesIO(subject) as f:
             foreground_img = Image.open(f)

@@ -297,6 +297,9 @@ class ProcessExcel(View):
                     image_url = value
                     future = executor.submit(self._process_image_url, image_url)
                     futures[future] = (col, image_url)
+                if value.startswith("white_"):
+                    value = value[len("white_") :]
+                    base64_size_chart_images.append({"column": col, "image_url": "", "base64": value})
                 else:
                     # Size chart images are already in base64 format
                     base64_size_chart_images.append({"column": col, "image_url": "", "base64": value})
@@ -323,7 +326,7 @@ class ProcessExcel(View):
         # ============ STEP 2: Upload images to TikTok and get images ids ============
 
         logger.info(f"User {self.request.user} | Start upload images to TikTok")
-        success_images = base64_size_chart_images[0:1] + success_images + base64_size_chart_images[1:]
+        success_images.extend(base64_size_chart_images)
         result = self._upload_images(success_images)
 
         code = "E002"
