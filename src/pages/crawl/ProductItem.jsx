@@ -108,12 +108,13 @@ export default function ProductItem({
       });
     }
   };
+  console.log('product: ', product);
 
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-md hover:shadow-blue-300 duration-300 hover:translate-y-[-5px] h-full">
       <div className="w-[100%] h-[13vw] relative">
         <LazyLoadImage
-          src={product?.images[0]?.url}
+          src={product?.images[0]?.thumbUrl || product?.images[0]?.url}
           alt="Image main"
           className="w-full h-full object-cover cursor-pointer"
           onClick={() => setIsOpenModal(true)}
