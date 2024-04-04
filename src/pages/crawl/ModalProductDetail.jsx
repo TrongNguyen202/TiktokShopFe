@@ -50,8 +50,9 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
   const [sellerSku, setSellerSku] = useState(product.sku);
 
   const handlePreview = async (file) => {
+    console.log('file: ', file);
     if (!file.url && !file.preview) file.preview = await getBase64(file.originFileObj);
-    setPreviewImage(file.url || file.preview);
+    setPreviewImage(file.thumbUrl || file.url || file.preview );
     setPreviewOpen(true);
     setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
   };
@@ -64,10 +65,6 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
 
     setFileList(dataUpdate);
     imgBase64(dataUpdate);
-  };
-
-  const handleAddImageFromComputer = ({ fileList: newFileList }) => {
-    setFileList(newFileList);
   };
 
   const sensor = useSensor(PointerSensor, {
