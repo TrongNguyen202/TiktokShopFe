@@ -31,8 +31,8 @@ from ....serializers import (
     DesignSkuPutSerializer,
     DesignSkuSerializer,
     GroupCustomSerializer,
+    PackageDeactiveSerializer,
     PackageSerializer,
-    PackageDeactiveSerializer
 )
 
 logger = logging.getLogger("views.tiktok.order_action")
@@ -639,15 +639,15 @@ class PackageListByShop(APIView):
 
         serializer = PackageSerializer(packages, many=True)
         return Response(serializer.data)
+
+
 class DeactivePack(APIView):
     # permission_classes = (IsAuthenticated,)
 
-    def put(self, request,pack_id):
-        package = get_object_or_404(Package, pack_id = pack_id)
+    def put(self, request, pack_id):
+        package = get_object_or_404(Package, pack_id=pack_id)
         serializer = PackageDeactiveSerializer(package, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data)
         return JsonResponse(serializer.errors, status=400)
-
-
