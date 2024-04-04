@@ -188,17 +188,6 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
                 White background for main image
                 {loadingImage && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
               </Button>
-                {/* <Upload
-                  fileList={fileList}
-                  showUploadList={false}
-                  onChange={handleAddImageFromComputer}
-                  // multiple
-                  itemRender={(originNode, file) => <DraggableUploadListItem originNode={originNode} file={file} />}
-                >
-                  {fileList?.length > 7 ? null :
-                    <Button type='primary' icon={<PlusOutlined />}>Add image from your computer</Button>
-                  }
-                </Upload> */}
             </Space>
           </SortableContext>
         </DndContext>
