@@ -1,5 +1,5 @@
 import { Button, Form, Input, Modal, Upload, Spin, Space } from 'antd';
-import { LoadingOutlined, UploadOutlined } from '@ant-design/icons';
+import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import React, { useState } from 'react';
 
 import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
@@ -59,32 +59,15 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
   const handleChange = ({ fileList: newFileList }) => {
     const dataUpdate = newFileList.map((item) => ({
       ...item,
-      url: item.url.replace('data:image/png;base64,', '')
+      url: item.id && item.url ? item.url.replace('data:image/png;base64,white_', ''): item.url
     }));
+
     setFileList(dataUpdate);
     imgBase64(dataUpdate);
   };
 
   const handleAddImageFromComputer = ({ fileList: newFileList }) => {
-    let fileListUpdate = {...fileList};
-    console.log('newFileList: ', newFileList, );
-    console.log('newFileList: ', newFileList, fileListUpdate);
-
-    const newFileListFromLocal = newFileList.map((item) => {
-      console.log('base64Data: ', getBase64(item.originFileObj));
-      // return (
-      //   getBase64(item.originFileObj, (url) => {
-      //     return {
-      //       id: Math.floor(Math.random() * 10),
-      //       url: url
-      //     }
-      //   })
-      // )
-    })
-    console.log('newFileListFromLocal: ', newFileListFromLocal);
-    // let newFileListFromLocal = {...fileList};
-    // newFileListFromLocal.push()
-    // setFileList(newFileList);
+    setFileList(newFileList);
   };
 
   const sensor = useSensor(PointerSensor, {
@@ -125,9 +108,8 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
 
     const onSuccess = (res) => {
       if (res) {
-        console.log(res);
         const newItem = {
-          url: res.output_image_base64
+          url: `white_${res.output_image_base64}`
         }
         fileListUpdate.push(newItem)
         setFileList(fileListUpdate);
@@ -138,9 +120,25 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
   }
 
   const handleOK = () => {
+    const fileListUpdate = fileList.map((item, index) => {
+      let urlItem = "";
+      if (item.url) {
+        if (item.id) {
+          urlItem = item.url;
+        } else {
+          urlItem = item.url.replace('data:image/png;base64,', 'white_');
+        }
+      } else {
+        urlItem = item.thumbUrl.replace(/^data:image\/(jpeg|png|jpg);base64,/, '');
+      }
+      return ({
+        ...item,
+        url: urlItem
+      })
+    })
     const newProduct = {
       ...product,
-      images: fileList,
+      images: fileListUpdate,
       title: productTitle,
       description: productDescription,
       sku: sellerSku,
@@ -150,10 +148,11 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
   };
 
   const ShowImageFileList = (data) => {
-    return data.map((item) => ({
-      ...item,
-      url: item.id ? item.url : `data:image/png;base64,${item.url}`
-    }))
+    let itemRemoveBackground = data.find((item) => item?.url?.includes('white_'));
+    if (itemRemoveBackground) {
+        itemRemoveBackground.url = itemRemoveBackground.url.replace('white_', 'data:image/png;base64,');
+    }
+    return data;
   }
 
   return (
@@ -180,26 +179,15 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
               // eslint-disable-next-line react/no-unstable-nested-components
               itemRender={(originNode, file) => <DraggableUploadListItem originNode={originNode} file={file} />}
             >
-              {/* {fileList?.length >= 8 ? null : (
-                <button style={{ border: 0, background: "none" }} type="button">
-                  <PlusOutlined />
-                  <div style={{ marginTop: 8 }}> Upload</div>
-                </button>
-              )} */}
+                  {fileList?.length > 7 ? null :
+                    <span><PlusOutlined /> Add image</span>
+                  }
             </Upload>
             <Space>
               <Button type='primary' className='my-5' onClick={handleWhiteBackgroundForMainImage}>
                 White background for main image
                 {loadingImage && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
               </Button>
-
-              {/* <Upload
-                fileList={fileList}
-                showUploadList={false}
-                onChange={handleAddImageFromComputer}
-              >
-                <Button type='primary' icon={<UploadOutlined />}>Add image from your computer</Button>
-              </Upload> */}
             </Space>
           </SortableContext>
         </DndContext>
