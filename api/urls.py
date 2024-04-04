@@ -3,6 +3,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 import api.views.google_trend as google_trend
+import api.views.image_action as image_action
 
 # Import các views module
 # import api.views.google_trend as google_trend
@@ -197,6 +198,10 @@ google_trend_urls = [
     ),
 ]
 
+image_process_urls = [
+    path("crawl/process_image", image_action.ReplaceBackgroundView.as_view(), name="crawl_process_image"),
+]
+
 
 # Tách URLs ra thành các nhóm URLs nhỏ để dễ quản lý
 urlpatterns = (
@@ -208,4 +213,5 @@ urlpatterns = (
     + user_group_urls
     + fulfillment_urls
     + google_trend_urls
+    + image_process_urls
 )
