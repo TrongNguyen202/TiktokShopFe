@@ -6,11 +6,11 @@ import { Link } from "react-router-dom";
 import { getPathByIndex } from "../../utils";
 import { usePromotionsStore } from '../../store/promotionsStore';
 
-const PromotionProduct = ({changeStatusModal, dataProductSelected}) => {
+const PromotionProduct = ({changeStatusModal, dataProductSelected, promotionType}) => {
     const shopId = getPathByIndex(2);
     const [productSelect, setProductSelect] = useState([]);
     const [productSelected, setProductSelected] = useState([]);
-    const { listProductNoPromotion, loading } = usePromotionsStore((state) => state);
+    const { listProductNoDiscount, listProductNoFlashDeal, loading } = usePromotionsStore((state) => state);
     const handleDone = () => {
         dataProductSelected(productSelected)
         changeStatusModal(false)
@@ -51,12 +51,15 @@ const PromotionProduct = ({changeStatusModal, dataProductSelected}) => {
         };
     
         const OnFail = () => {};
-        listProductNoPromotion(shopId, onSuccess, OnFail);
+        if (promotionType === 'FlashSale') {
+            listProductNoFlashDeal(shopId, onSuccess, OnFail);            
+        } else {
+            listProductNoDiscount(shopId, onSuccess, OnFail);
+        }
     }, [shopId]);
-
     return (
         <>
-            <p className="mb-2">{productSelected.length} / {productSelect.total} products selected</p>
+            {!loading && <p className="mb-2">{productSelected.length} / {productSelect?.products?.length} products selected</p>}
             <Table 
                 rowSelection={{
                     type: 'checkbox',

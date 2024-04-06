@@ -1,9 +1,12 @@
-import { Button, Form, Input, Modal, Upload } from 'antd';
+import { Button, Form, Input, Modal, Upload, Spin, Space } from 'antd';
+import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import React, { useState } from 'react';
 
 import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+
+import { useProductsStore } from "../../store/productsStore"
 
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -36,6 +39,7 @@ function DraggableUploadListItem({ originNode, file }) {
 }
 
 export default function ModalProductDetail({ product, setIsOpenModal, isOpenModal, imgBase64, handleChangeProduct }) {
+  const {changeProductImageToWhite, loadingImage} = useProductsStore((state) => state);
   const [fileList, setFileList] = useState(product.images);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
@@ -46,15 +50,21 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
   const [sellerSku, setSellerSku] = useState(product.sku);
 
   const handlePreview = async (file) => {
+    console.log('file: ', file);
     if (!file.url && !file.preview) file.preview = await getBase64(file.originFileObj);
-    setPreviewImage(file.url || file.preview);
+    setPreviewImage(file.thumbUrl || file.url || file.preview );
     setPreviewOpen(true);
     setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
   };
 
   const handleChange = ({ fileList: newFileList }) => {
-    setFileList(newFileList);
-    imgBase64(newFileList);
+    const dataUpdate = newFileList.map((item) => ({
+      ...item,
+      url: item.id && item.url ? item.url.replace('data:image/png;base64,white_', ''): item.url
+    }));
+
+    setFileList(dataUpdate);
+    imgBase64(dataUpdate);
   };
 
   const sensor = useSensor(PointerSensor, {
@@ -87,10 +97,45 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
     setImageLink('');
   };
 
+  const handleWhiteBackgroundForMainImage = () => {
+    let fileListUpdate = [...fileList];
+    const imageUrl = {
+      img_url: fileListUpdate[0].url
+    }
+
+    const onSuccess = (res) => {
+      if (res) {
+        const newItem = {
+          url: `white_${res.output_image_base64}`
+        }
+        fileListUpdate.push(newItem)
+        setFileList(fileListUpdate);
+      }
+    }
+    const onFail = (err) => {}
+    changeProductImageToWhite(imageUrl, onSuccess, onFail);
+  }
+
   const handleOK = () => {
+    const fileListUpdate = fileList.map((item, index) => {
+      let urlItem = "";
+      if (item.url) {
+        if (item.id) {
+          urlItem = item.url;
+        } else {
+          urlItem = item.url.replace('data:image/png;base64,', 'white_');
+        }
+      } else {
+        urlItem = item.thumbUrl.replace(/^data:image\/(jpeg|png|jpg);base64,/, '');
+      }
+      return ({
+        ...item,
+        url: urlItem
+      })
+    })
     const newProduct = {
       ...product,
-      images: fileList,
+      images: fileListUpdate,
       title: productTitle,
       description: productDescription,
       sku: sellerSku,
@@ -98,6 +143,14 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
     handleChangeProduct(newProduct);
     setIsOpenModal(false);
   };
+
+  const ShowImageFileList = (data) => {
+    let itemRemoveBackground = data.find((item) => item?.url?.includes('white_'));
+    if (itemRemoveBackground) {
+        itemRemoveBackground.url = itemRemoveBackground.url.replace('white_', 'data:image/png;base64,');
+    }
+    return data;
+  }
 
   return (
     <div>
@@ -114,7 +167,7 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
           <SortableContext items={fileList?.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
             <Upload
               listType="picture-card"
-              fileList={fileList}
+              fileList={ShowImageFileList(fileList)}
               onPreview={handlePreview}
               onChange={handleChange}
               beforeUpload={() => false}
@@ -123,13 +176,16 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
               // eslint-disable-next-line react/no-unstable-nested-components
               itemRender={(originNode, file) => <DraggableUploadListItem originNode={originNode} file={file} />}
             >
-              {/* {fileList?.length >= 8 ? null : (
-                <button style={{ border: 0, background: "none" }} type="button">
-                  <PlusOutlined />
-                  <div style={{ marginTop: 8 }}> Upload</div>
-                </button>
-              )} */}
+                  {fileList?.length > 7 ? null :
+                    <span><PlusOutlined /> Add image</span>
+                  }
             </Upload>
+            <Space>
+              <Button type='primary' className='my-5' onClick={handleWhiteBackgroundForMainImage}>
+                White background for main image
+                {loadingImage && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
+              </Button>
+            </Space>
           </SortableContext>
         </DndContext>
         <Form.Item label="Add image:" labelCol={{ span: 24 }}>
