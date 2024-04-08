@@ -15,25 +15,15 @@ SCOPES = [
 
 
 def authenticate():
-    creds = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE, scopes=SCOPES
-    )
+    creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
     return creds
 
 
-# def upload_pdf(file_path, order_id):
-#     creds = authenticate()
-#     service = build('drive', 'v3', credentials=creds)
-#     file_metadata = {
-#         'name': order_id,
-#         'parents': [PARENT_FOLDER_ID]
-#     }
-#     file = service.files().create(
-#         body=file_metadata,
-#         media_body=file_path
-#     ).execute()
-
-# upload_pdf("testpdf2.pdf")
+def upload_pdf(file_path, order_id):
+    creds = authenticate()
+    service = build("drive", "v3", credentials=creds)
+    file_metadata = {"name": order_id, "parents": [PARENT_FOLDER_ID]}
+    file = service.files().create(body=file_metadata, media_body=file_path).execute()
 
 
 def search_file(file_name):
