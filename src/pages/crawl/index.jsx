@@ -82,8 +82,8 @@ const initialCrawl = {
 export default function Crawl() {
   const productListStorage = JSON.parse(localStorage.getItem('productList'));
   const userInfo = JSON.parse(localStorage.getItem('user'));
-
   const [productList, setProductList] = useState(productListStorage);
+  const [productListInit, setProductListInit] = useState(productListStorage);
   const [checkedItems, setCheckedItems] = useState([]);
   const [isAllChecked, setIsAllChecked] = useState(false);
   const [optionCrawl, setOptionCrawl] = useState(initialCrawl);
@@ -102,8 +102,8 @@ export default function Crawl() {
   });
 
   useEffect(() => {
-    localStorage.setItem('productList', JSON.stringify(productList));
-  }, [JSON.stringify(productList)]);
+    localStorage.setItem('productList', JSON.stringify(productListInit));
+  }, [productListInit]);
 
   useEffect(() => {
     if (checkedItems && checkedItems.length === 0) return;
@@ -275,7 +275,8 @@ export default function Crawl() {
 
     // lấy danh sách id của sản phẩm để get thông tin sản phẩm
     const ids = productData.map((item) => item.id.split('.')[0]).join(',');
-    setProductList(productData);
+    setProductList(productData);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+    setProductListInit(productData);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
     setCheckedItems([]);
     setIsAllChecked(false);
     setShowSkeleton(true);
