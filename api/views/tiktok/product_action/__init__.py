@@ -224,11 +224,12 @@ class ProcessExcel(View):
                         package_length,
                         package_weight,
                         package_width,
-                        description,
+                        description + item.get("description", ""),
                         skus,
                         size_chart,
                     )
                     futures[future] = (order, item)
+                    print("desss", description)
 
                 for idx, future in enumerate(list(futures.keys())):
                     order_in_excel_file, item = futures[future]
@@ -293,13 +294,17 @@ class ProcessExcel(View):
             futures = {}
 
             for col, value in images.items():
+                print("value", value[:10])
                 if value.startswith("https"):
                     image_url = value
                     future = executor.submit(self._process_image_url, image_url)
                     futures[future] = (col, image_url)
+                elif value.startswith("white"):
+                    value = value[len("white_") :]
+                    base64_size_chart_images.append({"column": col, "image_url": "", "base64": value, "main": True})
                 else:
                     # Size chart images are already in base64 format
-                    base64_size_chart_images.append({"column": col, "image_url": "", "base64": value})
+                    base64_size_chart_images.append({"column": col, "image_url": "", "base64": value, "main": False})
 
             for future in list(futures.keys()):
                 col, image_url = futures[future]
@@ -323,7 +328,20 @@ class ProcessExcel(View):
         # ============ STEP 2: Upload images to TikTok and get images ids ============
 
         logger.info(f"User {self.request.user} | Start upload images to TikTok")
-        success_images.extend(base64_size_chart_images)
+        for fix_image in base64_size_chart_images:
+            print("fix_image", fix_image.get("main"))
+            fix_image_dump = {
+                "column": fix_image.get("column"),
+                "image_url": fix_image.get("image_url"),
+                "base64": fix_image.get("base64"),
+            }
+            if fix_image.get("main") == True:
+                print("true found")
+                success_images = [fix_image_dump] + success_images
+
+            else:
+                success_images.extend([fix_image_dump])
+
         result = self._upload_images(success_images)
 
         code = "E002"
@@ -569,10 +587,10 @@ class ProcessExcel(View):
                 "data": None,
             }
         else:
-            logger.info(
-                f"User {self.request.user} | Call create product API for item with title {title}'s response: \
-                \n{json.dumps(response.json(), indent=4)}\n"
-            )
+            # logger.info(
+            #     f"User {self.request.user} | Call create product API for item with title {title}'s response: \
+            #     \n{json.dumps(response.json(), indent=4)}\n"
+            # )
 
             response_json: dict = json.loads(response.text)
 
