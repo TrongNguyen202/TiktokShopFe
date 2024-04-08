@@ -375,6 +375,7 @@ function OrderForPartner({ toShipInfoData }) {
           buyer_email: item.buyer_email,
           name_buyer: item.name_buyer,
           package_id: item.package_id,
+          order_id: item.order_id,
           state: item.state,
           street: item.street,
           tracking_id: item.tracking_id,
@@ -387,9 +388,10 @@ function OrderForPartner({ toShipInfoData }) {
       .flat();
 
     const dataExport = productItem.map((product) => {
+      console.log('product: ', product);
       const result = {
         'External ID': 'POD097',
-        'Order ID': key === 'PrintCare' ? product.product_id : product.package_id,
+        'Order ID': product.order_id,
         'Shipping method': 1,
         'First Name': product.name_buyer.split(' ')[0],
         'Last Name': product.name_buyer.split(' ')[1],
@@ -447,9 +449,9 @@ function OrderForPartner({ toShipInfoData }) {
     onChange: (_, selectedRows) => {
       setTablePrintCareSelected(selectedRows);
     },
-    getCheckboxProps: () => ({
-      disabled: !allowCreateOrderPartner,
-    }),
+    // getCheckboxProps: () => ({
+    //   disabled: !allowCreateOrderPartner,
+    // }),
   };
 
   const column = [

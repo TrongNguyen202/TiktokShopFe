@@ -17,7 +17,7 @@ export const constants = {
   // DESIGN_SKU_FILES_GOOGLE_SHEET: 'https://docs.google.com/spreadsheets/d/1zo6it9m4wMeLJHg0JMIHuDMoHMiY2nFLbF6IlZo3qE8/edit#gid=0',
 
   API_FLASH_SHIP: 'https://seller.flashship.net/seller-api',
-  //API_FLASH_SHIP: 'https://devpod.flashship.net/seller-api',
+  // API_FLASH_SHIP: 'https://devpod.flashship.net/seller-api',
   TOKEN_FLASH_SHIP_EXPIRATION: 2*60*60*1000,
 };
 

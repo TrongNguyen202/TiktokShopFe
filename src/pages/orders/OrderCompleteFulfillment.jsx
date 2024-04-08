@@ -29,6 +29,7 @@ function OrderCompleteFulfillment() {
 
   const dataTableFlashShip = dataPackage.filter((item) => item.fulfillment_name === 'FlashShip');
   const dataTablePrintCare = dataPackage.filter((item) => item.fulfillment_name === 'PrintCare');
+  console.log('dataTablePrintCare: ', dataTablePrintCare);
   const ConvertDataTable = (data) => {
     const result = data.reverse().map((item, index) => ({
       stt: index + 1,
