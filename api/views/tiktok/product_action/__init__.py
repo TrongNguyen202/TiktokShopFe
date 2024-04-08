@@ -224,11 +224,12 @@ class ProcessExcel(View):
                         package_length,
                         package_weight,
                         package_width,
-                        description,
+                        description + item.get("description", ""),
                         skus,
                         size_chart,
                     )
                     futures[future] = (order, item)
+                    print("desss", description)
 
                 for idx, future in enumerate(list(futures.keys())):
                     order_in_excel_file, item = futures[future]
@@ -572,10 +573,10 @@ class ProcessExcel(View):
                 "data": None,
             }
         else:
-            logger.info(
-                f"User {self.request.user} | Call create product API for item with title {title}'s response: \
-                \n{json.dumps(response.json(), indent=4)}\n"
-            )
+            # logger.info(
+            #     f"User {self.request.user} | Call create product API for item with title {title}'s response: \
+            #     \n{json.dumps(response.json(), indent=4)}\n"
+            # )
 
             response_json: dict = json.loads(response.text)
 
