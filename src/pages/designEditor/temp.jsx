@@ -1,19 +1,31 @@
-import { Button, Select } from 'antd';
-import React, { useEffect, useRef, useState } from 'react';
-import { Stage, Layer, Rect, Transformer, Image } from 'react-konva';
+import { Button, Select, Tooltip, Image, Input } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Layer, Stage } from 'react-konva';
 
-import { CheckOutlined } from '@ant-design/icons';
+import {
+  CheckOutlined,
+  CloudUploadOutlined,
+  DeleteOutlined,
+  DownloadOutlined,
+  RetweetOutlined,
+  UploadOutlined,
+} from '@ant-design/icons';
+import { RedoIcon, UndoIcon } from '../../assets/icons';
 import CrewBack from '../../assets/images/crew_back.png';
 import CrewFront from '../../assets/images/crew_front.png';
+import DefaultImage from '../../assets/images/invisibleman.jpg';
 import MensHoodieBack from '../../assets/images/mens_hoodie_back.png';
 import MensHoodieFront from '../../assets/images/mens_hoodie_front.png';
-import WomensCrewBack from '../../assets/images/womens_crew_back.png';
-import WomensCrewFront from '../../assets/images/womens_crew_front.png';
+import LongSleeveShirtBack from '../../assets/images/mens_longsleeve_back.png';
+import LongSleeveShirtFront from '../../assets/images/mens_longsleeve_front.png';
 import MensTankBack from '../../assets/images/mens_tank_back.png';
 import MensTankFront from '../../assets/images/mens_tank_front.png';
-import DefaultImage from '../../assets/images/invisibleman.jpg';
+import FixedFrame from './FixedFrame';
+import ImageBase from './ImageBase';
 import URLImage from './URLImage';
 import { initDesignOptions, recommendColor } from './constant';
+import UploadDesign from './UploadDesign';
+import ModalUploadProduct from '../crawl/ModalUploadProduct';
 
 let history = [];
 let historyStep = 0;
@@ -34,8 +46,14 @@ export default function DesignEditor() {
   const [isShowBack, setIsShowBack] = useState(false);
   const [color, setColor] = useState('#0067A3');
   const [selectedId, selectShape] = useState(null);
-  console.log('selectedId: ', selectedId);
   const [images, setImages] = useState([]);
+  const [imageBase, setImageBase] = useState();
+  console.log('imageBase: ', imageBase);
+  const [imagesDesign, setImagesDesign] = useState([]);
+  const [imageEdited, setImageEdited] = useState([]);
+  console.log('imageEdited: ', imageEdited);
+  const [fixedFrameInfo, setFixedFrameInfo] = useState({ x: 20, y: 20, width: 100, height: 100, rotation: 0 });
+  const [isShowModalUpload, setShowModalUpload] = useState(false);
 
   const stageRef = React.useRef(null);
 
@@ -66,27 +84,54 @@ export default function DesignEditor() {
   }, [selectedId]);
 
   const renderImageByType = (type) => {
+    if (imageBase) return null;
+    const image = {
+      x: 0,
+      y: 0,
+      width: 510,
+      height: 634,
+      src: DefaultImage,
+      scaleX: 1,
+    };
     switch (type) {
       case 'Short Sleeve Shirt':
-        if (isShowBack) return <img style={{ background: color }} src={CrewBack} alt="design" />;
-        return <img style={{ background: color }} src={CrewFront} alt="design" />;
+        if (isShowBack) image.src = CrewBack;
+        else image.src = CrewFront;
+        break;
       case 'Long Sleeve Shirt':
-        if (isShowBack) return <img style={{ background: color }} src={WomensCrewBack} alt="design" />;
-        return <img style={{ background: color }} src={WomensCrewFront} alt="design" />;
+        if (isShowBack) image.src = LongSleeveShirtBack;
+        else image.src = LongSleeveShirtFront;
+        break;
       case 'Hoodies':
-        if (isShowBack) return <img style={{ background: color }} src={MensHoodieBack} alt="design" />;
-        return <img style={{ background: color }} src={MensHoodieFront} alt="design" />;
+        if (isShowBack) image.src = MensHoodieBack;
+        else image.src = MensHoodieFront;
+        break;
       case 'Tank Tops':
-        if (isShowBack) return <img style={{ background: color }} src={MensTankBack} alt="design" />;
-        return <img style={{ background: color }} src={MensTankFront} alt="design" />;
+        if (isShowBack) image.src = MensTankBack;
+        else image.src = MensTankFront;
+        break;
       default:
-        if (isShowBack) return <img style={{ background: color }} src={CrewBack} alt="design" />;
-        return <img style={{ background: color }} src={CrewFront} alt="design" />;
+        if (isShowBack) image.src = CrewBack;
+        else image.src = CrewFront;
+        break;
     }
+
+    return (
+      <ImageBase
+        imageProps={image}
+        image={image}
+        color={color}
+        checkDeselect={checkDeselect}
+        onSelect={checkDeselect}
+      />
+    );
   };
 
-  const checkDeselect = (e) => {
-    // deselect when clicked on empty area
+  const checkDeselect = (e, value) => {
+    if (!value) {
+      selectShape(null);
+      return null;
+    }
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty) {
       selectShape(null);
@@ -94,18 +139,14 @@ export default function DesignEditor() {
   };
 
   const handleUndo = () => {
-    if (historyStep === 0) {
-      return;
-    }
+    if (historyStep === 0) return;
     historyStep -= 1;
     const previous = history[historyStep];
     setImages(previous);
   };
 
   const handleRedo = () => {
-    if (historyStep === history.length - 1) {
-      return;
-    }
+    if (historyStep === history.length - 1) return;
     historyStep += 1;
     const next = history[historyStep];
     setImages(next);
@@ -120,7 +161,6 @@ export default function DesignEditor() {
     setImages(imgs);
   };
 
-  // viết hàm xoá 1 ảnh khỏi canvas
   const handleDeleteImage = () => {
     if (!selectedId) return;
     const imgs = images.slice();
@@ -133,20 +173,200 @@ export default function DesignEditor() {
 
   const handleExport = () => {
     const uri = stageRef.current.toDataURL();
-    console.log(uri);
     downloadURI(uri, 'stage.png');
   };
 
+  const handleImport = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new window.Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const newWidth = 100;
+          const scaleFactor = newWidth / img.width;
+          const newHeight = img.height * scaleFactor;
+          const newImage = {
+            id: new Date().getTime(),
+            src: img.src,
+            x: 100,
+            y: 100,
+            scaleX: 1,
+            scaleY: 1,
+            width: newWidth,
+            height: newHeight,
+          };
+          if (imageBase) setImages([...images, newImage]);
+          else setImages([newImage]);
+        };
+      };
+      reader.readAsDataURL(file);
+    };
+    input.click();
+  };
+
+  const handleImportDesign = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.multiple = true; // allow multiple files
+    input.onchange = (e) => {
+      Array.from(e.target.files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new window.Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            const newWidth = 100;
+            const scaleFactor = newWidth / img.width;
+            const newHeight = img.height * scaleFactor;
+            const newImage = {
+              id: new Date().getTime(),
+              src: img.src,
+              x: 100,
+              y: 100,
+              scaleX: 1,
+              scaleY: 1,
+              width: newWidth,
+              height: newHeight,
+            };
+            setImagesDesign([...imagesDesign, newImage]);
+          };
+        };
+        reader.readAsDataURL(file);
+      });
+    };
+    input.click();
+  };
+
+  const onChangeImageDesign = (newImages) => {
+    const newImagesDesign = newImages.map((image, i) => ({
+      ...image,
+      id: i,
+      ...fixedFrameInfo,
+    }));
+    setImagesDesign(newImagesDesign);
+  };
+
+  const handleAddImageBase = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new window.Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const newWidth = 500;
+          const scaleFactor = newWidth / img.width;
+          const newHeight = img.height * scaleFactor;
+          const newImage = {
+            id: images.length,
+            src: img.src,
+            x: 0,
+            y: 50,
+            scaleX: 1,
+            scaleY: 1,
+            width: newWidth,
+            height: newHeight,
+          };
+          setImages([newImage]);
+          setImageBase(newImage);
+        };
+      };
+      reader.readAsDataURL(file);
+    };
+    input.click();
+  };
+
+  const handleMergeImages = async () => {
+    const newImageEdited = [];
+    await Promise.all(
+      imagesDesign.map(async (image, index) => {
+        const container = document.createElement('div');
+        container.id = `konva-container-${index}`;
+        document.body.appendChild(container);
+        const newStage = new window.Konva.Stage({
+          container: `konva-container-${index}`,
+          width: 510,
+          height: 630,
+        });
+        const newLayer = new window.Konva.Layer();
+        newStage.add(newLayer);
+
+        const baseImage = new window.Image();
+        baseImage.src = imageBase.src;
+        baseImage.width = stageRef.current.width();
+        baseImage.height = stageRef.current.height();
+        const img = new window.Image();
+        img.src = image.src;
+
+        const loadBaseImage = new Promise((resolve) => {
+          baseImage.onload = () => {
+            const newBaseImage = new window.Konva.Image({
+              x: imageBase.x,
+              y: imageBase.y,
+              image: baseImage,
+              width: imageBase.width,
+              height: imageBase.height,
+            });
+            newLayer.add(newBaseImage);
+            resolve();
+          };
+        });
+
+        const loadImage = new Promise((resolve) => {
+          img.onload = () => {
+            const newImage = new window.Konva.Image({
+              x: fixedFrameInfo.x,
+              y: fixedFrameInfo.y,
+              image: img,
+              width: fixedFrameInfo.width,
+              height: fixedFrameInfo.height,
+            });
+            newLayer.add(newImage);
+            newLayer.draw();
+            resolve();
+          };
+        });
+
+        await Promise.all([loadBaseImage, loadImage]);
+
+        const dataURL = newStage.toDataURL();
+        const newImg = new window.Image();
+        newImageEdited.push({ url: dataURL });
+        newImg.src = dataURL;
+        // xoá container sau khi merge xong
+        document.body.removeChild(container);
+      }),
+    );
+    setImageEdited(newImageEdited);
+  };
+
   return (
-    <div className="flex w-[1000px] mx-auto mt-10">
+    <div className="flex w-[1000px] mx-auto mt-20">
       <div className="flex flex-1 flex-col gap-5">
-        <Select
-          style={{ width: '100%' }}
-          options={initDesignOptions}
-          placeholder="Select a design"
-          onChange={(value) => setSelectedDesign(value)}
-          defaultValue={initDesignOptions[0].value}
-        />
+        <div className="pr-5">
+          <Select
+            style={{ width: '100%' }}
+            options={initDesignOptions}
+            placeholder="Select a design"
+            onChange={(value) => {
+              setSelectedDesign(value);
+              if (imageBase) {
+                setImageBase(null);
+                setImages([]);
+              }
+            }}
+            defaultValue={initDesignOptions[0].value}
+          />
+        </div>
         <div className="flex gap-2 flex-wrap">
           {recommendColor.map((item) => {
             return (
@@ -164,62 +384,98 @@ export default function DesignEditor() {
               </div>
             );
           })}
+          <p className="text-red-500 italic">
+            {imageBase && 'Note: Only images with a transparent background can change color.'}
+          </p>
+          <p />
         </div>
-        <img
-          src={DefaultImage}
-          alt="default"
-          className="w-[100px] h-[100px] object-cover"
-          onClick={() => {
-            handleImageChange(images[images.length - 1]?.id || 0, {
-              id: (images[images.length - 1]?.id || 0) + 1,
-              src: DefaultImage,
-              x: 50,
-              y: 50,
-              scaleX: 1,
-              scaleY: 1,
-            });
-          }}
-        />
-        <div className="flex gap-2">
-          <Button type="primary" onClick={() => setIsShowBack(!isShowBack)}>
-            {isShowBack ? 'Show Front' : 'Show Back'}
-          </Button>
-          <Button onClick={handleExport}>Download</Button>
-          <Button onClick={handleUndo} disabled={historyStep === 0}>
-            Undo
-          </Button>
-          <Button onClick={handleRedo} disabled={historyStep === history.length - 1}>
-            Redo
-          </Button>
-          <Button onClick={() => handleDeleteImage(selectedId)}>Delete</Button>
+        <Button onClick={handleAddImageBase} icon={<CloudUploadOutlined />} className="w-fit mx-auto">
+          Upload base image
+        </Button>
+        <div>
+          <p className="font-semibold text-[16px] mb-1">Design images:</p>
+          <UploadDesign fileList={imagesDesign} setFileList={onChangeImageDesign} />
         </div>
+        <Button className="w-[50%] mx-auto" type="primary" ghost onClick={handleMergeImages}>
+          Merge Images
+        </Button>
+        {imageEdited.length > 0 && (
+          <div>
+            <p className="font-semibold text-[16px] mb-1">Image Edited:</p>
+            <UploadDesign fileList={imageEdited} setFileList={setImageEdited} />
+            <Input placeholder="Enter product title" className="mt-3 w-[95%]" />
+            <Input placeholder="Enter seller sku" className="mt-3 w-[95%]" />
+            <Button
+              className="w-[50%] mx-auto mt-5 block"
+              type="primary"
+              icon={<CloudUploadOutlined />}
+              onClick={() => setShowModalUpload(true)}
+            >
+              Upload products
+            </Button>
+          </div>
+        )}
       </div>
-      <div className="relative shrink-0 flex-1 h-[634px] w-[510px]">
-        <div className="absolute">{renderImageByType(selectedDesign)}</div>
+      <div className="relative shrink-0 flex-1 h-[630px] w-[510px]">
+        <div className="flex gap-1 flex-wrap justify-end absolute top-[-36px] w-[510px]">
+          <Tooltip title="Download">
+            <Button type="primary" onClick={handleExport} icon={<DownloadOutlined />} />
+          </Tooltip>
+          <Tooltip title={isShowBack ? 'Show Front' : 'Show Back'}>
+            <Button onClick={() => setIsShowBack(!isShowBack)} disabled={imageBase} icon={<RetweetOutlined />} />
+          </Tooltip>
+          <Tooltip title="Upload design">
+            <Button onClick={handleImportDesign} icon={<UploadOutlined />} />
+          </Tooltip>
+          <Tooltip title="Undo">
+            <Button onClick={handleUndo} disabled={historyStep === 0} icon={<UndoIcon />} />
+          </Tooltip>
+          <Tooltip title="Redo">
+            <Button onClick={handleRedo} disabled={historyStep === history.length - 1} icon={<RedoIcon />} />
+          </Tooltip>
+          <Tooltip title="Delete">
+            <Button onClick={() => handleDeleteImage(selectedId)} icon={<DeleteOutlined />} disabled={!selectedId} />
+          </Tooltip>
+        </div>
         <div className=" absolute inset-0">
           <Stage
             width={510}
-            height={634}
+            height={510}
             ref={stageRef}
-            // className="border-[1px] border-solid border-transparent hover:border-gray-600  absolute top-[50%] translate-y-[-50%] left-[52%] translate-x-[-50%]"
-            className="border-[1px] border-solid border-transparent hover:border-gray-600  inset-0"
-            onMouseDown={checkDeselect}
-            onTouchStart={checkDeselect}
+            className="border-[1px] w-[513px] border-solid border-gray-200 hover:border-gray-500  inset-0"
           >
             <Layer>
+              {renderImageByType(selectedDesign)}
               {images.map((image, i) => (
                 <URLImage
                   key={i}
                   imageProps={image}
                   image={image}
                   isSelected={image.id === selectedId}
-                  onSelect={() => selectShape(image.id)}
+                  onSelect={(value) => selectShape(value)}
                   onChange={(newAttrs) => handleImageChange(i, newAttrs)}
+                  checkDeselect={checkDeselect}
                 />
               ))}
             </Layer>
+            <FixedFrame
+              selectedId={selectedId}
+              selectShape={selectShape}
+              fixedFrameInfo={fixedFrameInfo}
+              setFixedFrameInfo={setFixedFrameInfo}
+            />
           </Stage>
         </div>
+        {isShowModalUpload && (
+          <ModalUploadProduct
+            isShowModalUpload={isShowModalUpload}
+            setShowModalUpload={setShowModalUpload}
+            // productList={convertDataProducts(true)}
+            imagesLimit={imageEdited}
+          // modalErrorInfo={modalErrorInfo}
+          // setModalErrorInfo={setModalErrorInfo}
+          />
+        )}
       </div>
     </div>
   );

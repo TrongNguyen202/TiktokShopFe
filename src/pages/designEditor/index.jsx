@@ -1,30 +1,13 @@
-import { Button, Select, Tooltip } from 'antd';
+import { Button, Input, Tooltip } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { Layer, Rect, Stage, Transformer } from 'react-konva';
+import { Layer, Stage } from 'react-konva';
 
-import {
-  CheckOutlined,
-  CloudUploadOutlined,
-  DeleteOutlined,
-  DownloadOutlined,
-  RetweetOutlined,
-  UploadOutlined,
-} from '@ant-design/icons';
-import CrewBack from '../../assets/images/crew_back.png';
-import CrewFront from '../../assets/images/crew_front.png';
-import DefaultImage from '../../assets/images/invisibleman.jpg';
-import MensHoodieBack from '../../assets/images/mens_hoodie_back.png';
-import MensHoodieFront from '../../assets/images/mens_hoodie_front.png';
-import MensTankBack from '../../assets/images/mens_tank_back.png';
-import MensTankFront from '../../assets/images/mens_tank_front.png';
-import WomensCrewBack from '../../assets/images/womens_crew_back.png';
-import WomensCrewFront from '../../assets/images/womens_crew_front.png';
-import LongSleeveShirtFront from '../../assets/images/mens_longsleeve_front.png';
-import LongSleeveShirtBack from '../../assets/images/mens_longsleeve_back.png';
-import ImageBase from './ImageBase';
-import URLImage from './URLImage';
-import { initDesignOptions, recommendColor } from './constant';
+import { CloudUploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import { RedoIcon, UndoIcon } from '../../assets/icons';
+import ModalUploadProduct from '../crawl/ModalUploadProduct';
+import FixedFrame from './FixedFrame';
+import URLImage from './URLImage';
+import UploadDesign from './UploadDesign';
 
 let history = [];
 let historyStep = 0;
@@ -41,16 +24,15 @@ function downloadURI(uri, name) {
 }
 
 export default function DesignEditor() {
-  const [selectedDesign, setSelectedDesign] = useState(initDesignOptions[0].value);
-  const [isShowBack, setIsShowBack] = useState(false);
-  const [color, setColor] = useState('#0067A3');
   const [selectedId, selectShape] = useState(null);
-  console.log('selectedId: ', selectedId);
   const [images, setImages] = useState([]);
-  const [imageBase, setImageBase] = useState();
+  console.log('images: ', images);
+  const [imagesDesign, setImagesDesign] = useState([]);
+  const [imageEdited, setImageEdited] = useState([]);
+  const [fixedFrameInfo, setFixedFrameInfo] = useState({ x: 20, y: 20, width: 100, height: 100, rotation: 0 });
+  const [isShowModalUpload, setShowModalUpload] = useState(false);
 
   const stageRef = React.useRef(null);
-  const transformerRef = React.useRef(null);
 
   useEffect(() => {
     history = [images];
@@ -69,58 +51,11 @@ export default function DesignEditor() {
         handleDeleteImage();
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
-
-    // Clean up event listener on component unmount
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [selectedId]);
-
-  const renderImageByType = (type) => {
-    if (imageBase) return null;
-    const image = {
-      x: 0,
-      y: 0,
-      width: 510,
-      height: 634,
-      src: DefaultImage,
-      scaleX: 1,
-    };
-    switch (type) {
-      case 'Short Sleeve Shirt':
-        if (isShowBack) image.src = CrewBack;
-        else image.src = CrewFront;
-        break;
-      case 'Long Sleeve Shirt':
-        if (isShowBack) image.src = LongSleeveShirtBack;
-        else image.src = LongSleeveShirtFront;
-        break;
-      case 'Hoodies':
-        if (isShowBack) image.src = MensHoodieBack;
-        else image.src = MensHoodieFront;
-        break;
-      case 'Tank Tops':
-        if (isShowBack) image.src = MensTankBack;
-        else image.src = MensTankFront;
-        break;
-      default:
-        if (isShowBack) image.src = CrewBack;
-        else image.src = CrewFront;
-        break;
-    }
-
-    return (
-      <ImageBase
-        imageProps={image}
-        image={image}
-        color={color}
-        checkDeselect={checkDeselect}
-        onSelect={checkDeselect}
-      />
-    );
-  };
 
   const checkDeselect = (e, value) => {
     if (!value) {
@@ -171,37 +106,13 @@ export default function DesignEditor() {
     downloadURI(uri, 'stage.png');
   };
 
-  const handleImport = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = (e) => {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new window.Image();
-        img.src = event.target.result;
-        img.onload = () => {
-          const newWidth = 100;
-          const scaleFactor = newWidth / img.width;
-          const newHeight = img.height * scaleFactor;
-          const newImage = {
-            id: new Date().getTime(),
-            src: img.src,
-            x: 100,
-            y: 100,
-            scaleX: 1,
-            scaleY: 1,
-            width: newWidth,
-            height: newHeight,
-          };
-          if (imageBase) setImages([...images, newImage]);
-          else setImages([newImage]);
-        };
-      };
-      reader.readAsDataURL(file);
-    };
-    input.click();
+  const onChangeImageDesign = (newImages) => {
+    const newImagesDesign = newImages.map((image, i) => ({
+      ...image,
+      id: i,
+      ...fixedFrameInfo,
+    }));
+    setImagesDesign(newImagesDesign);
   };
 
   const handleAddImageBase = () => {
@@ -215,21 +126,20 @@ export default function DesignEditor() {
         const img = new window.Image();
         img.src = event.target.result;
         img.onload = () => {
-          const newWidth = 500;
+          const newWidth = 510;
           const scaleFactor = newWidth / img.width;
           const newHeight = img.height * scaleFactor;
           const newImage = {
             id: images.length,
             src: img.src,
             x: 0,
-            y: 50,
+            y: 0,
             scaleX: 1,
             scaleY: 1,
             width: newWidth,
             height: newHeight,
           };
           setImages([newImage]);
-          setImageBase(newImage);
         };
       };
       reader.readAsDataURL(file);
@@ -237,61 +147,102 @@ export default function DesignEditor() {
     input.click();
   };
 
+  const handleMergeImages = async () => {
+    const newImageEdited = [];
+    await Promise.all(
+      imagesDesign.map(async (imageDesign, index) => {
+        const container = document.createElement('div');
+        container.id = `konva-container-${index}`;
+        document.body.appendChild(container);
+        const newStage = new window.Konva.Stage({
+          container: `konva-container-${index}`,
+          width: 510,
+          height: 510,
+        });
+        const newLayer = new window.Konva.Layer();
+        newStage.add(newLayer);
+
+        const loadImages = images.map((image) => {
+          return new Promise((resolve) => {
+            const img = new window.Image();
+            img.src = image.src;
+            img.onload = () => {
+              const newImage = new window.Konva.Image({
+                x: image.x,
+                y: image.y,
+                image: img,
+                width: image.width,
+                height: image.height,
+              });
+              newLayer.add(newImage);
+              resolve();
+            };
+          });
+        });
+
+        const imgDesign = new window.Image();
+        imgDesign.src = imageDesign.src;
+        const loadDesignImage = new Promise((resolve) => {
+          imgDesign.onload = () => {
+            const newImage = new window.Konva.Image({
+              x: fixedFrameInfo.x,
+              y: fixedFrameInfo.y,
+              image: imgDesign,
+              width: fixedFrameInfo.width,
+              height: fixedFrameInfo.height,
+            });
+            newLayer.add(newImage);
+            resolve();
+          };
+        });
+
+        await Promise.all([...loadImages, loadDesignImage]);
+
+        newLayer.draw();
+
+        const dataURL = newStage.toDataURL();
+        const newImg = new window.Image();
+        newImageEdited.push({ url: dataURL });
+        newImg.src = dataURL;
+        // xoá container sau khi merge xong
+        document.body.removeChild(container);
+      }),
+    );
+    setImageEdited(newImageEdited);
+  };
+
   return (
     <div className="flex w-[1000px] mx-auto mt-20">
-      <div className="flex flex-1 flex-col gap-5">
-        <div className="pr-5">
-          <Select
-            style={{ width: '100%' }}
-            options={initDesignOptions}
-            placeholder="Select a design"
-            onChange={(value) => {
-              setSelectedDesign(value);
-              if (imageBase) {
-                setImageBase(null);
-                setImages([]);
-              }
-            }}
-            defaultValue={initDesignOptions[0].value}
-          />
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          {recommendColor.map((item) => {
-            return (
-              <div
-                key={item}
-                className="w-8 h-8 rounded-full cursor-pointer relative"
-                style={{ backgroundColor: item }}
-                onClick={() => setColor(item)}
-              >
-                {color === item && (
-                  <div className="absolute w-4 h-4 top-[40%] translate-x-[-50%] left-[52%] translate-y-[-50%]">
-                    <CheckOutlined className="text-white" />
-                  </div>
-                )}
-              </div>
-            );
-          })}
-          <p className="text-red-500 italic">
-            {imageBase && 'Note: Only images with a transparent background can change color.'}
-          </p>
-          <p />
-        </div>
-        <Button onClick={handleAddImageBase} icon={<CloudUploadOutlined />} className="w-fit">
+      <div className="flex flex-1 flex-col gap-5 items-end mr-5">
+        <Button onClick={handleAddImageBase} icon={<CloudUploadOutlined />} className="w-[50%]">
           Upload base image
         </Button>
+        <div>
+          <p className="font-semibold text-[16px] mb-1">Design images:</p>
+          <UploadDesign fileList={imagesDesign} setFileList={onChangeImageDesign} />
+        </div>
+        <Button className="w-[50%]" type="primary" ghost onClick={handleMergeImages}>
+          Merge Images
+        </Button>
+        {imageEdited.length > 0 && (
+          <div>
+            <p className="font-semibold text-[16px] mb-1">Image Edited:</p>
+            <UploadDesign fileList={imageEdited} setFileList={setImageEdited} />
+            <Input placeholder="Enter product title" className="mt-3 w-[95%]" />
+            <Input placeholder="Enter seller sku" className="mt-3 w-[95%]" />
+            <Button
+              className="w-[50%] mx-auto mt-5 block"
+              type="primary"
+              icon={<CloudUploadOutlined />}
+              onClick={() => setShowModalUpload(true)}
+            >
+              Upload products
+            </Button>
+          </div>
+        )}
       </div>
-      <div className="relative shrink-0 flex-1 h-[630px] w-[510px]">
+      <div className="relative shrink-0 flex-1 h-[510px] w-[510px]">
         <div className="flex gap-1 flex-wrap justify-end absolute top-[-36px] w-[510px]">
-          <Tooltip title="Download">
-            <Button type="primary" onClick={handleExport} icon={<DownloadOutlined />} />
-          </Tooltip>
-          <Tooltip title={isShowBack ? 'Show Front' : 'Show Back'}>
-            <Button onClick={() => setIsShowBack(!isShowBack)} disabled={imageBase} icon={<RetweetOutlined />} />
-          </Tooltip>
-          <Tooltip title="Upload design">
-            <Button onClick={handleImport} icon={<UploadOutlined />} />
-          </Tooltip>
           <Tooltip title="Undo">
             <Button onClick={handleUndo} disabled={historyStep === 0} icon={<UndoIcon />} />
           </Tooltip>
@@ -305,12 +256,11 @@ export default function DesignEditor() {
         <div className=" absolute inset-0">
           <Stage
             width={510}
-            height={630}
+            height={510}
             ref={stageRef}
             className="border-[1px] w-[513px] border-solid border-gray-200 hover:border-gray-500  inset-0"
           >
             <Layer>
-              {renderImageByType(selectedDesign)}
               {images.map((image, i) => (
                 <URLImage
                   key={i}
@@ -323,35 +273,24 @@ export default function DesignEditor() {
                 />
               ))}
             </Layer>
-            <Layer>
-              <Rect
-                x={20}
-                y={20}
-                width={100}
-                height={100}
-                fill="red"
-                isSelected={selectedId === 'box'}
-                draggable
-                onClick={() => selectShape('box')}
-                onTap={() => selectShape('box')}
-                className="border-[2px] w-[513px] border-solid border-gray-500 hover:border-gray-500  inset-0"
-              />
-              {selectedId === 'box' && (
-                <Transformer
-                  ref={transformerRef}
-                  flipEnabled={false}
-                  boundBoxFunc={(oldBox, newBox) => {
-                    // limit resize
-                    if (newBox.width < 5 || newBox.height < 5) {
-                      return oldBox;
-                    }
-                    return newBox;
-                  }}
-                />
-              )}
-            </Layer>
+            <FixedFrame
+              selectedId={selectedId}
+              selectShape={selectShape}
+              fixedFrameInfo={fixedFrameInfo}
+              setFixedFrameInfo={setFixedFrameInfo}
+            />
           </Stage>
         </div>
+        {isShowModalUpload && (
+          <ModalUploadProduct
+            isShowModalUpload={isShowModalUpload}
+            setShowModalUpload={setShowModalUpload}
+            // productList={convertDataProducts(true)}
+            imagesLimit={imageEdited}
+          // modalErrorInfo={modalErrorInfo}
+          // setModalErrorInfo={setModalErrorInfo}
+          />
+        )}
       </div>
     </div>
   );
