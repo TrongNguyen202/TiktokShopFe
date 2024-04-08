@@ -9,6 +9,7 @@ import requests
 
 from api import setup_logging
 from api.utils import constant
+from api.utils.google.googleapi import search_file, upload_pdf
 from api.utils.pdf.ocr_pdf import process_pdf_to_info
 from api.utils.tiktok_base_api import order
 from api.views import (
@@ -651,3 +652,34 @@ class DeactivePack(APIView):
             serializer.save()
             return JsonResponse(serializer.data)
         return JsonResponse(serializer.errors, status=400)
+
+
+class UploaddriveAndSearchPrintCare(APIView):
+    def post(self, request):
+        PDF_DIRECTORY = constant.PDF_DIRECTORY_WINDOW if platform.system() == "Windows" else constant.PDF_DIRECTORY_UNIX
+        os.makedirs(PDF_DIRECTORY, exist_ok=True)
+        data = json.loads(request.body.decode("utf-8"))
+        queries = data.get("pdf_name")
+
+        search_results = []
+
+        found_files = []
+
+        for filename in os.listdir(PDF_DIRECTORY):
+            if filename.endswith(".pdf") and filename in queries:
+                found_files.append(filename)
+        for item in found_files:
+            print("item", item)
+
+        # Upload to Google Drive
+        for file_name in found_files:
+            file_path = os.path.join(PDF_DIRECTORY, file_name)
+            print("file path", file_path)
+            file_id = upload_pdf(file_path, file_name)
+            print(f"Uploaded '{file_name}' to Google Drive with ID: {file_id}")
+
+            # Search in Google Drive
+            search_result = search_file(file_name)
+            search_results.append(search_result)
+
+        return Response(search_results)
