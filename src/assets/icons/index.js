@@ -23,3 +23,5 @@ export { default as DollarIcon } from './DollarIcon';
 export { default as VoucherIcon } from './VoucherIcon';
 export { default as SellerIcon } from './SellerIcon';
 export { default as OrderIcon } from './OrderIcon';
+export { default as RedoIcon } from './RedoIcon';
+export { default as UndoIcon } from './UndoIcon';

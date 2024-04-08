@@ -254,6 +254,7 @@ export default function ModalUploadProduct({
       description,
       size_chart,
     };
+    console.log('dataSubmit: ', dataSubmit);
     const onSuccess = (res) => {
       handleResponse(res);
     };
