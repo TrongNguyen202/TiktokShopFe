@@ -1,8 +1,8 @@
 export const constants = {
   // API_URL: 'http://seller.folinas.com:9999/api',
   // API_URL: import.meta.env.VITE_API_URL || 'http://192.168.1.254:8000/api',
-  API_URL: import.meta.env.VITE_API_URL || 'https://dev.folinas.com:8000/api',
-  // API_URL: 'http://192.168.1.254:8000/api',
+  // API_URL: import.meta.env.VITE_API_URL || 'https://dev.folinas.com:8000/api',
+  API_URL: 'http://localhost:8000/api',
   API_TIKTOK_SHOP: 'https://auth.tiktok-shops.com/api',
   // STORE_CODE: store_code,
   LINK_STORE_CODE: 'https://services.tiktokshops.us/open/authorize?service_id=7310403104158238510',
@@ -17,8 +17,8 @@ export const constants = {
   // DESIGN_SKU_FILES_GOOGLE_SHEET: 'https://docs.google.com/spreadsheets/d/1zo6it9m4wMeLJHg0JMIHuDMoHMiY2nFLbF6IlZo3qE8/edit#gid=0',
 
   API_FLASH_SHIP: 'https://seller.flashship.net/seller-api',
-  //API_FLASH_SHIP: 'https://devpod.flashship.net/seller-api',
-  TOKEN_FLASH_SHIP_EXPIRATION: 2*60*60*1000,
+  // API_FLASH_SHIP: 'https://devpod.flashship.net/seller-api',
+  TOKEN_FLASH_SHIP_EXPIRATION: 2 * 60 * 60 * 1000,
 };
 
 export const statusIdentity = {
@@ -331,4 +331,3 @@ Tear away label`,
     price: '41.41',
   },
 ];
-

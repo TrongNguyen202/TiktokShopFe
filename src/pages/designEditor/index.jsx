@@ -1,6 +1,6 @@
 import { Button, Select, Tooltip } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { Layer, Rect, Stage } from 'react-konva';
+import { Layer, Rect, Stage, Transformer } from 'react-konva';
 
 import {
   CheckOutlined,
@@ -45,10 +45,12 @@ export default function DesignEditor() {
   const [isShowBack, setIsShowBack] = useState(false);
   const [color, setColor] = useState('#0067A3');
   const [selectedId, selectShape] = useState(null);
+  console.log('selectedId: ', selectedId);
   const [images, setImages] = useState([]);
   const [imageBase, setImageBase] = useState();
 
   const stageRef = React.useRef(null);
+  const transformerRef = React.useRef(null);
 
   useEffect(() => {
     history = [images];
@@ -320,6 +322,33 @@ export default function DesignEditor() {
                   checkDeselect={checkDeselect}
                 />
               ))}
+            </Layer>
+            <Layer>
+              <Rect
+                x={20}
+                y={20}
+                width={100}
+                height={100}
+                fill="red"
+                isSelected={selectedId === 'box'}
+                draggable
+                onClick={() => selectShape('box')}
+                onTap={() => selectShape('box')}
+                className="border-[2px] w-[513px] border-solid border-gray-500 hover:border-gray-500  inset-0"
+              />
+              {selectedId === 'box' && (
+                <Transformer
+                  ref={transformerRef}
+                  flipEnabled={false}
+                  boundBoxFunc={(oldBox, newBox) => {
+                    // limit resize
+                    if (newBox.width < 5 || newBox.height < 5) {
+                      return oldBox;
+                    }
+                    return newBox;
+                  }}
+                />
+              )}
             </Layer>
           </Stage>
         </div>
