@@ -48,6 +48,10 @@ const pdfLabelSearch = (packageId) => {
   return callApi(`/pdf-search/?query=${packageId}`, 'get');
 };
 
+  const pdfLabelLinkSearch = (body) => {
+    return callApi(`/pdf-upload-search`, 'post', body);
+  };
+
 const pdfLabelDownload = (fileName) => {
   return callApi(`/pdf-download/?filename=${fileName}`, 'get');
 };
@@ -117,6 +121,7 @@ export const orders = {
   getShippingDoc,
   getPackageBought,
   pdfLabelSearch,
+  pdfLabelLinkSearch,
   pdfLabelDownload,
   getDesignSku,
   getDesignSkuSize,

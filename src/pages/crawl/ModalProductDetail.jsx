@@ -6,7 +6,8 @@ import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import { useProductsStore } from "../../store/productsStore"
+import ReactQuill from 'react-quill';
+import { useProductsStore } from '../../store/productsStore';
 
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -39,7 +40,7 @@ function DraggableUploadListItem({ originNode, file }) {
 }
 
 export default function ModalProductDetail({ product, setIsOpenModal, isOpenModal, imgBase64, handleChangeProduct }) {
-  const {changeProductImageToWhite, loadingImage} = useProductsStore((state) => state);
+  const { changeProductImageToWhite, loadingImage } = useProductsStore((state) => state);
   const [fileList, setFileList] = useState(product.images);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
@@ -50,8 +51,9 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
   const [sellerSku, setSellerSku] = useState(product.sku);
 
   const handlePreview = async (file) => {
+    console.log('file: ', file);
     if (!file.url && !file.preview) file.preview = await getBase64(file.originFileObj);
-    setPreviewImage(file.url || file.preview);
+    setPreviewImage(file.thumbUrl || file.url || file.preview);
     setPreviewOpen(true);
     setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
   };
@@ -59,15 +61,11 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
   const handleChange = ({ fileList: newFileList }) => {
     const dataUpdate = newFileList.map((item) => ({
       ...item,
-      url: item.id && item.url ? item.url.replace('data:image/png;base64,white_', ''): item.url
+      url: item.id && item.url ? item.url.replace('data:image/png;base64,white_', '') : item.url,
     }));
 
     setFileList(dataUpdate);
     imgBase64(dataUpdate);
-  };
-
-  const handleAddImageFromComputer = ({ fileList: newFileList }) => {
-    setFileList(newFileList);
   };
 
   const sensor = useSensor(PointerSensor, {
@@ -101,27 +99,27 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
   };
 
   const handleWhiteBackgroundForMainImage = () => {
-    let fileListUpdate = [...fileList];
+    const fileListUpdate = [...fileList];
     const imageUrl = {
-      img_url: fileListUpdate[0].url
-    }
+      img_url: fileListUpdate[0].url,
+    };
 
     const onSuccess = (res) => {
       if (res) {
         const newItem = {
-          url: `white_${res.output_image_base64}`
-        }
-        fileListUpdate.push(newItem)
+          url: `white_${res.output_image_base64}`,
+        };
+        fileListUpdate.push(newItem);
         setFileList(fileListUpdate);
       }
-    }
-    const onFail = (err) => {}
+    };
+    const onFail = (err) => { };
     changeProductImageToWhite(imageUrl, onSuccess, onFail);
-  }
+  };
 
   const handleOK = () => {
     const fileListUpdate = fileList.map((item, index) => {
-      let urlItem = "";
+      let urlItem = '';
       if (item.url) {
         if (item.id) {
           urlItem = item.url;
@@ -131,11 +129,11 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
       } else {
         urlItem = item.thumbUrl.replace(/^data:image\/(jpeg|png|jpg);base64,/, '');
       }
-      return ({
+      return {
         ...item,
-        url: urlItem
-      })
-    })
+        url: urlItem,
+      };
+    });
     const newProduct = {
       ...product,
       images: fileListUpdate,
@@ -148,12 +146,12 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
   };
 
   const ShowImageFileList = (data) => {
-    let itemRemoveBackground = data.find((item) => item?.url?.includes('white_'));
+    const itemRemoveBackground = data.find((item) => item?.url?.includes('white_'));
     if (itemRemoveBackground) {
-        itemRemoveBackground.url = itemRemoveBackground.url.replace('white_', 'data:image/png;base64,');
+      itemRemoveBackground.url = itemRemoveBackground.url.replace('white_', 'data:image/png;base64,');
     }
     return data;
-  }
+  };
 
   return (
     <div>
@@ -179,26 +177,17 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
               // eslint-disable-next-line react/no-unstable-nested-components
               itemRender={(originNode, file) => <DraggableUploadListItem originNode={originNode} file={file} />}
             >
-                  {fileList?.length > 7 ? null :
-                    <span><PlusOutlined /> Add image</span>
-                  }
+              {fileList?.length > 7 ? null : (
+                <span>
+                  <PlusOutlined /> Add image
+                </span>
+              )}
             </Upload>
             <Space>
-              <Button type='primary' className='my-5' onClick={handleWhiteBackgroundForMainImage}>
+              <Button type="primary" className="my-5" onClick={handleWhiteBackgroundForMainImage}>
                 White background for main image
                 {loadingImage && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
               </Button>
-                {/* <Upload
-                  fileList={fileList}
-                  showUploadList={false}
-                  onChange={handleAddImageFromComputer}
-                  // multiple
-                  itemRender={(originNode, file) => <DraggableUploadListItem originNode={originNode} file={file} />}
-                >
-                  {fileList?.length > 7 ? null :
-                    <Button type='primary' icon={<PlusOutlined />}>Add image from your computer</Button>
-                  }
-                </Upload> */}
             </Space>
           </SortableContext>
         </DndContext>
@@ -224,14 +213,10 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
           <Input value={sellerSku} onChange={(e) => setSellerSku(e.target.value)} placeholder="Enter seller sku here" />
         </Form.Item>
 
-        <Form.Item label="Description" wrapperCol={{ span: 24 }}>
-          <Input.TextArea
-            value={productDescription}
-            rows={4}
-            placeholder="Description"
-            onChange={(e) => setProductDescription(e.target.value)}
-          />
-        </Form.Item>
+        <div className="block mt-3 mb-5">
+          Mô tả:
+          <ReactQuill theme="snow" value={productDescription} onChange={setProductDescription} />
+        </div>
         {/* <input type='file'/> */}
         <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
           <img alt={previewTitle} style={{ width: '100%' }} src={previewImage} />

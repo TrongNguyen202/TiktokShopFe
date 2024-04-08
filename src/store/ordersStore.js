@@ -11,6 +11,7 @@ export const useShopsOrder = create((set) => ({
   loadingGetInfo: false,
   loadingUpload: false,
   loadingFulfillment: false,
+  loadingGetLink: false,
   cancelTokenSource: null,
   packageBought: [],
   getAllOrders: async (id, onSuccess = () => {}, onFail = () => {}) => {
@@ -141,6 +142,17 @@ export const useShopsOrder = create((set) => ({
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
     }
     set({ loading: false });
+  },
+
+  pdfLabelLinkSearch: async (body, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loadingGetLink: true });
+      const response = await RepositoryRemote.orders.pdfLabelLinkSearch(body);
+      onSuccess(response.data);
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
+    }
+    set({ loadingGetLink: false });
   },
 
   pdfLabelDownload: async (fileName, onSuccess = () => {}, onFail = () => {}) => {

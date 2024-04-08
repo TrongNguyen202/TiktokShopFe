@@ -3,7 +3,7 @@ import { Button, Col, Input, Row, Select, Switch, Upload, message } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import * as XLSX from 'xlsx';
-import { CloudUploadOutlined, CopyOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons';
+import { CloudUploadOutlined, CopyOutlined, DownloadOutlined, UploadOutlined, ImportOutlined } from '@ant-design/icons';
 import TextArea from 'antd/es/input/TextArea';
 import { v4 as uuidv4 } from 'uuid';
 import ModalUploadProduct from './ModalUploadProduct';
@@ -82,8 +82,8 @@ const initialCrawl = {
 export default function Crawl() {
   const productListStorage = JSON.parse(localStorage.getItem('productList'));
   const userInfo = JSON.parse(localStorage.getItem('user'));
-
   const [productList, setProductList] = useState(productListStorage);
+  const [productListInit, setProductListInit] = useState(productListStorage);
   const [checkedItems, setCheckedItems] = useState([]);
   const [isAllChecked, setIsAllChecked] = useState(false);
   const [optionCrawl, setOptionCrawl] = useState(initialCrawl);
@@ -102,8 +102,8 @@ export default function Crawl() {
   });
 
   useEffect(() => {
-    localStorage.setItem('productList', JSON.stringify(productList));
-  }, [JSON.stringify(productList)]);
+    localStorage.setItem('productList', JSON.stringify(productListInit));
+  }, [productListInit]);
 
   useEffect(() => {
     if (checkedItems && checkedItems.length === 0) return;
@@ -212,7 +212,6 @@ export default function Crawl() {
             ...product,
           };
         });
-        console.log('combineProducts: ', combineProducts);
         setProductList(combineProducts);
         // localStorage.setItem('productList', JSON.stringify(combineProducts));
       })
@@ -275,7 +274,8 @@ export default function Crawl() {
 
     // lấy danh sách id của sản phẩm để get thông tin sản phẩm
     const ids = productData.map((item) => item.id.split('.')[0]).join(',');
-    setProductList(productData);
+    setProductList(productData);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+    setProductListInit(productData);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
     setCheckedItems([]);
     setIsAllChecked(false);
     setShowSkeleton(true);
@@ -309,6 +309,7 @@ export default function Crawl() {
           sku: product.sku,
           title: product.title,
           warehouse: '',
+          description: product.description || '',
           images: { ...convertImageLink(product.images) },
         };
       }
@@ -316,6 +317,7 @@ export default function Crawl() {
         sku: '',
         title: product.title,
         warehouse: '',
+        description: product.description || '',
         ...convertImageLink(product.images),
       };
     });
@@ -429,13 +431,22 @@ export default function Crawl() {
           };
         });
       }
-      // localStorage.setItem('productList', JSON.stringify(convertJson));
       setProductList(convertJson);
     };
 
     reader.readAsArrayBuffer(file);
     return false;
   };
+
+  const importDataExtension = () => {
+    navigator.clipboard.readText().then((text) => {
+      const data = JSON.parse(text);
+      setProductList(data);
+      message.success('Import data extension successfully');
+    }).catch((err) => {
+      message.error('Failed to read clipboard contents');
+    });
+  }
 
   return (
     <div>
@@ -487,10 +498,11 @@ export default function Crawl() {
           />
         </p>
 
-        <div className="my-6">
+        <div className="my-6 flex gap-2">
           <Upload accept=".xlsx, .xls" beforeUpload={handleFileUpload} multiple={false}>
             <Button icon={<UploadOutlined />}>Upload File</Button>
           </Upload>
+          <Button icon={<ImportOutlined />} onClick={importDataExtension}>Import data extension</Button>
         </div>
 
         <div className="flex items-center gap-4 mt-4">

@@ -18,7 +18,7 @@ export const constants = {
 
   API_FLASH_SHIP: 'https://seller.flashship.net/seller-api',
   // API_FLASH_SHIP: 'https://devpod.flashship.net/seller-api',
-  TOKEN_FLASH_SHIP_EXPIRATION: 2*60*60*1000,
+  TOKEN_FLASH_SHIP_EXPIRATION: 2 * 60 * 60 * 1000,
 };
 
 export const statusIdentity = {
@@ -331,4 +331,3 @@ Tear away label`,
     price: '41.41',
   },
 ];
-

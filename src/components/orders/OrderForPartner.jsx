@@ -55,25 +55,29 @@ function OrderForPartner({ toShipInfoData }) {
     packageCreateFlashShip,
     packageCreatePrintCare,
     packageFulfillmentCompleted,
+    pdfLabelLinkSearch,
+    loadingGetLink,
   } = useShopsOrder((state) => state);
   const { getFlashShipPODVariant, LoginFlashShip, createOrderFlashShip } = useFlashShipStores((state) => state);
 
   const checkDataPartner = (data) => {
-    const dataCheck = data.map(order => {
-      order.order_list[0].item_list = order.order_list[0].item_list.filter(item => item.sku_name !== "Default");
-      return order;
-    }).filter(order => order.order_list[0].item_list.length > 0);
+    const dataCheck = data
+      .map((order) => {
+        order.order_list[0].item_list = order.order_list[0].item_list.filter((item) => item.sku_name !== 'Default');
+        return order;
+      })
+      .filter((order) => order.order_list[0].item_list.length > 0);
 
     const orderPartnerResult = dataCheck?.map((dataItem) => {
       const orderPartner = { ...dataItem };
       const itemList = dataItem?.order_list?.flatMap((item) => item.item_list);
-      const itemListRemovePhysical = itemList.filter(item => item.sku_name !== 'Default')
+      const itemListRemovePhysical = itemList.filter((item) => item.sku_name !== 'Default');
       let isFlashShip = true;
       const variations = itemListRemovePhysical.map((variation) => {
         if (!isFlashShip) return variation;
         let variationObject = {};
         const result = { ...variation };
-        const variationSplit = variation?.sku_name.split(',').map(item => item.trim());
+        const variationSplit = variation?.sku_name.split(',').map((item) => item.trim());
 
         if (variationSplit.length === 3) {
           variationObject = {
@@ -91,24 +95,24 @@ function OrderForPartner({ toShipInfoData }) {
           isFlashShip = false;
         } else {
           const variationObjectSize = variationObject?.size?.split(/[\s-,]/).filter(Boolean);
-          const checkProductType = flashShipVariants?.filter((variant) => 
-            variationObjectSize.find(item => item.toUpperCase() === variant.product_type.toUpperCase())
+          const checkProductType = flashShipVariants?.filter((variant) =>
+            variationObjectSize.find((item) => item.toUpperCase() === variant.product_type.toUpperCase()),
           );
 
           if (!checkProductType.length) {
             isFlashShip = false;
           }
-  
+
           if (checkProductType.length) {
             const checkColor = checkProductType.filter(
               (color) => color.color.toUpperCase() === variationObject?.color?.replace(' ', '').toUpperCase(),
             );
-  
+
             if (checkColor.length) {
               const checkSize = checkColor.find((size) => {
-                return variationObjectSize.find(item => item.toUpperCase() === size.size.toUpperCase())
+                return variationObjectSize.find((item) => item.toUpperCase() === size.size.toUpperCase());
               });
-  
+
               if (checkSize) {
                 result.variant_id = checkSize.variant_id;
               } else {
@@ -126,7 +130,9 @@ function OrderForPartner({ toShipInfoData }) {
       orderPartner.buyer_email = dataItem.order_list[0].buyer_email;
       orderPartner.order_list = variations;
       orderPartner.is_FlashShip = isFlashShip;
-      orderPartner.order_id = dataItem.order_list.map((item, index) => (index !== 0 ? '-' + item.order_id : item.order_id)).join('');
+      orderPartner.order_id = dataItem.order_list
+        .map((item, index) => (index !== 0 ? `-${item.order_id}` : item.order_id))
+        .join('');
       return orderPartner;
     });
 
@@ -189,43 +195,46 @@ function OrderForPartner({ toShipInfoData }) {
   };
 
   const handleConvertDataPackageCreate = (data, key) => {
-    const result = data.map((item) => {
-      const orderList = item.order_list.map((order) => {
-        const orderItem = {
-          pack_id: item.package_id,
-          order_id: item.order_id,
-          buyer_first_name: item.name_buyer?.split(' ')[0] || '',
-          buyer_last_name: item.name_buyer?.split(' ')[1] || '',
-          buyer_email: item.buyer_email,
-          buyer_phone: '',
-          buyer_address1: item.street?.trim(),
-          buyer_address2: '',
-          buyer_city: item.city,
-          buyer_province_code: item.state?.trim(),
-          buyer_zip: item.zip_code,
-          buyer_country_code: 'US',
-          shipment: flashShipShipment,
-          linkLabel: item.label,
-          products: [
-            {
-              variant_id: key === 'PrintCare' ? 'POD097' : order.variant_id,
-              printer_design_front_url: order.image_design_front || null,
-              printer_design_back_url: order.image_design_back || null,
-              quantity: order.quantity,
-              note: '',
-            }
-          ],
-        }
-        const orderFulfillmentCompletedRejected = orderFulfillmentCompleted.find(order => order.order_id === item.order_id);
-        if (orderFulfillmentCompletedRejected && orderFulfillmentCompletedRejected?.package_status === false) {
-          orderItem['order_id'] = `${item.order_id}-${Math.floor(Math.random() * 10)}`;
-        }
+    const result = data
+      .map((item) => {
+        const orderList = item.order_list.map((order) => {
+          const orderItem = {
+            pack_id: item.package_id,
+            order_id: item.order_id,
+            buyer_first_name: item.name_buyer?.split(' ')[0] || '',
+            buyer_last_name: item.name_buyer?.split(' ')[1] || '',
+            buyer_email: item.buyer_email,
+            buyer_phone: '',
+            buyer_address1: item.street?.trim(),
+            buyer_address2: '',
+            buyer_city: item.city,
+            buyer_province_code: item.state?.trim(),
+            buyer_zip: item.zip_code,
+            buyer_country_code: 'US',
+            shipment: flashShipShipment,
+            linkLabel: item.label,
+            products: [
+              {
+                variant_id: key === 'PrintCare' ? 'POD097' : order.variant_id,
+                printer_design_front_url: order.image_design_front || null,
+                printer_design_back_url: order.image_design_back || null,
+                quantity: order.quantity,
+                note: '',
+              },
+            ],
+          };
+          const orderFulfillmentCompletedRejected = orderFulfillmentCompleted.find(
+            (order) => order.order_id === item.order_id,
+          );
+          if (orderFulfillmentCompletedRejected && orderFulfillmentCompletedRejected?.package_status === false) {
+            orderItem.order_id = `${item.order_id}-${Math.floor(Math.random() * 10)}`;
+          }
 
-        return orderItem;
-      });
-      return orderList;
-
-    }).flat();
+          return orderItem;
+        });
+        return orderList;
+      })
+      .flat();
     return result;
   };
 
@@ -264,14 +273,14 @@ function OrderForPartner({ toShipInfoData }) {
     } else {
       const dataSubmitFlashShip = handleConvertDataPackageCreate(handAddDesignToShipInfoData, 'FlashShip');
       dataSubmitFlashShip.map((item) => {
-        const dataCreateOrder = {...item};
+        const dataCreateOrder = { ...item };
         delete dataCreateOrder.package_id;
-        const onCreateSuccess = (resCreate) => {          
+        const onCreateSuccess = (resCreate) => {
           if (resCreate.data !== null) {
             const dataCreateOrder = {
               ...item,
-              order_code: resCreate.data
-            }
+              order_code: resCreate.data,
+            };
 
             const onSuccessPackageCreate = (resPackage) => {
               if (resPackage) {
@@ -279,9 +288,8 @@ function OrderForPartner({ toShipInfoData }) {
               }
             };
 
-            const onFailPackageCreate = (errPackage) => {};  
+            const onFailPackageCreate = (errPackage) => { };
             packageCreateFlashShip(shopId, dataCreateOrder, onSuccessPackageCreate, onFailPackageCreate);
-            
           } else {
             api.open({
               message: `Đơn hàng ${item.order_id}`,
@@ -301,7 +309,7 @@ function OrderForPartner({ toShipInfoData }) {
         createOrderFlashShip(dataCreateOrder, onCreateSuccess, onCreateFail);
       });
     }
-  }
+  };
 
   const handleCreateOrderFlashShip = () => {
     const currentTime = Date.now();
@@ -312,9 +320,9 @@ function OrderForPartner({ toShipInfoData }) {
       });
       setOpenLoginFlashShip(true);
     } else {
-      handleCreateOrderFlashShipAPI()
+      handleCreateOrderFlashShipAPI();
     }
-  }
+  };
 
   const handleLoginFlashShip = (values) => {
     const onSuccess = (res) => {
@@ -325,7 +333,7 @@ function OrderForPartner({ toShipInfoData }) {
           type: 'success',
           content: `Đăng nhập thành công.`,
         });
-        handleCreateOrderFlashShipAPI()
+        handleCreateOrderFlashShipAPI();
       }
     };
 
@@ -366,59 +374,74 @@ function OrderForPartner({ toShipInfoData }) {
   };
 
   const handleExportExcelFile = (data, key) => {
-    const dataConvert = handAddDesignToShipInfoData(data);
-    const productItem = dataConvert
-      .map((item) => {
-        const productItem = item.order_list.map((product) => ({
-          ...product,
-          city: item.city,
-          buyer_email: item.buyer_email,
-          name_buyer: item.name_buyer,
-          package_id: item.package_id,
-          state: item.state,
-          street: item.street,
-          tracking_id: item.tracking_id,
-          zip_code: item.zip_code,
-          label: item.label,
+    const dataLabel = {
+      pdf_name: data.map((item) => `${item.package_id}.pdf`),
+    };
+
+    const onSuccess = (res) => {
+      if (res) {
+        const dataChangedLabelLink = data.map((item, index) => ({
+          ...item,
+          label: res[index][0].link,
         }));
 
-        return productItem;
-      })
-      .flat();
+        const dataConvert = handAddDesignToShipInfoData(dataChangedLabelLink);
+        const productItem = dataConvert
+          .map((item) => {
+            const productItem = item.order_list.map((product) => ({
+              ...product,
+              city: item.city,
+              buyer_email: item.buyer_email,
+              name_buyer: item.name_buyer,
+              package_id: item.package_id,
+              order_id: item.order_id,
+              state: item.state,
+              street: item.street,
+              tracking_id: item.tracking_id,
+              zip_code: item.zip_code,
+              label: item.label,
+            }));
 
-    const dataExport = productItem.map((product) => {
-      const result = {
-        'External ID': 'POD097',
-        'Order ID': key === 'PrintCare' ? product.product_id : product.package_id,
-        'Shipping method': 1,
-        'First Name': product.name_buyer.split(' ')[0],
-        'Last Name': product.name_buyer.split(' ')[1],
-        Email: product.buyer_email,
-        Phone: '',
-        Country: 'US',
-        Region: product.state,
-        'Address line 1': product.street,
-        'Address line 2': '',
-        City: product.city,
-        Zip: product.zip_code,
-        Quantity: product.quantity,
-        'Variant ID': key=== 'PrintCare' ? product.sku_name : product.variant_id,
-        'Print area front': product.image_design_front,
-        'Print area back': product.image_design_back,
-        'Mockup Front': '',
-        'Mockup Back': '',
-        'Product note': product.note,
-        'Link label': product.label,
-      };
+            return productItem;
+          })
+          .flat();
 
-      if (key === 'PrintCare') {
-        result['Tracking ID'] = product.tracking_id;
+        const dataExport = productItem.map((product) => {
+          const result = {
+            'External ID': 'POD097',
+            'Order ID': product.order_id,
+            'Shipping method': 1,
+            'First Name': product.name_buyer.split(' ')[0],
+            'Last Name': product.name_buyer.split(' ')[1],
+            Email: product.buyer_email,
+            Phone: '',
+            Country: 'US',
+            Region: product.state,
+            'Address line 1': product.street,
+            'Address line 2': '',
+            City: product.city,
+            Zip: product.zip_code,
+            Quantity: product.quantity,
+            'Variant ID': key === 'PrintCare' ? product.sku_name : product.variant_id,
+            'Print area front': product.image_design_front,
+            'Print area back': product.image_design_back,
+            'Mockup Front': '',
+            'Mockup Back': '',
+            'Product note': product.note,
+            'Link label': product.label,
+          };
+
+          if (key === 'PrintCare') {
+            result['Tracking ID'] = product.tracking_id;
+          }
+
+          return result;
+        });
+
+        ExportExcelFile(dataExport, key, dataConvert);
       }
-
-      return result;
-    });
-
-    ExportExcelFile(dataExport, key, dataConvert);
+    };
+    pdfLabelLinkSearch(dataLabel, onSuccess, () => { });
   };
 
   const handleRefreshDesign = (newData) => {
@@ -574,8 +597,8 @@ function OrderForPartner({ toShipInfoData }) {
     };
 
     const onSuccessFulfillmentCompleted = (res) => {
-      setOrderFulfillmentCompleted(res)
-    }
+      setOrderFulfillmentCompleted(res);
+    };
 
     const onFail = (err) => {
       console.log(err);
@@ -591,7 +614,7 @@ function OrderForPartner({ toShipInfoData }) {
     );
     getFlashShipPODVariant(onSuccessVariant, onFailVariant);
     getToShipInfo(shopId, data, onSuccess, onFail);
-    packageFulfillmentCompleted(shopId, onSuccessFulfillmentCompleted, () => {})
+    packageFulfillmentCompleted(shopId, onSuccessFulfillmentCompleted, () => { });
   }, [shopId, toShipInfoData]);
 
   useEffect(() => {
@@ -634,11 +657,7 @@ function OrderForPartner({ toShipInfoData }) {
                 ]}
               />
             </div>
-            <Button
-              type="primary"
-              onClick={handleCreateOrderFlashShip}
-              disabled={!tableFlashShipSelected.length}
-            >
+            <Button type="primary" onClick={handleCreateOrderFlashShip} disabled={!tableFlashShipSelected.length}>
               Create Order with FlashShip
             </Button>
             <Button
@@ -654,7 +673,7 @@ function OrderForPartner({ toShipInfoData }) {
           columns={column}
           dataSource={flashShipTable}
           bordered
-          loading={loadingGetInfo}
+          loading={loadingGetInfo || loadingGetLink}
           rowSelection={{
             type: 'checkbox',
             ...rowSelectionFlashShip,
@@ -685,7 +704,7 @@ function OrderForPartner({ toShipInfoData }) {
           columns={column}
           dataSource={printCareTable}
           bordered
-          loading={loadingGetInfo}
+          loading={loadingGetInfo || loadingGetLink}
           rowSelection={{
             type: 'checkbox',
             ...rowSelectionPrintCare,
