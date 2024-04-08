@@ -108,7 +108,6 @@ export default function ProductItem({
       });
     }
   };
-  console.log('product: ', product);
 
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-md hover:shadow-blue-300 duration-300 hover:translate-y-[-5px] h-full">
