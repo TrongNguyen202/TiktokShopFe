@@ -55,6 +55,8 @@ function OrderForPartner({ toShipInfoData }) {
     packageCreateFlashShip,
     packageCreatePrintCare,
     packageFulfillmentCompleted,
+    pdfLabelLinkSearch,
+    loadingGetLink
   } = useShopsOrder((state) => state);
   const { getFlashShipPODVariant, LoginFlashShip, createOrderFlashShip } = useFlashShipStores((state) => state);
 
@@ -366,61 +368,74 @@ function OrderForPartner({ toShipInfoData }) {
   };
 
   const handleExportExcelFile = (data, key) => {
-    const dataConvert = handAddDesignToShipInfoData(data);
-    const productItem = dataConvert
-      .map((item) => {
-        const productItem = item.order_list.map((product) => ({
-          ...product,
-          city: item.city,
-          buyer_email: item.buyer_email,
-          name_buyer: item.name_buyer,
-          package_id: item.package_id,
-          order_id: item.order_id,
-          state: item.state,
-          street: item.street,
-          tracking_id: item.tracking_id,
-          zip_code: item.zip_code,
-          label: item.label,
+    const dataLabel = {
+      pdf_name: data.map((item) => `${item.package_id}.pdf`)
+    }
+
+    const onSuccess = (res) => {
+      if (res) {
+        const dataChangedLabelLink = data.map((item, index) => ({
+          ...item,
+          label: res[index][0].link
         }));
 
-        return productItem;
-      })
-      .flat();
+        const dataConvert = handAddDesignToShipInfoData(dataChangedLabelLink);
+        const productItem = dataConvert
+          .map((item) => {
+            const productItem = item.order_list.map((product) => ({
+              ...product,
+              city: item.city,
+              buyer_email: item.buyer_email,
+              name_buyer: item.name_buyer,
+              package_id: item.package_id,
+              order_id: item.order_id,
+              state: item.state,
+              street: item.street,
+              tracking_id: item.tracking_id,
+              zip_code: item.zip_code,
+              label: item.label,
+            }));
 
-    const dataExport = productItem.map((product) => {
-      console.log('product: ', product);
-      const result = {
-        'External ID': 'POD097',
-        'Order ID': product.order_id,
-        'Shipping method': 1,
-        'First Name': product.name_buyer.split(' ')[0],
-        'Last Name': product.name_buyer.split(' ')[1],
-        Email: product.buyer_email,
-        Phone: '',
-        Country: 'US',
-        Region: product.state,
-        'Address line 1': product.street,
-        'Address line 2': '',
-        City: product.city,
-        Zip: product.zip_code,
-        Quantity: product.quantity,
-        'Variant ID': key=== 'PrintCare' ? product.sku_name : product.variant_id,
-        'Print area front': product.image_design_front,
-        'Print area back': product.image_design_back,
-        'Mockup Front': '',
-        'Mockup Back': '',
-        'Product note': product.note,
-        'Link label': product.label,
-      };
+            return productItem;
+          })
+          .flat();    
 
-      if (key === 'PrintCare') {
-        result['Tracking ID'] = product.tracking_id;
+        const dataExport = productItem.map((product) => {
+          const result = {
+            'External ID': 'POD097',
+            'Order ID': product.order_id,
+            'Shipping method': 1,
+            'First Name': product.name_buyer.split(' ')[0],
+            'Last Name': product.name_buyer.split(' ')[1],
+            Email: product.buyer_email,
+            Phone: '',
+            Country: 'US',
+            Region: product.state,
+            'Address line 1': product.street,
+            'Address line 2': '',
+            City: product.city,
+            Zip: product.zip_code,
+            Quantity: product.quantity,
+            'Variant ID': key=== 'PrintCare' ? product.sku_name : product.variant_id,
+            'Print area front': product.image_design_front,
+            'Print area back': product.image_design_back,
+            'Mockup Front': '',
+            'Mockup Back': '',
+            'Product note': product.note,
+            'Link label': product.label,
+          };
+
+          if (key === 'PrintCare') {
+            result['Tracking ID'] = product.tracking_id;
+          }
+
+          return result;
+        });
+
+        ExportExcelFile(dataExport, key, dataConvert);
       }
-
-      return result;
-    });
-
-    ExportExcelFile(dataExport, key, dataConvert);
+    }
+    pdfLabelLinkSearch(dataLabel, onSuccess, () => {})
   };
 
   const handleRefreshDesign = (newData) => {
@@ -449,9 +464,9 @@ function OrderForPartner({ toShipInfoData }) {
     onChange: (_, selectedRows) => {
       setTablePrintCareSelected(selectedRows);
     },
-    // getCheckboxProps: () => ({
-    //   disabled: !allowCreateOrderPartner,
-    // }),
+    getCheckboxProps: () => ({
+      disabled: !allowCreateOrderPartner,
+    }),
   };
 
   const column = [
@@ -656,7 +671,7 @@ function OrderForPartner({ toShipInfoData }) {
           columns={column}
           dataSource={flashShipTable}
           bordered
-          loading={loadingGetInfo}
+          loading={loadingGetInfo || loadingGetLink }
           rowSelection={{
             type: 'checkbox',
             ...rowSelectionFlashShip,
@@ -687,7 +702,7 @@ function OrderForPartner({ toShipInfoData }) {
           columns={column}
           dataSource={printCareTable}
           bordered
-          loading={loadingGetInfo}
+          loading={loadingGetInfo || loadingGetLink }
           rowSelection={{
             type: 'checkbox',
             ...rowSelectionPrintCare,
