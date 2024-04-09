@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-import { Tabs, Row, Col, Card, Button, Select, Input, Table, Tag } from 'antd';
+import { Tabs, Row, Col, Card, Button, Select, Input, Table, Tag, Spin, message } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import PageTitle from '../../components/common/PageTitle';
 import { getPathByIndex } from '../../utils';
@@ -8,51 +9,79 @@ import { alerts } from '../../utils/alerts';
 import { RepositoryRemote } from '../../services';
 // import { usePromotionsStore } from '../../store/promotionsStore';
 import { useDebounce } from '../../hooks/useDebounce';
+import { usePromotionsStore } from '../../store/promotionsStore';
 
 const { Search } = Input;
-
-const columns = [
-  {
-    title: 'Promotion name',
-    dataIndex: 'title',
-    key: 'title',
-  },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-    key: 'status',
-  },
-  {
-    title: 'Start time(PST)',
-    dataIndex: 'begin_time',
-    key: 'begin_time',
-  },
-  {
-    title: 'End time(PST)',
-    dataIndex: 'end_time',
-    key: 'end_time',
-  },
-  {
-    title: 'Type',
-    dataIndex: 'promotion_type',
-    key: 'promotion_type',
-  },
-  {
-    title: ' Action',
-    dataIndex: 'action',
-    key: 'action',
-  },
-];
 
 function Promotion() {
   const shopId = getPathByIndex(2);
   const navigate = useNavigate();
-  const [promotionsData, setPromotionsData] = useState([]);
-  // const [promotions, getPromotions, loading] = usePromotionsStore((state) => state);
-  const [filterStatus, setFilterStatus] = useState('all');
   const [searchValue, setSearchValue] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [promotionsData, setPromotionsData] = useState([]);
+  const [refreshPromotion, setRefreshPromotion] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
+  const [promotionSelected, setPromotionSelected] = useState([]);
+  const { InactivePromotion, loading } = usePromotionsStore((state) => state);
 
   const debouncedSearchValue = useDebounce(searchValue, 1000);
+
+  const rowSelection = {
+    onChange: (_, selectedRows) => {
+      const dataSelect = selectedRows.map((item) => item.promotion_id)
+      setPromotionSelected(dataSelect);
+    },
+    getCheckboxProps: (record) => ({
+      disabled: record.status.props.children !== "Ongoing"
+    }),
+  };
+  
+  const columns = [
+    {
+      title: 'Promotion name',
+      dataIndex: 'title',
+      key: 'title',
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+    },
+    {
+      title: 'Start time(PST)',
+      dataIndex: 'begin_time',
+      key: 'begin_time',
+    },
+    {
+      title: 'End time(PST)',
+      dataIndex: 'end_time',
+      key: 'end_time',
+    },
+    {
+      title: 'Type',
+      dataIndex: 'promotion_type',
+      key: 'promotion_type',
+    }
+  ];
+
+  const handleInactivePromotion = () => {
+    const dataSubmit = {
+      promotion_ids: promotionSelected
+    };
+
+    const onSuccess = (res) => {
+      if (res) {
+        promotionSelected([]);
+        setRefreshPromotion(true);
+        messageApi.open({
+          type: 'success',
+          content: res.map((item) => `Dừng ${item} thành công`),
+        });
+      }
+    }
+
+    InactivePromotion(shopId, dataSubmit, onSuccess, () => {});
+  }
 
   const renderStatusPromotion = (record) => {
     if (record.status === 1) {
@@ -93,14 +122,8 @@ function Promotion() {
   };
 
   useEffect(() => {
-    // getPromotions(shopId);
-
     fetchPromotions();
-  }, [debouncedSearchValue, filterStatus]);
-
-  // useEffect(() => {
-  //   setPromotionsData(promotions);
-  // }, [promotions]);
+  }, [debouncedSearchValue, filterStatus, refreshPromotion]);
 
   const items = [
     {
@@ -145,8 +168,8 @@ function Promotion() {
       label: 'Manage your promotions',
       children: (
         <div className="w-full">
-          <Row className="mt-8">
-            <Col span={8}>
+          <div className="mt-8 flex flex-wrap items-center gap-5">
+            <div className="lg:w-[calc(100%/3)]">
               <Select
                 defaultValue="all"
                 style={{
@@ -176,13 +199,27 @@ function Promotion() {
                   },
                 ]}
               />
-            </Col>
-            <Col span={16}>
+            </div>
+            <div className="lg:flex-1">
               <Search placeholder="Enter promotion name" onChange={(e) => setSearchValue(e.target.value)} />
-            </Col>
-          </Row>
-          <div className="mt-8 pr-2">
-            <Table columns={columns} dataSource={promotionsData} bordered pagination={{ pageSize: 100 }} />
+            </div>
+            <Button type='primary' disabled={!promotionSelected.length} onClick={handleInactivePromotion}>
+              Stop promotion ({promotionSelected?.length || '0'})
+              {promotionSelected.length > 0 && loading && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
+            </Button>
+          </div>
+          <div className="mt-8">
+            <Table columns={columns} 
+              dataSource={promotionsData} 
+              bordered 
+              pagination={{ pageSize: 30 }}
+              rowSelection={{
+                type: "checkbox",
+                selectedRowKeys: promotionSelected,
+                ...rowSelection,
+              }}
+              rowKey={(record) => record.promotion_id}
+            />
           </div>
         </div>
       ),
@@ -190,16 +227,11 @@ function Promotion() {
   ];
 
   return (
-    <Row gutter={[30, 30]} className="p-4 md:p-10">
-      <Col>
-        <div>
-          <PageTitle title="Promotion" showBack />
-        </div>
-        <Row className="mt-8 w-full">
-          <Tabs className="w-full" defaultActiveKey="1" items={items} />
-        </Row>
-      </Col>
-    </Row>
+    <div className="p-4 md:p-10">
+      {contextHolder}
+      <PageTitle title="Promotion" showBack />
+      <Tabs className="w-full" defaultActiveKey="1" items={items} />
+    </div>
   );
 }
 
