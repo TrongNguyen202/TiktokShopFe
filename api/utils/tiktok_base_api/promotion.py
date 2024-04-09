@@ -681,3 +681,33 @@ def get_unpromotion_sku(access_token):
     new_data["data"]["products"] = new_product_list
 
     return new_data
+
+
+def deactivate_promotion(access_token: str, promotion_id: int):
+    """
+    Deactivate promotion
+    """
+    url = TIKTOK_API_URL["url_deactivate_promotion"]
+
+    query_params = {"app_key": app_key, "access_token": access_token, "timestamp": SIGN.get_timestamp()}
+
+    body_json = {
+        "promotion_id": promotion_id,
+        "request_serial_no": "deactivate_promo" + str(uuid4()),
+    }
+
+    body = json.dumps(body_json)
+
+    sign = SIGN.cal_sign(secret=secret, url=urllib.parse.urlparse(url), query_params=query_params, body=body)
+
+    query_params["sign"] = sign
+
+    response = requests.post(url=url, params=query_params, json=json.loads(body))
+
+    data = response.json()
+    if data["code"] != 0:
+        raise BadRequestException(data["message"])
+
+    logger.info("Promotion deactivated " + str(promotion_id))
+
+    return data["data"]
