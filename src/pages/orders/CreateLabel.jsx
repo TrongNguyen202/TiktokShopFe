@@ -37,8 +37,9 @@ function CreateLabel() {
 
   const dataTableWeightSize = (dataInput) => {
     const labelItems = dataInput.map((label) => {
-      const orderList = label.data.order_info_list.map((order) => {
-        const productList = order.item_list.map((product) => {
+      const orderList = label.data.order_info_list?.map((order) => {
+        const orderItemList = order?.item_list || order?.sku_list;
+        const productList = orderItemList?.map((product) => {
           let variationSize = "";
           const variationSplit = product?.sku_name.split(',').map(item => item.trim());
           if (variationSplit.length === 3) {
@@ -64,17 +65,15 @@ function CreateLabel() {
             orderPackageSizeChart = dataSizeChart.find((orderPackage) => orderPackage.name === 'shirt').items[0];
           }
 
-          const orderPackageWeight = Number(orderPackageSizeChart.weight) * product.quantity;
+          const orderPackageWeight = Number(orderPackageSizeChart.weight) * Number(product.quantity);
           const orderPackageSize = orderPackageSizeChart?.size;
           return { orderPackageWeight, orderPackageSize };
         });
 
-        let sumWeight = productList
-          .map((product) => product.orderPackageWeight)
+        let sumWeight = productList?.map((product) => product.orderPackageWeight)
           .reduce((partialSum, current) => partialSum + current, 0);
-          sumWeight = parseFloat(sumWeight.toFixed(4));
-        const sumSize =
-          order.item_list.length > 1 ? '10x10x3'.split('x') : productList[0]?.orderPackageSize?.split('x');
+        sumWeight = parseFloat(sumWeight.toFixed(4));
+        const sumSize = orderItemList.length > 1 ? '10x10x3'.split('x') : productList[0]?.orderPackageSize?.split('x');
         return { sumWeight, sumSize };
       });
 
@@ -103,7 +102,7 @@ function CreateLabel() {
   }, [dataCombine, dataSizeChart]);
 
   const renderListItemProduct = (data) => {
-    const skuList = data.order_info_list.map((item) => item.item_list);
+    const skuList = data.order_info_list.map((item) => item.item_list ? item.item_list : item.sku_list);
     return skuList.map((skuItem, index) => {
       return (
         <>
@@ -228,7 +227,10 @@ function CreateLabel() {
     };
 
     const onFail = (err) => {
-      console.log(err);
+      messageApi.open({
+        type: 'error',
+        content: `Không lấy được thông tin vận chuyển khác. ${err}`,
+      });
     };
 
     if (newStatus === true) {
@@ -333,9 +335,14 @@ function CreateLabel() {
       dataIndex: 'items',
       key: 'items',
       render: (_, record) => {
-        const sumItem = record.data.order_info_list
-          .map((item) => item.item_list.length)
-          .reduce((partialSum, a) => partialSum + a, 0);
+        const sumItem = record.data.order_info_list.map((item) => {
+          if (item.item_list && item.item_list.length > 0) {
+              return item.item_list.length;
+          } else {
+            return item.sku_list.length;
+          }
+        }).reduce((partialSum, a) => partialSum + a, 0);
+        
         return (
           <Popover
             content={renderListItemProduct(record.data)}
@@ -347,12 +354,14 @@ function CreateLabel() {
               <div className="flex-1">
                 <p>{sumItem} items</p>
                 <ul className="text-ellipsis whitespace-nowrap overflow-hidden w-[180px]">
-                  {record.data.order_info_list.map((item) =>
-                    item.item_list.map((prItem) => (
+                  {record.data.order_info_list.map((item) => {
+                    const orderItemList = item?.item_list || item?.sku_list;
+                    return orderItemList.map((prItem) => (
                       <li key={prItem.sku_id} className="inline-block mr-3 w-10 h-10 [&:nth-child(3+n)]:hidden">
                         <img className="w-full h-full object-cover" width={30} height={30} src={prItem.sku_image} />
                       </li>
-                    )),
+                    ))
+                  }
                   )}
                 </ul>
               </div>

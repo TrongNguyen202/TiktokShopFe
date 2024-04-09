@@ -261,10 +261,11 @@ function Orders() {
                   resolve();
                 }
               }
-              console.log('dataUpdate: ', index, dataUpdate[index], dataUpdate);
+              // console.log('dataUpdate: ', index, dataUpdate[index], dataUpdate);
             };
+
             shippingService(shopId, packageId, onSuccessShipping, (err) => {
-              console.log(err);
+              console.log("err: ", resConvert);
               reject(err);
             });
           });

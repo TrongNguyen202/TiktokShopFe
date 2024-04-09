@@ -72,7 +72,7 @@ function Promotion() {
     const onSuccess = (res) => {
       if (res) {
         promotionSelected([]);
-        setRefreshPromotion(true)
+        setRefreshPromotion(true);
         messageApi.open({
           type: 'success',
           content: res.map((item) => `Dừng ${item} thành công`),
