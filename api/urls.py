@@ -106,6 +106,11 @@ shop_urls = [
         tiktok.promotion_action.AddOrUpdateFlashDeal.as_view(),
         name="create_promotion_flashdeal",
     ),
+    path(
+        "shops/<int:shop_id>/promotions/deactive_promotion",
+        tiktok.promotion_action.DeactivePromotion.as_view(),
+        name="deactive_promotion",
+    ),
 ]
 
 template_urls = [
