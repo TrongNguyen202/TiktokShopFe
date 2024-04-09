@@ -374,10 +374,14 @@ function OrderForPartner({ toShipInfoData }) {
 
     const onSuccess = (res) => {
       if (res) {
-        const dataChangedLabelLink = data.map((item, index) => ({
-          ...item,
-          label: res[index][0].link
-        }));
+        const dataChangedLabelLink = data.map((item) => {
+          const resConvert = res.flatMap((resItem) => resItem[0]);
+          const checkPackageId = resConvert.find((itemRes) => itemRes.name.replace('.pdf', '').toString() === item.package_id);
+          return ({
+            ...item,
+            label: checkPackageId.link
+          })
+        });
 
         const dataConvert = handAddDesignToShipInfoData(dataChangedLabelLink);
         const productItem = dataConvert
