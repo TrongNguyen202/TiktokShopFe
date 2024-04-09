@@ -224,7 +224,7 @@ class ProcessExcel(View):
                         package_length,
                         package_weight,
                         package_width,
-                        description + item.get("description", ""),
+                        item.get("description", "") +description,
                         skus,
                         size_chart,
                     )
