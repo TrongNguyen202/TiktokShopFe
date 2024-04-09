@@ -20,8 +20,6 @@ const rangePresets = [
   { label: 'Last 7 days', value: [dayjs().add(-7, 'd'), dayjs()] },
   { label: 'Last 14 days', value: [dayjs().add(-14, 'd'), dayjs()] },
   { label: 'Last 30 days', value: [dayjs().add(-30, 'd'), dayjs()] },
-  // { label: "3 tháng trước", value: [dayjs().add(-90, "d"), dayjs()] },
-  // { label: "1 năm trước", value: [dayjs().add(-365, "d"), dayjs()] },
 ];
 
 function Orders() {
@@ -38,7 +36,6 @@ function Orders() {
   const [searchedColumn, setSearchedColumn] = useState('');
   const [messageApi, contextHolder] = message.useMessage();
   const {
-    orders,
     getAllOrders,
     getAllCombine,
     combineList,
@@ -229,15 +226,23 @@ function Orders() {
   const handleCreateLabels = () => {
     const onSuccess = (res) => {
       if (res) {
-        let dataUpdate;
-        const promises = res.map((item, index) => {
+        const resConvert = res.map((resItem) => ({
+          data: {
+            ...resItem.data,
+            shipping_provider: "USPS Ground Advantage™",
+            shipping_provider_id: "7208502187360519982"
+          }
+        }));
+
+        let dataUpdate = [...resConvert];
+        const promises = dataUpdate.map((item, index) => {
           return new Promise((resolve, reject) => {
             const packageId = {
               package_id: item.data.package_id,
             };
             const onSuccessShipping = (resShipping) => {
               if (resShipping) {
-                const dataOrderCombine = res
+                const dataOrderCombine = resConvert
                   .map((itemCombine) => ({
                     data: {
                       ...itemCombine.data,
@@ -248,14 +253,15 @@ function Orders() {
                   }))
                   .flat();
 
-                dataUpdate = [...dataOrderCombine];
-
-                const dataCreateLabel = dataUpdate.find((resItem) => resItem.data.package_id === packageId.package_id);
-                dataCreateLabel.data.shipping_provider = resShipping.data[0].name;
-                dataCreateLabel.data.shipping_provider_id = resShipping.data[0].id;
-                dataUpdate[index] = dataCreateLabel;
-                resolve();
+                const dataCreateLabel = dataOrderCombine.find((resItem) => resItem.data.package_id === packageId.package_id);
+                if (dataCreateLabel) {
+                  dataCreateLabel.data.shipping_provider = resShipping.data[0].name;
+                  dataCreateLabel.data.shipping_provider_id = resShipping.data[0].id;
+                  dataUpdate[index] = dataCreateLabel;
+                  resolve();
+                }
               }
+              console.log('dataUpdate: ', index, dataUpdate[index], dataUpdate);
             };
             shippingService(shopId, packageId, onSuccessShipping, (err) => {
               console.log(err);
@@ -271,8 +277,9 @@ function Orders() {
           .catch(() => {
             messageApi.open({
               type: 'error',
-              content: 'Lỗi khi lấy thông tin vận chuyển',
+              content: 'Không lấy được thông tin vận chuyển. Đang sử dụng đơn vị vận chuyển mặc định',
             });
+            navigate(`/shops/${shopId}/orders/create-label`, { state: { dataCombine: resConvert } });
           });
       }
     };
@@ -310,7 +317,8 @@ function Orders() {
   const rowSelection = {
     onChange: (_, selectedRows) => {
       const selectedRowsPackageId = selectedRows.map((item) => item.package_list[0].package_id);
-      setOrderSelected(selectedRowsPackageId);
+      const uniqueArray = Array.from(new Set(selectedRowsPackageId));
+      setOrderSelected(uniqueArray);
     },
     getCheckboxProps: (record) => {
       const disabledStatus = [140, 130, 122, 121, 105, 100];
