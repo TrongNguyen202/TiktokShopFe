@@ -234,6 +234,8 @@ function Orders() {
           }
         }));
 
+        console.log('resConvert: ', resConvert);
+
         let dataUpdate = [...resConvert];
         const promises = dataUpdate.map((item, index) => {
           return new Promise((resolve, reject) => {
@@ -253,18 +255,21 @@ function Orders() {
                   }))
                   .flat();
 
+                console.log('dataOrderCombine: ', dataOrderCombine);
                 const dataCreateLabel = dataOrderCombine.find((resItem) => resItem.data.package_id === packageId.package_id);
                 if (dataCreateLabel) {
                   dataCreateLabel.data.shipping_provider = resShipping.data[0].name;
                   dataCreateLabel.data.shipping_provider_id = resShipping.data[0].id;
                   dataUpdate[index] = dataCreateLabel;
+                  console.log('dataUpdate: ', dataUpdate);
                   resolve();
                 }
               }
-              console.log('dataUpdate: ', index, dataUpdate[index], dataUpdate);
+              // console.log('dataUpdate: ', index, dataUpdate[index], dataUpdate);
             };
+
             shippingService(shopId, packageId, onSuccessShipping, (err) => {
-              console.log(err);
+              console.log("err: ", resConvert);
               reject(err);
             });
           });
