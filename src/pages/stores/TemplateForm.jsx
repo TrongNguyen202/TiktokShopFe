@@ -164,7 +164,6 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
   const [previewImage, setPreviewImage] = useState('');
   const [dataPriceState, setDataPriceState] = useState([]);
   const [description, setDescription] = useState('');
-  console.log('description: ', description);
 
   const dataPrice = useRef(templateJson?.id ? templateJson.types : null);
 
