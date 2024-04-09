@@ -113,3 +113,22 @@ class GetAllUnPromotionSKU(APIView):
         access_token = shop.access_token
         data = promotion.get_unpromotion_sku(access_token=access_token)
         return JsonResponse(data)
+
+
+class DeactivePromotion(APIView):
+    def post(self, request, shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+
+        access_token = shop.access_token
+
+        body_raw = request.body.decode("utf-8")
+        body_data = json.loads(body_raw)
+
+        promotion_ids = body_data.get("promotion_ids", [])
+
+        data = []
+        for promotion_id in promotion_ids:
+            response = promotion.deactivate_promotion(access_token=access_token, promotion_id=promotion_id)
+            data.append(response.get("title"))
+
+        return JsonResponse(data, safe=False)
