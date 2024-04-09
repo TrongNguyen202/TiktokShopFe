@@ -1,7 +1,7 @@
 export const constants = {
   // API_URL: 'http://seller.folinas.com:9999/api',
-  API_URL: import.meta.env.VITE_API_URL || 'http://192.168.1.254:8000/api',
-  // API_URL: import.meta.env.VITE_API_URL || 'https://dev.folinas.com:8000/api',
+  // API_URL: import.meta.env.VITE_API_URL || 'http://192.168.1.254:8000/api',
+  API_URL: import.meta.env.VITE_API_URL || 'https://dev.folinas.com:8000/api',
   // API_URL: 'http://192.168.1.254:8000/api',
   API_TIKTOK_SHOP: 'https://auth.tiktok-shops.com/api',
   // STORE_CODE: store_code,
@@ -74,17 +74,6 @@ export const variationsOption = [
 
 export const OrderPackageWeightSize = [
   {
-    name: 'loại 1',
-    items: [
-      { name: 'S', weight: '0.3', size: '9x9x2' },
-      { name: 'M', weight: '0.38', size: '9x9x2' },
-      { name: 'L', weight: '0.44', size: '9x9x2' },
-      { name: 'XL', weight: '0.45', size: '10x10x3' },
-      { name: '2XL', weight: '0.56', size: '10x10x3' },
-      { name: '3XL', weight: '0.56', size: '10x10x3' },
-    ],
-  },
-  {
     name: 'shirt',
     items: [
       { name: 'S', weight: '0.3', size: '9x9x2' },
@@ -115,6 +104,17 @@ export const OrderPackageWeightSize = [
       { name: 'XL', weight: '1.38', size: '10x10x3' },
       { name: '2XL', weight: '1.44', size: '10x10x3' },
       { name: '3XL', weight: '1.56', size: '10x10x3' },
+    ],
+  },
+  {
+    name: 'loại 1',
+    items: [
+      { name: 'S', weight: '0.3', size: '9x9x2' },
+      { name: 'M', weight: '0.38', size: '9x9x2' },
+      { name: 'L', weight: '0.44', size: '9x9x2' },
+      { name: 'XL', weight: '0.45', size: '10x10x3' },
+      { name: '2XL', weight: '0.56', size: '10x10x3' },
+      { name: '3XL', weight: '0.56', size: '10x10x3' },
     ],
   },
 ];

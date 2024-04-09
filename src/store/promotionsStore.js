@@ -81,4 +81,15 @@ export const usePromotionsStore = create((set, get) => ({
     }
     set({ loading: false });
   },
+
+  InactivePromotion: async (shopId, data, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true });
+      const response = await RepositoryRemote.promotions.InactivePromotion(shopId, data);
+      onSuccess(response.data);
+    } catch (error) {
+      onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo promotion!');
+    }
+    set({ loading: false });
+  },
 }));

@@ -179,7 +179,7 @@ function CreateLabel() {
               <Input
                 name="length"
                 suffix="in"
-                defaultValue={data[0]}
+                value={data[0]}
                 onChange={(e) => handleUpdatePackage(e, 'package_size_0', index)}
               />
             </div>
@@ -188,7 +188,7 @@ function CreateLabel() {
               <Input
                 name="width"
                 suffix="in"
-                defaultValue={data[1]}
+                value={data[1]}
                 onChange={(e) => handleUpdatePackage(e, 'package_size_1', index)}
               />
             </div>
@@ -197,7 +197,7 @@ function CreateLabel() {
               <Input
                 name="height"
                 suffix="in"
-                defaultValue={data[2]}
+                value={data[2]}
                 onChange={(e) => handleUpdatePackage(e, 'package_size_2', index)}
               />
             </div>
@@ -210,7 +210,7 @@ function CreateLabel() {
             <Input
               name="length"
               suffix="lb"
-              defaultValue={data}
+              value={data}
               onChange={(e) => handleUpdatePackage(e, 'package_weight', index)}
             />
           </div>

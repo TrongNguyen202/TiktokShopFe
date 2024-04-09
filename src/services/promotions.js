@@ -35,6 +35,10 @@ const createFlashDeal = (shopId, params) => {
   return callApi(`/shops/${shopId}/promotions/create_flashsale`, 'post', params);
 };
 
+const InactivePromotion = (shopId, params) => {
+  return callApi(`/shops/${shopId}/promotions/deactive_promotion`, 'post', params);
+};
+
 export const promotions = {
   getPromotions,
   getPromotionDetail,
@@ -43,5 +47,6 @@ export const promotions = {
   editOrUpdatePromotion,
   listProductNoDiscount,
   listProductNoFlashDeal,
-  createFlashDeal
+  createFlashDeal,
+  InactivePromotion
 };
