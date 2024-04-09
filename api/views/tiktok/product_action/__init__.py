@@ -224,12 +224,12 @@ class ProcessExcel(View):
                         package_length,
                         package_weight,
                         package_width,
-                        description + item.get("description", ""),
+                        item.get("description", "") + description,
                         skus,
                         size_chart,
                     )
                     futures[future] = (order, item)
-                    print("desss", description)
+                    print("desss", item.get("description", "") + description)
 
                 for idx, future in enumerate(list(futures.keys())):
                     order_in_excel_file, item = futures[future]
