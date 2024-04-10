@@ -683,3 +683,21 @@ class UploaddriveAndSearchPrintCare(APIView):
             search_results.append(search_result)
 
         return Response(search_results)
+
+
+class CancelOrder(APIView):
+    def post(self, request, shop_id):
+        try:
+            shop = get_object_or_404(Shop, id=shop_id)
+            access_token = shop.access_token
+            data = json.loads(request.body.decode("utf-8"))
+            cancel_reason_key = data.get("cancel_reason_key", "")
+            order_id = data.get("order_id", "")
+            response = order.cancel_order(
+                access_token=access_token, order_id=order_id, cancel_reason_key=cancel_reason_key
+            )
+            response = json.loads(response.text)
+            return JsonResponse(response, safe=False)
+        except Exception as e:
+            error_message = str(e)
+            return JsonResponse({"error": error_message}, status=500)
