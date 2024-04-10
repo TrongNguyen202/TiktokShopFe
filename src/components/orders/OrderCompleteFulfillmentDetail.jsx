@@ -5,6 +5,9 @@ import { Link } from "react-router-dom";
 
 const OrderCompleteFulfillmentDetail = ({data}) => {
     const [dataTable, setDataTable] = useState([]);
+    const dataTableConvert = dataTable.flatMap((item) => item.products);
+    console.log('dataTableConvert: ', dataTableConvert);
+
     const columns = [
         {
             title: "Quantity",
@@ -19,10 +22,10 @@ const OrderCompleteFulfillmentDetail = ({data}) => {
             align: 'center',
             render: (_, record) => (
                 <ul>
-                    <li><span className="font-semibold">Product Type:</span> <span>{record.products[0].productTypeEnum}</span></li>
-                    <li><span className="font-semibold">Variant Sku:</span> <span>{record.products[0].variantSku}</span></li>
-                    <li><span className="font-semibold">Variant Title:</span> <span>{record.products[0].variantTitle}</span></li>
-                    <li><span className="font-semibold">Variant Size:</span> <span>{record.products[0].variantSize}</span></li>
+                    <li><span className="font-semibold">Product Type:</span> <span>{record.productTypeEnum}</span></li>
+                    <li><span className="font-semibold">Variant Sku:</span> <span>{record.variantSku}</span></li>
+                    <li><span className="font-semibold">Variant Title:</span> <span>{record.variantTitle}</span></li>
+                    <li><span className="font-semibold">Variant Size:</span> <span>{record.variantSize}</span></li>
                 </ul>
             )
         },
@@ -32,8 +35,8 @@ const OrderCompleteFulfillmentDetail = ({data}) => {
             key: "front",
             align: 'center',
             render: (_, record) =>
-                <Link to={record.products[0].frontPrintUrl} target="_blank">
-                    <Image width={70} src={record.products[0].frontPrintUrl} preview={false} alt="Front image" />
+                <Link to={record.frontPrintUrl} target="_blank">
+                    <Image width={70} src={record.frontPrintUrl} preview={false} alt="Front image" />
                 </Link>
         },
         {
@@ -42,8 +45,8 @@ const OrderCompleteFulfillmentDetail = ({data}) => {
             key: "back",
             align: 'center',
             render: (_, record) =>
-                <Link to={record.products[0].frontPrintUrl} target="_blank">
-                    <Image width={70} src={record.products[0].backPrintUrl} preview={false} alt="Back image" />
+                <Link to={record.frontPrintUrl} target="_blank">
+                    <Image width={70} src={record.backPrintUrl} preview={false} alt="Back image" />
                 </Link>
         },
         {
@@ -66,7 +69,7 @@ const OrderCompleteFulfillmentDetail = ({data}) => {
     }, [data]);
 
     return (
-        <Table columns={columns} dataSource={dataTable} bordered pagination={false} />
+        <Table columns={columns} dataSource={dataTableConvert} bordered pagination={false} />
     );
 }
  

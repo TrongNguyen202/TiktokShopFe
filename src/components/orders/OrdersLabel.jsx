@@ -60,13 +60,13 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
       setLabelSelected(selectedRows);
       if (selectedRows.length > 0) changeNextStep(true);
     },
-    getCheckboxProps: (record) => {
-      const disabledOrderCompleted = ordersCompleted.filter((item) => item.pack_id === record.package_id && item.package_status === true);
+    // getCheckboxProps: (record) => {
+    //   const disabledOrderCompleted = ordersCompleted.filter((item) => item.pack_id === record.package_id && item.package_status === true);
 
-      return {
-        disabled: record.label === null || disabledOrderCompleted.length > 0,
-      };
-    },
+    //   return {
+    //     disabled: record.label === null || disabledOrderCompleted.length > 0,
+    //   };
+    // },
   };
 
   const handlePushToDriver = (data) => {
