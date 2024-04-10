@@ -77,6 +77,11 @@ shop_urls = [
         tiktok.product_action.CreateOneProductDraf.as_view(),
         name="create_one_product_draf",
     ),
+    path(
+        "shops/<int:shop_id>/products/delete_product",
+        tiktok.product_action.DeleteProduct.as_view(),
+        name="delete_product",
+    ),
     #     promotion
     path("shops/<int:shop_id>/promotions", tiktok.promotion_action.GetPromotionsView.as_view(), name="get_promotions"),
     path(
@@ -191,6 +196,7 @@ fulfillment_urls = [
     path("flashship/account", flashshipapi.FlashShipAccountApi.as_view(), name="flashship_account"),
     path("package/<str:pack_id>/deactive", tiktok.order_action.DeactivePack.as_view(), name="deactive_package"),
     path("pdf-upload-search", tiktok.order_action.UploaddriveAndSearchPrintCare.as_view(), name="pdf_search_upload"),
+    path("shop/<int:shop_id>/orders/cancel", tiktok.order_action.CancelOrder.as_view(), name="cancel_order"),
 ]
 
 """Google Trend"""

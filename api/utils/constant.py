@@ -28,12 +28,14 @@ TIKTOK_API_URL = {
     "url_get_package_detail": "https://open-api.tiktokglobalshop.com/api/fulfillment/detail",
     "url_get_category_recommend": "https://open-api.tiktokglobalshop.com/api/product/category_recommend",
     "url_get_shipping_doc": "https://open-api.tiktokglobalshop.com/api/fulfillment/shipping_document",
+    "url_delete_product": "https://open-api.tiktokglobalshop.com/api/products",
     # promotion
     "url_get_promotions": "https://open-api.tiktokglobalshop.com/api/promotion/activity/list",
     "url_get_promotion_detail": "https://open-api.tiktokglobalshop.com/api/promotion/activity/get",
     "url_create_promotion": "https://open-api.tiktokglobalshop.com/api/promotion/activity/create",
     "url_add_or_update_promotion": "https://open-api.tiktokglobalshop.com/api/promotion/activity/items/addorupdate",
     "url_deactivate_promotion": "https://open-api.tiktokglobalshop.com/api/promotion/activity/deactivate",
+    "url_cancel_order": "https://open-api.tiktokglobalshop.com/api/reverse/order/cancel",
 }
 
 

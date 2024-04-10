@@ -272,3 +272,24 @@ def callGetShippingDoc(access_token, package_id):
             exc_info=e,
         )
         return None
+
+
+def cancel_order(access_token, cancel_reason_key, order_id):
+    url = TIKTOK_API_URL["url_cancel_order"]
+    query_params = {
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp(),
+    }
+
+    bodyjson = {"cancel_reason_key": cancel_reason_key, "order_id": order_id}
+
+    body = json.dumps(bodyjson)
+
+    sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
+    query_params["sign"] = sign
+
+    response = requests.post(url, params=query_params, json=json.loads(body))
+
+    logger.info(f"SearchPackage response: {response.text}")
+    return response
