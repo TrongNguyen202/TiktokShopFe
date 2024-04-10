@@ -194,11 +194,44 @@ function OrderForPartner({ toShipInfoData }) {
     });
   };
 
-  const handleConvertDataPackageCreate = (data, key) => {
-    const result = data
-      .map((item) => {
-        const orderList = item.order_list.map((order) => {
-          const orderItem = {
+  const handleConvertDataPackageCreate = (data, key, isExport) => {
+    const result = data.map((item) => {
+        let orderList;
+        const orderFulfillmentCompletedRejected = orderFulfillmentCompleted.find(
+          (order) => order.order_id === item.order_id,
+        );
+
+        if (isExport) {
+          orderList = item.order_list.map((order) => {
+            const orderItem = {
+              pack_id: item.package_id,
+              order_id: item.order_id,
+              buyer_first_name: item.name_buyer?.split(' ')[0] || '',
+              buyer_last_name: item.name_buyer?.split(' ')[1] || '',
+              buyer_email: item.buyer_email,
+              buyer_phone: '',
+              buyer_address1: item.street?.trim(),
+              buyer_address2: '',
+              buyer_city: item.city,
+              buyer_province_code: item.state?.trim(),
+              buyer_zip: item.zip_code,
+              buyer_country_code: 'US',
+              shipment: flashShipShipment,
+              linkLabel: item.label,
+              products: [
+                {
+                  variant_id: key === 'PrintCare' ? 'POD097' : order.variant_id,
+                  printer_design_front_url: order.image_design_front || null,
+                  printer_design_back_url: order.image_design_back || null,
+                  quantity: order.quantity,
+                  note: '',
+                },
+              ],
+            };
+            return orderItem;
+          });
+        } else {
+          orderList = {
             pack_id: item.package_id,
             order_id: item.order_id,
             buyer_first_name: item.name_buyer?.split(' ')[0] || '',
@@ -213,25 +246,19 @@ function OrderForPartner({ toShipInfoData }) {
             buyer_country_code: 'US',
             shipment: flashShipShipment,
             linkLabel: item.label,
-            products: [
-              {
-                variant_id: key === 'PrintCare' ? 'POD097' : order.variant_id,
-                printer_design_front_url: order.image_design_front || null,
-                printer_design_back_url: order.image_design_back || null,
-                quantity: order.quantity,
-                note: '',
-              },
-            ],
+            products: item.order_list.map((product) => ({
+              variant_id: key === 'PrintCare' ? 'POD097' : product.variant_id,
+              printer_design_front_url: product.image_design_front || null,
+              printer_design_back_url: product.image_design_back || null,
+              quantity: product.quantity,
+              note: '',
+            }))
           };
-          const orderFulfillmentCompletedRejected = orderFulfillmentCompleted.find(
-            (order) => order.order_id === item.order_id,
-          );
-          if (orderFulfillmentCompletedRejected && orderFulfillmentCompletedRejected?.package_status === false) {
-            orderItem.order_id = `${item.order_id}-${Math.floor(Math.random() * 10)}`;
-          }
-
-          return orderItem;
-        });
+        }
+        
+        if (orderFulfillmentCompletedRejected && orderFulfillmentCompletedRejected?.package_status === false) {
+          orderList.order_id = `${item.order_id}-${Math.floor(Math.random() * 10)}`;
+        }
         return orderList;
       })
       .flat();
@@ -353,7 +380,7 @@ function OrderForPartner({ toShipInfoData }) {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
     XLSX.writeFile(workbook, `${fileName}-${Date.now()}.xlsx`);
 
-    const dataPackageCreateConvert = handleConvertDataPackageCreate(dataPackageCreate, fileName);
+    const dataPackageCreateConvert = handleConvertDataPackageCreate(dataPackageCreate, fileName, true);
     // eslint-disable-next-line array-callback-return
     dataPackageCreateConvert.map((item) => {
       if (fileName === 'PrintCare') {
@@ -465,9 +492,9 @@ function OrderForPartner({ toShipInfoData }) {
     onChange: (_, selectedRows) => {
       setTableFlashShipSelected(selectedRows);
     },
-    getCheckboxProps: () => ({
-      disabled: !allowCreateOrderPartner,
-    }),
+    // getCheckboxProps: () => ({
+    //   disabled: !allowCreateOrderPartner,
+    // }),
   };
 
   const rowSelectionPrintCare = {
