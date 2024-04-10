@@ -157,17 +157,16 @@ function OrderCompleteFulfillment() {
     }
   };
 
-  const generateColumns = (showActionsColumn) => {
+  const handleCancelOrderPrintCare = () => {
+
+  }
+
+  const generateColumns = (showAllAction, key) => {
     const columns = [
       {
         title: 'STT',
         dataIndex: 'stt',
         key: 'stt',
-      },
-      {
-        title: 'Order code',
-        dataIndex: 'order_code',
-        key: 'order_code'
       },
       {
         title: 'Order Id',
@@ -240,24 +239,36 @@ function OrderCompleteFulfillment() {
           </ul>
         ),
       },
-    ];
-
-    if (showActionsColumn) {
-      columns.push({
+      {
         title: 'Actions',
         dataIndex: 'actions',
         key: 'actions',
         align: 'center',
         render: (_, record) => (
           <div className="flex gap-2 justify-center">
-            <Tooltip title="Xem chi tiết" color="blue">
-              <Button size="small" icon={<EyeOutlined />} onClick={() => handleDetailFlashShip(record.order_code)} />
-            </Tooltip>
+            {showAllAction && 
+              <Tooltip title="Xem chi tiết" color="blue">
+                <Button size="small" icon={<EyeOutlined />} onClick={() => handleDetailFlashShip(record.order_code)} />
+              </Tooltip>
+            }
             <Tooltip title="Huỷ đơn" color="red">
-              <Button size="small" icon={<DeleteOutlined />} danger onClick={() => handleCancelOrderFlashShip(record.order_code, record.order_id, record.pack_id)} />
+              <Button size="small" icon={<DeleteOutlined />} danger 
+                onClick={() => key === "FlashShip" ?
+                handleCancelOrderFlashShip(record.order_code, record.order_id, record.pack_id)
+                : handleCancelOrderPrintCare()
+              } 
+              />
             </Tooltip>
           </div>
         ),
+      }
+    ];
+
+    if (key === "FlashShip") {
+      columns.splice(1, 0, {
+        title: 'Order code',
+        dataIndex: 'order_code',
+        key: 'order_code'
       });
     }
 
@@ -292,7 +303,7 @@ function OrderCompleteFulfillment() {
           title="Orders that have been Fulfillment completed and sent to FlashShip"
           count={dataTableFlashShip.length ? dataTableFlashShip.length : '0'}
         />
-        <Table columns={generateColumns(true)} dataSource={ConvertDataTable(dataTableFlashShip)} bordered />
+        <Table columns={generateColumns(true, "FlashShip")} dataSource={ConvertDataTable(dataTableFlashShip)} bordered />
       </div>
 
       <div className="mt-10">
@@ -300,7 +311,7 @@ function OrderCompleteFulfillment() {
           title="Orders that have been Fulfillment completed and sent to PrintCare"
           count={dataTablePrintCare.length ? dataTablePrintCare.length : '0'}
         />
-        <Table columns={generateColumns(false)} loading={loading} dataSource={ConvertDataTable(dataTablePrintCare)} bordered />
+        <Table columns={generateColumns(false, "PrintCare")} loading={loading} dataSource={ConvertDataTable(dataTablePrintCare)} bordered />
       </div>
 
       <Modal
