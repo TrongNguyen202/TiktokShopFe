@@ -34,6 +34,7 @@ TIKTOK_API_URL = {
     "url_create_promotion": "https://open-api.tiktokglobalshop.com/api/promotion/activity/create",
     "url_add_or_update_promotion": "https://open-api.tiktokglobalshop.com/api/promotion/activity/items/addorupdate",
     "url_deactivate_promotion": "https://open-api.tiktokglobalshop.com/api/promotion/activity/deactivate",
+    "url_cancel_order": "https://open-api.tiktokglobalshop.com/api/reverse/order/cancel",
 }
 
 
