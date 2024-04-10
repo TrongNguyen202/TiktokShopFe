@@ -1,7 +1,7 @@
 export const constants = {
   // API_URL: 'http://seller.folinas.com:9999/api',
-  API_URL: import.meta.env.VITE_API_URL || 'http://192.168.1.254:8000/api',
-  // API_URL: import.meta.env.VITE_API_URL || 'https://dev.folinas.com:8000/api',
+  // API_URL: import.meta.env.VITE_API_URL || 'http://192.168.1.254:8000/api',
+  API_URL: import.meta.env.VITE_API_URL || 'https://dev.folinas.com:8000/api',
   // API_URL: 'http://192.168.1.254:8000/api',
   API_TIKTOK_SHOP: 'https://auth.tiktok-shops.com/api',
   // STORE_CODE: store_code,
@@ -18,6 +18,7 @@ export const constants = {
 
   // API_FLASH_SHIP: 'https://seller.flashship.net/seller-api',
   API_FLASH_SHIP: 'https://devpod.flashship.net/seller-api',
+  API_FLASH_SHIP_IMAGE: 'https://devpod.flashship.net/productImage/',
   TOKEN_FLASH_SHIP_EXPIRATION: 2 * 60 * 60 * 1000,
 };
 
