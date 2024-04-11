@@ -39,6 +39,7 @@ function OrderCompleteFulfillment() {
     return result;
   };
 
+  
   const handleOrderPackage = (index) => {
     const orderPackageFlashShip = dataTableFlashShip[index];
     const orderList = orders?.flatMap((order) => order?.data?.order_list);
@@ -46,11 +47,11 @@ function OrderCompleteFulfillment() {
     const packageOrders = orderListHasPackageId?.filter((order) => order.package_list[0].package_id === orderPackageFlashShip?.pack_id?.toString());
 
     return (
-      <ul className="flex flex-wrap">
+      <ul>
         {packageOrders.map((item) => (
-          <li key={item.order_id} className="mb-4">
+          <li key={item.order_id} className="mb-4 block">
             <Link to={`/shops/${shopId}/orders/${item.order_id}`} state={{ orderData: item }} className="font-medium mb-5 last:mb-0">
-              <Tag color="blue">{orderPackageFlashShip.order_id}</Tag>
+              <Tag color="blue">{item.order_id}</Tag>
             </Link>
           </li>
         ))}
@@ -167,22 +168,30 @@ function OrderCompleteFulfillment() {
         title: 'STT',
         dataIndex: 'stt',
         key: 'stt',
+        width: "60px",
+        align: "center",
       },
       {
         title: 'Order Id',
         dataIndex: 'order_id',
         key: 'order_id',
+        width: "200px",
+        align: "center",
         render: (_, record, index) => handleOrderPackage(index),
       },
       {
         title: 'Package Id',
         dataIndex: 'pack_id',
-        key: 'pack_id'
+        key: 'pack_id',
+        width: "200px",
+        align: "center"
       },
       {
         title: 'Product items',
         dataIndex: 'products',
         key: 'products',
+        width: "130px",
+        align: "center",
         render: (_, record) => <p>{record?.products?.length} Sản phẩm</p>,
       },
       {
@@ -190,6 +199,7 @@ function OrderCompleteFulfillment() {
         dataIndex: 'linkLabel',
         key: 'linkLabel',
         width: '100px',
+        align: "center",
         render: (text) => (
           <div className="max-w-[200px] line-clamp-3">
             <Link to={text} target="_blank">
@@ -206,13 +216,13 @@ function OrderCompleteFulfillment() {
           <ul>
             <li className="flex flex-wrap">
               <span className="min-w-[70px] font-bold mr-1">Buyer name:</span>
-              <span className="flex-1">
+              <span className="flex-1 line-clamp-1">
                 {record.buyer_first_name} {record.buyer_last_name}
               </span>
             </li>
             <li className="flex flex-wrap">
               <span className="min-w-[70px] font-bold mr-1">Buyer email:</span>
-              <Link to={`mailto:${record.buyer_email}`} className="flex-1">
+              <Link to={`mailto:${record.buyer_email}`} className="flex-1 line-clamp-1">
                 {record.buyer_email}
               </Link>
             </li>
@@ -244,6 +254,8 @@ function OrderCompleteFulfillment() {
         dataIndex: 'actions',
         key: 'actions',
         align: 'center',
+        fixed: 'right',
+        width: "100px",
         render: (_, record) => (
           <div className="flex gap-2 justify-center">
             {showAllAction && 
@@ -268,7 +280,9 @@ function OrderCompleteFulfillment() {
       columns.splice(1, 0, {
         title: 'Order code',
         dataIndex: 'order_code',
-        key: 'order_code'
+        key: 'order_code',
+        width: "150px",
+        align: "center",
       });
     }
 
@@ -303,7 +317,11 @@ function OrderCompleteFulfillment() {
           title="Orders that have been Fulfillment completed and sent to FlashShip"
           count={dataTableFlashShip.length ? dataTableFlashShip.length : '0'}
         />
-        <Table columns={generateColumns(true, "FlashShip")} dataSource={ConvertDataTable(dataTableFlashShip)} bordered />
+        <Table columns={generateColumns(true, "FlashShip")} dataSource={ConvertDataTable(dataTableFlashShip)} bordered
+          scroll={{
+            x: 1300,
+          }}
+        />
       </div>
 
       <div className="mt-10">
@@ -311,7 +329,11 @@ function OrderCompleteFulfillment() {
           title="Orders that have been Fulfillment completed and sent to PrintCare"
           count={dataTablePrintCare.length ? dataTablePrintCare.length : '0'}
         />
-        <Table columns={generateColumns(false, "PrintCare")} loading={loading} dataSource={ConvertDataTable(dataTablePrintCare)} bordered />
+        <Table columns={generateColumns(false, "PrintCare")} loading={loading} dataSource={ConvertDataTable(dataTablePrintCare)} bordered 
+          scroll={{
+            x: 1300,
+          }}
+        />
       </div>
 
       <Modal
