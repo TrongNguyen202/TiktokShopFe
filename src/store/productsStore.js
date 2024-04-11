@@ -102,14 +102,26 @@ export const useProductsStore = create((set, get) => ({
   resetProductById: () => {
     set({ productById: {}, infoTable: {} });
   },
+
   changeProductImageToWhite: async (body, onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loadingImage: true });
       const response = await RepositoryRemote.products.changeProductImageToWhite(body);
-      onSuccess(response.data);
+      onSuccess(response.data.data);
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra khi thay nền ảnh!');
     }
     set({ loadingImage: false });
+  },
+
+  removeProduct: async (shopId, body, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true });
+      const response = await RepositoryRemote.products.removeProduct(shopId, body);
+      onSuccess(response.data);
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra khi thay nền ảnh!');
+    }
+    set({ loading: false });
   },
 }));
