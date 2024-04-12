@@ -1,23 +1,14 @@
 export const constants = {
-  // API_URL: 'http://seller.folinas.com:9999/api',
-  // API_URL: import.meta.env.VITE_API_URL || 'http://192.168.1.254:8000/api',
-  API_URL: import.meta.env.VITE_API_URL || 'https://dev.folinas.com:8000/api',
-  // API_URL: 'http://192.168.1.254:8000/api',
-  API_TIKTOK_SHOP: 'https://auth.tiktok-shops.com/api',
-  // STORE_CODE: store_code,
-  LINK_STORE_CODE: 'https://services.tiktokshops.us/open/authorize?service_id=7310403104158238510',
-  APP_SECRET: 'df329e59a6f78121409d77c33ee1decfbfa088a4',
-  GRANT_TYPE: 'authorized_code',
-  API_GOOGLE_KEY: 'AIzaSyAmrEEz3cGNtY0KbHXPJu-EBrwEWHZ3070',
-  API_GOOGLE_SHEETS: 'https://sheets.googleapis.com/v4/spreadsheets',
-  SHEET_ID: '1b6wjVXQ-02jxvPGCXauiQX6_x-1oyrWn_CONOHw_c10',
-  // SHEET_ID: '1zo6it9m4wMeLJHg0JMIHuDMoHMiY2nFLbF6IlZo3qE8',
-  DESIGN_SKU_FILES_GOOGLE_SHEET:
-    'https://docs.google.com/spreadsheets/d/1b6wjVXQ-02jxvPGCXauiQX6_x-1oyrWn_CONOHw_c10/edit#gid=380793677',
-  // DESIGN_SKU_FILES_GOOGLE_SHEET: 'https://docs.google.com/spreadsheets/d/1zo6it9m4wMeLJHg0JMIHuDMoHMiY2nFLbF6IlZo3qE8/edit#gid=0',
-
-  API_FLASH_SHIP: 'https://seller.flashship.net/seller-api',
-  // API_FLASH_SHIP: 'https://devpod.flashship.net/seller-api',
+  API_URL: import.meta.env.VITE_API_URL,
+  API_TIKTOK_SHOP: import.meta.env.API_TIKTOK_SHOP,
+  LINK_STORE_CODE: import.meta.env.LINK_STORE_CODE,
+  APP_SECRET: import.meta.env.APP_SECRET,
+  GRANT_TYPE: import.meta.env.GRANT_TYPE,
+  API_GOOGLE_KEY: import.meta.env.API_GOOGLE_KEY,
+  API_GOOGLE_SHEETS: import.meta.env.API_GOOGLE_SHEETS,
+  SHEET_ID: import.meta.env.SHEET_ID,
+  DESIGN_SKU_FILES_GOOGLE_SHEET: import.meta.env.DESIGN_SKU_FILES_GOOGLE_SHEET,
+  API_FLASH_SHIP: import.meta.env.API_FLASH_SHIP,
   TOKEN_FLASH_SHIP_EXPIRATION: 2 * 60 * 60 * 1000,
 };
 
