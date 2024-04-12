@@ -1,5 +1,5 @@
-import { DownOutlined, LoadingOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Image, Popover, Space, Spin, Table, Tag, Tooltip, Modal, message, DatePicker, Form, Input } from 'antd';
+import { DownOutlined, LoadingOutlined, SearchOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Button, Image, Popover, Space, Spin, Table, Tag, Tooltip, Modal, message, DatePicker, Form, Input, Popconfirm, Radio } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -28,6 +28,7 @@ function Orders() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [openFilterDate, setOpenFilterDate] = useState(false);
+  const [reasonRejectOrder, setReasonRejectOrder] = useState("");
   const [openOrderCustom, setOpenOrderCustom] = useState(false);
   const [orderCustomEdit, setOrderCustomEdit] = useState({});
   const [searchText, setSearchText] = useState('');
@@ -44,8 +45,10 @@ function Orders() {
     getPackageBought,
     packageBought,
     getShippingDoc,
+    cancelOrder,
     loading,
-    loadingFulfillment
+    loadingFulfillment,
+    loadingRejectOrder
   } = useShopsOrder((state) => state);
 
   const sortByPackageId = (arr) => {
@@ -315,6 +318,53 @@ function Orders() {
     getShippingDoc(shopId, packageIds, onSuccess, (err) => console.log(err));
   };
 
+  const handleCancelOrder = (orderId) => {
+    const dataSubmit = {
+      cancel_reason_key: reasonRejectOrder,
+      order_id: orderId
+    };
+
+    const onSuccess = (res) => {
+      if (res) {
+        if (res.data !== null) {
+          messageApi.open({
+            type: 'success',
+            content: 'Huỷ đơn thành công!',
+          });
+        } else {
+          
+          messageApi.open({
+            type: 'warning',
+            content: res.message,
+          });
+        }
+      }
+    };
+
+    const onFail = (err) => {
+      message.open({
+        type: "error",
+        content: `Huỷ đơn thất bại. ${err}`
+      })
+    };
+
+    cancelOrder(shopId, dataSubmit, onSuccess, onFail);
+  }
+
+  const contentRejectOrder = (
+    <div>
+      <h3 className="mb-2">Select cancellation reason: </h3>
+      <Radio.Group onChange={(e) => setReasonRejectOrder(e.target.value)} value={reasonRejectOrder}>
+        <Space direction="vertical">
+          <Radio value="seller_cancel_reason_out_of_stock">Out of stock</Radio>
+          <Radio value="seller_cancel_reason_wrong_price">Pricing error</Radio>
+          <Radio value="seller_cancel_paid_reason_address_not_deliver">Unable to deliver to buyer address</Radio>
+          <Radio value="seller_cancel_paid_reason_buyer_requested_cancellation">Buyer requested cancellation</Radio>
+        </Space>
+      </Radio.Group>
+    </div>
+  )
+
   const rowSelection = {
     onChange: (_, selectedRows) => {
       const selectedRowsPackageId = selectedRows.map((item) => item.package_list[0].package_id);
@@ -447,14 +497,22 @@ function Orders() {
       key: 'shipping_provider',
     },
     {
-      title: 'Action (Cho đơn custom)',
+      title: 'Action (Cho đơn vật lý hoặc custom)',
       dataIndex: 'action',
       key: 'action',
       align: 'center',
       render: (_, record) => (
-        <Tooltip placement="top" title="Thêm thông tin đơn hàng">
-          <Button onClick={() => handleOpenModalOrderCustom(record.order_id)}><EditOutlined /></Button>
-        </Tooltip>
+        <div className="flex flex-wrap items-center justify-center gap-5">
+          <Tooltip placement="top" title="Thêm thông tin đơn hàng" className="cursor-pointer w-[30px] h-[30px] leading-[30px]">
+            <span onClick={() => handleOpenModalOrderCustom(record.order_id)}><EditOutlined /></span>
+          </Tooltip>
+
+          <Tooltip placement="top" title="Huỷ đơn">
+            <Popconfirm placement="left" title={contentRejectOrder} onConfirm={() => handleCancelOrder(record.order_id)} className="w-[30px] h-[30px] leading-[30px]">
+              <DeleteOutlined />
+            </Popconfirm>
+          </Tooltip>
+        </div>
       )
     },
   ];
@@ -473,8 +531,7 @@ function Orders() {
     };
     const onFail = () => {};
     getAllOrders(shopId, onSuccess, onFail);
-    getPackageBought();
-    
+    getPackageBought();    
   }, [location.state, shopId]);
 
   return (
@@ -502,7 +559,7 @@ function Orders() {
         scroll={{ x: true }}
         columns={columns}
         dataSource={orderDataTable}
-        loading={loading || loadingFulfillment}
+        loading={loading || loadingFulfillment || loadingRejectOrder}
         bordered
         pagination={{
           pageSize: 30,

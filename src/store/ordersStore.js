@@ -12,6 +12,7 @@ export const useShopsOrder = create((set) => ({
   loadingUpload: false,
   loadingFulfillment: false,
   loadingGetLink: false,
+  loadingRejectOrder: false,
   cancelTokenSource: null,
   packageBought: [],
   getAllOrders: async (id, onSuccess = () => {}, onFail = () => {}) => {
@@ -306,5 +307,16 @@ export const useShopsOrder = create((set) => ({
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
     }
     set({ loading: false });
+  },
+
+  cancelOrder: async (shopId, body, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loadingRejectOrder: true });
+      const response = await RepositoryRemote.orders.cancelOrder(shopId, body);
+      onSuccess(response.data);
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
+    }
+    set({ loadingRejectOrder: false });
   },
 }));

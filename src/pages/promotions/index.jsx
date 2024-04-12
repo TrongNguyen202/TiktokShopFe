@@ -71,7 +71,8 @@ function Promotion() {
 
     const onSuccess = (res) => {
       if (res) {
-        promotionSelected([]);
+        console.log('res: ', res);
+        setPromotionSelected([]);
         setRefreshPromotion(true);
         messageApi.open({
           type: 'success',

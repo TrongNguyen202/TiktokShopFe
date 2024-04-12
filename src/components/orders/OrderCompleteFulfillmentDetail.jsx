@@ -3,8 +3,18 @@ import { useEffect, useState } from "react";
 import { formatDate } from "../../utils/date";
 import { Link } from "react-router-dom";
 
+import { constants } from "../../constants";
+
 const OrderCompleteFulfillmentDetail = ({data}) => {
     const [dataTable, setDataTable] = useState([]);
+    const dataTableConvert = dataTable.map((item) => {
+        return item.products.map((product) => ({
+            ...product,
+            created: item.created,
+            note: item.note
+        }));
+    }).flat();
+
     const columns = [
         {
             title: "Quantity",
@@ -19,10 +29,10 @@ const OrderCompleteFulfillmentDetail = ({data}) => {
             align: 'center',
             render: (_, record) => (
                 <ul>
-                    <li><span className="font-semibold">Product Type:</span> <span>{record.products[0].productTypeEnum}</span></li>
-                    <li><span className="font-semibold">Variant Sku:</span> <span>{record.products[0].variantSku}</span></li>
-                    <li><span className="font-semibold">Variant Title:</span> <span>{record.products[0].variantTitle}</span></li>
-                    <li><span className="font-semibold">Variant Size:</span> <span>{record.products[0].variantSize}</span></li>
+                    <li><span className="font-semibold">Product Type:</span> <span>{record.productTypeEnum}</span></li>
+                    <li><span className="font-semibold">Variant Sku:</span> <span>{record.variantSku}</span></li>
+                    <li><span className="font-semibold">Variant Title:</span> <span>{record.variantTitle}</span></li>
+                    <li><span className="font-semibold">Variant Size:</span> <span>{record.variantSize}</span></li>
                 </ul>
             )
         },
@@ -32,9 +42,15 @@ const OrderCompleteFulfillmentDetail = ({data}) => {
             key: "front",
             align: 'center',
             render: (_, record) =>
-                <Link to={record.products[0].frontPrintUrl} target="_blank">
-                    <Image width={70} src={record.products[0].frontPrintUrl} preview={false} alt="Front image" />
-                </Link>
+                <>
+                    {record.frontPrintUrl !== null ?
+                        <Link to={record.frontPrintUrl} target="_blank">
+                            <Image width={70} src={`${constants.API_FLASH_SHIP_IMAGE}${record.frontPrintImage}`} preview={false} alt="Front image" />
+                        </Link>
+                    :
+                        "Không có ảnh mặt trước"
+                    }
+                </>
         },
         {
             title: "Back",
@@ -42,9 +58,15 @@ const OrderCompleteFulfillmentDetail = ({data}) => {
             key: "back",
             align: 'center',
             render: (_, record) =>
-                <Link to={record.products[0].frontPrintUrl} target="_blank">
-                    <Image width={70} src={record.products[0].backPrintUrl} preview={false} alt="Back image" />
-                </Link>
+                <>
+                    {record.backPrintUrl !== null ?
+                        <Link to={record.backPrintUrl} target="_blank">
+                            <Image width={70} src={`${constants.API_FLASH_SHIP_IMAGE}${record.backPrintImage}`} preview={false} alt="Back image" />
+                        </Link>
+                    :
+                        "Không có ảnh mặt sau"
+                    }
+                </>
         },
         {
             title: "Note",
@@ -60,13 +82,12 @@ const OrderCompleteFulfillmentDetail = ({data}) => {
             render: (text) => formatDate(text, 'DD/MM/YY hh:mm:ss')
         },
     ];
-
     useEffect(() => {
         if (data) setDataTable([data]);
     }, [data]);
 
     return (
-        <Table columns={columns} dataSource={dataTable} bordered pagination={false} />
+        <Table columns={columns} dataSource={dataTableConvert} bordered pagination={false} id="flash-ship-table-order-view" />
     );
 }
  
