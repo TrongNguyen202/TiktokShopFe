@@ -1,6 +1,11 @@
+import os
 
-secret = "df329e59a6f78121409d77c33ee1decfbfa088a4"
-app_key = "6atknvel13hna"
+from dotenv import load_dotenv
+
+load_dotenv(override=True)
+
+secret = os.getenv("SECRET")
+app_key = os.getenv("APP_KEY")
 
 TIKTOK_API_URL = {
     "url_product_list": "https://open-api.tiktokglobalshop.com/api/products/search",
@@ -34,7 +39,7 @@ TIKTOK_API_URL = {
     "url_get_promotion_detail": "https://open-api.tiktokglobalshop.com/api/promotion/activity/get",
     "url_create_promotion": "https://open-api.tiktokglobalshop.com/api/promotion/activity/create",
     "url_add_or_update_promotion": "https://open-api.tiktokglobalshop.com/api/promotion/activity/items/addorupdate",
-    "url_deactivate_promotion": "https://open-api.tiktokglobalshop.com/api/promotion/activity/deactivate"
+    "url_deactivate_promotion": "https://open-api.tiktokglobalshop.com/api/promotion/activity/deactivate",
 }
 
 
