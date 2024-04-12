@@ -9,6 +9,7 @@ import requests
 
 from api import setup_logging
 from api.utils import constant
+from api.utils.google.googleapi import search_file, upload_pdf
 from api.utils.pdf.ocr_pdf import process_pdf_to_info
 from api.utils.tiktok_base_api import order
 from api.views import (
@@ -26,7 +27,14 @@ from api.views import (
 )
 
 from ....models import BuyedPackage, DesignSku, DesignSkuChangeHistory, GroupCustom, Package, Shop, UserGroup
-from ....serializers import BuyedPackageSeri, DesignSkuPutSerializer, DesignSkuSerializer, GroupCustomSerializer, PackageSerializer
+from ....serializers import (
+    BuyedPackageSeri,
+    DesignSkuPutSerializer,
+    DesignSkuSerializer,
+    GroupCustomSerializer,
+    PackageDeactiveSerializer,
+    PackageSerializer,
+)
 
 logger = logging.getLogger("views.tiktok.order_action")
 setup_logging(logger, is_root=False, level=logging.INFO)
@@ -69,9 +77,10 @@ class OrderDetail(APIView):
             with ThreadPoolExecutor(max_workers=40) as executor:
                 futures = []
                 for i in range(0, len(orderIds), 50):
-                    chunk_ids = orderIds[i: i + 50]
-                    futures.append(executor.submit(order.callOrderDetail,
-                                   access_token=access_token, orderIds=chunk_ids))
+                    chunk_ids = orderIds[i : i + 50]
+                    futures.append(
+                        executor.submit(order.callOrderDetail, access_token=access_token, orderIds=chunk_ids)
+                    )
 
                 for future in futures:
                     response = future.result()
@@ -123,7 +132,8 @@ class ShippingService(APIView):
         shipping_services = data_inner.get("shipping_service_info", [])
 
         simplified_shipping_services = [
-            {"id": service.get("id"), "name": service.get("name")} for service in shipping_services]
+            {"id": service.get("id"), "name": service.get("name")} for service in shipping_services
+        ]
 
         response_data = {
             "data": simplified_shipping_services,
@@ -375,7 +385,8 @@ class DesignSkuDetailAPIView(APIView):
                 changed_at = datetime.now()
 
                 DesignSkuChangeHistory.objects.create(
-                    design_sku=designsku, user=user, change_data=old_data, changed_at=changed_at)
+                    design_sku=designsku, user=user, change_data=old_data, changed_at=changed_at
+                )
                 return Response("DesignSku updated successfully.", status=status.HTTP_200_OK)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -433,8 +444,11 @@ class DesignSkuSearch(APIView):
             designskus = designskus.filter(department_id=group_id)
 
         if search_query:
-            designskus = designskus.filter(Q(sku_id__icontains=search_query) | Q(
-                product_name__icontains=search_query) | Q(variation__icontains=search_query))
+            designskus = designskus.filter(
+                Q(sku_id__icontains=search_query)
+                | Q(product_name__icontains=search_query)
+                | Q(variation__icontains=search_query)
+            )
 
         paginator = self.pagination_class()
         result_page = paginator.paginate_queryset(designskus, request)
@@ -463,8 +477,9 @@ class ShippingDoc(APIView):
             # để thực hiện đồng thời
             futures = []
             for package_id in package_ids:
-                futures.append(executor.submit(order.callGetShippingDoc,
-                               package_id=package_id, access_token=access_token))
+                futures.append(
+                    executor.submit(order.callGetShippingDoc, package_id=package_id, access_token=access_token)
+                )
 
             # Thu thập kết quả từ các future và thêm vào danh sách doc_urls
             for future in futures:
@@ -526,8 +541,11 @@ class ToShipOrderAPI(APIView):
             response = requests.get(doc_url)
         except Exception as e:
             logger.error("Error when downloading PDF file", exc_info=e)
-            error_response = {"status": "error",
-                              "message": f"Có lỗi xảy ra khi tải file PDF label: {str(e)}", "data": None}
+            error_response = {
+                "status": "error",
+                "message": f"Có lỗi xảy ra khi tải file PDF label: {str(e)}",
+                "data": None,
+            }
             return error_response
 
         if response.status_code == 200:
@@ -558,7 +576,7 @@ class ToShipOrderAPI(APIView):
                 error_response = {
                     "status": "error",
                     "message": f'Có lỗi xảy ra khi gọi API OrderDetail: {order_details.get("message")}',
-                    "data": None
+                    "data": None,
                 }
                 return error_response
             else:
@@ -622,3 +640,64 @@ class PackageListByShop(APIView):
 
         serializer = PackageSerializer(packages, many=True)
         return Response(serializer.data)
+
+
+class DeactivePack(APIView):
+    # permission_classes = (IsAuthenticated,)
+
+    def put(self, request, pack_id):
+        package = get_object_or_404(Package, pack_id=pack_id)
+        serializer = PackageDeactiveSerializer(package, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data)
+        return JsonResponse(serializer.errors, status=400)
+
+
+class UploaddriveAndSearchPrintCare(APIView):
+    def post(self, request):
+        PDF_DIRECTORY = constant.PDF_DIRECTORY_WINDOW if platform.system() == "Windows" else constant.PDF_DIRECTORY_UNIX
+        os.makedirs(PDF_DIRECTORY, exist_ok=True)
+        data = json.loads(request.body.decode("utf-8"))
+        queries = data.get("pdf_name")
+
+        search_results = []
+
+        found_files = []
+
+        for filename in os.listdir(PDF_DIRECTORY):
+            if filename.endswith(".pdf") and filename in queries:
+                found_files.append(filename)
+        for item in found_files:
+            print("item", item)
+
+        # Upload to Google Drive
+        for file_name in found_files:
+            file_path = os.path.join(PDF_DIRECTORY, file_name)
+            print("file path", file_path)
+            file_id = upload_pdf(file_path, file_name)
+            print(f"Uploaded '{file_name}' to Google Drive with ID: {file_id}")
+
+            # Search in Google Drive
+            search_result = search_file(file_name)
+            search_results.append(search_result)
+
+        return Response(search_results)
+
+
+class CancelOrder(APIView):
+    def post(self, request, shop_id):
+        try:
+            shop = get_object_or_404(Shop, id=shop_id)
+            access_token = shop.access_token
+            data = json.loads(request.body.decode("utf-8"))
+            cancel_reason_key = data.get("cancel_reason_key", "")
+            order_id = data.get("order_id", "")
+            response = order.cancel_order(
+                access_token=access_token, order_id=order_id, cancel_reason_key=cancel_reason_key
+            )
+            response = json.loads(response.text)
+            return JsonResponse(response, safe=False)
+        except Exception as e:
+            error_message = str(e)
+            return JsonResponse({"error": error_message}, status=500)

@@ -3,21 +3,30 @@ import logging
 from api import setup_logging
 from api.utils import constant
 from api.utils.tiktok_base_api import token
-from api.views import APIView, IsAuthenticated, ListAPIView, OpenApiParameter, Response, extend_schema, get_object_or_404, status
+from api.views import (
+    APIView,
+    IsAuthenticated,
+    ListAPIView,
+    OpenApiParameter,
+    Response,
+    extend_schema,
+    get_object_or_404,
+    status,
+)
 
 from ....models import CustomUserSendPrint, Shop, User, UserGroup, UserShop
 from ....serializers import ShopRequestSerializers, ShopSerializers
 
-logger = logging.getLogger('api.views.tiktok.shop')
+logger = logging.getLogger("api.views.tiktok.shop")
 setup_logging(logger, is_root=False, level=logging.INFO)
 
 
 class Shops(APIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
 
     def get_user_group(self, user):
         """
-            Lấy thông tin group (department) của user
+        Lấy thông tin group (department) của user
         """
         try:
             user_group = UserGroup.objects.get(user=user)
@@ -43,74 +52,73 @@ class Shops(APIView):
             return Response(serializer.data)
 
         group_custom = user_group.group_custom
-        users_in_group = group_custom.usergroup_set.values_list(
-            'user', flat=True)
+        users_in_group = group_custom.usergroup_set.values_list("user", flat=True)
 
-        shops = Shop.objects.filter(
-            usershop__user__in=users_in_group, is_active=True).distinct()
+        shops = Shop.objects.filter(usershop__user__in=users_in_group, is_active=True).distinct()
 
         serializer = ShopSerializers(shops, many=True)
         return Response(serializer.data)
 
-    @extend_schema(
-        request=ShopRequestSerializers,
-        responses=ShopSerializers
-    )
+    @extend_schema(request=ShopRequestSerializers, responses=ShopSerializers)
     def post(self, request):
-        auth_code = request.data.get('auth_code', None)
-        shop_name = request.data.get('shop_name', None)
-        shop_code = request.data.get('shop_code', None)
-        user_seller_id = request.data.get('user_id', None)
+        auth_code = request.data.get("auth_code", None)
+        shop_name = request.data.get("shop_name", None)
+        shop_code = request.data.get("shop_code", None)
+        user_seller_id = request.data.get("user_id", None)
 
         if not auth_code:
-            logger.error(f'User {request.user} does not provide auth_code')
-            return Response({'error': 'auth_code is required'}, status=status.HTTP_400_BAD_REQUEST)
+            logger.error(f"User {request.user} does not provide auth_code")
+            return Response({"error": "auth_code is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Từ auth_code, lấy access_token và refresh_token
         response = token.getAccessToken(auth_code=auth_code)
         group_custom = self.get_user_group(user=self.request.user)
-        logger.info(f'User {self.request.user} is in group (department) {group_custom}')
+        logger.info(f"User {self.request.user} is in group (department) {group_custom}")
 
         if response.status_code == 200:
             json_data = response.json()
-            data = json_data.get('data', None)
-            access_token = data.get('access_token', None)
-            refresh_token = data.get('refresh_token', None)
-            logger.info(f'Access token: {access_token}, Refresh token: {refresh_token}')
+            data = json_data.get("data", None)
+            access_token = data.get("access_token", None)
+            refresh_token = data.get("refresh_token", None)
+            logger.info(f"Access token: {access_token}, Refresh token: {refresh_token}")
         else:
-            logger.error(f'User {request.user}: Get access token failed: {response.text}')
+            logger.error(f"User {request.user}: Get access token failed: {response.text}")
             return Response(
-                {'error': 'Failed to retrieve access_token or refresh_token from the response',
-                    'detail': response.text},
-                status=response.status_code
+                {
+                    "error": "Failed to retrieve access_token or refresh_token from the response",
+                    "detail": response.text,
+                },
+                status=response.status_code,
             )
 
         if not access_token or not refresh_token:
-            logger.error(f'User {request.user}: Get access token failed: {response.text}')
+            logger.error(f"User {request.user}: Get access token failed: {response.text}")
             return Response(
-                {'error': 'Failed to retrieve access_token or refresh_token from the response',
-                    'detail': response.text},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {
+                    "error": "Failed to retrieve access_token or refresh_token from the response",
+                    "detail": response.text,
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
         # Sau khi lấy được access_token và refresh_token, lưu vào database
         shop_data = {
-            'auth_code': auth_code,
-            'app_key': constant.app_key,
-            'app_secret': constant.secret,
-            'grant_type': 'authorized_code',
-            'access_token': access_token,
-            'refresh_token': refresh_token,
-            'shop_name': shop_name,
-            'shop_code': shop_code,
-            'group_custom_id': group_custom.id,
-            'is_active': True
+            "auth_code": auth_code,
+            "app_key": constant.app_key,
+            "app_secret": constant.secret,
+            "grant_type": "authorized_code",
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "shop_name": shop_name,
+            "shop_code": shop_code,
+            "group_custom_id": group_custom.id,
+            "is_active": True,
         }
 
         shop_serializer = ShopSerializers(data=shop_data)
 
         if shop_serializer.is_valid():
-            shop_code = shop_data.get('shop_code')
+            shop_code = shop_data.get("shop_code")
 
             # Kiểm tra xem shop đã tồn tại trong database chưa
             if Shop.objects.filter(shop_code=shop_code).exists():
@@ -121,10 +129,7 @@ class Shops(APIView):
                 existing_shop.refresh_token = refresh_token
                 existing_shop.save()
 
-                return Response(
-                    shop_serializer.data,
-                    status=status.HTTP_201_CREATED
-                )
+                return Response(shop_serializer.data, status=status.HTTP_201_CREATED)
 
             # Nếu shop chưa tồn tại, tạo mới
             new_shop = shop_serializer.save()
@@ -134,23 +139,16 @@ class Shops(APIView):
                     user_seller = User.objects.get(id=user_seller_id)
                     UserShop.objects.create(user=user_seller, shop=new_shop)
                 except User.DoesNotExist:
-                    logger.error(f'User {user_seller_id} does not exist')
+                    logger.error(f"User {user_seller_id} does not exist")
                     return Response(
-                        {'error': f'User {user_seller_id} does not exist'},
-                        status=status.HTTP_400_BAD_REQUEST
+                        {"error": f"User {user_seller_id} does not exist"}, status=status.HTTP_400_BAD_REQUEST
                     )
 
-            return Response(
-                shop_serializer.data,
-                status=status.HTTP_201_CREATED
-            )
+            return Response(shop_serializer.data, status=status.HTTP_201_CREATED)
 
         # Nếu dữ liệu không hợp lệ, trả về thông báo lỗi
-        logger.error(f'User {request.user}: Invalid shop data: {shop_serializer.errors}')
-        return Response(
-            shop_serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        logger.error(f"User {request.user}: Invalid shop data: {shop_serializer.errors}")
+        return Response(shop_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ShopDetail(APIView):
@@ -162,7 +160,7 @@ class ShopDetail(APIView):
             shop_serializer.save()
             return Response(shop_serializer.data, status=status.HTTP_200_OK)
         else:
-            logger.error(f'User {request.user}: Invalid shop data: {shop_serializer.errors}')
+            logger.error(f"User {request.user}: Invalid shop data: {shop_serializer.errors}")
             return Response(shop_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, shop_id):
@@ -176,17 +174,14 @@ class ShopDetail(APIView):
         try:
             shop.delete()
             return Response(
-                {
-                    'status': 'success',
-                    'message': f'Shop with id {shop_id} deleted successfully'
-                },
-                status=status.HTTP_204_NO_CONTENT
+                {"status": "success", "message": f"Shop with id {shop_id} deleted successfully"},
+                status=status.HTTP_204_NO_CONTENT,
             )
         except Exception as e:
-            logger.error(f'User {request.user}: Delete shop failed: {e}')
+            logger.error(f"User {request.user}: Delete shop failed: {e}")
             return Response(
-                {'error': f'Failed to delete shop with id {shop_id}: {str(e)}'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"error": f"Failed to delete shop with id {shop_id}: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
 
@@ -195,8 +190,8 @@ class ShopSearchViews(ListAPIView):
 
     @extend_schema(
         parameters=[
-            OpenApiParameter(name='shop_name', required=False, type=str),
-            OpenApiParameter(name='shop_code', required=False, type=str)
+            OpenApiParameter(name="shop_name", required=False, type=str),
+            OpenApiParameter(name="shop_code", required=False, type=str),
         ]
     )
     def get(self, request, *args, **kwargs):
@@ -205,8 +200,8 @@ class ShopSearchViews(ListAPIView):
     def get_queryset(self):
         queryset = Shop.objects.all()
 
-        shop_name = self.request.query_params.get('shop_name', None)
-        shop_code = self.request.query_params.get('shop_code', None)
+        shop_name = self.request.query_params.get("shop_name", None)
+        shop_code = self.request.query_params.get("shop_code", None)
 
         if shop_name:
             queryset = queryset.filter(shop_name__icontains=shop_name)
@@ -226,8 +221,7 @@ class UserShopList(APIView):
             return Response({"message": "User does not belong to any group."}, status=404)
 
         group_custom = users_groups.group_custom
-        user_shops_data = {"group_id": group_custom.id,
-                           "group_name": group_custom.group_name, "users": []}
+        user_shops_data = {"group_id": group_custom.id, "group_name": group_custom.group_name, "users": []}
 
         for user_group in group_custom.usergroup_set.filter(role__in=[1, 2]):
             user_data = {
@@ -238,35 +232,32 @@ class UserShopList(APIView):
                 "password": user_group.user.password,
                 "email": user_group.user.email,
                 "user_code": None,
-                "shops": []
+                "shops": [],
             }
-            custom_user = CustomUserSendPrint.objects.filter(
-                user=user_group.user).first()
+            custom_user = CustomUserSendPrint.objects.filter(user=user_group.user).first()
             if custom_user:
                 user_data["user_code"] = custom_user.user_code
 
-            user_shops = UserShop.objects.filter(
-                user=user_group.user, shop__group_custom_id=group_custom.id)
+            user_shops = UserShop.objects.filter(user=user_group.user, shop__group_custom_id=group_custom.id)
             for user_shop in user_shops.filter(shop__is_active=True):
-                user_data["shops"].append(
-                    {"id": user_shop.shop.id, "name": user_shop.shop.shop_name})
+                user_data["shops"].append({"id": user_shop.shop.id, "name": user_shop.shop.shop_name})
 
             user_shops_data["users"].append(user_data)
 
         # Filter out users with is_active = False
-        user_shops_data["users"] = [user_data for user_data in user_shops_data["users"]
-                                    if User.objects.get(id=user_data["user_id"]).is_active]
+        user_shops_data["users"] = [
+            user_data for user_data in user_shops_data["users"] if User.objects.get(id=user_data["user_id"]).is_active
+        ]
 
         # Sort users by creation date in descending order (newest first)
-        user_shops_data["users"].sort(key=lambda x: User.objects.get(
-            id=x["user_id"]).date_joined, reverse=True)
+        user_shops_data["users"].sort(key=lambda x: User.objects.get(id=x["user_id"]).date_joined, reverse=True)
 
         return Response({"data": user_shops_data})
 
 
 class ShopList(APIView):
     """
-        Get shop managed by specific user
+    Get shop managed by specific user
     """
 
     def get(self, request):
@@ -278,7 +269,7 @@ class ShopList(APIView):
 
 class ShopListAPI(APIView):
     """
-        List all shops of all users
+    List all shops of all users
     """
 
     def get(self, request):

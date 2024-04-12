@@ -34,18 +34,30 @@ TIKTOK_API_URL = {
     "url_get_package_detail": "https://open-api.tiktokglobalshop.com/api/fulfillment/detail",
     "url_get_category_recommend": "https://open-api.tiktokglobalshop.com/api/product/category_recommend",
     "url_get_shipping_doc": "https://open-api.tiktokglobalshop.com/api/fulfillment/shipping_document",
+    "url_delete_product": "https://open-api.tiktokglobalshop.com/api/products",
     # promotion
     "url_get_promotions": "https://open-api.tiktokglobalshop.com/api/promotion/activity/list",
     "url_get_promotion_detail": "https://open-api.tiktokglobalshop.com/api/promotion/activity/get",
     "url_create_promotion": "https://open-api.tiktokglobalshop.com/api/promotion/activity/create",
     "url_add_or_update_promotion": "https://open-api.tiktokglobalshop.com/api/promotion/activity/items/addorupdate",
     "url_deactivate_promotion": "https://open-api.tiktokglobalshop.com/api/promotion/activity/deactivate",
+    "url_cancel_order": "https://open-api.tiktokglobalshop.com/api/reverse/order/cancel",
 }
 
 
 class ProductCreateObject:
     def __init__(
-        self, is_cod_open, package_dimension_unit, package_height, package_length, package_weight, package_width, category_id, warehouse_id, description, skus
+        self,
+        is_cod_open,
+        package_dimension_unit,
+        package_height,
+        package_length,
+        package_weight,
+        package_width,
+        category_id,
+        warehouse_id,
+        description,
+        skus,
     ):
         self.is_cod_open = is_cod_open
         self.package_dimension_unit = package_dimension_unit
@@ -119,7 +131,11 @@ class SalesAttribute:
         self.custom_value = custom_value
 
     def to_json(self):
-        return {"attribute_id": self.attribute_id, "attribute_name": self.attribute_name, "custom_value": self.custom_value}
+        return {
+            "attribute_id": self.attribute_id,
+            "attribute_name": self.attribute_name,
+            "custom_value": self.custom_value,
+        }
 
 
 class StockInfo:
@@ -191,7 +207,8 @@ ROLE_USERGROUP_CHOICES = (
     (2, "Seller"),
 )
 ROLE_USERGROUP_DEFAULT = 2
-MAX_WORKER = 3
+MAX_WORKER = 10
+REQUEST_TIMEOUT = 10
 
 DOWNLOAD_IMAGES_DIR_WINDOW = "C:/workspace/anhtiktok"
 DOWNLOAD_IMAGES_DIR_UNIX = "~/workspace/anhtiktok"
