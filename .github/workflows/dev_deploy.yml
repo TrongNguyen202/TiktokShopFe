@@ -20,6 +20,11 @@ jobs:
               run: |
                   docker stop tiktokshop-folinas-be-develop || true
                   docker rm tiktokshop-folinas-be-develop || true
+                  docker rmi tiktokshop-folinas-be-develop || true
+            
+            - name: Copy the .env file
+              run: |
+                  cp ~/workspace/secrets/folinas_tiktokshop_develop/.env .env
 
             - name: Build the Docker image
               run: |

@@ -592,3 +592,25 @@ def categoryRecommend(access_token, product_title):
     logger.info(f"Category recommend response: {response.text}")
 
     return HttpResponse(response)
+
+
+def delete_product(access_token, product_ids):
+    url = TIKTOK_API_URL["url_delete_product"]
+    query_params = {
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp(),
+    }
+
+    bodyjson = {"product_ids": product_ids}
+
+    body = json.dumps(bodyjson)
+
+    sign = SIGN.cal_sign(secret, urllib.parse.urlparse(url), query_params, body)
+    query_params["sign"] = sign
+
+    response = requests.delete(url, params=query_params, json=json.loads(body))
+
+    logger.info(f"delete product: {response.text}")
+
+    return HttpResponse(response)
