@@ -77,6 +77,11 @@ shop_urls = [
         tiktok.product_action.CreateOneProductDraf.as_view(),
         name="create_one_product_draf",
     ),
+    path(
+        "shops/<int:shop_id>/products/delete_product",
+        tiktok.product_action.DeleteProduct.as_view(),
+        name="delete_product",
+    ),
     #     promotion
     path("shops/<int:shop_id>/promotions", tiktok.promotion_action.GetPromotionsView.as_view(), name="get_promotions"),
     path(

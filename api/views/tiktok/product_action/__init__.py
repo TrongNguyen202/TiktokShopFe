@@ -224,7 +224,7 @@ class ProcessExcel(View):
                         package_length,
                         package_weight,
                         package_width,
-                        item.get("description", "") +description,
+                        item.get("description", "") + description,
                         skus,
                         size_chart,
                     )
@@ -806,3 +806,18 @@ class UploadImage(APIView):
                 )
         else:
             return Response({"status": "error", "message": "Không có dữ liệu ảnh"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DeleteProduct(APIView):
+    def post(self, request, shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        body_raw = request.body.decode("utf-8")
+        data = json.loads(body_raw)
+        product_ids = data.get("product_ids", [])
+        response = product.delete_product(access_token=access_token, product_ids=product_ids)
+        response_data = {
+            "data": json.loads(response.content.decode("utf-8")),
+            "message": "Success",
+        }
+        return JsonResponse(response_data, status=200)
