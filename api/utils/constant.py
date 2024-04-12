@@ -1,5 +1,11 @@
-secret = "df329e59a6f78121409d77c33ee1decfbfa088a4"
-app_key = "6atknvel13hna"
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv(override=True)
+
+secret = os.getenv("SECRET")
+app_key = os.getenv("APP_KEY")
 
 TIKTOK_API_URL = {
     "url_product_list": "https://open-api.tiktokglobalshop.com/api/products/search",
