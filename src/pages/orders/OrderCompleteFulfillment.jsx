@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Table, Button, Tooltip, Popconfirm, Modal, Form, Input, message, Tag } from 'antd';
+import { Table, Button, Tooltip, Modal, Form, Input, message, Tag } from 'antd';
 import { DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 
 import { constants as c } from '../../constants';

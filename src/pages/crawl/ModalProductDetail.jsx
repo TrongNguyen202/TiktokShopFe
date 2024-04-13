@@ -1,6 +1,6 @@
 import { Button, Form, Input, Modal, Upload, Spin, Space } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -47,8 +47,12 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
   const [previewTitle, setPreviewTitle] = useState('');
   const [imageLink, setImageLink] = useState('');
   const [productTitle, setProductTitle] = useState(product.title);
-  const [productDescription, setProductDescription] = useState(product.description);
+  const [productDescription, setProductDescription] = useState('');
   const [sellerSku, setSellerSku] = useState(product.sku);
+
+  useEffect(() => {
+    setProductDescription(product.description);
+  }, []);
 
   const handlePreview = async (file) => {
     console.log('file: ', file);
