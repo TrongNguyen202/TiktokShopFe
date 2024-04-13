@@ -121,6 +121,12 @@ shop_urls = [
 template_urls = [
     path("templates", tiktok.template_action.TemplateList.as_view(), name="template_list"),
     path("templates/<int:template_id>", tiktok.template_action.TemplateList.as_view(), name="template_detail"),
+    path("template-design", tiktok.template_action.TemplateDesignList.as_view(), name="template-design-list"),
+    path(
+        "template-design/<int:pk>",
+        tiktok.template_action.TemplateDesignDetail.as_view(),
+        name="template-design-detail",
+    ),
 ]
 
 global_urls = [

@@ -1,10 +1,12 @@
 import logging
 
+from django.http import Http404
+
 from api import setup_logging
 from api.views import APIView, IsAuthenticated, Response, csrf_exempt, get_object_or_404, method_decorator, status
 
-from ....models import Templates
-from ....serializers import TemplatePutSerializer, TemplateSerializer
+from ....models import TemplateDesign, Templates
+from ....serializers import TemplateDesignSerializer, TemplatePutSerializer, TemplateSerializer
 
 logger = logging.getLogger("api.views.tiktok.template")
 setup_logging(logger, is_root=False, level=logging.INFO)
@@ -72,3 +74,47 @@ class TemplateList(APIView):  # đổi tên thành TemplateList
                 {"status": "error", "message": f"Có lỗi xảy ra khi xóa template: {str(e)}", "detail": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+
+class TemplateDesignList(APIView):
+    # permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        template_designs = TemplateDesign.objects.all()
+        serializer = TemplateDesignSerializer(template_designs, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = TemplateDesignSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TemplateDesignDetail(APIView):
+    # permission_classes = (IsAuthenticated,)
+
+    def get_object(self, pk):
+        try:
+            return TemplateDesign.objects.get(pk=pk)
+        except TemplateDesign.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        template_design = self.get_object(pk)
+        serializer = TemplateDesignSerializer(template_design)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        template_design = self.get_object(pk)
+        serializer = TemplateDesignSerializer(template_design, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        template_design = self.get_object(pk)
+        template_design.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

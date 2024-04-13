@@ -186,3 +186,7 @@ class FlashShipAccount(models.Model):
     user_name = models.CharField(max_length=1000, blank=True, null=True)
     pass_word = models.CharField(max_length=1000, blank=True, null=True)
     group = models.ForeignKey(GroupCustom, related_name="group", on_delete=models.SET_NULL, null=True)
+
+
+class TemplateDesign(models.Model):
+    content = JSONField()

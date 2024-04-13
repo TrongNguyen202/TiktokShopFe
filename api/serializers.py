@@ -12,6 +12,7 @@ from .models import (
     Package,
     ProductPackage,
     Shop,
+    TemplateDesign,
     Templates,
 )
 
@@ -202,7 +203,7 @@ class PackageSerializer(serializers.ModelSerializer):
             "shop",
             "order_code",
             "pack_id",
-            "package_status"
+            "package_status",
         ]
 
     def create(self, validated_data):
@@ -211,11 +212,15 @@ class PackageSerializer(serializers.ModelSerializer):
         for product_data in products_data:
             ProductPackage.objects.create(package=package, **product_data)
         return package
+
+
 class PackageDeactiveSerializer(serializers.ModelSerializer):
-
-
     class Meta:
         model = Package
-        fields = [
-           "package_status"
-        ]
+        fields = ["package_status"]
+
+
+class TemplateDesignSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TemplateDesign
+        fields = "__all__"
