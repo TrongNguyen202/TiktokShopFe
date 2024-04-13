@@ -25,22 +25,9 @@ from .models import (
 
 @admin.register(Shop)
 class ShopAdmin(admin.ModelAdmin):
-    list_display = (
-        "shop_code",
-        "shop_name",
-        "access_token",
-        "refresh_token",
-        "auth_code",
-        "grant_type",
-    )
-    search_fields = (
-        "shop_code",
-        "shop_name",
-        "access_token",
-        "refresh_token",
-        "auth_code",
-        "grant_type",
-    )
+    list_display = ("shop_code", "shop_name", "access_token", "refresh_token", "auth_code", "grant_type", "is_active")
+    search_fields = ("shop_code", "shop_name", "access_token", "refresh_token", "auth_code", "grant_type", "is_active")
+    list_filter = ("is_active",)
 
 
 @admin.register(Products)
@@ -208,6 +195,7 @@ admin.site.register(DesignSkuChangeHistory, DesignSkuChangeHistoryAdmin)
 admin.site.register(CustomUserSendPrint)
 admin.site.register(FlashShipAccount)
 
+
 @admin.register(Package)
 class PackageAdmin(admin.ModelAdmin):
-    list_display = ('order_id', 'pack_id', 'buyer_first_name', 'buyer_last_name', 'buyer_email', 'package_status')
+    list_display = ("order_id", "pack_id", "buyer_first_name", "buyer_last_name", "buyer_email", "package_status")
