@@ -94,12 +94,11 @@ class CreateOneProduct(APIView):
             images_ids = self.upload_images(base64_images, access_token)
         except Exception as e:
             logger.error(f"User {request.user}: Error when upload images", exc_info=e)
-
-        try:
-            images_id_size_chart = product.callUploadImage(access_token, base64_images_size_chart.get("img_id"))
-        except Exception as e:
-            logger.error(f"User {request.user}: Error when upload size chart image", exc_info=e)
-            images_id_size_chart = ""
+        img_size_chart = base64_images_size_chart.get("img_id")
+        if img_size_chart != "":
+            images_id_size_chart = product.callUploadImage(access_token, img_size_chart)
+        else:
+            images_id_size_chart = None
 
         product_object = None
         try:
