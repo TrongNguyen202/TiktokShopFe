@@ -84,7 +84,7 @@ function OrderCompleteFulfillment() {
   const handleLoginFlashShip = (values) => {
     const onSuccess = (res) => {
       if (res) {
-        setTokenExpand('flash-ship-tk', res.data.access_token, c.TOKEN_FLASH_SHIP_EXPIRATION);
+        setTokenExpand('flash-ship-tk', res.access_token, c.TOKEN_FLASH_SHIP_EXPIRATION);
         setOpenLoginFlashShip(false);
         messageApi.open({
           type: 'success',

@@ -45,7 +45,7 @@ const OrderCompleteFulfillmentDetail = ({data}) => {
                 <>
                     {record.frontPrintUrl !== null ?
                         <Link to={record.frontPrintUrl} target="_blank">
-                            <Image width={70} src={`${constants.API_FLASH_SHIP_IMAGE}${record.frontPrintImage}`} preview={false} alt="Front image" />
+                            <Image width={70} src={`${constants.API_FLASH_SHIP}/productImage/${record.frontPrintImage}`} preview={false} alt="Front image" />
                         </Link>
                     :
                         "Không có ảnh mặt trước"
@@ -82,6 +82,7 @@ const OrderCompleteFulfillmentDetail = ({data}) => {
             render: (text) => formatDate(text, 'DD/MM/YY hh:mm:ss')
         },
     ];
+
     useEffect(() => {
         if (data) setDataTable([data]);
     }, [data]);
