@@ -9,6 +9,7 @@ export const constants = {
   SHEET_ID: import.meta.env.SHEET_ID,
   DESIGN_SKU_FILES_GOOGLE_SHEET: import.meta.env.DESIGN_SKU_FILES_GOOGLE_SHEET,
   API_FLASH_SHIP: import.meta.env.API_FLASH_SHIP,
+  API_FLASH_SHIP_IMAGE: import.meta.env.API_FLASH_SHIP_IMAGE,
   TOKEN_FLASH_SHIP_EXPIRATION: 2 * 60 * 60 * 1000,
 };
 

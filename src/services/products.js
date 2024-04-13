@@ -32,6 +32,10 @@ const changeProductImageToWhite = (body) => {
   return callApi(`/crawl/process_image`, 'post', body);
 }
 
+const removeProduct = (shopId, body) => {
+  return callApi(`/shops/${shopId}/products/delete_product`, 'post', body);
+}
+
 export const products = {
   getAllProducts,
   getProductsById,
@@ -40,5 +44,6 @@ export const products = {
   editProduct,
   createOneProduct,
   createOneProductDraff,
-  changeProductImageToWhite
+  changeProductImageToWhite,
+  removeProduct
 };

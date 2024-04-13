@@ -32,7 +32,7 @@ const OrderCheckDesign = lazy(() => import('./pages/orders/OrderCheckDesign'));
 const OrderDetail = lazy(() => import('./pages/orders/OrderDetail'));
 const OrderCompleteFulfillment = lazy(() => import('./pages/orders/OrderCompleteFulfillment'));
 
-// const DesignSku = lazy(() => import('./pages/designSku'));
+const DesignSku = lazy(() => import('./pages/designSku'));
 const Users = lazy(() => import('./pages/users'));
 const UserEdit = lazy(() => import('./pages/users/UserEdit'));
 const Account = lazy(() => import('./pages/account'));
@@ -267,6 +267,14 @@ function App() {
                 element={
                   <Suspense fallback={<Loading />}>
                     <FlashDealForm />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/design-sku"
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <DesignSku />
                   </Suspense>
                 }
               />

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Table, Tag, Input, Modal, Form, Tooltip, Space } from 'antd';
+import { Button, Table, Tag, Input, Modal, Form, Tooltip, Space, message } from 'antd';
 import { EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { IntlNumberFormat, removeDuplicates, getPathByIndex } from '../../utils/index';
 import { formatDate } from '../../utils/date';
@@ -14,9 +14,11 @@ function Products() {
   const [form] = Form.useForm();
   const shopId = getPathByIndex(2);
   const [filterData, setFilterData] = useState([]);
+  const [productSelected, setProductSelected] = useState([]);
   const [productDataTable, setProductDataTable] = useState([]);
+  const [refreshProduct, setRefreshProduct] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
-  const { products, getAllProducts, loading, resetProductById, infoTable } = useProductsStore((state) => state);
+  const { products, getAllProducts, loading, resetProductById, infoTable, removeProduct } = useProductsStore((state) => state);
 
   const { resetCategoryData } = useCategoriesStore();
   // eslint-disable-next-line no-unused-vars
@@ -114,6 +116,14 @@ function Products() {
     },
   ];
 
+  const rowSelection = {
+    onChange: (_, selectedRows) => {
+      const dataSelect = selectedRows.map((item) => item.id)
+      setProductSelected(dataSelect)
+    },
+    getCheckboxProps: (record) => {},
+  };
+
   const handleProductCreate = () => {
     navigate(`/shops/${shopId}/products/create`);
     resetProductById();
@@ -127,6 +137,32 @@ function Products() {
   const handleProductDetail = (productId) => {
     navigate(`/shops/${shopId}/products/${productId}`);
   };
+
+  const handleRemoveProduct = () => {
+    const dataSubmit = {
+      "product_ids": productSelected
+    };
+
+    const onSuccess = (res) => {
+      if (res) {
+        setProductSelected([]);
+        setRefreshProduct(true);
+        message.open({
+          type: "success",
+          content: "Xoá sản phẩm thành công"
+        });
+      }
+    };
+
+    const onFail = (err) => {
+      message.open({
+        type: "error",
+        content: `Xoá sản phẩm thất bại. ${err}`
+      })
+    }
+
+    removeProduct(shopId, dataSubmit, onSuccess, onFail);
+  }
 
   const onFinish = (values) => {
     setFilterData(values);
@@ -153,7 +189,6 @@ function Products() {
   useEffect(() => {
     const onSuccess = (res) => {
       if (res.products.length > 0) {
-        // setProductDataTable([...productDataTable, ...res.products]);
         setProductDataTable(res.products);
       }
     };
@@ -166,9 +201,7 @@ function Products() {
     return () => {
       resetProductById();
     };
-  }, [pageNumber]);
-
-  console.log('productDataTable: ', productDataTable);
+  }, [pageNumber, refreshProduct]);
 
   return (
     <div className="p-3 md:p-10">
@@ -189,8 +222,11 @@ function Products() {
         <Button size="small" type="primary" onClick={handleProductCreate} className="mt-5 mb-5 mr-3">
           Thêm sản phẩm
         </Button>
-        <Button size="small" type="primary" onClick={() => navigate(`/shops/${shopId}/add-many-products`)}>
+        <Button size="small" type="primary" onClick={() => navigate(`/shops/${shopId}/add-many-products`)} className="mr-3">
           Thêm hàng loạt
+        </Button>
+        <Button size="small" type="primary" onClick={handleRemoveProduct} disabled={!productSelected.length}>
+          Xoá sản phẩm ({productSelected.length || "0"})
         </Button>
         <div className="flex-1 justify-end items-center flex flex-wrap">
           {(filterData.product_name || filterData.product_id) && <span>Tìm kiếm theo: </span>}&nbsp;
@@ -215,6 +251,12 @@ function Products() {
           total: infoTable?.data?.total,
           onChange: handleChangePagination
         }}
+        rowSelection={{
+          type: "checkbox",
+          selectedRowKeys: productSelected,
+          ...rowSelection,
+        }}
+        rowKey={(record) => record.id}
       />
 
       <Modal

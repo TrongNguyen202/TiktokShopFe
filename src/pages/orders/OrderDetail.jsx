@@ -7,6 +7,7 @@ import { getPathByIndex } from '../../utils';
 function OrderDetail() {
   const location = useLocation();
   const { orderData } = location.state;
+  const shopId = getPathByIndex(2);
 
   const renderInfoShipping = () => {
     const { create_time, delivery_option, warehouse_id, paid_time, rts_sla, rts_time } = orderData;
@@ -99,13 +100,18 @@ function OrderDetail() {
     );
   };
 
+  console.log('orderData: ', orderData);
+
   const renderPackageInfo = (orderData) => {
-    const renderListItemProduct = (record) => {
-      const { item_list } = record;
-      const shopId = getPathByIndex(2);
-      return item_list.map((item) => {
-        return (
-          <div>
+    return (
+      <ul>
+        {orderData.item_list.map((item) => (
+          <li className="bg-white rounded-md p-5 w-[720px] flex flex-col gap-5">
+            <div className="flex gap-1">
+              <p className="text-gray-500">SKU ID:</p>
+              <p>{item.sku_id}</p>
+            </div>
+            <div>
             <div className="flex justify-between items-center gap-3 mt-3 w-f7ull">
               <div className="flex gap-2">
                 <div className="flex-1">
@@ -129,18 +135,9 @@ function OrderDetail() {
               <p className="font-semibold">x{item.quantity}</p>
             </div>
           </div>
-        );
-      });
-    };
-
-    return (
-      <div className="bg-white rounded-md p-5 w-[720px] flex flex-col gap-5">
-        <div className="flex gap-1">
-          <p className="text-gray-500">SKU ID:</p>
-          <p>{orderData.package_list[0]?.package_id}</p>
-        </div>
-        <div>{renderListItemProduct(orderData)}</div>
-      </div>
+          </li>
+        ))}
+      </ul>
     );
   };
 
