@@ -23,6 +23,9 @@ export default function ModalTemplateForm({ isShowModal, setShowModal }) {
   }, []);
 
   const onSubmit = async () => {
+    if (!templateName) {
+      return;
+    }
     if (images.length === 0) {
       message.warning('Please upload base image!');
       return;

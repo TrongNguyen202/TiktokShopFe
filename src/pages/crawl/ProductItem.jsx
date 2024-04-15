@@ -171,7 +171,7 @@ export default function ProductItem({
         <Input
           value={productTitle}
           onChange={(e) => setProductTitle(e.target.value)}
-          placeholder="Enter seller sku here"
+          placeholder="Enter title product here"
           onBlur={(e) => handleChangeProduct({ ...product, title: e.target.value })}
         />
       </div>
