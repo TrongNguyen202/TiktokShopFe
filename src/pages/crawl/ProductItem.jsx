@@ -50,6 +50,7 @@ export default function ProductItem({
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [fileList, setFileList] = useState(product.images);
   const [productSku, setProductSku] = useState(product.sku);
+  const [productTitle, setProductTitle] = useState(product.title);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
   const [previewTitle, setPreviewTitle] = useState('');
@@ -78,6 +79,10 @@ export default function ProductItem({
   useEffect(() => {
     setProductSku(product.sku);
   }, [product.sku]);
+
+  useEffect(() => {
+    setProductTitle(product.title);
+  }, [product.title]);
 
   const handlePreview = async (file) => {
     if (!file.url && !file.preview) file.preview = await getBase64(file.originFileObj);
@@ -154,12 +159,20 @@ export default function ProductItem({
           <p className="font-semibold text-green-600">${product.price}</p>
         </div>
       </div>
-      <div className="p-2 my-2">
+      <div className="p-2 my-2 mb-0">
         <Input
           value={productSku}
           onChange={(e) => setProductSku(e.target.value)}
           placeholder="Enter seller sku here"
           onBlur={(e) => handleChangeProduct({ ...product, sku: e.target.value })}
+        />
+      </div>
+      <div className="p-2 mb-2 mt-0">
+        <Input
+          value={productTitle}
+          onChange={(e) => setProductTitle(e.target.value)}
+          placeholder="Enter seller sku here"
+          onBlur={(e) => handleChangeProduct({ ...product, title: e.target.value })}
         />
       </div>
       <div className={`flex justify-center px-2 ${showOutsideImages ? 'block' : 'hidden'}`}>

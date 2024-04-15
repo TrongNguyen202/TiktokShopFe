@@ -295,7 +295,7 @@ export default function DesignEditor() {
         const newStage = new window.Konva.Stage({
           container: `konva-container-${index}`,
           width: 510,
-          height: 630,
+          height: 510,
         });
         const newLayer = new window.Konva.Layer();
         newStage.add(newLayer);
@@ -472,8 +472,8 @@ export default function DesignEditor() {
             setShowModalUpload={setShowModalUpload}
             // productList={convertDataProducts(true)}
             imagesLimit={imageEdited}
-          // modalErrorInfo={modalErrorInfo}
-          // setModalErrorInfo={setModalErrorInfo}
+            // modalErrorInfo={modalErrorInfo}
+            // setModalErrorInfo={setModalErrorInfo}
           />
         )}
       </div>

@@ -10,7 +10,7 @@ export default function ModalUploadProduct({
   isShowModalUpload,
   setShowModalUpload,
   productList,
-  imagesLimit,
+  imagesLimit = 9,
   modalErrorInfo,
   setModalErrorInfo,
 }) {
@@ -140,6 +140,7 @@ export default function ModalUploadProduct({
   function mergeArrays(obj1, arr2) {
     // Convert object to array
     const arr1 = Object.values(obj1);
+    console.log('arr1: ', arr1);
     const arr2Length = arr2?.length || 0;
 
     // Calculate the number of elements to take from imagesLimit
@@ -153,7 +154,7 @@ export default function ModalUploadProduct({
 
     // Convert array back to object
     const result = mergedArray.reduce((obj, value, index) => {
-      obj[`image${index + 1}`] = value;
+      obj[`image${index + 1}`] = value?.replace('data:image/png;base64,', '');
       return obj;
     }, {});
 
@@ -216,7 +217,7 @@ export default function ModalUploadProduct({
   };
 
   const onSubmit = () => {
-    if (!handleValidateJsonForm()) return;
+    // if (!handleValidateJsonForm()) return;
     if (!shopId) {
       message.warning('Please select shop');
       return;
