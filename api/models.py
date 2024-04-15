@@ -189,4 +189,5 @@ class FlashShipAccount(models.Model):
 
 
 class TemplateDesign(models.Model):
+    user = models.ForeignKey(User, related_name="user_template", on_delete=models.SET_NULL, null=True)
     content = JSONField()
