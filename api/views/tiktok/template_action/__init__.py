@@ -80,12 +80,16 @@ class TemplateDesignList(APIView):
     # permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        template_designs = TemplateDesign.objects.all()
+        template_designs = TemplateDesign.objects.filter(user=request.user)
         serializer = TemplateDesignSerializer(template_designs, many=True)
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = TemplateDesignSerializer(data=request.data)
+        user = request.user
+        data = request.data.copy()
+        data["user"] = user.id
+
+        serializer = TemplateDesignSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

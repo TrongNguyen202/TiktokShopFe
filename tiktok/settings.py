@@ -31,8 +31,6 @@ SECRET_KEY = config("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEV_MODE")
 
-ALLOWED_HOSTS = []
-
 
 # Application definition
 
