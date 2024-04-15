@@ -125,7 +125,7 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
     const fileListUpdate = fileList.map((item, index) => {
       let urlItem = '';
       if (item.url) {
-        if (item.id) {
+        if (item.id || item.url.includes('data:image/png;base64')) {
           urlItem = item.url;
         } else {
           urlItem = item.url.replace('data:image/png;base64,', 'white_');
@@ -210,7 +210,11 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
         </Form.Item>
 
         <Form.Item label="Title:" labelCol={{ span: 24 }}>
-          <Input value={productTitle} onChange={(e) => setProductTitle(e.target.value)} />
+          <Input
+            value={productTitle}
+            onChange={(e) => setProductTitle(e.target.value)}
+            placeholder="Enter product title"
+          />
         </Form.Item>
 
         <Form.Item label="Seller sku:" labelCol={{ span: 24 }}>

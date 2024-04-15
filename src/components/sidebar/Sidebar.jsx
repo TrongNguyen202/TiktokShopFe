@@ -8,6 +8,7 @@ import {
   SearchOutlined,
   ShopOutlined,
   UsergroupAddOutlined,
+  SkinOutlined,
 } from '@ant-design/icons';
 import { Menu } from 'antd';
 import PropTypes from 'prop-types';
@@ -97,16 +98,16 @@ function Sidebar({ collapsed }) {
       ),
       hasPer: hasManagerPermission() || hasSellerPermission(),
     },
-    // {
-    //   key: '/design-editor',
-    //   icon: <GoogleOutlined style={{ color: '#230fff' }} className="w-[16px]" />,
-    //   label: (
-    //     <Link className="flex justify-between" to="design-editor">
-    //       Custom design
-    //     </Link>
-    //   ),
-    //   hasPer: hasManagerPermission() || hasSellerPermission(),
-    // },
+    {
+      key: '/design-editor',
+      icon: <SkinOutlined style={{ color: '#F6C23E' }} className="w-[16px]" />,
+      label: (
+        <Link className="flex justify-between" to="design-editor">
+          Custom design
+        </Link>
+      ),
+      hasPer: hasManagerPermission() || hasSellerPermission(),
+    },
     {
       key: '/check-label',
       icon: <SearchOutlined style={{ color: '#ff800f' }} className="w-[16px]" />,

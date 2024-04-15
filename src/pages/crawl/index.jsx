@@ -148,6 +148,7 @@ export default function Crawl() {
     return (
       <Row gutter={[16, 16]} className="flex py-5 transition-all duration-300">
         {productList.map((item, index) => {
+          console.log('item: ', item);
           return (
             <Col span={4} key={item.id}>
               <ProductItem
