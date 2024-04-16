@@ -39,7 +39,6 @@ function OrderCombinable({ data, popOverContent, dataOrderDetail, isOpenModal })
       console.log(err);
     };
 
-    console.log('click: ', dataCombineConfirm);
     confirmCombine(shopId, dataCombineConfirm, onSuccess, onFail);
   };
 

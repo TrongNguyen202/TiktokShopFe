@@ -354,13 +354,12 @@ function OrderForPartner({ toShipInfoData }) {
   const handleLoginFlashShip = (values) => {
     const onSuccess = (res) => {
       if (res) {
-        setTokenExpand('flash-ship-tk', res.data.access_token, c.TOKEN_FLASH_SHIP_EXPIRATION);
+        setTokenExpand('flash-ship-tk', res.access_token, c.TOKEN_FLASH_SHIP_EXPIRATION);
         setOpenLoginFlashShip(false);
         messageApi.open({
           type: 'success',
-          content: `Đăng nhập thành công.`,
+          content: `Đăng nhập thành công. Vui lòng click lại để xem hoặc huỷ đơn`,
         });
-        handleCreateOrderFlashShipAPI();
       }
     };
 
@@ -370,7 +369,6 @@ function OrderForPartner({ toShipInfoData }) {
         content: `Đăng nhập thất bại. Vui lòng thử lại. ${err}`,
       });
     };
-
     LoginFlashShip(values, onSuccess, onFail);
   };
 
