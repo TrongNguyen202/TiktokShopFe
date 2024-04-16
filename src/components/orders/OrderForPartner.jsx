@@ -14,9 +14,9 @@ import {
   Tooltip,
   Select,
 } from 'antd';
-import { DownOutlined, WarningOutlined } from '@ant-design/icons';
+import { DownOutlined, WarningOutlined, LinkOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { constants as c } from '../../constants';
 import { getPathByIndex } from '../../utils';
@@ -34,6 +34,7 @@ function OrderForPartner({ toShipInfoData }) {
   const flashShipTokenExpiration = getTokenKey('flash-ship-tk-expiration');
   const [messageApi, contextHolder] = message.useMessage();
   const [api, notificationContextHolder] = notification.useNotification();
+  const [showLink, setShowLink] = useState(true);
   const [designSku, setDesignSku] = useState([]);
   const [flashShipShipment, setFlashShipShipment] = useState(1);
   const [designSkuById, setDesignSkuById] = useState({});
@@ -311,7 +312,11 @@ function OrderForPartner({ toShipInfoData }) {
 
             const onSuccessPackageCreate = (resPackage) => {
               if (resPackage) {
-                navigate(`/shops/${shopId}/orders/fulfillment/completed`);
+                messageApi.open({
+                  type: 'success',
+                  content: `Tạo đơn thành công.`,
+                });
+                setShowLink(true);
               }
             };
 
@@ -384,14 +389,21 @@ function OrderForPartner({ toShipInfoData }) {
       if (fileName === 'PrintCare') {
         const onSuccess = (res) => {
           if (res) {
-            navigate(`/shops/${shopId}/orders/fulfillment/completed`);
+            messageApi.open({
+              type: 'success',
+              content: `Export đơn thành công.`,
+            });
+            setShowLink(true)
           }
         };
         packageCreatePrintCare(shopId, item, onSuccess, (err) => console.log(err));
       } else {
         const onSuccess = (res) => {
-          // TODO empty
-          console.warn(res);
+          messageApi.open({
+            type: 'success',
+            content: `Export đơn thành công.`,
+          });
+          setShowLink(true)
         };
         packageCreateFlashShip(shopId, item, onSuccess, (err) => console.log(err));
       }
@@ -499,9 +511,9 @@ function OrderForPartner({ toShipInfoData }) {
     onChange: (_, selectedRows) => {
       setTablePrintCareSelected(selectedRows);
     },
-    getCheckboxProps: () => ({
-      disabled: !allowCreateOrderPartner,
-    }),
+    // getCheckboxProps: () => ({
+    //   disabled: !allowCreateOrderPartner,
+    // }),
   };
 
   const column = [
@@ -657,6 +669,11 @@ function OrderForPartner({ toShipInfoData }) {
       {contextHolder}
       {notificationContextHolder}
       <div>
+        {showLink && 
+          <Link to={`/shops/${shopId}/orders/fulfillment/completed`} className="mb-5 inline-block" target='_blank'>
+            <LinkOutlined className="mr-3" />
+            Kiểm tra đơn đã tạo thành công
+          </Link> }
         <div className="flex flex-wrap items-center mb-3">
           <div className="flex-1">
             <SectionTitle
