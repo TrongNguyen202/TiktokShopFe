@@ -59,7 +59,7 @@ function ProductCreate() {
               custom_value: attr.value_name,
             })),
             original_price: item.price,
-            stock_infos: [item.stock_infos],
+            stock_infos: item.stock_infos,
             seller_sku: item?.seller_sku || '',
           }))
         : [

@@ -3,6 +3,7 @@ import { Button, Form, Input, Modal, Popconfirm, Table, Tooltip } from 'antd';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import ProductCreateAddVariationForm from './ProductCreateAddVariationForm';
 import ProductEditAddVariationForm from './ProductEditAddVariationForm';
+import { number } from 'prop-types';
 
 const EditableContext = React.createContext(null);
 
@@ -83,21 +84,34 @@ function ProductCreateVariationTable({ variationsData, variationsDataTable, isPr
   };
 
   const handleAdd = (newData) => {
-    setDataSource(newData);
+    console.log('newData: ', newData);
+    const newDataConvert = newData.map((item) => ({
+      ...item,
+      stock_infos: [item.stock_infos]
+    }))
+    setDataSource(newDataConvert);
     variationsDataTable(newData, ...dataSource);
     setIsModalOpen(false);
   };
 
   const handleSave = (row) => {
+    console.log('row: ', row);
     const newData = [...dataSource];
     const index = newData.findIndex((item) => row.key === item.key);
     const item = newData[index];
+
     newData.splice(index, 1, {
-      ...item,
       ...row,
+      stock_infos: [{
+        available_stock: Array.isArray(row.stock_infos) ? Number(row.stock_infos[0].available_stock) : Number(row.stock_infos.available_stock),
+        warehouse_id: item.stock_infos[0].warehouse_id
+      }]
     });
+    variationsDataTable(newData)
     setDataSource(newData);
   };
+
+  // console.log('setDataSource: ', dataSource);
 
   const components = {
     body: {
@@ -106,7 +120,6 @@ function ProductCreateVariationTable({ variationsData, variationsDataTable, isPr
     },
   };
 
-  // console.log('dataSource: ', dataSource);
   const extraColumns = [
     {
       title: 'Color',
@@ -137,6 +150,7 @@ function ProductCreateVariationTable({ variationsData, variationsDataTable, isPr
       align: 'center',
       editable: true,
       width: '200px',
+      render: (_, record) => record.stock_infos[0].available_stock
     },
     {
       title: 'Hành động',
@@ -156,13 +170,15 @@ function ProductCreateVariationTable({ variationsData, variationsDataTable, isPr
 
     return {
       ...col,
-      onCell: (record) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        handleSave,
-      }),
+      onCell: (record) => {
+        return ({
+          record,
+          editable: col.editable,
+          dataIndex: col.dataIndex,
+          title: col.title,
+          handleSave,
+        })
+      },
     };
   });
 

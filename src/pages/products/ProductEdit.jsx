@@ -64,26 +64,9 @@ function ProductEdit() {
     is_cod_open: productById?.is_cod_open,
   };
 
-  useEffect(() => {
-    getAllCategoriesIsLeaf();
-    getProductsById(shopId, productId);
-    getWarehousesByShopId(shopId);
-    getAllBrand(shopId);
-
-    form.setFieldsValue(formData);
-    setSkusData(
-      productById?.skus?.map((item) => ({
-        key: item.id,
-        price: item?.price?.original_price,
-        variations: item.sales_attributes,
-        seller_sku: item.seller_sku,
-        stock_infos: item.stock_infos,
-      })),
-    );
-  }, [productById?.product_id]);
-
   const variationsDataTable = (data) => {
-    setSkusData([data]);
+    console.log('data: ', data);
+    setSkusData(data);
   };
 
   const handleImgBase64 = (img) => {
@@ -91,7 +74,6 @@ function ProductEdit() {
   };
 
   const onFinish = async (values) => {
-    console.log('values: ', values);
     const category_id = values?.category_id[values.category_id.length - 1];
     const product_attributes = ConvertProductAttribute(values.product_attributes, attributeValues);
 
@@ -154,7 +136,26 @@ function ProductEdit() {
     setAttributeValues(data);
   };
 
-  // if (loading) return <Loading/>
+  useEffect(() => {
+    getAllCategoriesIsLeaf();
+    getProductsById(shopId, productId);
+    getWarehousesByShopId(shopId);
+    getAllBrand(shopId);
+
+    form.setFieldsValue(formData);
+    const skuProduct = productById?.skus?.map((item) => ({
+      key: item.id,
+      price: item?.price?.original_price,
+      variations: item.sales_attributes,
+      seller_sku: item.seller_sku,
+      stock_infos: item.stock_infos,
+    }));
+    if (skuProduct) {
+      setSkusData(skuProduct);      
+    }
+  }, [productById?.product_id]);
+
+  // console.log('skusData: ', skusData);
   return (
     <Spin spinning={loading}>
       {contextHolder}
@@ -191,7 +192,7 @@ function ProductEdit() {
 
         <div className="h-[10px] bg-[#f5f5f5]" />
         <div className="px-3 md:px-20 py-10">
-          <ProductVariation shopId={shopId} variations={productById?.skus} variationsDataTable={variationsDataTable} />
+          <ProductVariation shopId={shopId} variations={skusData} variationsDataTable={variationsDataTable} />
         </div>
 
         <div className="h-[10px] bg-[#f5f5f5]" />
