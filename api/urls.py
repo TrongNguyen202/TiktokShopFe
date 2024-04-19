@@ -219,6 +219,24 @@ google_trend_urls = [
 image_process_urls = [
     path("crawl/process_image", image_action.ReplaceBackgroundView.as_view(), name="crawl_process_image"),
 ]
+web_hook_url = [
+    path(
+        "tokens/refresh-shopId",
+        tiktok.token_action.RefreshTokenAuthorizedShop.as_view(),
+        name="refreshtoken-getshopid-author",
+    ),
+    path("webhook/get-order-status", tiktok.webhook_action.WebhookDataView.as_view(), name="get-order-status"),
+    path(
+        "webhook/view-noti-order",
+        tiktok.webhook_action.ViewNotiForOrder.as_view(),
+        name="view-noti-order",
+    ),
+    path(
+        "webhook/mark-as-read",
+        tiktok.webhook_action.MaskAsReadNoti.as_view(),
+        name="mark-as-read-noti",
+    ),
+]
 
 
 # Tách URLs ra thành các nhóm URLs nhỏ để dễ quản lý
@@ -232,4 +250,5 @@ urlpatterns = (
     + fulfillment_urls
     + google_trend_urls
     + image_process_urls
+    + web_hook_url
 )

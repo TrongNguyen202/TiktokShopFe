@@ -6,3 +6,4 @@ from .promotion_action import *  # noqa: F403
 from .shop_action import *  # noqa: F403
 from .template_action import *  # noqa: F403
 from .token_action import *  # noqa: F403
+from .webhook_action import *

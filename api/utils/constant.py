@@ -10,6 +10,7 @@ app_key = os.getenv("APP_KEY")
 TIKTOK_API_URL = {
     "url_product_list": "https://open-api.tiktokglobalshop.com/api/products/search",
     "url_get_access_token": "https://auth.tiktok-shops.com/api/token/getAccessToken",
+    "url_get_author_shop": "https://open-api.tiktokglobalshop.com/api/shop/get_authorized_shop",
     "url_refresh_token": "https://auth.tiktok-shops.com/api/token/refreshToken",
     "url_detail_product": "https://open-api.tiktokglobalshop.com/api/products/details",
     "url_get_active_shop": "https://open-api.tiktokglobalshop.com/api/seller/global/active_shops",
@@ -214,3 +215,4 @@ DOWNLOAD_IMAGES_DIR_WINDOW = "C:/workspace/anhtiktok"
 DOWNLOAD_IMAGES_DIR_UNIX = "~/workspace/anhtiktok"
 PDF_DIRECTORY_WINDOW = "C:/workspace/pdf"
 PDF_DIRECTORY_UNIX = "~/workspace/pdf"
+webhook_url = "https://117a-42-114-151-247.ngrok-free.app"
