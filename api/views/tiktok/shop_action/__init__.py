@@ -102,6 +102,11 @@ class Shops(APIView):
             )
 
         # Sau khi lấy được access_token và refresh_token, lưu vào database
+        res_author = token.get_author_shop(access_token=access_token)
+        json_data = res_author.json()
+        shop_list = json_data.get("data", {}).get("shop_list", [])
+        if shop_list:
+            shop_info = shop_list[0]
         shop_data = {
             "auth_code": auth_code,
             "app_key": constant.app_key,
@@ -113,6 +118,8 @@ class Shops(APIView):
             "shop_code": shop_code,
             "group_custom_id": group_custom.id,
             "is_active": True,
+            "shop_id_author": shop_info.get("shop_id"),
+            "shop_cipher": shop_info.get("shop_cipher"),
         }
 
         shop_serializer = ShopSerializers(data=shop_data)

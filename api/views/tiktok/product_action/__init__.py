@@ -295,6 +295,7 @@ class ProcessExcel(View):
             for col, value in images.items():
                 print("value", value[:10])
                 if value.startswith("https"):
+                    print("value https", value)
                     image_url = value
                     future = executor.submit(self._process_image_url, image_url)
                     futures[future] = (col, image_url)
@@ -624,7 +625,9 @@ class EditProduct(APIView):
         # Tạo một đối tượng ProductObject không chứa imgBase64
         product_object_data = {key: value for key, value in product_data.items() if key != "imgBase64"}
         try:
+            print("hello", product_object_data["skus"][0]["stock_infos"])
             product_object = helpers.ProductObject(**product_object_data)
+
         except Exception as e:
             logger.error(f"User {request.user}: Error when create product object from request body", exc_info=e)
             return JsonResponse({"message": "Error occurred while creating product object"}, status=500)

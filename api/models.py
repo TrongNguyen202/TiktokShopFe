@@ -44,6 +44,8 @@ class Shop(models.Model):
     group_custom_id = models.ForeignKey(GroupCustom, on_delete=models.SET_NULL, null=True)
     objects = models.Manager()
     is_active = models.BooleanField(default=True)
+    shop_id_author = models.CharField(null=True, max_length=500)
+    shop_cipher = models.CharField(null=True, max_length=500)
 
 
 class Image(models.Model):
@@ -191,3 +193,19 @@ class FlashShipAccount(models.Model):
 class TemplateDesign(models.Model):
     user = models.ForeignKey(User, related_name="user_template", on_delete=models.SET_NULL, null=True)
     content = JSONField()
+
+
+class NotiMessage(models.Model):
+    type = models.CharField(("type of notification"), max_length=500)
+    message = models.TextField(("message for notification"))
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, related_name="user_noti", on_delete=models.SET_NULL, null=True)
+    shop = models.ForeignKey(Shop, related_name="shop_noti", on_delete=models.SET_NULL, null=True)
+    message = models.ForeignKey(NotiMessage, related_name="notification", on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    is_read = models.BooleanField(("mark as read"), default=False)
+
+    class Meta:
+        ordering = ["-created_at"]

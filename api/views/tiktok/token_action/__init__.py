@@ -1,4 +1,7 @@
+import asyncio
 import logging
+
+from rest_framework.permissions import IsAuthenticated as IsAuthenticated
 
 from api import setup_logging
 from api.utils.tiktok_base_api import token
@@ -35,3 +38,43 @@ class RefreshToken(APIView):
         shop.save()
 
         return Response(response)
+
+
+class RefreshTokenAuthorizedShop(APIView):
+    # permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        try:
+            shops_active = Shop.objects.filter(is_active=True)
+            access_tokens = []
+
+            for shop in shops_active:
+                response = token.refreshToken(refresh_token=shop.refresh_token)
+                asyncio.sleep(4)
+                json_data = response.json()
+                data = json_data.get("data", {})
+                access_token = data.get("access_token")
+
+                if access_token:
+                    access_tokens.append(access_token)
+                    shop.access_token = access_token
+                    shop.save()
+
+            for access_token in access_tokens:
+                shop = Shop.objects.get(access_token=access_token, is_active=True)
+                response = token.get_author_shop(access_token=access_token)
+                json_data = response.json()
+                shop_list = json_data.get("data", {}).get("shop_list", [])
+
+                if shop_list:
+                    shop_info = shop_list[0]
+                    shop.shop_id_author = shop_info.get("shop_id")
+                    shop.shop_cipher = shop_info.get("shop_cipher")
+                    shop.save()
+                    print("thanh cong shop")
+                    asyncio.sleep(4)
+
+        except Exception as e:
+            print(e)
+
+        return Response({"message": "Processed authorized shops successfully"})

@@ -9,6 +9,8 @@ from .models import (
     DesignSku,
     FlashShipPODVariantList,
     GroupCustom,
+    Notification,
+    NotiMessage,
     Package,
     ProductPackage,
     Shop,
@@ -224,3 +226,33 @@ class TemplateDesignSerializer(serializers.ModelSerializer):
     class Meta:
         model = TemplateDesign
         fields = "__all__"
+
+
+class NotiMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NotiMessage
+        fields = ("id", "type", "message")
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    message = NotiMessageSerializer()
+    shop = serializers.SerializerMethodField()
+
+    # Lấy tên người dùng từ mô hình người dùng Django
+    user = serializers.SerializerMethodField()
+
+    def get_shop(self, obj):
+        return obj.id
+
+    def get_user(self, obj):
+        return obj.user.username  # Lấy username từ user object
+
+    class Meta:
+        model = Notification
+        fields = ("id", "user", "shop", "message", "created_at", "is_read")
+
+
+class NotiPutSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = "is_read"
