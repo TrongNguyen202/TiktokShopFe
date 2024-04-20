@@ -26,7 +26,7 @@ class WebhookDataView(APIView):
             if order_status is not None:
                 new_message = NotiMessage.objects.create(
                     type="Order",
-                    message=f"New order {order_status} from shop: {shop.shop_name} and orderId {data["data"]["order_id"]}",
+                    message=f"New order {order_status} from shop: {shop.shop_name} and orderId {data['data']['order_id']}",
                 )
                 new_message.save()
                 notification = Notification.objects.create(
