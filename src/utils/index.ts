@@ -9,7 +9,7 @@ export const getMeta = (metaName) => {
   return '';
 };
 export const store_code = getMeta('store_code') === '' ? window.location.hostname.split('.')[0] : getMeta('store_code');
-export const formatNumber = (str) => {
+export const formatNumber = (str: string) => {
   if (str === undefined || str === null) return '';
   const strFormat = str.toString().replace(/[A-Za-z`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/g, '');
   if (Number(strFormat) >= 1000) {
@@ -81,33 +81,7 @@ export const getPathByIndex = (index) => {
   return null;
 };
 
-export const contactOrNumber = (data) => {
-  if (getChannel() === 'IKIPOS') {
-    return data;
-  }
-  const string = data.slice(0, -2);
-  const newString = string
-    .toString()
-    .replace(/\./g, '')
-    .toString()
-    .replace(/,/g, '')
-    .toString()
-    .replace(/-/g, '')
-    .toString();
-  if (newString === '0') {
-    return '0đ';
-  }
-  return data;
-};
-
-export const getChannel = () => {
-  if (window.location.href.includes('pos.')) {
-    return 'IKIPOS';
-  }
-  return 'IKITECH';
-};
-
-export const format = (number) => {
+export const format = (number: number) => {
   const num = Number(number);
   return num.toLocaleString('vi-VN', {
     style: 'currency',
@@ -116,7 +90,7 @@ export const format = (number) => {
 };
 
 // style: currency, percent
-export const IntlNumberFormat = (currency, style, maximumSignificantDigits, number) => {
+export const IntlNumberFormat = (currency: string, style: string, maximumSignificantDigits: string, number: number) => {
   return new Intl.NumberFormat(currency, {
     style: `${style}`,
     currency: `${currency}`,

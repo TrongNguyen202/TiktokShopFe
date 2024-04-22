@@ -151,7 +151,7 @@ function ProductEdit() {
       stock_infos: item.stock_infos,
     }));
     if (skuProduct) {
-      setSkusData(skuProduct);      
+      setSkusData(skuProduct);
     }
   }, [productById?.product_id]);
 

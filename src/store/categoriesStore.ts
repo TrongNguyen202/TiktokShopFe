@@ -15,9 +15,9 @@ export const useCategoriesStore = create((set) => ({
     try {
       set({ loading: true });
       const response = await RepositoryRemote.categories.getAllCategories();
-      set({ categories: response.data.data.data });
-      set({ infoTable: response.data.data });
-      onSuccess(response.data.data);
+      set({ categories: response?.data.data.data });
+      set({ infoTable: response?.data.data });
+      onSuccess(response?.data.data);
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
     }
@@ -28,7 +28,7 @@ export const useCategoriesStore = create((set) => ({
       set({ loading: true });
       const response = await RepositoryRemote.categories.getAllCategoriesIsLeaf();
       set({ categoriesIsLeaf: response.data.data.category_list });
-      onSuccess(response.data.data);
+      onSuccess(response?.data.data);
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
     }
@@ -50,8 +50,8 @@ export const useCategoriesStore = create((set) => ({
     try {
       set({ loadingById: true });
       const response = await RepositoryRemote.categories.getCategoriesById(id);
-      set({ categoriesById: response.data.data });
-      onSuccess(response.data.data);
+      set({ categoriesById: response?.data.data });
+      onSuccess(response?.data.data);
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra khi lấy dữ liệu category!');
     }

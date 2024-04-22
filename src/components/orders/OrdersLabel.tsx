@@ -30,16 +30,19 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
     {
       title: 'Order ID',
       dataIndex: 'order_id',
-      render: (_, record) =>
-        (
-          <ul className="flex flex-wrap">
-            {record.order_list.map((item) => (
-              <Link to={`/shops/${shopId}/orders/${item.order_id}`} state={{ orderData: item }} className="font-medium mb-5 last:mb-0">
-                <Tag color="blue">{item.order_id}</Tag>
-              </Link>
-            ))}
-          </ul>
-        )
+      render: (_, record) => (
+        <ul className="flex flex-wrap">
+          {record.order_list.map((item) => (
+            <Link
+              to={`/shops/${shopId}/orders/${item.order_id}`}
+              state={{ orderData: item }}
+              className="font-medium mb-5 last:mb-0"
+            >
+              <Tag color="blue">{item.order_id}</Tag>
+            </Link>
+          ))}
+        </ul>
+      ),
     },
     {
       title: 'Label URL',
@@ -61,7 +64,9 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
       if (selectedRows.length > 0) changeNextStep(true);
     },
     getCheckboxProps: (record) => {
-      const disabledOrderCompleted = ordersCompleted.filter((item) => item.pack_id === record.package_id && item.package_status === true);
+      const disabledOrderCompleted = ordersCompleted.filter(
+        (item) => item.pack_id === record.package_id && item.package_status === true,
+      );
 
       return {
         disabled: record.label === null || disabledOrderCompleted.length > 0,

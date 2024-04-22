@@ -40,8 +40,8 @@ function CreateLabel() {
       const orderList = label.data.order_info_list?.map((order) => {
         const orderItemList = order?.item_list || order?.sku_list;
         const productList = orderItemList?.map((product) => {
-          let variationSize = "";
-          const variationSplit = product?.sku_name.split(',').map(item => item.trim());
+          let variationSize = '';
+          const variationSplit = product?.sku_name.split(',').map((item) => item.trim());
           if (variationSplit.length === 3) {
             variationSize = variationSplit[1] - variationSplit[2];
           } else {
@@ -49,16 +49,16 @@ function CreateLabel() {
           }
 
           const variationSizeSplit = variationSize?.split(/[\s-,]/).filter(Boolean);
-          let orderPackageList = dataSizeChart?.find((variant) => 
-            variationSizeSplit?.find(item => item.toUpperCase() === variant.name.toUpperCase())
+          let orderPackageList = dataSizeChart?.find((variant) =>
+            variationSizeSplit?.find((item) => item.toUpperCase() === variant.name.toUpperCase()),
           );
 
           if (orderPackageList === undefined) {
             orderPackageList = dataSizeChart.find((orderPackage) => orderPackage.name === 'shirt');
           }
 
-          let orderPackageSizeChart = orderPackageList?.items.find(
-            (orderPackage) => variationSizeSplit?.find(item => item.toUpperCase() === orderPackage.name.toUpperCase())
+          let orderPackageSizeChart = orderPackageList?.items.find((orderPackage) =>
+            variationSizeSplit?.find((item) => item.toUpperCase() === orderPackage.name.toUpperCase()),
           );
 
           if (orderPackageSizeChart === undefined) {
@@ -70,16 +70,17 @@ function CreateLabel() {
           return { orderPackageWeight, orderPackageSize };
         });
 
-        let sumWeight = productList?.map((product) => product.orderPackageWeight)
+        let sumWeight = productList
+          ?.map((product) => product.orderPackageWeight)
           .reduce((partialSum, current) => partialSum + current, 0);
         sumWeight = parseFloat(sumWeight.toFixed(4));
         const sumSize = orderItemList.length > 1 ? '10x10x3'.split('x') : productList[0]?.orderPackageSize?.split('x');
         return { sumWeight, sumSize };
       });
 
-      let packageWeight =  orderList
-      .map((item) => parseFloat(item.sumWeight))
-      .reduce((partialSum, current) => partialSum + current, 0);
+      let packageWeight = orderList
+        .map((item) => parseFloat(item.sumWeight))
+        .reduce((partialSum, current) => partialSum + current, 0);
       packageWeight = parseFloat(packageWeight.toFixed(4));
       const sumPackageCombine = {
         package_weight: packageWeight,
@@ -102,7 +103,7 @@ function CreateLabel() {
   }, [dataCombine, dataSizeChart]);
 
   const renderListItemProduct = (data) => {
-    const skuList = data.order_info_list.map((item) => item.item_list ? item.item_list : item.sku_list);
+    const skuList = data.order_info_list.map((item) => (item.item_list ? item.item_list : item.sku_list));
     return skuList.map((skuItem, index) => {
       return (
         <>
@@ -335,14 +336,15 @@ function CreateLabel() {
       dataIndex: 'items',
       key: 'items',
       render: (_, record) => {
-        const sumItem = record.data.order_info_list.map((item) => {
-          if (item.item_list && item.item_list.length > 0) {
+        const sumItem = record.data.order_info_list
+          .map((item) => {
+            if (item.item_list && item.item_list.length > 0) {
               return item.item_list.length;
-          } else {
+            }
             return item.sku_list.length;
-          }
-        }).reduce((partialSum, a) => partialSum + a, 0);
-        
+          })
+          .reduce((partialSum, a) => partialSum + a, 0);
+
         return (
           <Popover
             content={renderListItemProduct(record.data)}
@@ -360,9 +362,8 @@ function CreateLabel() {
                       <li key={prItem.sku_id} className="inline-block mr-3 w-10 h-10 [&:nth-child(3+n)]:hidden">
                         <img className="w-full h-full object-cover" width={30} height={30} src={prItem.sku_image} />
                       </li>
-                    ))
-                  }
-                  )}
+                    ));
+                  })}
                 </ul>
               </div>
               <DownOutlined />

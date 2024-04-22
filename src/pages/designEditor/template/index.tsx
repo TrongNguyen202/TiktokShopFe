@@ -90,7 +90,7 @@ export default function DesignTemplate({ checkedItems, setCheckedItems }) {
                   </p>
                 </div>
               </div>
-          ))
+            ))
           : null}
       </div>
       {isShowModal && <ModalTemplateForm isShowModal={isShowModal} setShowModal={setShowModal} />}

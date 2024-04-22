@@ -1,5 +1,3 @@
-import Cookies from 'js-cookie';
-
 const tokenKey = 'tk-tk';
 const refreshTokenKey = 'refreshToken';
 
@@ -7,15 +5,15 @@ export function getToken() {
   return localStorage.getItem(tokenKey);
 }
 
-export function getTokenKey(setTokenKey) {
+export function getTokenKey(setTokenKey: string) {
   return localStorage.getItem(setTokenKey);
 }
 
-export function setToken(setTokenKey, token) {
+export function setToken(setTokenKey: string, token: string) {
   return localStorage.setItem(setTokenKey, token);
 }
 
-export function setTempToken(token) {
+export function setTempToken(token: string) {
   return sessionStorage.setItem(tokenKey, token);
 }
 
@@ -23,30 +21,18 @@ export function removeToken() {
   return localStorage.removeItem(tokenKey);
 }
 
-export function getRefreshToken() {
-  return Cookies.get(refreshTokenKey);
-}
-
-export function setRefreshToken(refreshToken, maxAge) {
-  return Cookies.set(refreshTokenKey, refreshToken, {
-    expires: maxAge / 86400,
-  });
-}
-
-export const removeRefreshToken = () => Cookies.remove(refreshTokenKey);
-
-export function setTokenExpand(tokenKey, token, expirationTime) {
+export function setTokenExpand(tokenKey: string, token: string, expirationTime) {
   const currentTime = Date.now();
   const expireAt = currentTime + expirationTime;
   localStorage.setItem(tokenKey, token);
-  localStorage.setItem(tokenKey + '-expiration', expireAt);
+  localStorage.setItem(`${tokenKey}-expiration`, expireAt);
 }
 
 export function removeExpiredTokens() {
   const keys = Object.keys(localStorage);
   const currentTime = Date.now();
 
-  keys.forEach(key => {
+  keys.forEach((key) => {
     if (key.endsWith('-expiration')) {
       const tokenKey = key.replace('-expiration', '');
       const expirationTime = localStorage.getItem(key);

@@ -196,7 +196,8 @@ function OrderForPartner({ toShipInfoData }) {
   };
 
   const handleConvertDataPackageCreate = (data, key, isExport) => {
-    const result = data.map((item) => {
+    const result = data
+      .map((item) => {
         let orderList;
         const orderFulfillmentCompletedRejected = orderFulfillmentCompleted.find(
           (order) => order.order_id === item.order_id,
@@ -253,10 +254,10 @@ function OrderForPartner({ toShipInfoData }) {
               printer_design_back_url: product.image_design_back || null,
               quantity: product.quantity,
               note: '',
-            }))
+            })),
           };
         }
-        
+
         if (orderFulfillmentCompletedRejected && orderFulfillmentCompletedRejected?.package_status === false) {
           orderList.order_id = `${item.order_id}-${Math.floor(Math.random() * 10)}`;
         }
@@ -320,7 +321,7 @@ function OrderForPartner({ toShipInfoData }) {
               }
             };
 
-            const onFailPackageCreate = (errPackage) => { };
+            const onFailPackageCreate = (errPackage) => {};
             packageCreateFlashShip(shopId, dataCreateOrder, onSuccessPackageCreate, onFailPackageCreate);
           } else {
             api.open({
@@ -393,7 +394,7 @@ function OrderForPartner({ toShipInfoData }) {
               type: 'success',
               content: `Export đơn thành công.`,
             });
-            setShowLink(true)
+            setShowLink(true);
           }
         };
         packageCreatePrintCare(shopId, item, onSuccess, (err) => console.log(err));
@@ -403,7 +404,7 @@ function OrderForPartner({ toShipInfoData }) {
             type: 'success',
             content: `Export đơn thành công.`,
           });
-          setShowLink(true)
+          setShowLink(true);
         };
         packageCreateFlashShip(shopId, item, onSuccess, (err) => console.log(err));
       }
@@ -419,11 +420,13 @@ function OrderForPartner({ toShipInfoData }) {
       if (res) {
         const dataChangedLabelLink = data.map((item) => {
           const resConvert = res.flatMap((resItem) => resItem[0]);
-          const checkPackageId = resConvert.find((itemRes) => itemRes.name.replace('.pdf', '').toString() === item.package_id);
-          return ({
+          const checkPackageId = resConvert.find(
+            (itemRes) => itemRes.name.replace('.pdf', '').toString() === item.package_id,
+          );
+          return {
             ...item,
-            label: checkPackageId.link
-          })
+            label: checkPackageId.link,
+          };
         });
 
         const dataConvert = handAddDesignToShipInfoData(dataChangedLabelLink);
@@ -482,7 +485,7 @@ function OrderForPartner({ toShipInfoData }) {
         ExportExcelFile(dataExport, key, dataConvert);
       }
     };
-    pdfLabelLinkSearch(dataLabel, onSuccess, () => { });
+    pdfLabelLinkSearch(dataLabel, onSuccess, () => {});
   };
 
   const handleRefreshDesign = (newData) => {
@@ -655,7 +658,7 @@ function OrderForPartner({ toShipInfoData }) {
     );
     getFlashShipPODVariant(onSuccessVariant, onFailVariant);
     getToShipInfo(shopId, data, onSuccess, onFail);
-    packageFulfillmentCompleted(shopId, onSuccessFulfillmentCompleted, () => { });
+    packageFulfillmentCompleted(shopId, onSuccessFulfillmentCompleted, () => {});
   }, [shopId, toShipInfoData]);
 
   useEffect(() => {
@@ -669,11 +672,12 @@ function OrderForPartner({ toShipInfoData }) {
       {contextHolder}
       {notificationContextHolder}
       <div>
-        {showLink && 
-          <Link to={`/shops/${shopId}/orders/fulfillment/completed`} className="mb-5 inline-block" target='_blank'>
+        {showLink && (
+          <Link to={`/shops/${shopId}/orders/fulfillment/completed`} className="mb-5 inline-block" target="_blank">
             <LinkOutlined className="mr-3" />
             Kiểm tra đơn đã tạo thành công
-          </Link> }
+          </Link>
+        )}
         <div className="flex flex-wrap items-center mb-3">
           <div className="flex-1">
             <SectionTitle

@@ -7,8 +7,8 @@
     "dev": "vite --host",
     "build": "vite build",
     "format": "prettier --write .",
-    "lint": "eslint . --ext .js,.jsx --cache",
-    "lint:fix": "eslint . --ext .js,.jsx --fix --cache",
+    "lint": "eslint . --ext .ts,.tsx --cache",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix --cache",
     "prettier": "prettier --check \"src/**/(*.tsx|*.ts|*.css|*.scss)\"",
     "prettier:fix": "prettier --write \"src/**/(*.tsx|*.ts|*.css|*.scss)\"",
     "preview": "vite preview --host --port 5173",
@@ -62,8 +62,13 @@
     "zustand": "^4.3.8"
   },
   "devDependencies": {
-    "@types/react": "^18.0.37",
-    "@types/react-dom": "^18.0.11",
+    "@types/node": "^20.12.7",
+    "@types/prop-types": "^15.7.12",
+    "@types/react": "^18.2.64",
+    "@types/react-custom-scrollbars": "^4.0.13",
+    "@types/react-dom": "^18.2.21",
+    "@typescript-eslint/eslint-plugin": "^7.7.0",
+    "@typescript-eslint/parser": "^7.7.0",
     "@vitejs/plugin-react": "^4.0.0",
     "autoprefixer": "^10.4.14",
     "eslint": "^8.56.0",
@@ -80,6 +85,7 @@
     "postcss": "^8.4.24",
     "prettier": "^3.2.5",
     "tailwindcss": "^3.4.1",
+    "typescript": "^5.4.5",
     "vite": "^4.3.9"
   }
 }

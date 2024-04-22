@@ -1,6 +1,21 @@
-import { DownOutlined, LoadingOutlined, SearchOutlined, DeleteOutlined } from '@ant-design/icons';
-import { Button, Image, Popover, Space, Spin, Table, Tag, Tooltip, Modal, message, DatePicker, Form, Input, Popconfirm, Radio } from 'antd';
-import { EditOutlined } from '@ant-design/icons';
+import { DownOutlined, LoadingOutlined, SearchOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import {
+  Button,
+  Image,
+  Popover,
+  Space,
+  Spin,
+  Table,
+  Tag,
+  Tooltip,
+  Modal,
+  message,
+  DatePicker,
+  Form,
+  Input,
+  Popconfirm,
+  Radio,
+} from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
@@ -28,7 +43,7 @@ function Orders() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [openFilterDate, setOpenFilterDate] = useState(false);
-  const [reasonRejectOrder, setReasonRejectOrder] = useState("");
+  const [reasonRejectOrder, setReasonRejectOrder] = useState('');
   const [openOrderCustom, setOpenOrderCustom] = useState(false);
   const [orderCustomEdit, setOrderCustomEdit] = useState({});
   const [searchText, setSearchText] = useState('');
@@ -48,7 +63,7 @@ function Orders() {
     cancelOrder,
     loading,
     loadingFulfillment,
-    loadingRejectOrder
+    loadingRejectOrder,
   } = useShopsOrder((state) => state);
 
   const sortByPackageId = (arr) => {
@@ -118,9 +133,11 @@ function Orders() {
             presets={[...rangePresets]}
             format="DD/MM/YYYY"
             onOk={false}
-            onChange={(date, dateStrings) => onRangeChange(date, dateStrings, confirm, dataIndex, setSelectedKeys, selectedKeys)}
+            onChange={(date, dateStrings) =>
+              onRangeChange(date, dateStrings, confirm, dataIndex, setSelectedKeys, selectedKeys)
+            }
           />
-  
+
           <Space className="mt-3 ml-3">
             <Button
               type="primary"
@@ -137,7 +154,7 @@ function Orders() {
             >
               Tìm kiếm
             </Button>
-  
+
             <Button
               size="small"
               onClick={() => {
@@ -154,11 +171,13 @@ function Orders() {
             </Button>
           </Space>
         </div>
-      )
+      );
     },
 
     // eslint-disable-next-line react/no-unstable-nested-components
-    filterIcon: (filtered) => <SearchOutlined onClick={() => setOpenFilterDate(!openFilterDate)} className={filtered ? '#1677ff' : undefined} />,
+    filterIcon: (filtered) => (
+      <SearchOutlined onClick={() => setOpenFilterDate(!openFilterDate)} className={filtered ? '#1677ff' : undefined} />
+    ),
     filterDropdownOpen: openFilterDate,
 
     onFilter: (value, record) => {
@@ -168,7 +187,7 @@ function Orders() {
         const createTime = Number(record[dataIndex]);
         return createTime.valueOf() >= startDate && createTime.valueOf() <= endDate;
       }
-      
+
       return false;
     },
     render: (text) => formatDate(Number(text), 'DD/MM/YYYY, hh:mm:ss a'),
@@ -202,20 +221,20 @@ function Orders() {
     const orderCustom = orderDataTable.find((order) => order.order_id === orderId);
     setOpenOrderCustom(true);
     setOrderCustomEdit(orderCustom);
-  }
+  };
 
   const onFinishOrderCustom = (values) => {
     const valuesArray = Object.values(values);
     const orderCustomTable = orderDataTable.map((order) => {
-      const newOrder = {...order};
+      const newOrder = { ...order };
       if (newOrder.order_id === orderCustomEdit.order_id) {
         const itemListUpdate = valuesArray.map((value) => {
-          const checkOrderEdit = order.item_list?.find(item => item.sku_id === value.sku_id);
+          const checkOrderEdit = order.item_list?.find((item) => item.sku_id === value.sku_id);
           return {
             ...checkOrderEdit,
-            sku_name: value.sku_name
-          }
-        })
+            sku_name: value.sku_name,
+          };
+        });
 
         newOrder.item_list = itemListUpdate;
       }
@@ -224,7 +243,7 @@ function Orders() {
     });
     setOrderDataTable(orderCustomTable);
     setOpenOrderCustom(false);
-  }
+  };
 
   const handleCreateLabels = () => {
     const onSuccess = (res) => {
@@ -232,12 +251,12 @@ function Orders() {
         const resConvert = res.map((resItem) => ({
           data: {
             ...resItem.data,
-            shipping_provider: "USPS Ground Advantage™",
-            shipping_provider_id: "7208502187360519982"
-          }
+            shipping_provider: 'USPS Ground Advantage™',
+            shipping_provider_id: '7208502187360519982',
+          },
         }));
 
-        let dataUpdate = [...resConvert];
+        const dataUpdate = [...resConvert];
         const promises = dataUpdate.map((item, index) => {
           return new Promise((resolve, reject) => {
             const packageId = {
@@ -256,7 +275,9 @@ function Orders() {
                   }))
                   .flat();
 
-                const dataCreateLabel = dataOrderCombine.find((resItem) => resItem.data.package_id === packageId.package_id);
+                const dataCreateLabel = dataOrderCombine.find(
+                  (resItem) => resItem.data.package_id === packageId.package_id,
+                );
                 if (dataCreateLabel) {
                   dataCreateLabel.data.shipping_provider = resShipping.data[0].name;
                   dataCreateLabel.data.shipping_provider_id = resShipping.data[0].id;
@@ -268,7 +289,7 @@ function Orders() {
             };
 
             shippingService(shopId, packageId, onSuccessShipping, (err) => {
-              console.log("err: ", resConvert);
+              console.log('err: ', resConvert);
               reject(err);
             });
           });
@@ -321,7 +342,7 @@ function Orders() {
   const handleCancelOrder = (orderId) => {
     const dataSubmit = {
       cancel_reason_key: reasonRejectOrder,
-      order_id: orderId
+      order_id: orderId,
     };
 
     const onSuccess = (res) => {
@@ -332,7 +353,6 @@ function Orders() {
             content: 'Huỷ đơn thành công!',
           });
         } else {
-          
           messageApi.open({
             type: 'warning',
             content: res.message,
@@ -343,13 +363,13 @@ function Orders() {
 
     const onFail = (err) => {
       message.open({
-        type: "error",
-        content: `Huỷ đơn thất bại. ${err}`
-      })
+        type: 'error',
+        content: `Huỷ đơn thất bại. ${err}`,
+      });
     };
 
     cancelOrder(shopId, dataSubmit, onSuccess, onFail);
-  }
+  };
 
   const contentRejectOrder = (
     <div>
@@ -363,7 +383,7 @@ function Orders() {
         </Space>
       </Radio.Group>
     </div>
-  )
+  );
 
   const rowSelection = {
     onChange: (_, selectedRows) => {
@@ -402,14 +422,16 @@ function Orders() {
         record.package_list.length > 0 ? record.package_list[0].package_id : 'Hiện chưa có package ID',
       // eslint-disable-next-line consistent-return
       onCell: (record, index) => {
-        const rowSpanData = orderDataTable.filter((item) => item.package_id === record.package_id && item.package_id !== null);
+        const rowSpanData = orderDataTable.filter(
+          (item) => item.package_id === record.package_id && item.package_id !== null,
+        );
         const orderIdRowSpanData = rowSpanData.map((item) => {
           return {
             ...item,
             order_position: item.order_id === record.order_id ? index : null,
             // key: item.order_id === record.order_id ? item.key : '',
           };
-        });            
+        });
 
         if (rowSpanData.length > 1) {
           if (index === orderIdRowSpanData[0].order_position) {
@@ -420,11 +442,10 @@ function Orders() {
           return {
             rowSpan: 0,
           };
-        } else {
-          return {
-            rowSpan: 1,
-          };
         }
+        return {
+          rowSpan: 1,
+        };
       },
     },
     {
@@ -503,17 +524,28 @@ function Orders() {
       align: 'center',
       render: (_, record) => (
         <div className="flex flex-wrap items-center justify-center gap-5">
-          <Tooltip placement="top" title="Thêm thông tin đơn hàng" className="cursor-pointer w-[30px] h-[30px] leading-[30px]">
-            <span onClick={() => handleOpenModalOrderCustom(record.order_id)}><EditOutlined /></span>
+          <Tooltip
+            placement="top"
+            title="Thêm thông tin đơn hàng"
+            className="cursor-pointer w-[30px] h-[30px] leading-[30px]"
+          >
+            <span onClick={() => handleOpenModalOrderCustom(record.order_id)}>
+              <EditOutlined />
+            </span>
           </Tooltip>
 
           <Tooltip placement="top" title="Huỷ đơn">
-            <Popconfirm placement="left" title={contentRejectOrder} onConfirm={() => handleCancelOrder(record.order_id)} className="w-[30px] h-[30px] leading-[30px]">
+            <Popconfirm
+              placement="left"
+              title={contentRejectOrder}
+              onConfirm={() => handleCancelOrder(record.order_id)}
+              className="w-[30px] h-[30px] leading-[30px]"
+            >
               <DeleteOutlined />
             </Popconfirm>
           </Tooltip>
         </div>
-      )
+      ),
     },
   ];
 
@@ -526,12 +558,12 @@ function Orders() {
           package_id: item.package_list.length ? item.package_list[0].package_id : null,
           ...item,
         }));
-        setOrderDataTable(orderListSort)
+        setOrderDataTable(orderListSort);
       }
     };
     const onFail = () => {};
     getAllOrders(shopId, onSuccess, onFail);
-    getPackageBought();    
+    getPackageBought();
   }, [location.state, shopId]);
 
   return (
@@ -576,21 +608,32 @@ function Orders() {
         />
       </Modal>
 
-      <Modal title={`Thêm, chỉnh sửa thông tin cho đơn custom (${orderCustomEdit.order_id})`} centered open={openOrderCustom} onCancel={() => setOpenOrderCustom(false)} width={1000} footer={false}>
+      <Modal
+        title={`Thêm, chỉnh sửa thông tin cho đơn custom (${orderCustomEdit.order_id})`}
+        centered
+        open={openOrderCustom}
+        onCancel={() => setOpenOrderCustom(false)}
+        width={1000}
+        footer={false}
+      >
         <Form onFinish={onFinishOrderCustom}>
           {orderCustomEdit?.item_list?.map((item, index) => (
             <>
-              <h3 className="mb-3 text-[#1677ff]">{index+1}. {item.product_name}</h3>
-              <Form.Item label='Sku id' key={index} name={[index, "sku_id"]} initialValue={item.sku_id}>
-                <Input disabled/>
+              <h3 className="mb-3 text-[#1677ff]">
+                {index + 1}. {item.product_name}
+              </h3>
+              <Form.Item label="Sku id" key={index} name={[index, 'sku_id']} initialValue={item.sku_id}>
+                <Input disabled />
               </Form.Item>
-              <Form.Item label='Sku' key={index} name={[index, "sku_name"]} initialValue={item.sku_name}>
-                <Input placeholder='VD: White, T-shirt-S'/>
+              <Form.Item label="Sku" key={index} name={[index, 'sku_name']} initialValue={item.sku_name}>
+                <Input placeholder="VD: White, T-shirt-S" />
               </Form.Item>
             </>
           ))}
           <Form.Item>
-            <Button type="primary" htmlType="submit">Submit</Button>
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
           </Form.Item>
         </Form>
       </Modal>

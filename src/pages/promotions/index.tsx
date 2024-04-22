@@ -28,14 +28,14 @@ function Promotion() {
 
   const rowSelection = {
     onChange: (_, selectedRows) => {
-      const dataSelect = selectedRows.map((item) => item.promotion_id)
+      const dataSelect = selectedRows.map((item) => item.promotion_id);
       setPromotionSelected(dataSelect);
     },
     getCheckboxProps: (record) => ({
-      disabled: record.status.props.children !== "Ongoing"
+      disabled: record.status.props.children !== 'Ongoing',
     }),
   };
-  
+
   const columns = [
     {
       title: 'Promotion name',
@@ -61,12 +61,12 @@ function Promotion() {
       title: 'Type',
       dataIndex: 'promotion_type',
       key: 'promotion_type',
-    }
+    },
   ];
 
   const handleInactivePromotion = () => {
     const dataSubmit = {
-      promotion_ids: promotionSelected
+      promotion_ids: promotionSelected,
     };
 
     const onSuccess = (res) => {
@@ -79,10 +79,10 @@ function Promotion() {
           content: res.map((item) => `Dừng ${item} thành công`),
         });
       }
-    }
+    };
 
     InactivePromotion(shopId, dataSubmit, onSuccess, () => {});
-  }
+  };
 
   const renderStatusPromotion = (record) => {
     if (record.status === 1) {
@@ -204,18 +204,21 @@ function Promotion() {
             <div className="lg:flex-1">
               <Search placeholder="Enter promotion name" onChange={(e) => setSearchValue(e.target.value)} />
             </div>
-            <Button type='primary' disabled={!promotionSelected.length} onClick={handleInactivePromotion}>
+            <Button type="primary" disabled={!promotionSelected.length} onClick={handleInactivePromotion}>
               Stop promotion ({promotionSelected?.length || '0'})
-              {promotionSelected.length > 0 && loading && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
+              {promotionSelected.length > 0 && loading && (
+                <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />
+              )}
             </Button>
           </div>
           <div className="mt-8">
-            <Table columns={columns} 
-              dataSource={promotionsData} 
-              bordered 
+            <Table
+              columns={columns}
+              dataSource={promotionsData}
+              bordered
               pagination={{ pageSize: 30 }}
               rowSelection={{
-                type: "checkbox",
+                type: 'checkbox',
                 selectedRowKeys: promotionSelected,
                 ...rowSelection,
               }}

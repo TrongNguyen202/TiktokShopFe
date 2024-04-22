@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 import { Image, Upload, Button } from 'antd';
+
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -8,7 +9,7 @@ const getBase64 = (file) =>
     reader.onload = () => resolve(reader.result);
     reader.onerror = (error) => reject(error);
   });
-const AntdTest = () => {
+function AntdTest() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
   const [fileList, setFileList] = useState([
@@ -60,7 +61,7 @@ const AntdTest = () => {
   };
   const handleChange = ({ fileList: newFileList }) => {
     console.log('newFileList: ', newFileList);
-    setFileList(newFileList)
+    setFileList(newFileList);
   };
   const uploadButton = (
     <button
@@ -110,16 +111,14 @@ const AntdTest = () => {
         />
       )}
 
-        {fileList?.length > 8 ? null :
-                <Upload
-                  fileList={fileList}
-                  showUploadList={false}
-                  onChange={handleAddImageFromComputer}
-                >
-                  <Button type='primary' icon={<PlusOutlined />}>Add image from your computer</Button>
-                </Upload>
-              }
+      {fileList?.length > 8 ? null : (
+        <Upload fileList={fileList} showUploadList={false} onChange={handleAddImageFromComputer}>
+          <Button type="primary" icon={<PlusOutlined />}>
+            Add image from your computer
+          </Button>
+        </Upload>
+      )}
     </>
   );
-};
+}
 export default AntdTest;

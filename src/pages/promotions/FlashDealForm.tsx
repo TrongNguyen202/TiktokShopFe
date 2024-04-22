@@ -1,5 +1,5 @@
 import { message } from 'antd';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 import dayjs from 'dayjs';
 import { getPathByIndex } from '../../utils';
@@ -30,26 +30,27 @@ function FlashDealForm() {
     };
 
     const shopId = getPathByIndex(2);
-    let submitData = {
+    const submitData = {
       ...dataForm,
       title: `Flashdeal ${dataForm.title}`,
       begin_time: dataForm.begin_time.unix(),
       end_time: dataForm.end_time.unix(),
-      product_list: productSelected.map(item => ({
+      product_list: productSelected.map((item) => ({
         product_id: item.id,
-        num_limit: -1, 
+        num_limit: -1,
         user_limit: -1,
         sku_list: item.skus.map((sku) => {
-          const promotion_price = Number(sku.price.original_price) - Number(dataForm.discount) * (Number(sku.price.original_price)/100);
-          return ({
+          const promotion_price =
+            Number(sku.price.original_price) - Number(dataForm.discount) * (Number(sku.price.original_price) / 100);
+          return {
             product_id: item.id,
             sku_id: sku.id,
             promotion_price: promotion_price.toString(),
             num_limit: -1,
-            user_limit: 10
-          })
-        })
-      }))
+            user_limit: 10,
+          };
+        }),
+      })),
     };
 
     delete submitData.discount;

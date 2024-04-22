@@ -1,9 +1,9 @@
-import axios from 'axios';
+import axios, { AxiosHeaders } from 'axios';
 import { constants as c } from '../constants';
 import { getToken, getTokenKey, removeToken } from '../utils/auth';
 
 const exceptPrefix = ['/login', '/register'];
-const checkEndPoint = (endpoint) => {
+const checkEndPoint = (endpoint: string) => {
   for (const prefix of exceptPrefix) {
     if (endpoint.includes(prefix)) {
       return true;
@@ -13,7 +13,7 @@ const checkEndPoint = (endpoint) => {
 };
 
 // eslint-disable-next-line consistent-return
-export const callApi = (endPoint, method, body) => {
+export const callApi = (endPoint: string, method: string, body?: any) => {
   if (checkEndPoint(endPoint) === false) {
     axios.interceptors.request.use(
       (config) => {
@@ -58,7 +58,7 @@ export const callApi = (endPoint, method, body) => {
         // "device-id": `ikidemo-2750bc42-702e-4cbe-bae5-798f171389e1`,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     if (error.response) {
       console.error('Server Error:', error.response.status);
     } else if (error.request) {
@@ -70,16 +70,13 @@ export const callApi = (endPoint, method, body) => {
 };
 
 // eslint-disable-next-line consistent-return
-export const callApiFlashShip = async (endPoint, method, body) => {
+export const callApiFlashShip = async (endPoint: string, method: string, body: any) => {
   if (checkEndPoint(endPoint) === false) {
     const tokenFlashShip = getTokenKey('flash-ship-tk');
     const headers = {
       'Content-Type': 'application/json',
+      ...(tokenFlashShip && { Authorization: `Bearer ${tokenFlashShip}` }),
     };
-
-    if (tokenFlashShip) {
-      headers.Authorization = `Bearer ${tokenFlashShip}`;
-    }
 
     try {
       const response = await fetch(`${c.API_FLASH_SHIP}${endPoint}`, {

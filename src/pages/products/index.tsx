@@ -18,7 +18,9 @@ function Products() {
   const [productDataTable, setProductDataTable] = useState([]);
   const [refreshProduct, setRefreshProduct] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
-  const { products, getAllProducts, loading, resetProductById, infoTable, removeProduct } = useProductsStore((state) => state);
+  const { products, getAllProducts, loading, resetProductById, infoTable, removeProduct } = useProductsStore(
+    (state) => state,
+  );
 
   const { resetCategoryData } = useCategoriesStore();
   // eslint-disable-next-line no-unused-vars
@@ -118,8 +120,8 @@ function Products() {
 
   const rowSelection = {
     onChange: (_, selectedRows) => {
-      const dataSelect = selectedRows.map((item) => item.id)
-      setProductSelected(dataSelect)
+      const dataSelect = selectedRows.map((item) => item.id);
+      setProductSelected(dataSelect);
     },
     getCheckboxProps: (record) => {},
   };
@@ -140,7 +142,7 @@ function Products() {
 
   const handleRemoveProduct = () => {
     const dataSubmit = {
-      "product_ids": productSelected
+      product_ids: productSelected,
     };
 
     const onSuccess = (res) => {
@@ -148,21 +150,21 @@ function Products() {
         setProductSelected([]);
         setRefreshProduct(true);
         message.open({
-          type: "success",
-          content: "Xoá sản phẩm thành công"
+          type: 'success',
+          content: 'Xoá sản phẩm thành công',
         });
       }
     };
 
     const onFail = (err) => {
       message.open({
-        type: "error",
-        content: `Xoá sản phẩm thất bại. ${err}`
-      })
-    }
+        type: 'error',
+        content: `Xoá sản phẩm thất bại. ${err}`,
+      });
+    };
 
     removeProduct(shopId, dataSubmit, onSuccess, onFail);
-  }
+  };
 
   const onFinish = (values) => {
     setFilterData(values);
@@ -184,7 +186,7 @@ function Products() {
 
   const handleChangePagination = (current, pageSize) => {
     setPageNumber(current);
-  }
+  };
 
   useEffect(() => {
     const onSuccess = (res) => {
@@ -222,16 +224,29 @@ function Products() {
         <Button size="small" type="primary" onClick={handleProductCreate} className="mt-5 mb-5 mr-3">
           Thêm sản phẩm
         </Button>
-        <Button size="small" type="primary" onClick={() => navigate(`/shops/${shopId}/add-many-products`)} className="mr-3">
+        <Button
+          size="small"
+          type="primary"
+          onClick={() => navigate(`/shops/${shopId}/add-many-products`)}
+          className="mr-3"
+        >
           Thêm hàng loạt
         </Button>
         <Button size="small" type="primary" onClick={handleRemoveProduct} disabled={!productSelected.length}>
-          Xoá sản phẩm ({productSelected.length || "0"})
+          Xoá sản phẩm ({productSelected.length || '0'})
         </Button>
         <div className="flex-1 justify-end items-center flex flex-wrap">
           {(filterData.product_name || filterData.product_id) && <span>Tìm kiếm theo: </span>}&nbsp;
-          {filterData.product_name && <Tag color="blue" className='max-w-[300px] whitespace-nowrap text-ellipsis overflow-hidden'>Tên sản phẩm: {filterData.product_name}</Tag>}
-          {filterData.product_id && <Tag color="orange" className='max-w-[300px] whitespace-nowrap text-ellipsis overflow-hidden'>Mã sản phẩm: {filterData.product_id}</Tag>}
+          {filterData.product_name && (
+            <Tag color="blue" className="max-w-[300px] whitespace-nowrap text-ellipsis overflow-hidden">
+              Tên sản phẩm: {filterData.product_name}
+            </Tag>
+          )}
+          {filterData.product_id && (
+            <Tag color="orange" className="max-w-[300px] whitespace-nowrap text-ellipsis overflow-hidden">
+              Mã sản phẩm: {filterData.product_id}
+            </Tag>
+          )}
           {(filterData.product_name || filterData.product_id) && (
             <Button type="primary" onClick={handleRemoveFilter}>
               Quay lại
@@ -249,10 +264,10 @@ function Products() {
         pagination={{
           pageSize: 100,
           total: infoTable?.data?.total,
-          onChange: handleChangePagination
+          onChange: handleChangePagination,
         }}
         rowSelection={{
-          type: "checkbox",
+          type: 'checkbox',
           selectedRowKeys: productSelected,
           ...rowSelection,
         }}

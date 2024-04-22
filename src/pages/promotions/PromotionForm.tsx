@@ -1,5 +1,5 @@
 import { message } from 'antd';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 import dayjs from 'dayjs';
 import { getPathByIndex } from '../../utils';
@@ -20,7 +20,7 @@ export default function PromotionForm() {
 
   const { createPromotion, loading } = usePromotionsStore((state) => state);
 
-  const onSubmit = (dataForm, productSelected ) => {
+  const onSubmit = (dataForm, productSelected) => {
     const shopId = getPathByIndex(2);
     const onSuccess = (res) => {
       message.success(`Tạo promotion ${dataForm?.title}  thành công`);
@@ -30,17 +30,17 @@ export default function PromotionForm() {
       message.error(`Tạo promotion thất bại. ${err}`);
     };
 
-    let submitData = {
+    const submitData = {
       ...dataForm,
       title: `Discount ${dataForm.title}`,
       begin_time: dataForm.begin_time.unix(),
       end_time: dataForm.end_time.unix(),
-      product_list: productSelected.map(item => ({
+      product_list: productSelected.map((item) => ({
         product_id: item.id,
-        num_limit: -1, 
+        num_limit: -1,
         user_limit: -1,
-        discount: dataForm.discount
-      }))
+        discount: dataForm.discount,
+      })),
     };
 
     delete submitData.discount;
@@ -50,7 +50,5 @@ export default function PromotionForm() {
     createPromotion(shopId, submitData, onSuccess, onFail);
   };
 
-  return (
-    <PromotionCreateForm initialData={initialData} loading={loading} onSubmit={onSubmit} />
-  );
+  return <PromotionCreateForm initialData={initialData} loading={loading} onSubmit={onSubmit} />;
 }

@@ -112,29 +112,29 @@ function OrderDetail() {
               <p>{item.sku_id}</p>
             </div>
             <div>
-            <div className="flex justify-between items-center gap-3 mt-3 w-f7ull">
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <Image
-                    src={item.sku_image}
-                    className="w-[26px] h-[26px] object-cover mt-1 flex-1"
-                    width={26}
-                    height={26}
-                  />
+              <div className="flex justify-between items-center gap-3 mt-3 w-f7ull">
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <Image
+                      src={item.sku_image}
+                      className="w-[26px] h-[26px] object-cover mt-1 flex-1"
+                      width={26}
+                      height={26}
+                    />
+                  </div>
+                  <div>
+                    <Link to={`/shops/${shopId}/products/${item.product_id}`}>
+                      <Tooltip title={item.product_name}>
+                        <p className="font-semibold line-clamp-1">{item.product_name}</p>
+                      </Tooltip>
+                    </Link>
+                    <p className="text-[12px] text-gray-500">{item.sku_name}</p>
+                    <p className="text-[12px] text-gray-500">{item.seller_sku}</p>
+                  </div>
                 </div>
-                <div>
-                  <Link to={`/shops/${shopId}/products/${item.product_id}`}>
-                    <Tooltip title={item.product_name}>
-                      <p className="font-semibold line-clamp-1">{item.product_name}</p>
-                    </Tooltip>
-                  </Link>
-                  <p className="text-[12px] text-gray-500">{item.sku_name}</p>
-                  <p className="text-[12px] text-gray-500">{item.seller_sku}</p>
-                </div>
+                <p className="font-semibold">x{item.quantity}</p>
               </div>
-              <p className="font-semibold">x{item.quantity}</p>
             </div>
-          </div>
           </li>
         ))}
       </ul>

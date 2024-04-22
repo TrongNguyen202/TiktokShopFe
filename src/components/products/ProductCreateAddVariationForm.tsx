@@ -62,10 +62,20 @@ function ProductCreateAddVariationForm({ handleAdd, handleClose, warehouses }) {
   return (
     <Form form={form} layout="vertical">
       <Form.Item name={['variations', 'Size']} label="Size" required tooltip="This is a required field">
-        <CustomSelect optionsSelect={initSizeOptions} selectedDefault={selectedSize} type="kích cỡ" onChange={setSelectedSize} />
+        <CustomSelect
+          optionsSelect={initSizeOptions}
+          selectedDefault={selectedSize}
+          type="kích cỡ"
+          onChange={setSelectedSize}
+        />
       </Form.Item>
       <Form.Item name={['variations', 'Color']} label="Màu" required tooltip="This is a required field">
-        <CustomSelect optionsSelect={initColorOptions} selectedDefault={selectedColor} type="màu" onChange={setSelectedColor} />
+        <CustomSelect
+          optionsSelect={initColorOptions}
+          selectedDefault={selectedColor}
+          type="màu"
+          onChange={setSelectedColor}
+        />
       </Form.Item>
       {selectedSelector?.length > 0 && (
         <Button

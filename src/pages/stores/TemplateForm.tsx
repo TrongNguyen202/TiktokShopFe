@@ -1,12 +1,10 @@
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Cascader, Col, Form, Input, Modal, Row, Spin, Upload, message } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
-import TextArea from 'antd/es/input/TextArea';
 import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import ReactQuill from 'react-quill';
-import { Label } from 'recharts';
 import CustomSelect from './CustomSelect';
 import EditPriceForm from './EditPriceForm';
 import { useCategoriesStore } from '../../store/categoriesStore';
@@ -216,6 +214,7 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
       // brand_id,
       suffix_title,
     } = value;
+
     const dataSubmit = {
       name: template,
       colors,

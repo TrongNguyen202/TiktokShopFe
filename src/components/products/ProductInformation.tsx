@@ -151,13 +151,13 @@ function ProductInformation({ shopId, categories, brands, getAttributeValues }) 
                     {itemAttributeSelect.includes(item.id) ? (
                       <Select style={{ width: '100%' }} options={optionAttribute} />
                     ) : (
-                        <ProductEditCustomSelect
+                      <ProductEditCustomSelect
                         optionsSelect={optionAttribute}
                         type={item.name}
                         selectedDefault={getDefaultSelected(item.id) || []}
-                          onChange={(value) => {
-                            console.log(value);
-                          }}
+                        onChange={(value) => {
+                          console.log(value);
+                        }}
                       />
                     )}
                   </Form.Item>

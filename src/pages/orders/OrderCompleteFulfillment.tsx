@@ -19,12 +19,13 @@ function OrderCompleteFulfillment() {
   const [messageApi, contextHolder] = message.useMessage();
   const [dataPackage, setDataPackage] = useState([]);
   const [dataOrderDetail, setDataOrderDetail] = useState([]);
-  const [rejectOrderNote, setRejectOrderNote] = useState("");
+  const [rejectOrderNote, setRejectOrderNote] = useState('');
   const [rejectOrder, setRejectOrder] = useState({});
   const [openLoginFlashShip, setOpenLoginFlashShip] = useState(false);
   const [openFlashShipDetail, setOpenFlashShipDetail] = useState(false);
   const [openFlashShipReject, setOpenFlashShipReject] = useState(false);
-  const { packageFulfillmentCompleted, packageFulfillmentCompletedInActive, getAllOrders, orders, loading } = useShopsOrder((state) => state);
+  const { packageFulfillmentCompleted, packageFulfillmentCompletedInActive, getAllOrders, orders, loading } =
+    useShopsOrder((state) => state);
   const { LoginFlashShip, detailOrderFlashShip, cancelOrderFlashShip } = useFlashShipStores((state) => state);
 
   const dataTableFlashShip = dataPackage.filter((item) => item.fulfillment_name === 'FlashShip');
@@ -39,18 +40,23 @@ function OrderCompleteFulfillment() {
     return result;
   };
 
-  
   const handleOrderPackage = (index) => {
     const orderPackageFlashShip = dataTableFlashShip[index];
     const orderList = orders?.flatMap((order) => order?.data?.order_list);
     const orderListHasPackageId = orderList?.filter((order) => order?.package_list.length);
-    const packageOrders = orderListHasPackageId?.filter((order) => order.package_list[0].package_id === orderPackageFlashShip?.pack_id?.toString());
+    const packageOrders = orderListHasPackageId?.filter(
+      (order) => order.package_list[0].package_id === orderPackageFlashShip?.pack_id?.toString(),
+    );
 
     return (
       <ul>
         {packageOrders.map((item) => (
           <li key={item.order_id} className="mb-4 block">
-            <Link to={`/shops/${shopId}/orders/${item.order_id}`} state={{ orderData: item }} className="font-medium mb-5 last:mb-0">
+            <Link
+              to={`/shops/${shopId}/orders/${item.order_id}`}
+              state={{ orderData: item }}
+              className="font-medium mb-5 last:mb-0"
+            >
               <Tag color="blue">{item.order_id}</Tag>
             </Link>
           </li>
@@ -63,7 +69,7 @@ function OrderCompleteFulfillment() {
     const onSuccess = (res) => {
       if (res) {
         setOpenFlashShipDetail(true);
-        setDataOrderDetail(res);        
+        setDataOrderDetail(res);
       } else {
         messageApi.open({
           type: 'info',
@@ -79,7 +85,7 @@ function OrderCompleteFulfillment() {
       });
     };
     detailOrderFlashShip(orderCode, onSuccess, onFail);
-  }
+  };
 
   const handleLoginFlashShip = (values) => {
     const onSuccess = (res) => {
@@ -127,40 +133,34 @@ function OrderCompleteFulfillment() {
           type: 'success',
           content: `Đã huỷ đơn ${rejectOrderNote.orderCode} (${rejectOrderNote.orderId})`,
         });
-        packageFulfillmentCompletedInActive(rejectOrderNote.packageId, {package_status : false})
+        packageFulfillmentCompletedInActive(rejectOrderNote.packageId, { package_status: false });
       } else {
         messageApi.open({
           type: 'error',
           content: res.err,
         });
       }
-    }
+    };
 
-    cancelOrderFlashShip(
-      data,
-      onSuccess,
-      () => {},
-    );
-  }
+    cancelOrderFlashShip(data, onSuccess, () => {});
+  };
 
   const handleRejectOrderNote = (note) => {
     setRejectOrderNote(note);
     setOpenFlashShipReject(false);
-    handleCancelOrderFlashShipAPI()
-  }
+    handleCancelOrderFlashShipAPI();
+  };
 
   const handleCancelOrderFlashShip = (orderCode, orderId, packageId) => {
     if (flashShipToken === null) {
       setOpenLoginFlashShip(true);
     } else {
-      setOpenFlashShipReject(true)
-      setRejectOrder({orderCode, orderId, packageId})
+      setOpenFlashShipReject(true);
+      setRejectOrder({ orderCode, orderId, packageId });
     }
   };
 
-  const handleCancelOrderPrintCare = () => {
-
-  }
+  const handleCancelOrderPrintCare = () => {};
 
   const generateColumns = (showAllAction, key) => {
     const columns = [
@@ -168,30 +168,30 @@ function OrderCompleteFulfillment() {
         title: 'STT',
         dataIndex: 'stt',
         key: 'stt',
-        width: "60px",
-        align: "center",
+        width: '60px',
+        align: 'center',
       },
       {
         title: 'Order Id',
         dataIndex: 'order_id',
         key: 'order_id',
-        width: "200px",
-        align: "center",
+        width: '200px',
+        align: 'center',
         render: (_, record, index) => handleOrderPackage(index),
       },
       {
         title: 'Package Id',
         dataIndex: 'pack_id',
         key: 'pack_id',
-        width: "200px",
-        align: "center"
+        width: '200px',
+        align: 'center',
       },
       {
         title: 'Product items',
         dataIndex: 'products',
         key: 'products',
-        width: "130px",
-        align: "center",
+        width: '130px',
+        align: 'center',
         render: (_, record) => <p>{record?.products?.length} Sản phẩm</p>,
       },
       {
@@ -199,7 +199,7 @@ function OrderCompleteFulfillment() {
         dataIndex: 'linkLabel',
         key: 'linkLabel',
         width: '100px',
-        align: "center",
+        align: 'center',
         render: (text) => (
           <div className="max-w-[200px] line-clamp-3">
             <Link to={text} target="_blank">
@@ -255,34 +255,38 @@ function OrderCompleteFulfillment() {
         key: 'actions',
         align: 'center',
         fixed: 'right',
-        width: "100px",
+        width: '100px',
         render: (_, record) => (
           <div className="flex gap-2 justify-center">
-            {showAllAction && 
+            {showAllAction && (
               <Tooltip title="Xem chi tiết" color="blue">
                 <Button size="small" icon={<EyeOutlined />} onClick={() => handleDetailFlashShip(record.order_code)} />
               </Tooltip>
-            }
+            )}
             <Tooltip title="Huỷ đơn" color="red">
-              <Button size="small" icon={<DeleteOutlined />} danger 
-                onClick={() => key === "FlashShip" ?
-                handleCancelOrderFlashShip(record.order_code, record.order_id, record.pack_id)
-                : handleCancelOrderPrintCare()
-              } 
+              <Button
+                size="small"
+                icon={<DeleteOutlined />}
+                danger
+                onClick={() =>
+                  key === 'FlashShip'
+                    ? handleCancelOrderFlashShip(record.order_code, record.order_id, record.pack_id)
+                    : handleCancelOrderPrintCare()
+                }
               />
             </Tooltip>
           </div>
         ),
-      }
+      },
     ];
 
-    if (key === "FlashShip") {
+    if (key === 'FlashShip') {
       columns.splice(1, 0, {
         title: 'Order code',
         dataIndex: 'order_code',
         key: 'order_code',
-        width: "150px",
-        align: "center",
+        width: '150px',
+        align: 'center',
       });
     }
 
@@ -317,7 +321,10 @@ function OrderCompleteFulfillment() {
           title="Orders that have been Fulfillment completed and sent to FlashShip"
           count={dataTableFlashShip.length ? dataTableFlashShip.length : '0'}
         />
-        <Table columns={generateColumns(true, "FlashShip")} dataSource={ConvertDataTable(dataTableFlashShip)} bordered
+        <Table
+          columns={generateColumns(true, 'FlashShip')}
+          dataSource={ConvertDataTable(dataTableFlashShip)}
+          bordered
           scroll={{
             x: 1300,
           }}
@@ -329,7 +336,11 @@ function OrderCompleteFulfillment() {
           title="Orders that have been Fulfillment completed and sent to PrintCare"
           count={dataTablePrintCare.length ? dataTablePrintCare.length : '0'}
         />
-        <Table columns={generateColumns(false, "PrintCare")} loading={loading} dataSource={ConvertDataTable(dataTablePrintCare)} bordered 
+        <Table
+          columns={generateColumns(false, 'PrintCare')}
+          loading={loading}
+          dataSource={ConvertDataTable(dataTablePrintCare)}
+          bordered
           scroll={{
             x: 1300,
           }}
@@ -375,7 +386,7 @@ function OrderCompleteFulfillment() {
         footer={false}
         width={1000}
       >
-        {dataOrderDetail && <OrderCompleteFulfillmentDetail data={dataOrderDetail}/>}        
+        {dataOrderDetail && <OrderCompleteFulfillmentDetail data={dataOrderDetail} />}
       </Modal>
 
       <Modal

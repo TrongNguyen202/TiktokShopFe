@@ -1,42 +1,42 @@
 import { callApi } from '../apis';
 
-const getAllOrders = (id) => {
+const getAllOrders = (id: string) => {
   return callApi(`/shops/${id}/orders/detail`, 'get');
 };
 
-const getLabelsById = (orderId) => {
+const getLabelsById = (orderId: string) => {
   return callApi(`/shops/orders/${orderId}/search_file`, 'get');
 };
 
-const uploadLabelToDriver = (body) => {
+const uploadLabelToDriver = (body: any) => {
   return callApi(`/shops/upload_driver`, 'post', body);
 };
 
-const getToShipInfo = (shopId, body) => {
+const getToShipInfo = (shopId: string, body: any) => {
   return callApi(`/shops/${shopId}/orders/toship_infor`, 'post', body);
 };
 
-const getAllCombine = (shopId) => {
+const getAllCombine = (shopId: string) => {
   return callApi(`/shops/${shopId}/pre_combine_pkg`, 'get');
 };
 
-const confirmCombine = (shopId, body) => {
+const confirmCombine = (shopId: string, body: any) => {
   return callApi(`/shops/${shopId}/confirm_combine_pkg`, 'post', body);
 };
 
-const createLabel = (shopId, body) => {
+const createLabel = (shopId: string, body: any) => {
   return callApi(`/shops/${shopId}/packages/package_detail`, 'post', body);
 };
 
-const shippingService = (shopId, body) => {
+const shippingService = (shopId: string, body: any) => {
   return callApi(`/shops/${shopId}/shipping_service`, 'post', body);
 };
 
-const buyLabel = (shopId, body) => {
+const buyLabel = (shopId: string, body: any) => {
   return callApi(`/shops/${shopId}/packages/buy_label`, 'post', body);
 };
 
-const getShippingDoc = (id, body) => {
+const getShippingDoc = (id: string, body: any) => {
   return callApi(`/shops/${id}/get_shipping_doc_package_ids`, 'post', body);
 };
 
@@ -44,15 +44,15 @@ const getPackageBought = () => {
   return callApi(`/shops/get_package_buyed`, 'get');
 };
 
-const pdfLabelSearch = (packageId) => {
+const pdfLabelSearch = (packageId: string) => {
   return callApi(`/pdf-search/?query=${packageId}`, 'get');
 };
 
-  const pdfLabelLinkSearch = (body) => {
-    return callApi(`/pdf-upload-search`, 'post', body);
-  };
+const pdfLabelLinkSearch = (body: any) => {
+  return callApi(`/pdf-upload-search`, 'post', body);
+};
 
-const pdfLabelDownload = (fileName) => {
+const pdfLabelDownload = (fileName: string) => {
   return callApi(`/pdf-download/?filename=${fileName}`, 'get');
 };
 
@@ -60,55 +60,55 @@ const getDesignSku = () => {
   return callApi('/designskus/', 'get');
 };
 
-const getDesignSkuSize = (page) => {
+const getDesignSkuSize = (page: string) => {
   return callApi(`/designskus/?page=${page}`, 'get');
 };
 
-const getDesignSkuByGroup = (groupId) => {
+const getDesignSkuByGroup = (groupId: string) => {
   return callApi(`/designskus/find_by_group/${groupId}`, 'get');
 };
 
-const getDesignSkuByGroupSize = (groupId, page) => {
+const getDesignSkuByGroupSize = (groupId: string, page: string) => {
   return callApi(`/designskus/find_by_group/${groupId}?page=${page}`, 'get');
 };
 
-const postDesignSku = (body) => {
+const postDesignSku = (body: any) => {
   return callApi('/designskus/', 'post', body);
 };
 
-const putDesignSku = (body, DesignId) => {
-  return callApi(`/designskus/${DesignId}/`, 'put', body);
+const putDesignSku = (body: any, designId: string) => {
+  return callApi(`/designskus/${designId}/`, 'put', body);
 };
 
-const deleteDesignSku = (DesignId) => {
-  return callApi(`/designskus/${DesignId}/`, 'delete');
+const deleteDesignSku = (designId: string) => {
+  return callApi(`/designskus/${designId}/`, 'delete');
 };
 
-const searchDesignSku = (body) => {
+const searchDesignSku = (body: any) => {
   return callApi(`/designskus/search/`, 'post', body);
 };
 
-const getDesignSkuById = (skuId) => {
+const getDesignSkuById = (skuId: string) => {
   return callApi(`/designskus/${skuId}`, 'get');
 };
 
-const packageCreateFlashShip = (shopId, body) => {
+const packageCreateFlashShip = (shopId: string, body: any) => {
   return callApi(`/shop/${shopId}/packages/create_flash`, 'post', body);
 };
 
-const packageCreatePrintCare = (shopId, body) => {
+const packageCreatePrintCare = (shopId: string, body: any) => {
   return callApi(`/shop/${shopId}/packages/create_print`, 'post', body);
 };
 
-const packageFulfillmentCompleted = (shopId) => {
+const packageFulfillmentCompleted = (shopId: string) => {
   return callApi(`/shop/${shopId}/packages/list`, 'get');
 };
 
-const packageFulfillmentCompletedInActive = (packageId) => {
+const packageFulfillmentCompletedInActive = (packageId: string, body: any) => {
   return callApi(`/package/${packageId}/deactive`, 'put', body);
 };
 
-const cancelOrder = (shopId, body) => {
+const cancelOrder = (shopId: string, body: any) => {
   return callApi(`/shop/${shopId}/orders/cancel`, 'post', body);
 };
 
@@ -140,5 +140,5 @@ export const orders = {
   packageCreatePrintCare,
   packageFulfillmentCompleted,
   packageFulfillmentCompletedInActive,
-  cancelOrder
+  cancelOrder,
 };

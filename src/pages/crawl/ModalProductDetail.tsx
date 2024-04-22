@@ -117,7 +117,7 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
         setFileList(fileListUpdate);
       }
     };
-    const onFail = (err) => { };
+    const onFail = (err) => {};
     changeProductImageToWhite(imageUrl, onSuccess, onFail);
   };
 

@@ -1,17 +1,17 @@
 import moment from 'moment';
 
-export const formatDate = (date, format) => {
+export const formatDate = (date: string, format: string) => {
   const formattedDate = moment(date).format(format);
   return formattedDate;
 };
 
-export const formatGMT = (date) => {
+export const formatGMT = (date: string) => {
   const formattedGMT = moment(date).toDate();
   return formattedGMT;
 };
 
 // chuyển đổi timestamp sang ngày tháng năm dạng DD/MM/YY, h:mm:ss
-export const formatDateTime = (timestamp) => {
+export const formatDateTime = (timestamp: number) => {
   const date = new Date(timestamp * 1000);
   const day = date.getDate();
   const month = date.getMonth() + 1;

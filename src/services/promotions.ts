@@ -48,5 +48,5 @@ export const promotions = {
   listProductNoDiscount,
   listProductNoFlashDeal,
   createFlashDeal,
-  InactivePromotion
+  InactivePromotion,
 };

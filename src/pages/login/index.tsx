@@ -1,5 +1,6 @@
 import { Button, Form, Input } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import LOGO from '../../assets/images/text_logo_FLN.png';
 import { PATH } from '../../constants/paths';
 import { useAuthStore } from '../../store/authStore';

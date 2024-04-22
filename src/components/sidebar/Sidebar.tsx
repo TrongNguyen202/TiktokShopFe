@@ -18,9 +18,20 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FinanceIcon } from '../../assets/icons';
 import LogoCollapse from '../../assets/images/favicon.png';
 import Logo from '../../assets/images/text_logo_FLN.png';
-import { hasDesignerPermission, hasManagerPermission, hasSellerPermission } from '../../utils/permission';
+import {
+  hasDesignerPermission,
+  hasManagerPermission,
+  hasSellerPermission,
+  validatePermission,
+} from '../../utils/permission';
 import { StyledLogo, StyledSidebar } from './Sidebar.style';
 import { useAuthStore } from '../../store/authStore';
+import { permission } from '../../constants';
+
+const permissionMap = {
+  '/shops': [permission.MANAGER, permission.SELLER],
+  '/': [permission.MANAGER, permission.SELLER, permission.DESIGNER],
+};
 
 function Sidebar({ collapsed }) {
   const path = window.location.pathname;
@@ -45,7 +56,7 @@ function Sidebar({ collapsed }) {
           Tổng quan
         </Link>
       ),
-      hasPer: hasManagerPermission() || hasSellerPermission() || hasDesignerPermission(),
+      hasPer: validatePermission(permissionMap['/']),
     },
     {
       key: '/shops',
@@ -55,7 +66,7 @@ function Sidebar({ collapsed }) {
           Cửa hàng{' '}
         </Link>
       ),
-      hasPer: hasManagerPermission() || hasSellerPermission(),
+      hasPer: validatePermission(permissionMap['/shops']),
       // children: initialChildrenShopTab()
     },
     {

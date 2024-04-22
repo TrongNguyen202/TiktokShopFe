@@ -1,9 +1,9 @@
 import { DeleteOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Modal, Popconfirm, Table, Tooltip } from 'antd';
 import React, { useContext, useEffect, useRef, useState } from 'react';
+import { number } from 'prop-types';
 import ProductCreateAddVariationForm from './ProductCreateAddVariationForm';
 import ProductEditAddVariationForm from './ProductEditAddVariationForm';
-import { number } from 'prop-types';
 
 const EditableContext = React.createContext(null);
 
@@ -87,8 +87,8 @@ function ProductCreateVariationTable({ variationsData, variationsDataTable, isPr
     console.log('newData: ', newData);
     const newDataConvert = newData.map((item) => ({
       ...item,
-      stock_infos: [item.stock_infos]
-    }))
+      stock_infos: [item.stock_infos],
+    }));
     setDataSource(newDataConvert);
     variationsDataTable(newData, ...dataSource);
     setIsModalOpen(false);
@@ -102,12 +102,16 @@ function ProductCreateVariationTable({ variationsData, variationsDataTable, isPr
 
     newData.splice(index, 1, {
       ...row,
-      stock_infos: [{
-        available_stock: Array.isArray(row.stock_infos) ? Number(row.stock_infos[0].available_stock) : Number(row.stock_infos.available_stock),
-        warehouse_id: item.stock_infos[0].warehouse_id
-      }]
+      stock_infos: [
+        {
+          available_stock: Array.isArray(row.stock_infos)
+            ? Number(row.stock_infos[0].available_stock)
+            : Number(row.stock_infos.available_stock),
+          warehouse_id: item.stock_infos[0].warehouse_id,
+        },
+      ],
     });
-    variationsDataTable(newData)
+    variationsDataTable(newData);
     setDataSource(newData);
   };
 
@@ -150,7 +154,7 @@ function ProductCreateVariationTable({ variationsData, variationsDataTable, isPr
       align: 'center',
       editable: true,
       width: '200px',
-      render: (_, record) => record.stock_infos[0].available_stock
+      render: (_, record) => record.stock_infos[0].available_stock,
     },
     {
       title: 'Hành động',
@@ -171,13 +175,13 @@ function ProductCreateVariationTable({ variationsData, variationsDataTable, isPr
     return {
       ...col,
       onCell: (record) => {
-        return ({
+        return {
           record,
           editable: col.editable,
           dataIndex: col.dataIndex,
           title: col.title,
           handleSave,
-        })
+        };
       },
     };
   });
