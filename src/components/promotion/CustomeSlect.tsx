@@ -4,10 +4,10 @@ import { Select, Input, Button } from 'antd';
 function CustomSelect() {
   const [limitType, setLimitType] = useState('no_limit');
   const [limitValue, setLimitValue] = useState('No Limit');
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<string[]>([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
-  const handleLimitTypeChange = (label, value) => {
+  const handleLimitTypeChange = (label: string, value: string) => {
     if (label === 'no_limit') {
       setIsDropdownVisible(false);
       setLimitValue('No Limit');
@@ -17,8 +17,8 @@ function CustomSelect() {
     }
   };
 
-  const handleLimitInputChange = (e) => {
-    setLimitValue(e.target.value);
+  const handleLimitInputChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+    setLimitValue(evt.target?.value);
   };
 
   const handleSetLimit = () => {

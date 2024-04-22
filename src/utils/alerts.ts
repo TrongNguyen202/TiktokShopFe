@@ -1,24 +1,21 @@
 import { toast } from 'react-toastify';
 
-const success = (message) => {
+const success = (message: string) => {
   toast.success(message, {
     delay: 0,
     pauseOnHover: false,
-    autoComplete: 200,
   });
 };
-const error = (message) => {
+const error = (message: string) => {
   toast.error(message, {
     delay: 0,
     pauseOnHover: false,
-    autoComplete: 200,
   });
 };
-const warning = (message) => {
+const warning = (message: string) => {
   toast.warning(message, {
     delay: 0,
     pauseOnHover: false,
-    autoComplete: 200,
   });
 };
 export const alerts = {

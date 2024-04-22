@@ -4,6 +4,7 @@ import { removeDuplicates } from '../../utils';
 import { alerts } from '../../utils/alerts';
 import ProductCreateAddVariationForm from './ProductCreateAddVariationForm';
 import ProductSectionTitle from './ProuctSectionTitle';
+import React from 'react';
 
 function ProductCreateVariation({ shopId, variations, variationsDataTable }) {
   const { getWarehousesByShopId, warehousesById } = useWareHousesStore((state) => state);

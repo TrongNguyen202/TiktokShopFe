@@ -3,8 +3,24 @@ import { Button, DatePicker, Space } from 'antd';
 import Search from 'antd/es/transfer/search';
 import { useEffect } from 'react';
 import { useDebounce } from '../../hooks/useDebounce';
+import React from 'react';
 
-export default function TableHeader({ onSearch, params, setParams, titleDatePicker1, titleDatePicker2, isStore }) {
+type TableHeaderProps = {
+  onSearch: (value: string) => void;
+  params: any;
+  setParams: any;
+  titleDatePicker1: string;
+  titleDatePicker2: string;
+  isStore: boolean;
+};
+export default function TableHeader({
+  onSearch,
+  params,
+  setParams,
+  titleDatePicker1,
+  titleDatePicker2,
+  isStore,
+}: TableHeaderProps) {
   const {
     search,
     begin_date_register,
@@ -22,8 +38,8 @@ export default function TableHeader({ onSearch, params, setParams, titleDatePick
     onSearch(isStore ? queryStore : query);
   }, [keywordSearch]);
 
-  const changeParams = (key, value) => {
-    setParams((prev) => ({ ...prev, [key]: value }));
+  const changeParams = (key: string, value: any) => {
+    setParams((prev: any) => ({ ...prev, [key]: value }));
   };
 
   return (
@@ -75,7 +91,7 @@ export default function TableHeader({ onSearch, params, setParams, titleDatePick
                 changeParams(`${isStore ? 'end_date_expried' : 'end_last_visit_time'}`, dateString)
               }
             />
-            <Button type="primary ml-2" onClick={() => onSearch(isStore ? queryStore : query)}>
+            <Button className="primary ml-2" onClick={() => onSearch(isStore ? queryStore : query)}>
               Tìm kiếm
             </Button>
           </div>

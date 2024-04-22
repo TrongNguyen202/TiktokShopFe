@@ -1,6 +1,7 @@
 import { Card, Row, Col } from 'antd';
 import { formatDate } from '../../utils/date';
 import StoreDetailSectionTitle from './StoreDetailSectionTitle';
+import React from 'react';
 
 function StoreDetailBaseInformation({ store }) {
   return (

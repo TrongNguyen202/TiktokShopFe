@@ -4,8 +4,9 @@ import { useNavigate, Link } from 'react-router-dom';
 import { alerts } from '../../utils/alerts';
 import { useProductsStore } from '../../store/productsStore';
 import StoreDetailSectionTitle from './StoreDetailSectionTitle';
+import React from 'react';
 
-function StoreDetailProducts({ shopId }) {
+function StoreDetailProducts({ shopId }: { shopId: string }) {
   const navigate = useNavigate();
   const { getAllProducts, infoTable, resetProductById } = useProductsStore((state) => state);
 

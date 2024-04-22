@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { Table, Tag, message } from 'antd';
+import React from 'react';
 
 import { useShopsOrder } from '../../store/ordersStore';
 import { getPathByIndex } from '../../utils';

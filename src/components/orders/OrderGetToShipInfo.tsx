@@ -1,4 +1,5 @@
 import { Table, Tag } from 'antd';
+import React from 'react';
 
 import { IntlNumberFormat } from '../../utils';
 import { statusOrder } from '../../constants';

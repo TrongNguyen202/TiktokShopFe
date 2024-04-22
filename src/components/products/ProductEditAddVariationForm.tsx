@@ -7,6 +7,7 @@ import { removeDuplicates } from '../../utils';
 
 import ProductEditCustomSelect from './ProductEditCustomSelect';
 import ProductVariationsPrice from './ProductVariationsPrice';
+import React from 'react';
 
 function ProductEditAddVariationForm({ handleAdd, handleClose, warehouses, variationsSelect }) {
   const [form] = Form.useForm();

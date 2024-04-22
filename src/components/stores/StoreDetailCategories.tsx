@@ -4,8 +4,9 @@ import { Card } from 'antd';
 import { useCategoriesStore } from '../../store/categoriesStore';
 import StoreDetailSectionTitle from './StoreDetailSectionTitle';
 import { alerts } from '../../utils/alerts';
+import React from 'react';
 
-function StoreDetailCategories({ shopId }) {
+function StoreDetailCategories({ shopId }: { shopId: string }) {
   const { getCategoriesById, categoriesById } = useCategoriesStore((state) => state);
   const { category_list } = categoriesById;
 

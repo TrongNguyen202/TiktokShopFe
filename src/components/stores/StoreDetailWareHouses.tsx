@@ -3,13 +3,14 @@ import { Row, Col, Card, Badge, Spin } from 'antd';
 import { useWareHousesStore } from '../../store/warehousesStore';
 import StoreDetailSectionTitle from './StoreDetailSectionTitle';
 import { alerts } from '../../utils/alerts';
+import React from 'react';
 
-function StoreDetailWareHouses({ shopId }) {
+function StoreDetailWareHouses({ shopId }: { shopId: string }) {
   const { getWarehousesByShopId, warehousesById, loading } = useWareHousesStore((state) => state);
 
   useEffect(() => {
     const onSuccess = () => {};
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       alerts.error(err);
     };
 

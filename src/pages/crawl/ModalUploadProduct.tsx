@@ -5,6 +5,7 @@ import { useShopsStore } from '../../store/shopsStore';
 import { useTemplateStore } from '../../store/templateStore';
 import { useWareHousesStore } from '../../store/warehousesStore';
 import { alerts } from '../../utils/alerts';
+import React from 'react';
 
 export default function ModalUploadProduct({
   isShowModalUpload,

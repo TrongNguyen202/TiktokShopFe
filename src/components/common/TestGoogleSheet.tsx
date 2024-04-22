@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useEffect } from 'react';
+import React from 'react';
 
 function TestGoogleSheet() {
   useEffect(() => {
@@ -21,7 +22,7 @@ function TestGoogleSheet() {
       });
   };
 
-  function parseCSV(csvText) {
+  function parseCSV(csvText: string) {
     const rows = csvText.split(/\r?\n/); // Split CSV text into rows, handling '\r' characters
     const headers = rows[0].split(','); // Extract headers (assumes the first row is the header row)
     const data = []; // Initialize an array to store parsed data

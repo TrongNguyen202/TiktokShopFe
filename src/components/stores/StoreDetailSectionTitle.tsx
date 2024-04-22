@@ -1,6 +1,20 @@
 import { Row, Button } from 'antd';
+import React from 'react';
 
-function StoreDetailSectionTitle({ title, count, isShowButton, buttonLabel, handleButton }) {
+type StoreDetailSectionTitleProps = {
+  title: string;
+  count?: number;
+  isShowButton?: boolean;
+  buttonLabel?: string;
+  handleButton?: () => void;
+};
+function StoreDetailSectionTitle({
+  title,
+  count,
+  isShowButton,
+  buttonLabel,
+  handleButton,
+}: StoreDetailSectionTitleProps) {
   return (
     <Row justify="space-between" className="mb-3">
       <h3 className="text-[16px] font-semibold">

@@ -32,6 +32,7 @@ export const StyledSidebar = styled(Sider)`
     color: #1677ff;
   }
 `;
+
 export const StyledLogo = styled.div`
   background-color: #fff;
   display: flex;

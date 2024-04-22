@@ -17,6 +17,7 @@ import {
 import { DownOutlined, WarningOutlined, LinkOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 import { Link, useNavigate } from 'react-router-dom';
+import React from 'react';
 
 import { constants as c } from '../../constants';
 import { getPathByIndex } from '../../utils';

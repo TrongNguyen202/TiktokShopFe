@@ -1,6 +1,16 @@
 import { Row, Button } from 'antd';
+import { title } from 'process';
+import React from 'react';
 
-function SectionTitle({ title, count, isShowButton, buttonLabel, handleButton }) {
+type SectionTitleProps = {
+  title: string;
+  count?: number;
+  isShowButton?: boolean;
+  buttonLabel?: string;
+  handleButton?: () => void;
+};
+
+function SectionTitle({ title, count, isShowButton, buttonLabel, handleButton }: SectionTitleProps) {
   return (
     <Row justify="space-between" className="mb-3">
       <h2 className="text-[20px] font-semibold">

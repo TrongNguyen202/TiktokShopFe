@@ -10,7 +10,7 @@ function Fulfillment() {
   const [current, setCurrent] = useState(0);
   const [enableNextStep, setEnableNextStep] = useState(false);
   const [toShipInfoData, setToShipInfoData] = useState([]);
-  const changeNextStep = (value) => {
+  const changeNextStep = (value: boolean) => {
     setEnableNextStep(value);
   };
 

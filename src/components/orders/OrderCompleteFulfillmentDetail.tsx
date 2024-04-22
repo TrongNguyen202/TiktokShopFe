@@ -2,6 +2,7 @@ import { Table, Image, Tag } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { formatDate } from '../../utils/date';
+import React from 'react';
 
 import { constants } from '../../constants';
 

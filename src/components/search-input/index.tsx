@@ -3,8 +3,14 @@ import Search from 'antd/es/transfer/search';
 import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useDebounce } from '../../hooks/useDebounce';
+import React from 'react';
 
-export default function SearchInput({ keyword, onChange, onSearch }) {
+type SearchInputProps = {
+  keyword: string;
+  onChange: (value: string) => void;
+  onSearch: (value: string) => void;
+};
+export default function SearchInput({ keyword, onChange, onSearch }: SearchInputProps) {
   const keywordSearch = useDebounce(keyword, 500);
 
   useEffect(() => {

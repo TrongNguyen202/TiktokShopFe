@@ -3,8 +3,9 @@ import { Card } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import { useShopsOrder } from '../../store/ordersStore';
 import StoreDetailSectionTitle from './StoreDetailSectionTitle';
+import React from 'react';
 
-function StoreDetailOrderFulfillmentCompleted({ shopId }) {
+function StoreDetailOrderFulfillmentCompleted({ shopId }: { shopId: string }) {
   const navigate = useNavigate();
   const { packageFulfillmentCompleted } = useShopsOrder((state) => state);
   const [orders, setOrder] = useState([]);

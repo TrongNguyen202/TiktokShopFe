@@ -1,7 +1,7 @@
 import React from 'react';
 
 function AllStatuses() {
-  return <div>Allstatus</div>;
+  return <div>All statuses</div>;
 }
 
 export default AllStatuses;

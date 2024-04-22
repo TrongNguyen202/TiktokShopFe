@@ -4,6 +4,7 @@ import { Col, Row } from 'antd';
 // import { useNavigate } from 'react-router-dom';
 import { alerts } from '../../utils/alerts';
 import { getPathByIndex } from '../../utils';
+import React from 'react';
 
 import { useShopsStore } from '../../store/shopsStore';
 

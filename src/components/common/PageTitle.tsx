@@ -1,12 +1,18 @@
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useProductsStore } from '../../store/productsStore';
+import React from 'react';
 
-function PageTitle({ title, showBack, count }) {
+type PageTitleProps = {
+  title: string;
+  showBack?: boolean;
+  count?: number;
+};
+function PageTitle({ title, showBack, count }: PageTitleProps) {
   const navigate = useNavigate();
   const { clearProducts } = useProductsStore((state) => state);
 
-  const BackClearProductZuztand = () => {
+  const BackClearProductZustand = () => {
     navigate(-1);
     clearProducts();
   };
@@ -14,7 +20,7 @@ function PageTitle({ title, showBack, count }) {
   return (
     <div className="text-[20px] font-semibold mb-5">
       {showBack && (
-        <ArrowLeftOutlined onClick={() => BackClearProductZuztand()} className="inline-block align-middle mr-5" />
+        <ArrowLeftOutlined onClick={() => BackClearProductZustand()} className="inline-block align-middle mr-5" />
       )}
       <h1 className="inline-block align-middle">
         {title}

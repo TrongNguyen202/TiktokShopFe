@@ -5,6 +5,7 @@ import { variationsOption } from '../../constants';
 import { flatMapArray } from '../../utils';
 import CustomSelect from '../../pages/stores/CustomSelect';
 import ProductVariationsPrice from './ProductVariationsPrice';
+import React from 'react';
 
 function ProductCreateAddVariationForm({ handleAdd, handleClose, warehouses }) {
   const [form] = Form.useForm();

@@ -1,7 +1,13 @@
 import { Modal } from 'antd';
 import React from 'react';
 
-export default function ModalShowError({ setModalErrorInfo, modalErrorInfo }) {
+export default function ModalShowError({
+  setModalErrorInfo,
+  modalErrorInfo,
+}: {
+  setModalErrorInfo: (value: React.SetStateAction<any>) => void;
+  modalErrorInfo: any;
+}) {
   const errorResponse = modalErrorInfo.data.filter((item) => item.status === 'error');
 
   const renderDetailMessage = (data) => {

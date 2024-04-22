@@ -1,4 +1,5 @@
 import { Table, Form, Input, InputNumber, Select, Button } from 'antd';
+import React from 'react';
 
 function ProductVariationsPrice({ selectedSelector, warehouseOptions, handleAddData }) {
   const columns = [

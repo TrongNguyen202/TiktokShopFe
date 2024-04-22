@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Table } from 'antd';
+import React from 'react';
 
 function OrdersLabelsSearch({ dataSource }) {
   const columns = [

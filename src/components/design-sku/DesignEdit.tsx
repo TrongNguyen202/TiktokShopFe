@@ -1,9 +1,17 @@
 import { useEffect } from 'react';
 import { Button, Input, Form, message, Modal } from 'antd';
+import React from 'react';
 
 import { useShopsOrder } from '../../store/ordersStore';
 
-function DesignEdit({ openModal, initData, refreshDesign, groupId }) {
+type DesignEditProps = {
+  openModal: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
+  initData: any;
+  refreshDesign: () => void;
+  groupId: string;
+};
+}
+function DesignEdit({ openModal, initData, refreshDesign, groupId }: DesignEditProps) {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const [openEditModal, setOpenEditModal] = openModal;

@@ -4,6 +4,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { number } from 'prop-types';
 import ProductCreateAddVariationForm from './ProductCreateAddVariationForm';
 import ProductEditAddVariationForm from './ProductEditAddVariationForm';
+import React from 'react';
 
 const EditableContext = React.createContext(null);
 

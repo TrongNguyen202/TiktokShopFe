@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Table, Button } from 'antd';
 import { EyeOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
+import React from 'react';
 
 import { getPathByIndex } from '../../utils';
 import { usePromotionsStore } from '../../store/promotionsStore';

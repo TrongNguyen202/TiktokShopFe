@@ -1,44 +1,33 @@
-export const validateEmail = (email) => {
+export const validateEmail = (email: string) => {
   if (email === '') return true;
 
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return regex.test(email);
 };
 
-export const validatePhoneNumber = (phoneNumber) => {
+export const validatePhoneNumber = (phoneNumber: string) => {
   const regex = /^\+?[0-9]{10}$/;
 
   return regex.test(phoneNumber);
 };
 
-export const validateReferralPhoneNumber = (referralPhoneNumber) => {
+export const validateReferralPhoneNumber = (referralPhoneNumber: string) => {
   if (referralPhoneNumber === '') return true;
   const regex = /^\+?[0-9]{10,15}$/;
 
   return regex.test(referralPhoneNumber);
 };
 
-export const validatePassword = (password) => {
+export const validatePassword = (password: string) => {
   if (!password || password.length < 6) return false;
 
   return true;
 };
 
 // validate length longer than 50
-export const validateName = (name) => {
+export const validateName = (name: string) => {
   if (name.length > 40) {
     return 'Tên không được vượt quá 50 ký tự';
   }
   return null;
-};
-
-// validate end date - start date less or equal 30 days
-export const validateEndDate = (startDate, endDate) => {
-  console.log('validatettetettetetetet', startDate, endDate);
-  const priorDate = new Date(new Date().setDate(endDate.getDate() - 30));
-
-  if (priorDate > startDate) {
-    return null;
-  }
-  return 1;
 };

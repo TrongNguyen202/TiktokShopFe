@@ -3,8 +3,9 @@ import { Card } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import { useShopsOrder } from '../../store/ordersStore';
 import StoreDetailSectionTitle from './StoreDetailSectionTitle';
+import React from 'react';
 
-function StoreDetailOrder({ shopId }) {
+function StoreDetailOrder({ shopId }: { shopId: string }) {
   const navigate = useNavigate();
   const { orders, getAllOrders } = useShopsOrder((state) => state);
   const orderList = orders.length ? orders?.map((order) => order?.data?.order_list).flat() : [];

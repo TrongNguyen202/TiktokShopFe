@@ -1,12 +1,13 @@
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Modal, Popconfirm, Space, Table, Tooltip, message } from 'antd';
 import { useEffect, useState } from 'react';
+import React from 'react';
 
 import { useShopsOrder } from '../../store/ordersStore';
 
 import SectionTitle from '../common/SectionTitle';
 
-function OrderCheckDesign({ toShipInfoData }) {
+function OrderCheckDesign({ toShipInfoData }: { toShipInfoData: any }) {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const [openNewDesignModal, setOpenNewDesignModal] = useState(false);
