@@ -305,7 +305,7 @@ export default function Crawl() {
     const selectedProducts = productList.filter((product: ProductItemCrawled) => checkedItems[Number(product.id)]);
 
     const convertImageLink = (images: ProductImageItem[]) => {
-      const imageObject = images.reduce((obj, link, index) => {
+      const imageObject = images.reduce((obj: any, link, index) => {
         const key = `image${index + 1}`;
         obj[key] = link.url;
         return obj;
@@ -337,7 +337,7 @@ export default function Crawl() {
     const selectedProducts = productList.filter((product: ProductItemCrawled) => checkedItems[Number(product.id)]);
 
     const convertImageLink = (images: ProductImageItem[]) => {
-      const imageObject = images.reduce((obj, link, index) => {
+      const imageObject = images.reduce((obj: any, link, index) => {
         const key = `mockup_url_${index + 1}`;
         obj[key] = link.url;
         return obj;

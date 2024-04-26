@@ -8,8 +8,9 @@ import { CSS } from '@dnd-kit/utilities';
 
 import ReactQuill from 'react-quill';
 import { useProductsStore } from '../../store/productsStore';
+import { ProductImageItem, ProductItem } from '../../types/productItem';
 
-const getBase64 = (file) =>
+const getBase64 = (file: any) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -17,7 +18,7 @@ const getBase64 = (file) =>
     reader.onerror = (error) => reject(error);
   });
 
-function DraggableUploadListItem({ originNode, file }) {
+function DraggableUploadListItem({ originNode, file }: { originNode: any; file: any }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: file.uid,
   });
@@ -39,9 +40,31 @@ function DraggableUploadListItem({ originNode, file }) {
   );
 }
 
-export default function ModalProductDetail({ product, setIsOpenModal, isOpenModal, imgBase64, handleChangeProduct }) {
+type File = {
+  uid: string;
+  name: string;
+  status: string;
+  url: string;
+  thumbUrl: string;
+  preview: any;
+  originFileObj: any;
+};
+
+export default function ModalProductDetail({
+  product,
+  setIsOpenModal,
+  isOpenModal,
+  imgBase64,
+  handleChangeProduct,
+}: {
+  product: ProductItem;
+  setIsOpenModal: boolean;
+  isOpenModal: boolean;
+  imgBase64: any;
+  handleChangeProduct: (product: ProductItem) => void;
+}) {
   const { changeProductImageToWhite, loadingImage } = useProductsStore((state) => state);
-  const [fileList, setFileList] = useState(product.images);
+  const [fileList, setFileList] = useState<ProductImageItem[]>(product.images);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
   const [previewTitle, setPreviewTitle] = useState('');
@@ -54,16 +77,15 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
     setProductDescription(product.description);
   }, []);
 
-  const handlePreview = async (file) => {
-    console.log('file: ', file);
+  const handlePreview = async (file: File) => {
     if (!file.url && !file.preview) file.preview = await getBase64(file.originFileObj);
     setPreviewImage(file.thumbUrl || file.url || file.preview);
     setPreviewOpen(true);
     setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
   };
 
-  const handleChange = ({ fileList: newFileList }) => {
-    const dataUpdate = newFileList.map((item) => ({
+  const handleChange = ({ fileList: newFileList }: { fileList: any }) => {
+    const dataUpdate = newFileList.map((item: any) => ({
       ...item,
       url: item.id && item.url ? item.url.replace('data:image/png;base64,white_', '') : item.url,
     }));
@@ -80,11 +102,11 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
 
   const handleCancel = () => setPreviewOpen(false);
 
-  const onDragEnd = ({ active, over }) => {
+  const onDragEnd = ({ active, over }: { active: any; over: any }) => {
     if (active.id !== over?.id) {
       setFileList((prev) => {
-        const activeIndex = prev.findIndex((i) => i.uid === active.id);
-        const overIndex = prev.findIndex((i) => i.uid === over?.id);
+        const activeIndex = prev.findIndex((i: ProductImageItem) => i.uid === active.id);
+        const overIndex = prev.findIndex((i: ProductImageItem) => i.uid === over?.id);
         return arrayMove(prev, activeIndex, overIndex);
       });
     }
