@@ -11,11 +11,11 @@ function StoreDetailProducts({ shopId }: { shopId: string }) {
 
   useEffect(() => {
     const onSuccess = () => {};
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       alerts.error(err);
     };
 
-    getAllProducts(shopId, 1, onSuccess, onFail);
+    getAllProducts(shopId, '1', onSuccess, onFail);
     return () => {
       resetProductById();
     };

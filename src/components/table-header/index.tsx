@@ -66,7 +66,7 @@ export default function TableHeader({
               placeholder="Đến ngày"
               onChange={(_, dateString) => changeParams('end_date_register', dateString)}
             />
-            <Button type="primary ml-2" onClick={() => onSearch(query)}>
+            <Button type="primary" onClick={() => onSearch(query)}>
               Tìm kiếm
             </Button>
           </div>

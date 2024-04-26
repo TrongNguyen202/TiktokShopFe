@@ -1,4 +1,4 @@
-import { permission } from '../constants';
+import { permission } from '../constants/role';
 
 // eslint-disable-next-line consistent-return
 export const validatePermission = (roles: number[]) => {
@@ -8,6 +8,7 @@ export const validatePermission = (roles: number[]) => {
   if (roles.indexOf(user.role[0])) {
     return true;
   }
+  return true;
 };
 
 export const hasManagerPermission = () => {

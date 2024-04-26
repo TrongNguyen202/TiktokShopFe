@@ -2,8 +2,9 @@ import { Card, Row, Col } from 'antd';
 import React from 'react';
 import { formatDate } from '../../utils/date';
 import StoreDetailSectionTitle from './StoreDetailSectionTitle';
+import { StoreItem } from '../../types/store';
 
-function StoreDetailBaseInformation({ store }) {
+function StoreDetailBaseInformation({ store }: { store: StoreItem }) {
   return (
     <>
       <StoreDetailSectionTitle title="Thông tin cơ bản" />

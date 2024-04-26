@@ -26,19 +26,22 @@ import {
 } from '../../utils/permission';
 import { StyledLogo, StyledSidebar } from './Sidebar.style';
 import { useAuthStore } from '../../store/authStore';
-import { permission } from '../../constants';
+import { permissionMap } from '../../constants/role';
 
-const permissionMap = {
-  '/shops': [permission.MANAGER, permission.SELLER],
-  '/': [permission.MANAGER, permission.SELLER, permission.DESIGNER],
+type MenuSidebar = {
+  key: string;
+  icon: JSX.Element;
+  label: JSX.Element;
+  hasPer: boolean;
+  children?: MenuSidebar[];
 };
 
-function Sidebar({ collapsed }) {
+function Sidebar({ collapsed }: { collapsed: boolean }) {
   const path = window.location.pathname;
   const navigate = useNavigate();
   const { profile } = useAuthStore();
   const [showMenuMobile, setShowMenuMobile] = useState(false);
-  const [menuSidebar, setMenuSidebar] = useState([]);
+  const [menuSidebar, setMenuSidebar] = useState<MenuSidebar[]>([]);
 
   useEffect(() => {
     window.addEventListener('beforeunload', () => {});
@@ -47,10 +50,16 @@ function Sidebar({ collapsed }) {
     };
   }, [navigate]);
 
-  const initMenuSidebar = [
+  const initMenuSidebar: MenuSidebar[] = [
     {
       key: '/',
-      icon: <DashboardOutlined style={{ color: '#4595ef' }} />,
+      icon: (
+        <DashboardOutlined
+          style={{ color: '#4595ef' }}
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
+        />
+      ),
       label: (
         <Link className="flex justify-between" to="/">
           Tổng quan
@@ -60,7 +69,9 @@ function Sidebar({ collapsed }) {
     },
     {
       key: '/shops',
-      icon: <ShopOutlined style={{ color: 'red' }} />,
+      icon: (
+        <ShopOutlined style={{ color: 'red' }} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
+      ),
       label: (
         <Link className="flex justify-between" to="shops">
           Cửa hàng{' '}
@@ -71,23 +82,35 @@ function Sidebar({ collapsed }) {
     },
     {
       key: '/templates',
-      icon: <FileDoneOutlined style={{ color: '#9a10d0' }} />,
+      icon: (
+        <FileDoneOutlined
+          style={{ color: '#9a10d0' }}
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
+        />
+      ),
       label: (
         <Link className="flex justify-between" to="templates">
           Quản lý template
         </Link>
       ),
-      hasPer: hasManagerPermission() || hasSellerPermission(),
+      hasPer: validatePermission(permissionMap['/templates']),
     },
     {
       key: '/users',
-      icon: <UsergroupAddOutlined style={{ color: '#52dc07' }} />,
+      icon: (
+        <UsergroupAddOutlined
+          style={{ color: '#52dc07' }}
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
+        />
+      ),
       label: (
         <Link className="flex justify-between" to="users">
           Quản lý user
         </Link>
       ),
-      hasPer: hasManagerPermission(),
+      hasPer: validatePermission(permissionMap['/users']),
     },
     {
       key: '/crawl',
@@ -97,47 +120,75 @@ function Sidebar({ collapsed }) {
           Crawl products
         </Link>
       ),
-      hasPer: hasManagerPermission() || hasSellerPermission(),
+      hasPer: validatePermission(permissionMap['/crawl']),
     },
     {
       key: '/google-trends',
-      icon: <GoogleOutlined style={{ color: '#230fff' }} className="w-[16px]" />,
+      icon: (
+        <GoogleOutlined
+          style={{ color: '#230fff' }}
+          className="w-[16px]"
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
+        />
+      ),
       label: (
         <Link className="flex justify-between" to="google-trends">
           Google Trends
         </Link>
       ),
-      hasPer: hasManagerPermission() || hasSellerPermission(),
+      hasPer: validatePermission(permissionMap['/google-trends']),
     },
     {
       key: '/design-editor',
-      icon: <SkinOutlined style={{ color: '#F6C23E' }} className="w-[16px]" />,
+      icon: (
+        <SkinOutlined
+          style={{ color: '#F6C23E' }}
+          className="w-[16px]"
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
+        />
+      ),
       label: (
         <Link className="flex justify-between" to="design-editor">
           Custom design
         </Link>
       ),
-      hasPer: hasManagerPermission() || hasSellerPermission(),
+      hasPer: validatePermission(permissionMap['/design-editor']),
     },
     {
       key: '/check-label',
-      icon: <SearchOutlined style={{ color: '#ff800f' }} className="w-[16px]" />,
+      icon: (
+        <SearchOutlined
+          style={{ color: '#ff800f' }}
+          className="w-[16px]"
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
+        />
+      ),
       label: (
         <Link className="flex justify-between" to="/check-label">
           Kiếm tra Label đã mua
         </Link>
       ),
-      hasPer: hasManagerPermission() || hasSellerPermission(),
+      hasPer: validatePermission(permissionMap['/check-label']),
     },
     {
       key: '/design-sku',
-      icon: <AntDesignOutlined style={{ color: '#0f2aff' }} className="w-[16px]" />,
+      icon: (
+        <AntDesignOutlined
+          style={{ color: '#0f2aff' }}
+          className="w-[16px]"
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
+        />
+      ),
       label: (
         <Link className="flex justify-between" to="/design-sku">
           Design Sku
         </Link>
       ),
-      hasPer: hasDesignerPermission(),
+      hasPer: validatePermission(permissionMap['/design-sku']),
     },
   ];
 
@@ -162,7 +213,11 @@ function Sidebar({ collapsed }) {
         className="inline-block w-[30px] h-[30px] leading-[28px] border-[1px] border-[#d9d9d9] border-solid text-center text-lg md:hidden absolute top-[19px] left-[15px] z-20"
         onClick={() => setShowMenuMobile(!showMenuMobile)}
       >
-        {showMenuMobile ? <CloseOutlined /> : <MenuOutlined />}
+        {showMenuMobile ? (
+          <CloseOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
+        ) : (
+          <MenuOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
+        )}
       </span>
       <div
         className={`${
@@ -180,7 +235,7 @@ function Sidebar({ collapsed }) {
         </StyledLogo>
         <Scrollbars style={{ height: 'calc(100vh - 64px)' }} autoHide autoHideTimeout={1000} autoHideDuration={200}>
           <Menu
-            items={menuSidebar.filter((item) => item.hasPer)}
+            items={menuSidebar.filter((item: MenuSidebar) => item.hasPer)}
             theme="light"
             mode="inline"
             defaultSelectedKeys={[path]}
