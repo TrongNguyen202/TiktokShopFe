@@ -1,8 +1,23 @@
 import { create } from 'zustand';
 import { RepositoryRemote } from '../services';
 import { removeToken } from '../utils/auth';
+import { handleAxiosError } from '../utils/handleAxiosError';
 
-export const useAuthStore = create((set) => ({
+interface AuthStore {
+  tokenInfo: Record<string, unknown>;
+  profile: any;
+  loading: boolean;
+  login: (form: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  register: (form: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  checkExists: (form: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  resetPassword: (form: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  sendOtp: (form: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  sendEmailOtp: (form: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getProfileInfo: (onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  logOut: (onSuccess: () => void, onFail: (data: any) => void) => void;
+}
+
+export const useAuthStore = create<AuthStore>((set) => ({
   tokenInfo: {},
   profile: {},
   loading: false,
@@ -10,10 +25,10 @@ export const useAuthStore = create((set) => ({
     try {
       set({ loading: true });
       const response = await RepositoryRemote.auth.login(form);
-      set({ tokenInfo: response.data.access });
-      onSuccess(response.data.access);
+      set({ tokenInfo: response?.data.access });
+      onSuccess(response?.data.access);
     } catch (error) {
-      onFail(error.response.data.msg || 'Tài khoản hoặc mật khẩu không đúng!');
+      onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },
@@ -23,7 +38,7 @@ export const useAuthStore = create((set) => ({
       const response = await RepositoryRemote.auth.register(form);
       onSuccess(response);
     } catch (error) {
-      onFail(error);
+      onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },
@@ -33,7 +48,7 @@ export const useAuthStore = create((set) => ({
       const response = await RepositoryRemote.auth.checkExists(form);
       onSuccess(response);
     } catch (error) {
-      onFail(error);
+      onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },
@@ -43,7 +58,7 @@ export const useAuthStore = create((set) => ({
       const response = await RepositoryRemote.auth.resetPassword(form);
       onSuccess(response);
     } catch (error) {
-      onFail(error);
+      onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },
@@ -53,7 +68,7 @@ export const useAuthStore = create((set) => ({
       const response = await RepositoryRemote.auth.sendOtp(form);
       onSuccess(response);
     } catch (error) {
-      onFail(error);
+      onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },
@@ -63,33 +78,31 @@ export const useAuthStore = create((set) => ({
       const response = await RepositoryRemote.auth.sendEmailOtp(form);
       onSuccess(response);
     } catch (error) {
-      onFail(error);
+      onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },
-  getProfileInfo: async (onSuccess = () => {}, onFail = () => {}) => {
+  getProfileInfo: async (onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.auth.getProfileInfo();
-      set({ profile: response.data });
+      set({ profile: response?.data });
       onSuccess(response);
     } catch (error) {
-      onFail(error);
+      onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },
-  logOut: async (onSuccess, onFail = () => {}) => {
+  logOut: async (onSuccess, onFail) => {
     try {
       removeToken();
-      // localStorage.removeItem("profile")
-      // localStorage.removeItem("badges")
       localStorage.removeItem('user');
       localStorage.removeItem('flash-ship-tk');
       localStorage.removeItem('flash-ship-tk-expiration');
       set({ tokenInfo: {} });
       onSuccess();
     } catch (error) {
-      onFail(error);
+      onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },

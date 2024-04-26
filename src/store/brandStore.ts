@@ -1,11 +1,18 @@
 import { create } from 'zustand';
 import { RepositoryRemote } from '../services';
 import { alerts } from '../utils/alerts';
+import { handleAxiosError } from '../utils/handleAxiosError';
 
-export const useShopsBrand = create((set) => ({
-  brands: {},
+interface ShopsStore {
+  brands: Record<string, unknown>[];
+  loading: boolean;
+  getAllBrand: (id: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+}
+
+export const useShopsBrand = create<ShopsStore>((set) => ({
+  brands: [],
   loading: false,
-  getAllBrand: async (id, onSuccess = () => {}, onFail = () => {}) => {
+  getAllBrand: async (id, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.brand.getAllBrand(id);
@@ -13,10 +20,10 @@ export const useShopsBrand = create((set) => ({
         alerts.error(response?.data?.message);
         Promise.reject(new Error(response?.data?.message));
       }
-      set({ brands: response.data.data });
-      onSuccess(response.data.data);
+      set({ brands: response?.data.data });
+      onSuccess(response?.data.data);
     } catch (error) {
-      onFail(error?.data?.message || 'Có lỗi xảy ra khi lấy dữ liệu brand!');
+      onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },

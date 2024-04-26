@@ -1,14 +1,17 @@
 import { Link } from 'react-router-dom';
 import { Table } from 'antd';
 import React from 'react';
+import { ColumnType } from 'antd/es/table';
 
-function OrdersLabelsSearch({ dataSource }) {
-  const columns = [
+type Column = ColumnType<Record<string, any>>;
+
+function OrdersLabelsSearch({ dataSource }: { dataSource: any[] }) {
+  const columns: Column[] = [
     {
       title: 'SST',
       dataIndex: 'stt',
       align: 'center',
-      render: (_, record, index) => index + 1,
+      render: (_: any, record: any, index: any) => index + 1,
     },
     {
       title: 'Order ID',
@@ -17,7 +20,7 @@ function OrdersLabelsSearch({ dataSource }) {
     {
       title: 'Label URL',
       dataIndex: 'link',
-      render: (text) => (
+      render: (text: any) => (
         <Link to={text} target="_blank">
           {text}
         </Link>
@@ -25,7 +28,7 @@ function OrdersLabelsSearch({ dataSource }) {
     },
   ];
 
-  return <Table columns={columns} dataSource={dataSource} pagination={{ position: ['none'] }} bordered />;
+  return <Table columns={columns} dataSource={dataSource} pagination={false} bordered />;
 }
 
 export default OrdersLabelsSearch;

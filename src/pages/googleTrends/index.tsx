@@ -1,4 +1,4 @@
-import { Button, Divider, Input, Select, Space, Spin, message } from 'antd';
+import { Button, Select, Spin, message } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import { useGoogleTrendStore } from '../../store/googleTrendStore';
 
@@ -131,16 +131,6 @@ export default function GoogleTrends() {
     };
     const query = `?keyword=${params.keyword}&time_frame=${params.time_frame}&max_results=20`;
     getGoogleTrendData(query, onSuccess, onFail);
-  };
-
-  const addItem = (e) => {
-    e.preventDefault();
-    setKeywordOptions((prev) => [...prev, { label: inputValue, value: inputValue }]);
-    setParams((prev) => ({ ...prev, keyword: inputValue }));
-    setInputValue('');
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 0);
   };
 
   return (

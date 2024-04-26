@@ -1,4 +1,4 @@
-import axios, { AxiosHeaders } from 'axios';
+import axios from 'axios';
 import { constants as c } from '../constants';
 import { getToken, getTokenKey, removeToken } from '../utils/auth';
 
@@ -54,8 +54,6 @@ export const callApi = (endPoint: string, method: string, body?: any) => {
       data: body,
       headers: {
         'Content-Type': 'application/json',
-        // "device-id": `${c.STORE_CODE}-${uuid}`,
-        // "device-id": `ikidemo-2750bc42-702e-4cbe-bae5-798f171389e1`,
       },
     });
   } catch (error: any) {

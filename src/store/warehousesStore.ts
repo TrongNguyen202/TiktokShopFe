@@ -1,17 +1,24 @@
 import { create } from 'zustand';
 import { RepositoryRemote } from '../services';
+import { handleAxiosError } from '../utils/handleAxiosError';
 
-export const useWareHousesStore = create((set) => ({
+interface WareHousesStore {
+  warehousesById: Record<string, unknown>[];
+  loadingWarehouse: boolean;
+  getWarehousesByShopId: (id: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+}
+
+export const useWareHousesStore = create<WareHousesStore>((set) => ({
   warehousesById: [],
   loadingWarehouse: false,
-  getWarehousesByShopId: async (id, onSuccess = () => {}, onFail = () => {}) => {
+  getWarehousesByShopId: async (id, onSuccess, onFail) => {
     try {
       set({ loadingWarehouse: true });
       const response = await RepositoryRemote.warehouses.getWarehousesByShopId(id);
-      set({ warehousesById: response.data.data });
-      onSuccess(response.data.data);
+      set({ warehousesById: response?.data.data });
+      onSuccess(response?.data.data);
     } catch (error) {
-      onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi lấy dữ liệu warehouse!');
+      onFail(handleAxiosError(error));
     }
     set({ loadingWarehouse: false });
   },

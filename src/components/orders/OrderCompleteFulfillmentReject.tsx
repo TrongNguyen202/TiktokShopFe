@@ -1,8 +1,8 @@
-import { Button, Checkbox, Form, Input } from 'antd';
+import { Button, Form, Input } from 'antd';
 import React from 'react';
 
-function OrderCompleteFulfillmentReject({ rejectOrderNoteData, data }) {
-  const onFinish = (values) => {
+function OrderCompleteFulfillmentReject({ rejectOrderNoteData, data }: { rejectOrderNoteData: any; data: any }) {
+  const onFinish = (values: Record<string, unknown>) => {
     const rejectOrderSubmit = {
       orderCode: data.orderCode,
       packageId: data.packageId,

@@ -4,11 +4,11 @@ const getAllSellers = () => {
   return callApi('/admin/manage/users', 'get');
 };
 
-const getSellersById = (id) => {
+const getSellersById = (id: string) => {
   return callApi(`/admin/manage/users/${id}`, 'get');
 };
 
-const searchSeller = (query) => {
+const searchSeller = (query: string) => {
   return callApi(`/admin/manage/users?${query}`, 'get');
 };
 

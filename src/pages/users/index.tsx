@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { Button, Col, Input, Popconfirm, Row, Space, Table, Tag, Tooltip, message } from 'antd';
+import { Button, Input, Popconfirm, Row, Space, Table, Tag, Tooltip, message } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 

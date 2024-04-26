@@ -1,15 +1,16 @@
 /* eslint-disable prettier/prettier */
+import { CloudUploadOutlined, CopyOutlined, DownloadOutlined, ImportOutlined, UploadOutlined } from '@ant-design/icons';
 import { Button, Col, Input, Row, Select, Switch, Upload, message } from 'antd';
+import TextArea from 'antd/es/input/TextArea';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import * as XLSX from 'xlsx';
-import { CloudUploadOutlined, CopyOutlined, DownloadOutlined, UploadOutlined, ImportOutlined } from '@ant-design/icons';
-import TextArea from 'antd/es/input/TextArea';
 import { v4 as uuidv4 } from 'uuid';
+import * as XLSX from 'xlsx';
+import { senPrintsData } from '../../constants';
+import { ProductImageItem, ProductItem as ProductItemData } from '../../types/productItem';
+import ModalShowError from './ModalShowError';
 import ModalUploadProduct from './ModalUploadProduct';
 import ProductItem from './ProductItem';
-import { senPrintsData } from '../../constants';
-import ModalShowError from './ModalShowError';
 
 const crawlerOptions = [
   {
@@ -79,9 +80,20 @@ const initialCrawl = {
   imagesLimit: 9,
 };
 
+type ProductItemCrawled = {
+  id: string;
+  listing_id: string;
+  siteProductId: string;
+  description: string;
+  title: string;
+  images: ProductImageItem[];
+  sku: any[];
+  warehouse: string;
+};
+
 export default function Crawl() {
-  const productListStorage = JSON.parse(localStorage.getItem('productList'));
-  const userInfo = JSON.parse(localStorage.getItem('user'));
+  const productListStorage = JSON.parse(localStorage.getItem('productList') || '');
+  const userInfo = JSON.parse(localStorage.getItem('user') || '');
   const [productList, setProductList] = useState(productListStorage);
   const [checkedItems, setCheckedItems] = useState([]);
   const [isAllChecked, setIsAllChecked] = useState(false);
@@ -91,7 +103,7 @@ export default function Crawl() {
   const [showSkeleton, setShowSkeleton] = useState(false);
   const [showOutsideImages, setShowOutsideImages] = useState(false);
   const [licenseCode, setLicenseCode] = useState({
-    code: localStorage.getItem('licenseCode'),
+    code: localStorage.getItem('licenseCode') || '',
     invalid: !localStorage.getItem('licenseCode'),
   });
   const [modalErrorInfo, setModalErrorInfo] = useState({
@@ -112,13 +124,13 @@ export default function Crawl() {
     } else setIsAllChecked(false);
   }, [checkedItems]);
 
-  const handleDeleteProduct = (product_id) => {
-    const newProductList = productList.filter((item) => item.id !== product_id);
+  const handleDeleteProduct = (productId: string) => {
+    const newProductList = productList.filter((item: ProductItemData) => item.id !== productId);
     setProductList(newProductList);
   };
 
-  const handleChangeProduct = (newProduct) => {
-    const newProductList = productList.map((item) => {
+  const handleChangeProduct = (newProduct: ProductItemData) => {
+    const newProductList = productList.map((item: ProductItemData) => {
       if (item.id === newProduct.id) {
         return newProduct;
       }
@@ -127,15 +139,15 @@ export default function Crawl() {
     setProductList(newProductList);
   };
 
-  const handleCheckChange = (event) => {
+  const handleCheckChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCheckedItems({
       ...checkedItems,
       [event.target.name]: event.target.checked,
     });
   };
 
-  const handleCheckAllChange = (event) => {
-    const newCheckedItems = productList.reduce((acc, cur) => {
+  const handleCheckAllChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newCheckedItems = productList.reduce((acc: any, cur: any) => {
       acc[cur.id] = event.target.checked;
       return acc;
     }, {});
@@ -147,8 +159,7 @@ export default function Crawl() {
   const renderProductList = () => {
     return (
       <Row gutter={[16, 16]} className="flex py-5 transition-all duration-300">
-        {productList.map((item, index) => {
-          console.log('item: ', item);
+        {productList.map((item: ProductItemData, index: number) => {
           return (
             <Col span={4} key={item.id}>
               <ProductItem
@@ -168,14 +179,14 @@ export default function Crawl() {
     );
   };
 
-  const onChangeOptionCrawl = (key, value) => {
+  const onChangeOptionCrawl = (key: string, value: string) => {
     setOptionCrawl({
       ...optionCrawl,
       [key]: value,
     });
   };
 
-  const fetchInfoProducts = async (ids, productData) => {
+  const fetchInfoProducts = async (ids: string, productData: ProductItemData[]) => {
     setLoading(true);
     const headers = {
       accept: 'application/json',
@@ -206,7 +217,7 @@ export default function Crawl() {
           return;
         }
         const combineProducts = productData.map((item) => {
-          const product = data.data.find((product) => item.siteProductId === String(product.listing_id));
+          const product = data.data.find((product: ProductItemCrawled) => item.siteProductId === String(product.listing_id));
           return {
             ...item,
             ...product,
@@ -224,7 +235,7 @@ export default function Crawl() {
       });
   };
 
-  const fetchDataProductList = async (url, crawler) => {
+  const fetchDataProductList = async (url: string, crawler: string) => {
     setLoading(true);
     // lấy danh sách url từ textarea và split theo dòng
     const urlsList = url
@@ -237,7 +248,7 @@ export default function Crawl() {
     const params = {
       crawler,
     };
-    const fetchProductList = async (url) => {
+    const fetchProductList = async (url: string) => {
       return axios({
         method: 'post',
         url: `https://kaa.iamzic.com/api/v1/crawl.json?crawlURL=${url}`,
@@ -250,8 +261,8 @@ export default function Crawl() {
 
     // concat các sản phẩm vào chung 1 mảng
     const productData = responses
-      .filter((response) => response.status === 'fulfilled' && response.value.data)
-      .reduce((acc, response) => {
+      .filter((response) => response.status === 'fulfilled' && 'data' in response.value && response.value.data)
+      .reduce((acc: any, response: any) => {
         const { data } = response.value;
         return [...acc, ...data.data];
       }, []);
@@ -274,7 +285,7 @@ export default function Crawl() {
 
     // lấy danh sách id của sản phẩm để get thông tin sản phẩm
     const ids = productData.map((item) => item.id.split('.')[0]).join(',');
-    setProductList(productData);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+    setProductList(productData);
     setCheckedItems([]);
     setIsAllChecked(false);
     setShowSkeleton(true);
@@ -290,10 +301,10 @@ export default function Crawl() {
     fetchDataProductList(optionCrawl.url, optionCrawl.crawler);
   };
 
-  const convertDataProducts = (isCreateProduct) => {
-    const selectedProducts = productList.filter((product) => checkedItems[product.id]);
+  const convertDataProducts = (isCreateProduct: boolean) => {
+    const selectedProducts = productList.filter((product: ProductItemCrawled) => checkedItems[Number(product.id)]);
 
-    const convertImageLink = (images) => {
+    const convertImageLink = (images: ProductImageItem[]) => {
       const imageObject = images.reduce((obj, link, index) => {
         const key = `image${index + 1}`;
         obj[key] = link.url;
@@ -302,7 +313,7 @@ export default function Crawl() {
       return imageObject;
     };
 
-    return selectedProducts.map((product) => {
+    return selectedProducts.map((product: ProductItemCrawled) => {
       if (isCreateProduct) {
         return {
           sku: product.sku,
@@ -323,9 +334,9 @@ export default function Crawl() {
   };
 
   const convertDataProductsToSenPrints = () => {
-    const selectedProducts = productList.filter((product) => checkedItems[product.id]);
+    const selectedProducts = productList.filter((product: ProductItemCrawled) => checkedItems[Number(product.id)]);
 
-    const convertImageLink = (images) => {
+    const convertImageLink = (images: ProductImageItem[]) => {
       const imageObject = images.reduce((obj, link, index) => {
         const key = `mockup_url_${index + 1}`;
         obj[key] = link.url;
@@ -334,7 +345,7 @@ export default function Crawl() {
       return imageObject;
     };
 
-    return selectedProducts.flatMap((product) => {
+    return selectedProducts.flatMap((product: ProductItemCrawled) => {
       return senPrintsData.map((item) => {
         return {
           campaign_name: `${product.title} ${userInfo?.user_code ? `- ${userInfo.user_code}` : ''}`,
@@ -350,7 +361,7 @@ export default function Crawl() {
   };
 
   const handleExportExcel = () => {
-    const data = convertDataProducts();
+    const data = convertDataProducts(false);
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
@@ -374,7 +385,7 @@ export default function Crawl() {
     setLicenseCode((prev) => ({ ...prev, invalid: false }));
   };
 
-  const copyToClipboard = (content) => {
+  const copyToClipboard = (content: any) => {
     const tempInput = document.createElement('input');
     tempInput.value = content;
     document.body.appendChild(tempInput);
@@ -392,22 +403,22 @@ export default function Crawl() {
     document.body.removeChild(tempInput);
   };
 
-  const handleFileUpload = (file) => {
+  const handleFileUpload = (file: any) => {
     const reader = new FileReader();
 
     reader.onload = (event) => {
       // chuyển đổi data từ file excel sang json
-      const data = event.target.result;
+      const data = (event.target as FileReader).result;
       const workbook = XLSX.read(data, { type: 'array' });
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-      let convertJson = [];
+      let convertJson: any[] = [];
       if (Array.isArray(jsonData) && jsonData.length) {
-        convertJson = jsonData.map((item) => {
+        convertJson = jsonData.map((item: any) => {
           const { sku, title, warehouse, description } = item;
-          const handleImages = (item) => {
+          const handleImages = (item: any) => {
             const images = [];
             for (let i = 1; i <= 9; i++) {
               if (item[`image${i}`] || item[`images${i}`]) {
@@ -438,14 +449,17 @@ export default function Crawl() {
   };
 
   const importDataExtension = () => {
-    navigator.clipboard.readText().then((text) => {
-      const data = JSON.parse(text);
-      setProductList(data);
-      message.success('Import data extension successfully');
-    }).catch((err) => {
-      message.error('Failed to read clipboard contents');
-    });
-  }
+    navigator.clipboard
+      .readText()
+      .then((text) => {
+        const data = JSON.parse(text);
+        setProductList(data);
+        message.success('Import data extension successfully');
+      })
+      .catch(() => {
+        message.error('Failed to read clipboard contents');
+      });
+  };
 
   return (
     <div>
@@ -493,15 +507,16 @@ export default function Crawl() {
           Maybe you need: <span className="font-semibold">https://www.etsy.com/search?q=shirt&ref=search_bar</span>
           <CopyOutlined
             className="ml-1 cursor-pointer  text-blue-600"
-            onClick={() => copyToClipboard('https://www.etsy.com/search?q=shirt&ref=search_bar', 'link')}
-          />
+            onClick={() => copyToClipboard('https://www.etsy.com/search?q=shirt&ref=search_bar')} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}          />
         </p>
 
         <div className="my-6 flex gap-2">
           <Upload accept=".xlsx, .xls" beforeUpload={handleFileUpload} multiple={false}>
-            <Button icon={<UploadOutlined />}>Upload File</Button>
+            <Button icon={<UploadOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}>Upload File</Button>
           </Upload>
-          <Button icon={<ImportOutlined />} onClick={importDataExtension}>Import data extension</Button>
+          <Button icon={<ImportOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />} onClick={importDataExtension}>
+            Import data extension
+          </Button>
         </div>
 
         <div className="flex items-center gap-4 mt-4">
@@ -518,7 +533,7 @@ export default function Crawl() {
             <Button
               type="primary"
               disabled={CountSelectedItems === 0}
-              icon={<DownloadOutlined />}
+              icon={<DownloadOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
               onClick={handleExportSenPrints}
             >
               Export SenPrints
@@ -526,7 +541,7 @@ export default function Crawl() {
             <Button
               type="primary"
               disabled={CountSelectedItems === 0}
-              icon={<DownloadOutlined />}
+              icon={<DownloadOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
               onClick={handleExportExcel}
             >
               Export excel
@@ -534,7 +549,7 @@ export default function Crawl() {
             <Button
               type="primary"
               disabled={CountSelectedItems === 0}
-              icon={<CloudUploadOutlined />}
+              icon={<CloudUploadOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
               onClick={() => setShowModalUpload(true)}
             >
               Upload products
@@ -544,7 +559,8 @@ export default function Crawl() {
             </div>
           </div>
           <div className="font-semibold">
-            Show the outside images <Switch defaultChecked={false} onChange={() => setShowOutsideImages(!showOutsideImages)} />
+            Show the outside images{' '}
+            <Switch defaultChecked={false} onChange={() => setShowOutsideImages(!showOutsideImages)} />
           </div>
         </div>
         {productList && productList?.length ? renderProductList() : null}

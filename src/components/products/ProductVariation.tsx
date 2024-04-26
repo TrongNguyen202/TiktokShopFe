@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import React from 'react';
 
 import { useWareHousesStore } from '../../store/warehousesStore';
 import { alerts } from '../../utils/alerts';

@@ -1,42 +1,44 @@
-import { useEffect, useState } from 'react';
+import { DownOutlined, LinkOutlined, WarningOutlined } from '@ant-design/icons';
 import {
-  Divider,
-  Table,
-  Space,
   Button,
-  Popover,
-  Image,
-  Modal,
+  Divider,
   Form,
+  Image,
   Input,
+  Modal,
+  Popover,
+  Select,
+  Space,
+  Table,
+  Tooltip,
   message,
   notification,
-  Tooltip,
-  Select,
 } from 'antd';
-import { DownOutlined, WarningOutlined, LinkOutlined } from '@ant-design/icons';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import * as XLSX from 'xlsx';
-import { Link, useNavigate } from 'react-router-dom';
-import React from 'react';
 
 import { constants as c } from '../../constants';
-import { getPathByIndex } from '../../utils';
-import { setTokenExpand, getTokenKey } from '../../utils/auth';
 import { useShopsOrder } from '../../store/ordersStore';
+import { getPathByIndex } from '../../utils';
+import { getTokenKey, setTokenExpand } from '../../utils/auth';
 
+import { useFlashShipStores } from '../../store/flashShipStores';
 import SectionTitle from '../common/SectionTitle';
 import DesignEdit from '../design-sku/DesignEdit';
-import { useFlashShipStores } from '../../store/flashShipStores';
 
-function OrderForPartner({ toShipInfoData }) {
-  const navigate = useNavigate();
+type DesignSkuType = {
+  results: Record<string, string>[];
+};
+
+function OrderForPartner({ toShipInfoData }: { toShipInfoData: any }) {
   const shopId = getPathByIndex(2);
   const flashShipToken = getTokenKey('flash-ship-tk');
   const flashShipTokenExpiration = getTokenKey('flash-ship-tk-expiration');
   const [messageApi, contextHolder] = message.useMessage();
   const [api, notificationContextHolder] = notification.useNotification();
   const [showLink, setShowLink] = useState(true);
-  const [designSku, setDesignSku] = useState([]);
+  const [designSku, setDesignSku] = useState<DesignSkuType | null>(null);
   const [flashShipShipment, setFlashShipShipment] = useState(1);
   const [designSkuById, setDesignSkuById] = useState({});
   const [openEditModal, setOpenEditModal] = useState(false);
@@ -48,7 +50,6 @@ function OrderForPartner({ toShipInfoData }) {
   const [printCareTable, setPrintCareTable] = useState([]);
   const [flashShipVariants, setFlashShipVariants] = useState([]);
   const [openLoginFlashShip, setOpenLoginFlashShip] = useState(false);
-  const [allowCreateOrderPartner, setAllowCreateOrderPartner] = useState(false);
   const {
     getToShipInfo,
     loadingGetInfo,
@@ -62,24 +63,26 @@ function OrderForPartner({ toShipInfoData }) {
   } = useShopsOrder((state) => state);
   const { getFlashShipPODVariant, LoginFlashShip, createOrderFlashShip } = useFlashShipStores((state) => state);
 
-  const checkDataPartner = (data) => {
+  const checkDataPartner = (data: any) => {
     const dataCheck = data
-      .map((order) => {
-        order.order_list[0].item_list = order.order_list[0].item_list.filter((item) => item.sku_name !== 'Default');
+      .map((order: any) => {
+        order.order_list[0].item_list = order.order_list[0].item_list.filter(
+          (item: any) => item.sku_name !== 'Default',
+        );
         return order;
       })
-      .filter((order) => order.order_list[0].item_list.length > 0);
+      .filter((order: any) => order.order_list[0].item_list.length > 0);
 
-    const orderPartnerResult = dataCheck?.map((dataItem) => {
+    const orderPartnerResult = dataCheck?.map((dataItem: any) => {
       const orderPartner = { ...dataItem };
-      const itemList = dataItem?.order_list?.flatMap((item) => item.item_list);
-      const itemListRemovePhysical = itemList.filter((item) => item.sku_name !== 'Default');
+      const itemList = dataItem?.order_list?.flatMap((item: any) => item.item_list);
+      const itemListRemovePhysical = itemList.filter((item: any) => item.sku_name !== 'Default');
       let isFlashShip = true;
-      const variations = itemListRemovePhysical.map((variation) => {
+      const variations = itemListRemovePhysical.map((variation: any) => {
         if (!isFlashShip) return variation;
         let variationObject = {};
         const result = { ...variation };
-        const variationSplit = variation?.sku_name.split(',').map((item) => item.trim());
+        const variationSplit = variation?.sku_name.split(',').map((item: any) => item.trim());
 
         if (variationSplit.length === 3) {
           variationObject = {
@@ -93,12 +96,16 @@ function OrderForPartner({ toShipInfoData }) {
           };
         }
 
-        if (variationObject.length < 2) {
+        if (Array.isArray(variationObject) && variationObject.length < 2) {
           isFlashShip = false;
         } else {
-          const variationObjectSize = variationObject?.size?.split(/[\s-,]/).filter(Boolean);
-          const checkProductType = flashShipVariants?.filter((variant) =>
-            variationObjectSize.find((item) => item.toUpperCase() === variant.product_type.toUpperCase()),
+          const variationObjectSize = (variationObject as { size?: string; color?: string })?.size
+            ?.split(/[\s-,]/)
+            .filter(Boolean);
+          const checkProductType = flashShipVariants?.filter((variant: Record<string, unknown>) =>
+            variationObjectSize?.find(
+              (item) => item.toUpperCase() === (variant as { product_type?: string })?.product_type?.toUpperCase(),
+            ),
           );
 
           if (!checkProductType.length) {
@@ -107,13 +114,15 @@ function OrderForPartner({ toShipInfoData }) {
 
           if (checkProductType.length) {
             const checkColor = checkProductType.filter(
-              (color) => color.color.toUpperCase() === variationObject?.color?.replace(' ', '').toUpperCase(),
+              (color: Record<string, string>) =>
+                color.color.toUpperCase() ===
+                (variationObject as { color?: string })?.color?.replace(' ', '').toUpperCase(),
             );
 
             if (checkColor.length) {
-              const checkSize = checkColor.find((size) => {
-                return variationObjectSize.find((item) => item.toUpperCase() === size.size.toUpperCase());
-              });
+              const checkSize = checkColor.find((size: Record<string, string>) => {
+                return variationObjectSize?.find((item) => item.toUpperCase() === size.size.toUpperCase());
+              }) as Record<string, string> | undefined;
 
               if (checkSize) {
                 result.variant_id = checkSize.variant_id;
@@ -133,31 +142,31 @@ function OrderForPartner({ toShipInfoData }) {
       orderPartner.order_list = variations;
       orderPartner.is_FlashShip = isFlashShip;
       orderPartner.order_id = dataItem.order_list
-        .map((item, index) => (index !== 0 ? `-${item.order_id}` : item.order_id))
+        .map((item: Record<string, unknown>, index: number) => (index !== 0 ? `-${item.order_id}` : item.order_id))
         .join('');
       return orderPartner;
     });
 
-    const dataFlashShip = orderPartnerResult?.filter((item) => item.is_FlashShip);
-    const dataPrintCare = orderPartnerResult?.filter((item) => !item.is_FlashShip);
+    const dataFlashShip = orderPartnerResult?.filter((item: Record<string, unknown>) => item.is_FlashShip);
+    const dataPrintCare = orderPartnerResult?.filter((item: Record<string, unknown>) => !item.is_FlashShip);
     if (dataFlashShip.length) setFlashShipTable(dataFlashShip);
     if (dataPrintCare.length) setPrintCareTable(dataPrintCare);
   };
 
-  const handleEditDesignSku = (skuId) => {
+  const handleEditDesignSku = (skuId: string) => {
     setOpenEditModal(true);
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       setDesignSkuById(res);
     };
 
-    const onFail = (err) => {
+    const onFail = (err: any) => {
       console.log('getDesignSkuById: ', err);
     };
     getDesignSkuById(skuId, onSuccess, onFail);
   };
 
-  const renderListItemProduct = (data) => {
-    return data?.map((item, index) => (
+  const renderListItemProduct = (data: Record<string, string>[]) => {
+    return data?.map((item, index: number) => (
       <div key={index} onClick={() => handleEditDesignSku(item.sku_id)} className="cursor-pointer">
         <div className="flex justify-between items-center gap-3 mt-3 w-[400px]">
           <div className="flex items-center gap-2">
@@ -177,16 +186,19 @@ function OrderForPartner({ toShipInfoData }) {
     ));
   };
 
-  const handAddDesignToShipInfoData = (data) => {
-    return data.map((item) => {
-      const orderItem = item.order_list.map((order) => {
-        const design = designSku?.results?.find((skuItem) => skuItem.sku_id === order.sku_id);
-        if (design) {
-          order.image_design_front = design.image_front;
-          order.image_design_back = design.image_back;
-        }
-        return order;
-      });
+  const handAddDesignToShipInfoData = (data: Record<string, unknown>[]) => {
+    return data.map((item: Record<string, unknown>) => {
+      const orderItem =
+        Array.isArray(item.order_list) &&
+        item.order_list.length &&
+        item.order_list.map((order) => {
+          const design = designSku?.results?.find((skuItem: Record<string, string>) => skuItem.sku_id === order.sku_id);
+          if (design) {
+            order.image_design_front = design.image_front;
+            order.image_design_back = design.image_back;
+          }
+          return order;
+        });
 
       const DesignSkuItem = {
         ...item,
@@ -196,16 +208,16 @@ function OrderForPartner({ toShipInfoData }) {
     });
   };
 
-  const handleConvertDataPackageCreate = (data, key, isExport) => {
+  const handleConvertDataPackageCreate = (data: Record<string, unknown>[], key: string, isExport: boolean) => {
     const result = data
-      .map((item) => {
+      .map((item: any) => {
         let orderList;
         const orderFulfillmentCompletedRejected = orderFulfillmentCompleted.find(
-          (order) => order.order_id === item.order_id,
+          (order: { order_id: string }) => String(order.order_id) === item.order_id,
         );
 
         if (isExport) {
-          orderList = item.order_list.map((order) => {
+          orderList = item.order_list.map((order: any) => {
             const orderItem = {
               pack_id: item.package_id,
               order_id: item.order_id,
@@ -249,7 +261,7 @@ function OrderForPartner({ toShipInfoData }) {
             buyer_country_code: 'US',
             shipment: flashShipShipment,
             linkLabel: item.label,
-            products: item.order_list.map((product) => ({
+            products: item.order_list.map((product: any) => ({
               variant_id: key === 'PrintCare' ? 'POD097' : product.variant_id,
               printer_design_front_url: product.image_design_front || null,
               printer_design_back_url: product.image_design_back || null,
@@ -259,7 +271,10 @@ function OrderForPartner({ toShipInfoData }) {
           };
         }
 
-        if (orderFulfillmentCompletedRejected && orderFulfillmentCompletedRejected?.package_status === false) {
+        if (
+          orderFulfillmentCompletedRejected &&
+          (orderFulfillmentCompletedRejected as { package_status: boolean })?.package_status === false
+        ) {
           orderList.order_id = `${item.order_id}-${Math.floor(Math.random() * 10)}`;
         }
         return orderList;
@@ -269,8 +284,8 @@ function OrderForPartner({ toShipInfoData }) {
   };
 
   const handleCreateOrderFlashShipAPI = () => {
-    const handAddDesignToShipInfoData = tableFlashShipSelected.map((item) => {
-      const orderItem = item.order_list.map((order) => {
+    const handAddDesignToShipInfoData = tableFlashShipSelected.map((item: Record<string, []>) => {
+      const orderItem = item.order_list.map((order: Record<string, string>) => {
         const design = designSku?.results?.find((skuItem) => skuItem.sku_id === order.sku_id);
         if (design) {
           order.image_design_front = design.image_front;
@@ -298,21 +313,28 @@ function OrderForPartner({ toShipInfoData }) {
         description: `Ảnh design mặt trước và sau của ${productIds.join(
           ', ',
         )} không thể cùng trống. Vui lòng quay lại và thêm design`,
-        icon: <WarningOutlined style={{ color: 'red' }} />,
+        icon: (
+          <WarningOutlined
+            style={{ color: 'red' }}
+            onPointerEnterCapture={undefined}
+            onPointerLeaveCapture={undefined}
+          />
+        ),
       });
     } else {
-      const dataSubmitFlashShip = handleConvertDataPackageCreate(handAddDesignToShipInfoData, 'FlashShip');
+      const dataSubmitFlashShip = handleConvertDataPackageCreate(handAddDesignToShipInfoData, 'FlashShip', false);
+      // eslint-disable-next-line array-callback-return
       dataSubmitFlashShip.map((item) => {
         const dataCreateOrder = { ...item };
         delete dataCreateOrder.package_id;
-        const onCreateSuccess = (resCreate) => {
+        const onCreateSuccess = (resCreate: any) => {
           if (resCreate.data !== null) {
             const dataCreateOrder = {
               ...item,
               order_code: resCreate.data,
             };
 
-            const onSuccessPackageCreate = (resPackage) => {
+            const onSuccessPackageCreate = (resPackage: any) => {
               if (resPackage) {
                 messageApi.open({
                   type: 'success',
@@ -322,18 +344,26 @@ function OrderForPartner({ toShipInfoData }) {
               }
             };
 
-            const onFailPackageCreate = (errPackage) => {};
-            packageCreateFlashShip(shopId, dataCreateOrder, onSuccessPackageCreate, onFailPackageCreate);
+            const onFailPackageCreate = () => {
+              return null;
+            };
+            packageCreateFlashShip(String(shopId), dataCreateOrder, onSuccessPackageCreate, onFailPackageCreate);
           } else {
             api.open({
               message: `Đơn hàng ${item.order_id}`,
               description: resCreate.err,
-              icon: <WarningOutlined style={{ color: 'red' }} />,
+              icon: (
+                <WarningOutlined
+                  style={{ color: 'red' }}
+                  onPointerEnterCapture={undefined}
+                  onPointerLeaveCapture={undefined}
+                />
+              ),
             });
           }
         };
 
-        const onCreateFail = (errCreate) => {
+        const onCreateFail = (errCreate: any) => {
           messageApi.open({
             type: 'error',
             content: `Đơn hàng ${item.order_id} có lỗi : ${errCreate.err}`,
@@ -347,7 +377,7 @@ function OrderForPartner({ toShipInfoData }) {
 
   const handleCreateOrderFlashShip = () => {
     const currentTime = Date.now();
-    if (flashShipToken === null || currentTime >= parseInt(flashShipTokenExpiration, 10)) {
+    if (flashShipToken === null || currentTime >= parseInt(flashShipTokenExpiration || '0', 10)) {
       messageApi.open({
         type: 'error',
         content: 'Đăng nhập tài khoản Flashship để có thể tạo đơn.',
@@ -358,10 +388,10 @@ function OrderForPartner({ toShipInfoData }) {
     }
   };
 
-  const handleLoginFlashShip = (values) => {
-    const onSuccess = (res) => {
+  const handleLoginFlashShip = (values: any) => {
+    const onSuccess = (res: any) => {
       if (res) {
-        setTokenExpand('flash-ship-tk', res.access_token, c.TOKEN_FLASH_SHIP_EXPIRATION);
+        setTokenExpand('flash-ship-tk', res.access_token, String(c.TOKEN_FLASH_SHIP_EXPIRATION));
         setOpenLoginFlashShip(false);
         messageApi.open({
           type: 'success',
@@ -370,7 +400,7 @@ function OrderForPartner({ toShipInfoData }) {
       }
     };
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       messageApi.open({
         type: 'error',
         content: `Đăng nhập thất bại. Vui lòng thử lại. ${err}`,
@@ -379,7 +409,7 @@ function OrderForPartner({ toShipInfoData }) {
     LoginFlashShip(values, onSuccess, onFail);
   };
 
-  const ExportExcelFile = (data, fileName, dataPackageCreate) => {
+  const ExportExcelFile = (data: any, fileName: string, dataPackageCreate: any) => {
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
@@ -389,7 +419,7 @@ function OrderForPartner({ toShipInfoData }) {
     // eslint-disable-next-line array-callback-return
     dataPackageCreateConvert.map((item) => {
       if (fileName === 'PrintCare') {
-        const onSuccess = (res) => {
+        const onSuccess = (res: any) => {
           if (res) {
             messageApi.open({
               type: 'success',
@@ -398,31 +428,31 @@ function OrderForPartner({ toShipInfoData }) {
             setShowLink(true);
           }
         };
-        packageCreatePrintCare(shopId, item, onSuccess, (err) => console.log(err));
+        packageCreatePrintCare(String(shopId), item, onSuccess, (err) => console.log(err));
       } else {
-        const onSuccess = (res) => {
+        const onSuccess = () => {
           messageApi.open({
             type: 'success',
             content: `Export đơn thành công.`,
           });
           setShowLink(true);
         };
-        packageCreateFlashShip(shopId, item, onSuccess, (err) => console.log(err));
+        packageCreateFlashShip(String(shopId), item, onSuccess, (err) => console.log(err));
       }
     });
   };
 
-  const handleExportExcelFile = (data, key) => {
+  const handleExportExcelFile = (data: any, key: string) => {
     const dataLabel = {
-      pdf_name: data.map((item) => `${item.package_id}.pdf`),
+      pdf_name: data.map((item: any) => `${item.package_id}.pdf`),
     };
 
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
-        const dataChangedLabelLink = data.map((item) => {
-          const resConvert = res.flatMap((resItem) => resItem[0]);
+        const dataChangedLabelLink = data.map((item: any) => {
+          const resConvert = res.flatMap((resItem: any) => resItem[0]);
           const checkPackageId = resConvert.find(
-            (itemRes) => itemRes.name.replace('.pdf', '').toString() === item.package_id,
+            (itemRes: any) => itemRes.name.replace('.pdf', '').toString() === item.package_id,
           );
           return {
             ...item,
@@ -432,8 +462,8 @@ function OrderForPartner({ toShipInfoData }) {
 
         const dataConvert = handAddDesignToShipInfoData(dataChangedLabelLink);
         const productItem = dataConvert
-          .map((item) => {
-            const productItem = item.order_list.map((product) => ({
+          .map((item: any) => {
+            const productItem = item.order_list.map((product: any) => ({
               ...product,
               city: item.city,
               buyer_email: item.buyer_email,
@@ -474,6 +504,7 @@ function OrderForPartner({ toShipInfoData }) {
             'Mockup Back': '',
             'Product note': product.note,
             'Link label': product.label,
+            'Tracking ID': '',
           };
 
           if (key === 'PrintCare') {
@@ -489,13 +520,13 @@ function OrderForPartner({ toShipInfoData }) {
     pdfLabelLinkSearch(dataLabel, onSuccess, () => {});
   };
 
-  const handleRefreshDesign = (newData) => {
+  const handleRefreshDesign = (newData: any) => {
     setDesignSku(newData);
     const data = {
       order_documents: toShipInfoData,
     };
     getToShipInfo(
-      shopId,
+      String(shopId),
       data,
       (res) => console.log(res),
       (err) => console.log(err),
@@ -503,7 +534,7 @@ function OrderForPartner({ toShipInfoData }) {
   };
 
   const rowSelectionFlashShip = {
-    onChange: (_, selectedRows) => {
+    onChange: (_: any, selectedRows: any) => {
       setTableFlashShipSelected(selectedRows);
     },
     // getCheckboxProps: () => ({
@@ -512,7 +543,7 @@ function OrderForPartner({ toShipInfoData }) {
   };
 
   const rowSelectionPrintCare = {
-    onChange: (_, selectedRows) => {
+    onChange: (_: any, selectedRows: any) => {
       setTablePrintCareSelected(selectedRows);
     },
     // getCheckboxProps: () => ({
@@ -535,7 +566,7 @@ function OrderForPartner({ toShipInfoData }) {
       title: 'Product items',
       dataIndex: 'product_items',
       key: 'product_items',
-      render: (_, record) => {
+      render: (_: any, record: any) => {
         return (
           <Popover
             content={renderListItemProduct(record?.order_list)}
@@ -547,14 +578,14 @@ function OrderForPartner({ toShipInfoData }) {
               <div className="flex-1">
                 <p>{record?.order_list?.length} items</p>
                 <ul className="text-ellipsis whitespace-nowrap overflow-hidden w-[180px]">
-                  {record?.order_list?.map((item) => (
+                  {record?.order_list?.map((item: any) => (
                     <li key={item.sku_id} className="inline-block mr-3 w-10 h-10 [&:nth-child(3+n)]:hidden">
                       <img className="w-full h-full object-cover" width={30} height={30} src={item.sku_image} />
                     </li>
                   ))}
                 </ul>
               </div>
-              <DownOutlined />
+              <DownOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
             </div>
           </Popover>
         );
@@ -574,7 +605,7 @@ function OrderForPartner({ toShipInfoData }) {
       title: 'Shipping information',
       dataIndex: 'shipping_info',
       key: 'shipping_info',
-      render: (_, record) => {
+      render: (_: any, record: any) => {
         return (
           <ul>
             <li>
@@ -600,23 +631,21 @@ function OrderForPartner({ toShipInfoData }) {
       order_documents: toShipInfoData,
     };
 
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         let errorShown = false;
         // eslint-disable-next-line array-callback-return
-        const dataCheck = res.map((item) => {
-          setAllowCreateOrderPartner(true);
+        const dataCheck = res.map((item: any) => {
           if (item.data.ocr_result.status === 'error' && !errorShown) {
             messageApi.open({
               type: 'error',
               content: item.data.ocr_result.message,
             });
             errorShown = true;
-            setAllowCreateOrderPartner(false);
           }
 
           const itemLabel = toShipInfoData.find(
-            (itemShipInfo) => itemShipInfo.package_id === item.data.data.order_list[0].package_list[0].package_id,
+            (itemShipInfo: any) => itemShipInfo.package_id === item.data.data.order_list[0].package_list[0].package_id,
           );
 
           return {
@@ -635,21 +664,21 @@ function OrderForPartner({ toShipInfoData }) {
       }
     };
 
-    const onSuccessVariant = (res) => {
+    const onSuccessVariant = (res: any) => {
       if (res) {
         setFlashShipVariants(res);
       }
     };
 
-    const onSuccessFulfillmentCompleted = (res) => {
+    const onSuccessFulfillmentCompleted = (res: any) => {
       setOrderFulfillmentCompleted(res);
     };
 
-    const onFail = (err) => {
+    const onFail = (err: any) => {
       console.log(err);
     };
 
-    const onFailVariant = (err) => {
+    const onFailVariant = (err: any) => {
       console.log(err);
     };
 
@@ -658,8 +687,10 @@ function OrderForPartner({ toShipInfoData }) {
       (err) => console.log('Error when fetching design SKU: ', err),
     );
     getFlashShipPODVariant(onSuccessVariant, onFailVariant);
-    getToShipInfo(shopId, data, onSuccess, onFail);
-    packageFulfillmentCompleted(shopId, onSuccessFulfillmentCompleted, () => {});
+    getToShipInfo(String(shopId), data, onSuccess, onFail);
+    packageFulfillmentCompleted(String(shopId), onSuccessFulfillmentCompleted, () => {
+      return null;
+    });
   }, [shopId, toShipInfoData]);
 
   useEffect(() => {
@@ -675,7 +706,7 @@ function OrderForPartner({ toShipInfoData }) {
       <div>
         {showLink && (
           <Link to={`/shops/${shopId}/orders/fulfillment/completed`} className="mb-5 inline-block" target="_blank">
-            <LinkOutlined className="mr-3" />
+            <LinkOutlined className="mr-3" onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
             Kiểm tra đơn đã tạo thành công
           </Link>
         )}
@@ -683,7 +714,7 @@ function OrderForPartner({ toShipInfoData }) {
           <div className="flex-1">
             <SectionTitle
               title="Create Order in FlashShip"
-              count={flashShipTable.length ? flashShipTable.length : '0'}
+              count={flashShipTable.length ? flashShipTable.length : undefined}
             />
           </div>
           <Space>
@@ -691,7 +722,7 @@ function OrderForPartner({ toShipInfoData }) {
               <label className="mr-3">Shipment method: </label>
               <Select
                 defaultValue="1"
-                onChange={(value) => setFlashShipShipment(value)}
+                onChange={(value) => setFlashShipShipment(Number(value))}
                 options={[
                   {
                     value: '1',
@@ -740,7 +771,7 @@ function OrderForPartner({ toShipInfoData }) {
           <div className="flex-1">
             <SectionTitle
               title="Create Order in PrintCare"
-              count={printCareTable.length ? printCareTable.length : '0'}
+              count={printCareTable.length ? printCareTable.length : undefined}
             />
           </div>
           <Button
@@ -799,6 +830,7 @@ function OrderForPartner({ toShipInfoData }) {
         openModal={[openEditModal, setOpenEditModal]}
         initData={designSkuById}
         refreshDesign={handleRefreshDesign}
+        groupId=""
       />
     </div>
   );

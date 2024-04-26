@@ -2,7 +2,66 @@ import { create } from 'zustand';
 import { RepositoryRemote } from '../services';
 import { handleAxiosError } from '../utils/handleAxiosError';
 
-export const useShopsOrder = create((set) => ({
+interface ShopsOrder {
+  orders: any[];
+  labels: any[];
+  toShipInfo: any[];
+  combineList: any[];
+  shippingServiceInfo: any[];
+  loading: boolean;
+  loadingGetInfo: boolean;
+  loadingUpload: boolean;
+  loadingFulfillment: boolean;
+  loadingGetLink: boolean;
+  loadingRejectOrder: boolean;
+  cancelTokenSource: any;
+  packageBought: any[];
+  getAllOrders: (id: string, onSuccess?: (data: any) => void, onFail?: (data: any) => void) => void;
+  getLabelsById: (orderId: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  uploadLabelToDriver: (data: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getToShipInfo: (shopId: string, data: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getAllCombine: (shopId: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  confirmCombine: (shopId: string, body: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  createLabel: (shopId: string, body: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  shippingService: (shopId: string, body: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  buyLabel: (shopId: string, body: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getShippingDoc: (id: string, body: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getPackageBought: (onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  pdfLabelSearch: (packageId: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  pdfLabelLinkSearch: (body: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  pdfLabelDownload: (fileName: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getDesignSku: (onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getDesignSkuSize: (page: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getDesignSkuByGroup: (groupId: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getDesignSkuByGroupSize: (
+    groupId: string,
+    page: string,
+    onSuccess: (data: any) => void,
+    onFail: (data: any) => void,
+  ) => void;
+  postDesignSku: (data: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  putDesignSku: (data: any, designId: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  deleteDesignSku: (designId: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  searchDesignSku: (body: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getDesignSkuById: (skuId: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  packageCreateFlashShip: (
+    shopId: string,
+    body: any,
+    onSuccess: (data: any) => void,
+    onFail: (data: any) => void,
+  ) => void;
+  packageCreatePrintCare: (
+    shopId: string,
+    body: string,
+    onSuccess: (data: any) => void,
+    onFail: (data: any) => void,
+  ) => void;
+  packageFulfillmentCompleted: (shopId: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  packageFulfillmentCompletedInActive: (packageId: string, body: any) => void;
+  cancelOrder: (shopId: string, body: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+}
+
+export const useShopsOrder = create<ShopsOrder>((set) => ({
   orders: [],
   labels: [],
   toShipInfo: [],
@@ -16,7 +75,7 @@ export const useShopsOrder = create((set) => ({
   loadingRejectOrder: false,
   cancelTokenSource: null,
   packageBought: [],
-  getAllOrders: async (id: string, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  getAllOrders: async (id, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.orders.getAllOrders(id);
@@ -28,7 +87,7 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false });
   },
 
-  getLabelsById: async (orderId: string, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  getLabelsById: async (orderId, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.orders.getLabelsById(orderId);
@@ -38,7 +97,7 @@ export const useShopsOrder = create((set) => ({
     }
     set({ loading: false });
   },
-  uploadLabelToDriver: async (data: any, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  uploadLabelToDriver: async (data, onSuccess, onFail) => {
     try {
       set({ loadingUpload: true });
       const response = await RepositoryRemote.orders.uploadLabelToDriver(data);
@@ -48,7 +107,7 @@ export const useShopsOrder = create((set) => ({
     }
     set({ loadingUpload: false });
   },
-  getToShipInfo: async (shopId: string, data: any, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  getToShipInfo: async (shopId, data, onSuccess, onFail) => {
     try {
       set({ loadingGetInfo: true });
       const response = await RepositoryRemote.orders.getToShipInfo(shopId, data);
@@ -60,7 +119,7 @@ export const useShopsOrder = create((set) => ({
     set({ loadingGetInfo: false });
   },
 
-  getAllCombine: async (shopId: string, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  getAllCombine: async (shopId, onSuccess, onFail) => {
     try {
       const response = await RepositoryRemote.orders.getAllCombine(shopId);
       set({ combineList: response?.data.data.data });
@@ -71,7 +130,7 @@ export const useShopsOrder = create((set) => ({
     }
   },
 
-  confirmCombine: async (shopId: string, body: any, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  confirmCombine: async (shopId, body, onSuccess, onFail) => {
     try {
       const response = await RepositoryRemote.orders.confirmCombine(shopId, body);
       onSuccess(response?.data);
@@ -80,7 +139,7 @@ export const useShopsOrder = create((set) => ({
     }
   },
 
-  createLabel: async (shopId: string, body: any, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  createLabel: async (shopId, body, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.orders.createLabel(shopId, body);
@@ -91,7 +150,7 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false });
   },
 
-  shippingService: async (shopId: string, body: any, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  shippingService: async (shopId, body, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.orders.shippingService(shopId, body);
@@ -103,7 +162,7 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false });
   },
 
-  buyLabel: async (shopId: string, body: any, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  buyLabel: async (shopId, body, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.orders.buyLabel(shopId, body);
@@ -114,7 +173,7 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false });
   },
 
-  getShippingDoc: async (id: string, body: any, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  getShippingDoc: async (id, body, onSuccess, onFail) => {
     try {
       set({ loadingFulfillment: true });
       const response = await RepositoryRemote.orders.getShippingDoc(id, body);
@@ -125,7 +184,7 @@ export const useShopsOrder = create((set) => ({
     set({ loadingFulfillment: false });
   },
 
-  getPackageBought: async (onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  getPackageBought: async (onSuccess, onFail) => {
     try {
       const response = await RepositoryRemote.orders.getPackageBought();
       set({ packageBought: response?.data });
@@ -134,8 +193,7 @@ export const useShopsOrder = create((set) => ({
       onFail(handleAxiosError(error));
     }
   },
-
-  pdfLabelSearch: async (packageId: string, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  pdfLabelSearch: async (packageId, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.orders.pdfLabelSearch(packageId);
@@ -146,7 +204,7 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false });
   },
 
-  pdfLabelLinkSearch: async (body: any, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  pdfLabelLinkSearch: async (body, onSuccess, onFail) => {
     try {
       set({ loadingGetLink: true });
       const response = await RepositoryRemote.orders.pdfLabelLinkSearch(body);
@@ -157,7 +215,7 @@ export const useShopsOrder = create((set) => ({
     set({ loadingGetLink: false });
   },
 
-  pdfLabelDownload: async (fileName: string, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  pdfLabelDownload: async (fileName, onSuccess, onFail) => {
     try {
       const response = await RepositoryRemote.orders.pdfLabelDownload(fileName);
       onSuccess(response?.data);
@@ -166,7 +224,7 @@ export const useShopsOrder = create((set) => ({
     }
   },
 
-  getDesignSku: async (onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  getDesignSku: async (onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.orders.getDesignSku();
@@ -177,7 +235,7 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false });
   },
 
-  getDesignSkuSize: async (page: string, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  getDesignSkuSize: async (page, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.orders.getDesignSkuSize(page);
@@ -188,7 +246,7 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false });
   },
 
-  getDesignSkuByGroup: async (groupId: string, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  getDesignSkuByGroup: async (groupId, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.orders.getDesignSkuByGroup(groupId);
@@ -199,12 +257,7 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false });
   },
 
-  getDesignSkuByGroupSize: async (
-    groupId: string,
-    page: string,
-    onSuccess = (data: any) => {},
-    onFail = (data: any) => {},
-  ) => {
+  getDesignSkuByGroupSize: async (groupId, page, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.orders.getDesignSkuByGroupSize(groupId, page);
@@ -215,7 +268,7 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false });
   },
 
-  postDesignSku: async (data: any, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  postDesignSku: async (data, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.orders.postDesignSku(data);
@@ -226,11 +279,10 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false });
   },
 
-  putDesignSku: async (data: any, designId: string, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  putDesignSku: async (data, designId, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.orders.putDesignSku(data, designId);
-      console.log(response);
       onSuccess(response);
     } catch (error) {
       onFail(handleAxiosError(error));
@@ -238,7 +290,7 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false });
   },
 
-  deleteDesignSku: async (designId: string, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  deleteDesignSku: async (designId, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.orders.deleteDesignSku(designId);
@@ -249,7 +301,7 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false });
   },
 
-  searchDesignSku: async (body: any, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  searchDesignSku: async (body, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.orders.searchDesignSku(body);
@@ -260,7 +312,7 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false });
   },
 
-  getDesignSkuById: async (skuId: string, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  getDesignSkuById: async (skuId, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.orders.getDesignSkuById(skuId);
@@ -271,12 +323,7 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false });
   },
 
-  packageCreateFlashShip: async (
-    shopId: string,
-    body: any,
-    onSuccess = (data: any) => {},
-    onFail = (data: any) => {},
-  ) => {
+  packageCreateFlashShip: async (shopId, body, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.orders.packageCreateFlashShip(shopId, body);
@@ -287,12 +334,7 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false });
   },
 
-  packageCreatePrintCare: async (
-    shopId: string,
-    body: string,
-    onSuccess = (data: any) => {},
-    onFail = (data: any) => {},
-  ) => {
+  packageCreatePrintCare: async (shopId, body, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.orders.packageCreatePrintCare(shopId, body);
@@ -303,7 +345,7 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false });
   },
 
-  packageFulfillmentCompleted: async (shopId: string, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  packageFulfillmentCompleted: async (shopId, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.orders.packageFulfillmentCompleted(shopId);
@@ -314,23 +356,17 @@ export const useShopsOrder = create((set) => ({
     set({ loading: false });
   },
 
-  packageFulfillmentCompletedInActive: async (
-    packageId: string,
-    body: any,
-    onSuccess = (data: any) => {},
-    onFail = (data: any) => {},
-  ) => {
+  packageFulfillmentCompletedInActive: async (packageId, body) => {
     try {
       set({ loading: true });
-      const response = await RepositoryRemote.orders.packageFulfillmentCompletedInActive(packageId, body);
-      onSuccess(response?.data);
+      await RepositoryRemote.orders.packageFulfillmentCompletedInActive(packageId, body);
     } catch (error) {
-      onFail(handleAxiosError(error));
+      console.log('error: ', error);
     }
     set({ loading: false });
   },
 
-  cancelOrder: async (shopId: string, body: any, onSuccess = (data: any) => {}, onFail = (data: any) => {}) => {
+  cancelOrder: async (shopId, body, onSuccess, onFail) => {
     try {
       set({ loadingRejectOrder: true });
       const response = await RepositoryRemote.orders.cancelOrder(shopId, body);

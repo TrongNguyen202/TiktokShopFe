@@ -1,11 +1,17 @@
 import { create } from 'zustand';
-import { AxiosError } from 'axios';
 import { RepositoryRemote } from '../services';
+import { handleAxiosError } from '../utils/handleAxiosError';
 
-export const useBadgesStore = create((set) => ({
+interface BadgesStore {
+  badges: Record<string, unknown>;
+  loading: boolean;
+  getAllBadges: (onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+}
+
+export const useBadgesStore = create<BadgesStore>((set) => ({
   badges: {},
   loading: false,
-  getAllBadges: async (onSuccess = (data: any) => {}, onFail = (data: string) => {}) => {
+  getAllBadges: async (onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.badges.getAllBadges();
@@ -13,11 +19,7 @@ export const useBadgesStore = create((set) => ({
       set({ badges: response?.data.data });
       onSuccess(response?.data.data);
     } catch (error: any) {
-      if (error instanceof AxiosError) {
-        onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
-      } else {
-        onFail(error.message || 'Có lỗi xảy ra!');
-      }
+      onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },

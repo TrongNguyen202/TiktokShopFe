@@ -4,23 +4,23 @@ const getAllStores = () => {
   return callApi('/shops', 'get');
 };
 
-const createStore = (params) => {
+const createStore = (params: Record<string, unknown>) => {
   return callApi('/shops', 'post', params);
 };
 
-const getStoreById = (id) => {
+const getStoreById = (id: string) => {
   return callApi(`/shops/${id}`, 'get');
 };
 
-const updateStore = (id, params) => {
+const updateStore = (id: string, params: Record<string, unknown>) => {
   return callApi(`/shops/${id}`, 'put', params);
 };
 
-const searchStores = (query) => {
+const searchStores = (query: string) => {
   return callApi(`/shops?${query}`, 'get');
 };
 
-const refreshToken = (ShopId) => {
+const refreshToken = (ShopId: string) => {
   return callApi(`/shops/${ShopId}/refreshtoken`, 'post');
 };
 

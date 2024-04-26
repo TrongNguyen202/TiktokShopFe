@@ -1,6 +1,5 @@
 import axios from 'axios';
-import { useEffect } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 function TestGoogleSheet2() {
   // const SPREADSHEET_ID = '1zo6it9m4wMeLJHg0JMIHuDMoHMiY2nFLbF6IlZo3qE8';

@@ -2,14 +2,53 @@ import { create } from 'zustand';
 import { RepositoryRemote } from '../services';
 import { alerts } from '../utils/alerts';
 import { promotions } from '../services/promotions';
+import { handleAxiosError } from '../utils/handleAxiosError';
 
-export const usePromotionsStore = create((set, get) => ({
+interface PromotionsStore {
+  promotions: Record<string, unknown>[];
+  loading: boolean;
+  getPromotions: (
+    shopId: string,
+    pageNumber: number,
+    onSuccess: (data: any) => void,
+    onFail: (data: any) => void,
+  ) => void;
+  getPromotionDetail: (
+    shopId: string,
+    productId: string,
+    onSuccess: (data: any) => void,
+    onFail: (data: any) => void,
+  ) => void;
+  createPromotion: (
+    shopId: string,
+    promotionData: Record<string, unknown>,
+    onSuccess: (data: any) => void,
+    onFail: (data: any) => void,
+  ) => void;
+  listProductNoDiscount: (shopId: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  listProductNoFlashDeal: (shopId: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  createFlashDeal: (
+    shopId: string,
+    data: Record<string, unknown>,
+    onSuccess: (data: any) => void,
+    onFail: (data: any) => void,
+  ) => void;
+  InactivePromotion: (
+    shopId: string,
+    data: Record<string, unknown>,
+    onSuccess: (data: any) => void,
+    onFail: (data: any) => void,
+  ) => void;
+}
+
+export const usePromotionsStore = create<PromotionsStore>((set, get: any) => ({
   promotions: [],
   loading: false,
-  getPromotions: async (shopId, pageNumber, onSuccess = () => {}, onFail = () => {}) => {
+  getPromotions: async (shopId, pageNumber, onSuccess, onFail) => {
     try {
       set({ loading: true });
-      const { data } = await RepositoryRemote.promotions.getPromotions(shopId, pageNumber);
+      const response = await RepositoryRemote.promotions.getPromotions(shopId, pageNumber);
+      const data = response?.data;
       if (data.success === false) {
         alerts.error(data.message);
         return;
@@ -21,74 +60,70 @@ export const usePromotionsStore = create((set, get) => ({
 
       onSuccess(promotions);
     } catch (error) {
-      onFail(error || 'Có lỗi xảy ra!');
+      onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },
-  getPromotionDetail: async (shopId, productId, onSuccess = () => {}, onFail = () => {}) => {
+  getPromotionDetail: async (shopId, productId, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.promotions.getPromotionDetail(shopId, productId);
-      onSuccess(response.data.data);
+      onSuccess(response?.data.data);
     } catch (error) {
-      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
+      onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },
-  createPromotion: async (shopId, promotionData, onSuccess = () => {}, onFail = () => {}) => {
+  createPromotion: async (shopId, promotionData, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.promotions.createPromotion(shopId, promotionData);
-      onSuccess(response.data);
+      onSuccess(response?.data);
     } catch (error) {
-      if (error?.response?.data?.message === 'required qualification is missing') {
-        onFail('Wrong category, please choose another category');
-      } else {
-        onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo sản phẩm!');
-      }
+      onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },
-  listProductNoDiscount: async (shopId, onSuccess = () => {}, onFail = () => {}) => {
+  listProductNoDiscount: async (shopId, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.promotions.listProductNoDiscount(shopId);
-      onSuccess(response.data.data);
+      onSuccess(response?.data.data);
     } catch (error) {
-      onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo promotion!');
+      onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },
 
-  listProductNoFlashDeal: async (shopId, onSuccess = () => {}, onFail = () => {}) => {
+  listProductNoFlashDeal: async (shopId, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.promotions.listProductNoFlashDeal(shopId);
-      onSuccess(response.data.data);
+      onSuccess(response?.data.data);
     } catch (error) {
-      onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo promotion!');
+      onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },
 
-  createFlashDeal: async (shopId, data, onSuccess = () => {}, onFail = () => {}) => {
+  createFlashDeal: async (shopId, data, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.promotions.createFlashDeal(shopId, data);
-      onSuccess(response.data.data);
+      onSuccess(response?.data.data);
     } catch (error) {
-      onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo promotion!');
+      onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },
 
-  InactivePromotion: async (shopId, data, onSuccess = () => {}, onFail = () => {}) => {
+  InactivePromotion: async (shopId, data, onSuccess, onFail) => {
     try {
       set({ loading: true });
       const response = await RepositoryRemote.promotions.InactivePromotion(shopId, data);
-      onSuccess(response.data);
+      onSuccess(response?.data);
     } catch (error) {
-      onFail(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo promotion!');
+      onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },

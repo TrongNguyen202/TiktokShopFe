@@ -10,6 +10,7 @@ export const constants = {
   DESIGN_SKU_FILES_GOOGLE_SHEET: import.meta.env.VITE_DESIGN_SKU_FILES_GOOGLE_SHEET,
   API_FLASH_SHIP: import.meta.env.VITE_API_FLASH_SHIP,
   TOKEN_FLASH_SHIP_EXPIRATION: 2 * 60 * 60 * 1000,
+  API_FLASH_SHIP_IMAGE: import.meta.env.VITE_API_FLASH_SHIP_IMAGE,
 };
 
 export const statusIdentity = {

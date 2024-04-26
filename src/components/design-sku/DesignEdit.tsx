@@ -1,16 +1,14 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Button, Input, Form, message, Modal } from 'antd';
-import React from 'react';
 
 import { useShopsOrder } from '../../store/ordersStore';
 
 type DesignEditProps = {
   openModal: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
   initData: any;
-  refreshDesign: () => void;
+  refreshDesign: (data: any) => void;
   groupId: string;
 };
-}
 function DesignEdit({ openModal, initData, refreshDesign, groupId }: DesignEditProps) {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
@@ -18,7 +16,7 @@ function DesignEdit({ openModal, initData, refreshDesign, groupId }: DesignEditP
 
   const { getDesignSkuByGroup, getDesignSku, putDesignSku } = useShopsOrder((state) => state);
 
-  const handleUpdateDesign = (values) => {
+  const handleUpdateDesign = (values: Record<string, unknown>) => {
     const updateItem = {
       image_front: values.image_front,
       image_back: values.image_back,
@@ -30,7 +28,7 @@ function DesignEdit({ openModal, initData, refreshDesign, groupId }: DesignEditP
         content: 'Một trong 2 trường Image không được trống',
       });
     } else {
-      const onSuccess = (res) => {
+      const onSuccess = (res: any) => {
         if (res) {
           messageApi.open({
             type: 'success',
@@ -40,20 +38,28 @@ function DesignEdit({ openModal, initData, refreshDesign, groupId }: DesignEditP
           if (groupId) {
             getDesignSkuByGroup(
               groupId,
-              (newRes) => refreshDesign(newRes),
-              (err) => console.log('Error when fetching design SKU: ', err),
+              (newRes) => {
+                refreshDesign(newRes);
+              },
+              (err) => {
+                console.log('Error when fetching design SKU: ', err);
+              },
             );
           } else {
             getDesignSku(
-              (newRes) => refreshDesign(newRes),
-              (err) => console.log('Error when fetching design SKU: ', err),
+              (newRes) => {
+                refreshDesign(newRes);
+              },
+              (err) => {
+                console.log('Error when fetching design SKU: ', err);
+              },
             );
           }
           setOpenEditModal(false);
         }
       };
 
-      const onFail = (err) => {
+      const onFail = (err: any) => {
         messageApi.open({
           type: 'error',
           content: `cập nhật sữ liệu: ${err}`,
@@ -61,7 +67,7 @@ function DesignEdit({ openModal, initData, refreshDesign, groupId }: DesignEditP
         setOpenEditModal(false);
       };
 
-      putDesignSku(updateItem, values.id, onSuccess, onFail);
+      putDesignSku(updateItem, String(values.id), onSuccess, onFail);
     }
   };
 

@@ -14,7 +14,7 @@ function Fulfillment() {
     setEnableNextStep(value);
   };
 
-  const getToShipInfo = (data) => {
+  const getToShipInfo = (data: any) => {
     setToShipInfoData(data);
   };
 

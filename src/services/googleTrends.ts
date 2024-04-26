@@ -4,7 +4,7 @@ const getGoogleTrendOptions = () => {
   return callApi(`/ggtrend/options`, 'get');
 };
 
-const getGoogleTrendData = (query) => {
+const getGoogleTrendData = (query: string) => {
   return callApi(`/ggtrend/query${query || ''}`, 'get');
 };
 

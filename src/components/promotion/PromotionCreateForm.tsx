@@ -1,11 +1,10 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Col, DatePicker, Form, Image, Input, Radio, Row, Tooltip, Modal } from 'antd';
-import React from 'react';
 
 import dayjs from 'dayjs';
 import { validateName } from '../../utils/validate';
 
-import ContentHeader from '../../components/content-header';
+import ContentHeader from '../content-header';
 import PromotionProduct from './PromotionProduct';
 import PromotionSelectedProduct from './PromotionSelectedProduct';
 
@@ -14,7 +13,6 @@ type PromotionCreateFormProps = {
   loading: boolean;
   onSubmit: (data) => void;
 };
-}
 function PromotionCreateForm({ initialData, loading, onSubmit }: PromotionCreateFormProps) {
   const [discountData, setDiscountData] = useState(initialData);
   const [openSelectProduct, setOpenSelectProduct] = useState(false);

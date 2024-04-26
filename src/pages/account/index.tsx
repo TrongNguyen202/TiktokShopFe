@@ -1,5 +1,5 @@
-import PageTitle from '../../components/common/PageTitle';
 import React from 'react';
+import PageTitle from '../../components/common/PageTitle';
 
 function Account() {
   return (

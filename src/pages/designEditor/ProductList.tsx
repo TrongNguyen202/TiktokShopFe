@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Input, Tooltip, Row, Col, message } from 'antd';
 import { CloudUploadOutlined } from '@ant-design/icons';
-import ProductItem from '../crawl/ProductItem';
-import ModalUploadProduct from '../crawl/ModalUploadProduct';
+import { Button, Col, Row, message } from 'antd';
+import React, { useEffect, useState } from 'react';
 import ModalShowError from '../crawl/ModalShowError';
+import ModalUploadProduct from '../crawl/ModalUploadProduct';
+import ProductItem from '../crawl/ProductItem';
 
 export default function ProductList({ imageEdited }) {
   const [checkedItems, setCheckedItems] = useState([]);

@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
+import React from 'react';
 
-export default function UserIcon({ className, ...rest }) {
+export default function UserIcon({ className, ...rest }: { className: string; [key: string]: any }) {
   return (
     <svg
       width="24"

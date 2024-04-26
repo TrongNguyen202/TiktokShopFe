@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
+import React from 'react';
 
-export default function IconArrowLeft({ className, ...rest }) {
+export default function IconArrowLeft({ className, ...rest }: { className: string; [key: string]: any }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

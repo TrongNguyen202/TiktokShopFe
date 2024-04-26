@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { constants as c } from '../constants';
 
-const getAllSheetInfo = (range) => {
+const getAllSheetInfo = (range: string) => {
   // return axios.get('https://content-sheets.googleapis.com/v4/spreadsheets/1b6wjVXQ-02jxvPGCXauiQX6_x-1oyrWn_CONOHw_c10/values/Team Dang?majorDimension=ROWS&valueRenderOption=FORMATTED_VALUE&dateTimeRenderOption=FORMATTED_STRING&key=AIzaSyD4wBhrUIOw3GAhPXo2sL767W2U3tvmbxY')
   const params = new URLSearchParams({
     key: c.API_GOOGLE_KEY,
@@ -38,7 +38,7 @@ const getAllSheetInfo = (range) => {
 //     })
 // }
 
-const AddRowToSheet = (range, data, oauthAccessToken) => {
+const AddRowToSheet = (range: string, data: Record<string, unknown>, oauthAccessToken: string) => {
   const params = new URLSearchParams({
     key: c.API_GOOGLE_KEY,
     valueInputOption: 'RAW',

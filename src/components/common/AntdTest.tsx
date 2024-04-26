@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
-import { Image, Upload, Button } from 'antd';
+import { Image, Upload, Button, UploadFile } from 'antd';
 
-const getBase64 = (file) =>
+const getBase64 = (file: Blob) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -50,7 +50,8 @@ function AntdTest() {
       status: 'error',
     },
   ]);
-  const handlePreview = async (file) => {
+
+  const handlePreview = async (file: { url: any; preview: unknown; originFileObj: Blob }) => {
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj);
     }
@@ -59,10 +60,11 @@ function AntdTest() {
     setPreviewImage(file.url || file.preview);
     setPreviewOpen(true);
   };
-  const handleChange = ({ fileList: newFileList }) => {
-    console.log('newFileList: ', newFileList);
+
+  const handleChange = ({ fileList: newFileList }: { fileList: any[] }) => {
     setFileList(newFileList);
   };
+
   const uploadButton = (
     <button
       style={{
@@ -71,7 +73,7 @@ function AntdTest() {
       }}
       type="button"
     >
-      <PlusOutlined />
+      <PlusOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
       <div
         style={{
           marginTop: 8,
@@ -82,7 +84,7 @@ function AntdTest() {
     </button>
   );
 
-  const handleAddImageFromComputer = ({ fileList: newFileList }) => {
+  const handleAddImageFromComputer = ({ fileList: newFileList }: { fileList: any[] }) => {
     console.log('newFileList: ', newFileList);
     setFileList(newFileList);
   };
@@ -91,8 +93,8 @@ function AntdTest() {
       <Upload
         action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
         listType="picture-card"
-        fileList={fileList}
-        onPreview={handlePreview}
+        fileList={fileList as UploadFile<any>[]}
+        onPreview={handlePreview as (file: UploadFile<any>) => void}
         onChange={handleChange}
       >
         {fileList.length >= 8 ? null : uploadButton}
@@ -105,19 +107,19 @@ function AntdTest() {
           preview={{
             visible: previewOpen,
             onVisibleChange: (visible) => setPreviewOpen(visible),
-            afterOpenChange: (visible) => !visible && setPreviewImage(''),
           }}
           src={previewImage}
         />
       )}
 
-      {fileList?.length > 8 ? null : (
-        <Upload fileList={fileList} showUploadList={false} onChange={handleAddImageFromComputer}>
-          <Button type="primary" icon={<PlusOutlined />}>
-            Add image from your computer
-          </Button>
-        </Upload>
-      )}
+      <Upload fileList={fileList as UploadFile<any>[]} showUploadList={false} onChange={handleAddImageFromComputer}>
+        <Button
+          type="primary"
+          icon={<PlusOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
+        >
+          Add image from your computer
+        </Button>
+      </Upload>
     </>
   );
 }

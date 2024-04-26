@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Row, Col, Button, Form, Input, Select, Spin, message } from 'antd';
 import { useUsersStore } from '../../store/usersStore';
@@ -18,17 +18,17 @@ function UserEdit() {
 
   const storesOption =
     stores?.length &&
-    stores?.map((item) => ({
+    stores?.map((item: Record<string, unknown>) => ({
       value: item.id,
       label: item.shop_name,
     }));
 
-  const onFinish = (values) => {
+  const onFinish = (values: Record<string, unknown>) => {
     const dataUpdate = {
       ...values,
       user_id: userId,
     };
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         messageApi
           .open({
@@ -41,7 +41,7 @@ function UserEdit() {
       }
     };
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       messageApi.open({
         type: 'success',
         content: err,
@@ -55,17 +55,17 @@ function UserEdit() {
   };
 
   useEffect(() => {
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       const dataForm = {
         ...res,
-        stores: shops?.map((item) => item.id),
+        stores: shops?.map((item: Record<string, unknown>) => item.id),
       };
 
       form.setFieldsValue(dataForm);
     };
 
     const onFail = () => {};
-    getUserInfo(userId, onSuccess, onFail);
+    getUserInfo(userId || '', onSuccess, onFail);
     getAllStores();
   }, []);
 
@@ -74,7 +74,7 @@ function UserEdit() {
       <Spin spinning={loading}>
         <>
           {contextHolder}
-          <PageTitle title="Sửa thông tin nhân viên" showBack nav="" />
+          <PageTitle title="Sửa thông tin nhân viên" showBack />
           <Form layout="vertical" onFinish={onFinish} form={form}>
             <Row gutter={30}>
               <Col span={12}>
@@ -106,9 +106,11 @@ function UserEdit() {
                 options={storesOption}
                 className="w-full"
                 filterOption={(input, options) => {
+                  const label = typeof options?.label === 'string' ? options.label : '';
+                  const value = typeof options?.value === 'string' ? options.value : '';
                   return (
-                    options.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
-                    options.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    label.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
+                    value.toLowerCase().indexOf(input.toLowerCase()) >= 0
                   );
                 }}
               />

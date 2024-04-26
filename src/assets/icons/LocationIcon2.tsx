@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
+import React from 'react';
 
-export default function LocationIcon2({ className, ...rest }) {
+export default function LocationIcon2({ className, ...rest }: { className: string; [key: string]: any }) {
   return (
     <svg
       fill="currentColor"
