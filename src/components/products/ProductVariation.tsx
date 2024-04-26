@@ -2,21 +2,29 @@ import React, { useEffect, useState } from 'react';
 
 import { useWareHousesStore } from '../../store/warehousesStore';
 import { alerts } from '../../utils/alerts';
+import { SkuProductForm, stockInfosProduct } from "../../types/products"
 
 import ProductVariationTable from './ProductVariationTable';
 import ProductSectionTitle from './ProuctSectionTitle';
 
-function ProductVariation({ shopId, variations, variationsDataTable, isProductCreate }) {
+interface ProductVariationProps {
+  shopId: string;
+  variations?: any;
+  variationsDataTable?: any;
+  isProductCreate?: boolean;
+}
+
+function ProductVariation({ shopId, variations, variationsDataTable, isProductCreate }: ProductVariationProps) {
   const [variationProduct, setVariationProduct] = useState([]);
   const { getWarehousesByShopId, warehousesById } = useWareHousesStore((state) => state);
 
-  const variationsData = variationProduct?.map((item) => ({
+  const variationsData: SkuProductForm[] = variationProduct?.map((item: SkuProductForm) => ({
     variations: item.variations,
     price: item?.price,
-    stock_infos: item.stock_infos.map((info) => ({
-      available_stock: info.available_stock,
-      warehouse_id: info.warehouse_id,
-    })),
+    stock_infos: {
+      available_stock: item?.stock_infos.available_stock,
+      warehouse_id: item?.stock_infos.warehouse_id,
+    },
     seller_sku: item.seller_sku,
     key: item.key,
   }));
@@ -27,7 +35,7 @@ function ProductVariation({ shopId, variations, variationsDataTable, isProductCr
 
   useEffect(() => {
     const onSuccess = () => {};
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       alerts.error(err);
     };
 

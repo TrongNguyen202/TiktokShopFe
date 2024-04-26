@@ -6,7 +6,7 @@ import { handleAxiosError } from '../utils/handleAxiosError';
 interface ShopsStore {
   brands: Record<string, unknown>[];
   loading: boolean;
-  getAllBrand: (id: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getAllBrand: (id: string, onSuccess?: (data: any) => void, onFail?: (data: any) => void) => void;
 }
 
 export const useShopsBrand = create<ShopsStore>((set) => ({
@@ -21,9 +21,9 @@ export const useShopsBrand = create<ShopsStore>((set) => ({
         Promise.reject(new Error(response?.data?.message));
       }
       set({ brands: response?.data.data });
-      onSuccess(response?.data.data);
+      if(onSuccess) onSuccess(response?.data.data);
     } catch (error) {
-      onFail(handleAxiosError(error));
+      if(onFail) onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },

@@ -1,13 +1,39 @@
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DeleteOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Modal, Popconfirm, Table, Tooltip } from 'antd';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+
+import { SkuProductForm } from '../../types';
+
 import ProductCreateAddVariationForm from './ProductCreateAddVariationForm';
 import ProductEditAddVariationForm from './ProductEditAddVariationForm';
 
 const EditableContext = React.createContext(null);
 
+interface ProductCreateVariationTableProps {
+  variationsData: any;
+  variationsDataTable: any;
+  isProductCreate?: boolean;
+  warehouses: any;
+}
+
+interface Item {
+  key: string;
+  Color: string;
+  seller_sku: string;
+  available_stock: string;
+}
+
+interface EditableCellProps {
+  title: React.ReactNode;
+  editable: boolean;
+  children: React.ReactNode;
+  dataIndex: keyof Item;
+  record: Item;
+  handleSave: (record: Item) => void;
+}
+
 function EditableRow({ ...props }) {
-  const [form] = Form.useForm();
+  const [form]: any = Form.useForm();
   return (
     <Form form={form} component={false}>
       <EditableContext.Provider value={form}>
@@ -17,13 +43,13 @@ function EditableRow({ ...props }) {
   );
 }
 
-function EditableCell({ title, editable, children, dataIndex, record, handleSave, ...restProps }) {
+function EditableCell({ title, editable, children, dataIndex, record, handleSave, ...restProps }: EditableCellProps) {
   const [editing, setEditing] = useState(false);
-  const inputRef = useRef(null);
-  const form = useContext(EditableContext);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const form: any = useContext(EditableContext);
 
   useEffect(() => {
-    if (editing) {
+    if (editing && inputRef.current) {
       inputRef.current.focus();
     }
   }, [editing]);
@@ -64,11 +90,10 @@ function EditableCell({ title, editable, children, dataIndex, record, handleSave
   return <td {...restProps}>{children}</td>;
 }
 
-function ProductCreateVariationTable({ variationsData, variationsDataTable, isProductCreate, warehouses }) {
-  const [dataSource, setDataSource] = useState([]);
+function ProductCreateVariationTable({ variationsData, variationsDataTable, isProductCreate, warehouses }: ProductCreateVariationTableProps) {
+  const [dataSource, setDataSource] = useState<SkuProductForm[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const variationsEdit = variationsData?.map((item) => item.variations);
+  const variationsEdit = variationsData?.map((item: any) => item.variations);
   const variationsEditSelect = variationsEdit && [].concat(...variationsEdit);
 
   useEffect(() => {
@@ -77,38 +102,36 @@ function ProductCreateVariationTable({ variationsData, variationsDataTable, isPr
     }
   }, [variationsData]);
 
-  const handleDelete = (key) => {
+  const handleDelete = (key: string) => {
     const newData = dataSource.filter((item) => item.key !== key);
     setDataSource(newData);
   };
 
-  const handleAdd = (newData) => {
+  const handleAdd = (newData: SkuProductForm[]) => {
     console.log('newData: ', newData);
-    const newDataConvert = newData.map((item) => ({
+    const newDataConvert: SkuProductForm[] = newData.map((item) => ({
       ...item,
-      stock_infos: [item.stock_infos],
+      stock_infos: item.stock_infos,
     }));
     setDataSource(newDataConvert);
     variationsDataTable(newData, ...dataSource);
     setIsModalOpen(false);
   };
 
-  const handleSave = (row) => {
+  const handleSave = (row: SkuProductForm) => {
     console.log('row: ', row);
     const newData = [...dataSource];
     const index = newData.findIndex((item) => row.key === item.key);
-    const item = newData[index];
+    const item: any = newData[index];
 
     newData.splice(index, 1, {
       ...row,
-      stock_infos: [
-        {
-          available_stock: Array.isArray(row.stock_infos)
-            ? Number(row.stock_infos[0].available_stock)
-            : Number(row.stock_infos.available_stock),
-          warehouse_id: item.stock_infos[0].warehouse_id,
-        },
-      ],
+      stock_infos: {
+        available_stock: Array.isArray(row.stock_infos)
+          ? Number(row.stock_infos[0].available_stock)
+          : Number(row.stock_infos.available_stock),
+        warehouse_id: item.stock_infos[0].warehouse_id,
+      },
     });
     variationsDataTable(newData);
     setDataSource(newData);
@@ -127,12 +150,12 @@ function ProductCreateVariationTable({ variationsData, variationsDataTable, isPr
     {
       title: 'Color',
       dataIndex: ['variations', 'Color'],
-      render: (_, record) => record?.variations?.map((item) => item.id === '100000' && item.value_name),
+      render: (_: any, record: SkuProductForm) => record?.variations?.map((item) => item.id === '100000' && item.value_name),
     },
     {
       title: 'Size',
       dataIndex: ['variations', 'Size'],
-      render: (_, record) => record?.variations?.map((item) => item.value_name),
+      render: (_: any, record: SkuProductForm) => record?.variations?.map((item) => item.value_name),
     },
     {
       title: 'SKU',
@@ -153,13 +176,13 @@ function ProductCreateVariationTable({ variationsData, variationsDataTable, isPr
       align: 'center',
       editable: true,
       width: '200px',
-      render: (_, record) => record.stock_infos[0].available_stock,
+      render: (_: any, record: SkuProductForm) => record.stock_infos[0].available_stock,
     },
     {
       title: 'Hành động',
       dataIndex: 'actions',
       align: 'center',
-      render: (_, record) =>
+      render: (_: any, record: SkuProductForm) =>
         dataSource.length >= 1 ? (
           <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.key)}>
             <DeleteOutlined />
@@ -168,7 +191,7 @@ function ProductCreateVariationTable({ variationsData, variationsDataTable, isPr
     },
   ];
 
-  const columns = extraColumns?.map((col) => {
+  const columns: any = extraColumns?.map((col) => {
     if (!col.editable) return col;
 
     return {

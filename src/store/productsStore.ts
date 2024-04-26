@@ -6,13 +6,13 @@ import { handleAxiosError } from '../utils/handleAxiosError';
 interface ProductsStore {
   products: Record<string, unknown>[];
   productById: Record<string, unknown>;
-  infoTable: Record<string, unknown>;
+  infoTable: any;
   newProduct: Record<string, unknown>;
   loading: boolean;
   loadingImage: boolean;
   getAllProducts: (
     id: string,
-    page_number: string,
+    page_number: number,
     onSuccess: (data: any) => void,
     onFail: (data: any) => void,
   ) => void;
@@ -20,8 +20,8 @@ interface ProductsStore {
   getProductsById: (
     shopId: string,
     productId: string,
-    onSuccess: (data: any) => void,
-    onFail: (data: any) => void,
+    onSuccess?: (data: any) => void,
+    onFail?: (data: any) => void,
   ) => void;
   changeStatusProduct: (
     id: string,
@@ -99,9 +99,9 @@ export const useProductsStore = create<ProductsStore>((set, get: any) => ({
       set({ loading: true });
       const response = await RepositoryRemote.products.getProductsById(shopId, productId);
       set({ productById: response?.data.data });
-      onSuccess(response?.data.data);
+      if(onSuccess) onSuccess(response?.data.data);
     } catch (error) {
-      onFail(handleAxiosError(error));
+      if (onFail) onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },

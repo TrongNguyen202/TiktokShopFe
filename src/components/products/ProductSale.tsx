@@ -1,9 +1,14 @@
 import { Form, Input, InputNumber, Row, Col, Select } from 'antd';
 import React from 'react';
 
+import { WareHouseProduct } from "../../types/products"
 import ProductSectionTitle from './ProuctSectionTitle';
 
-function ProductSale({ warehouses }) {
+interface ProductSaleProps {
+  warehouses: WareHouseProduct[];
+}
+
+function ProductSale({ warehouses }: ProductSaleProps) {
   const warehousesOption = warehouses
     ?.filter((item) => item.warehouse_type === 1)
     ?.map((item) => ({

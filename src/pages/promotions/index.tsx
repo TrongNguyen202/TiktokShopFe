@@ -1,17 +1,26 @@
 import React, { useEffect, useState } from 'react';
-
 import { Tabs, Row, Col, Card, Button, Select, Input, Table, Tag, Spin, message } from 'antd';
+import type { TableColumnsType } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+
 import PageTitle from '../../components/common/PageTitle';
 import { getPathByIndex } from '../../utils';
 import { alerts } from '../../utils/alerts';
 import { RepositoryRemote } from '../../services';
-// import { usePromotionsStore } from '../../store/promotionsStore';
 import { useDebounce } from '../../hooks/useDebounce';
 import { usePromotionsStore } from '../../store/promotionsStore';
 
 const { Search } = Input;
+
+interface PromotionProps {
+  promotion_id: string;
+  title: string;
+  status: any;
+  begin_time: string;
+  end_time: string;
+  promotion_type: number;
+}
 
 function Promotion() {
   const shopId = getPathByIndex(2);
@@ -21,22 +30,23 @@ function Promotion() {
   const [promotionsData, setPromotionsData] = useState([]);
   const [refreshPromotion, setRefreshPromotion] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
-  const [promotionSelected, setPromotionSelected] = useState([]);
+  const [promotionSelected, setPromotionSelected] = useState<string[]>([]);
   const { InactivePromotion, loading } = usePromotionsStore((state) => state);
 
   const debouncedSearchValue = useDebounce(searchValue, 1000);
+  // console.log('promotionsData: ', promotionsData);
 
   const rowSelection = {
-    onChange: (_, selectedRows) => {
+    onChange: (_: any, selectedRows: PromotionProps[]) => {
       const dataSelect = selectedRows.map((item) => item.promotion_id);
-      setPromotionSelected(dataSelect);
+      setPromotionSelected(dataSelect as string[]);
     },
-    getCheckboxProps: (record) => ({
+    getCheckboxProps: (record: PromotionProps) => ({
       disabled: record.status.props.children !== 'Ongoing',
     }),
   };
 
-  const columns = [
+  const columns: TableColumnsType<PromotionProps> = [
     {
       title: 'Promotion name',
       dataIndex: 'title',
@@ -69,22 +79,22 @@ function Promotion() {
       promotion_ids: promotionSelected,
     };
 
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         console.log('res: ', res);
         setPromotionSelected([]);
         setRefreshPromotion(true);
         messageApi.open({
           type: 'success',
-          content: res.map((item) => `Dừng ${item} thành công`),
+          content: res.map((item: any) => `Dừng ${item} thành công`),
         });
       }
     };
 
-    InactivePromotion(shopId, dataSubmit, onSuccess, () => {});
+    if (shopId) InactivePromotion(shopId, dataSubmit, onSuccess, () => {});
   };
 
-  const renderStatusPromotion = (record) => {
+  const renderStatusPromotion = (record: PromotionProps) => {
     if (record.status === 1) {
       return <Tag color="processing">Upcoming</Tag>;
     }
@@ -98,28 +108,32 @@ function Promotion() {
   };
 
   const fetchPromotions = async () => {
-    const { data } = await RepositoryRemote.promotions.getPromotions(shopId, 1, searchValue, filterStatus);
-    if (data.success === false) {
-      alerts.error(data.message);
+    if (shopId) {
+      const { data }: any = await RepositoryRemote.promotions.getPromotions(shopId, 1, searchValue, filterStatus);
+      if (data.success === false) {
+        alerts.error(data.message);
 
-      return;
+        return;
+      }
+
+      const promotions = data.promotion_list.map((promotion: PromotionProps) => {
+        const begin_time: string = new Date((promotion.begin_time as number) * 1000).toLocaleString('en-US', {
+          timeZone: 'America/Los_Angeles',
+        });
+        const end_time: string = new Date((promotion.end_time as number) * 1000).toLocaleString('en-US', {
+          timeZone: 'America/Los_Angeles',
+        });
+        return {
+          ...promotion,
+          begin_time: begin_time,
+          end_time: end_time,
+          promotion_type: promotion.promotion_type === 3 ? 'Flash sale' : 'Discount',
+          status: renderStatusPromotion(promotion),
+        };
+      });
+
+      setPromotionsData(promotions);
     }
-
-    const promotions = data.promotion_list.map((promotion) => {
-      return {
-        ...promotion,
-        begin_time: new Date(promotion.begin_time * 1000).toLocaleString({
-          timeZone: 'America/Los_Angeles',
-        }),
-        end_time: new Date(promotion.end_time * 1000).toLocaleString({
-          timeZone: 'America/Los_Angeles',
-        }),
-        promotion_type: promotion.promotion_type === 3 ? 'Flash sale' : 'Discount',
-        status: renderStatusPromotion(promotion),
-      };
-    });
-
-    setPromotionsData(promotions);
   };
 
   useEffect(() => {
@@ -129,43 +143,6 @@ function Promotion() {
   const items = [
     {
       key: '1',
-      label: 'Create a promotion',
-      children: (
-        <div className="w-full">
-          <Row gutter={[30, 30]}>
-            <Col md={{ span: 12 }} span={24} className="cursor-pointer">
-              <Card style={{ padding: '10px' }}>
-                <h2>Product discount</h2>
-                <p className="h-6 overflow-hidden text-ellipsis">
-                  Set daily discounts to generate interest and boost sales.
-                </p>
-                <div className="mt-4">
-                  <Button type="primary" onClick={() => navigate(`/shops/${shopId}/promotions/discounts`)}>
-                    Create
-                  </Button>
-                </div>
-              </Card>
-            </Col>
-
-            <Col md={{ span: 12 }} span={24} className="cursor-pointer">
-              <Card style={{ padding: '10px' }}>
-                <h2>Flash Deal</h2>
-                <p className="h-6 overflow-hidden text-ellipsis">
-                  Offer limited-time deals to incentivize swift purchases, sell excess inventory or attract new buyers.
-                </p>
-                <div className="mt-4">
-                  <Button type="primary" onClick={() => navigate(`/shops/${shopId}/promotions/flash-deal`)}>
-                    Create
-                  </Button>
-                </div>
-              </Card>
-            </Col>
-          </Row>
-        </div>
-      ),
-    },
-    {
-      key: '2',
       label: 'Manage your promotions',
       children: (
         <div className="w-full">
@@ -225,6 +202,43 @@ function Promotion() {
               rowKey={(record) => record.promotion_id}
             />
           </div>
+        </div>
+      ),
+    },
+    {
+      key: '2',
+      label: 'Create a promotion',
+      children: (
+        <div className="w-full">
+          <Row gutter={[30, 30]}>
+            <Col md={{ span: 12 }} span={24} className="cursor-pointer">
+              <Card style={{ padding: '10px' }}>
+                <h2>Product discount</h2>
+                <p className="h-6 overflow-hidden text-ellipsis">
+                  Set daily discounts to generate interest and boost sales.
+                </p>
+                <div className="mt-4">
+                  <Button type="primary" onClick={() => navigate(`/shops/${shopId}/promotions/discounts`)}>
+                    Create
+                  </Button>
+                </div>
+              </Card>
+            </Col>
+
+            <Col md={{ span: 12 }} span={24} className="cursor-pointer">
+              <Card style={{ padding: '10px' }}>
+                <h2>Flash Deal</h2>
+                <p className="h-6 overflow-hidden text-ellipsis">
+                  Offer limited-time deals to incentivize swift purchases, sell excess inventory or attract new buyers.
+                </p>
+                <div className="mt-4">
+                  <Button type="primary" onClick={() => navigate(`/shops/${shopId}/promotions/flash-deal`)}>
+                    Create
+                  </Button>
+                </div>
+              </Card>
+            </Col>
+          </Row>
         </div>
       ),
     },

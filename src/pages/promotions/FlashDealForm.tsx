@@ -1,3 +1,4 @@
+import React from 'react';
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
@@ -25,7 +26,7 @@ function FlashDealForm() {
       message.success(`Tạo promotion ${dataForm?.title}  thành công`);
       navigate(`/shops/${shopId}/promotions`);
     };
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       message.error(`Tạo promotion thất bại. ${err}`);
     };
 
@@ -55,7 +56,7 @@ function FlashDealForm() {
 
     delete submitData.discount;
 
-    createFlashDeal(shopId, submitData, onSuccess, onFail);
+    if (shopId) createFlashDeal(shopId, submitData, onSuccess, onFail);
   };
 
   return (
@@ -66,3 +67,4 @@ function FlashDealForm() {
 }
 
 export default FlashDealForm;
+

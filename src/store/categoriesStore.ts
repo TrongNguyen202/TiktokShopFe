@@ -13,7 +13,7 @@ interface CategoriesStore {
   loadingById: boolean;
   attributeLoading: boolean;
   getAllCategories: (onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
-  getAllCategoriesIsLeaf: (onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getAllCategoriesIsLeaf: (onSuccess?: (data: any) => void, onFail?: (data: any) => void) => void;
   getAllCategoriesIsLeafType2: (shopId: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
   getCategoriesById: (id: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
   getAttributeByCategory: (
@@ -26,8 +26,8 @@ interface CategoriesStore {
   recommendCategory: (
     shopId: string,
     data: Record<string, unknown>,
-    onSuccess: (data: any) => void,
-    onFail: (data: any) => void,
+    onSuccess?: (data: any) => void,
+    onFail?: (data: any) => void,
   ) => void;
 }
 
