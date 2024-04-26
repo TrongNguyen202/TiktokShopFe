@@ -1,7 +1,6 @@
 import { CloudUploadOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Col, Modal, Row, Select, Spin, message } from 'antd';
 import Dragger from 'antd/es/upload/Dragger';
-import { useNavigate } from 'react-router-dom';
 
 import { useEffect, useState } from 'react';
 import * as xlsx from 'xlsx';
@@ -12,11 +11,10 @@ import { useWareHousesStore } from '../../store/warehousesStore';
 import { alerts } from '../../utils/alerts';
 import { getToken } from '../../utils/auth';
 import { getPathByIndex } from '../../utils/index';
-import TemplateForm from './TemplateForm';
 import ModalShowError from '../crawl/ModalShowError';
+import TemplateForm from './TemplateForm';
 
 function MultiAddProducts() {
-  const navigate = useNavigate();
   const customerTokenKey = getToken();
   const shopId = getPathByIndex(2);
 

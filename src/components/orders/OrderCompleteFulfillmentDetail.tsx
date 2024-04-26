@@ -1,16 +1,24 @@
-import { Table, Image, Tag } from 'antd';
-import { useEffect, useState } from 'react';
+import { Image, Table } from 'antd';
+import { ColumnType } from 'antd/es/table';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { formatDate } from '../../utils/date';
-import React from 'react';
 
 import { constants } from '../../constants';
 
-function OrderCompleteFulfillmentDetail({ data }) {
+type OrderCompleteFulfillmentDetailProps = {
+  data: {
+    orderCode: string;
+    partnerOrderId: string;
+    status: string;
+  };
+};
+
+function OrderCompleteFulfillmentDetail({ data }: OrderCompleteFulfillmentDetailProps) {
   const [dataTable, setDataTable] = useState([]);
   const dataTableConvert = dataTable
-    .map((item) => {
-      return item.products.map((product) => ({
+    .map((item: Record<string, unknown>) => {
+      return (item as { products: any[] })?.products.map((product) => ({
         ...product,
         created: item.created,
         note: item.note,
@@ -30,7 +38,7 @@ function OrderCompleteFulfillmentDetail({ data }) {
       dataIndex: 'variant',
       key: 'variant',
       align: 'center',
-      render: (_, record) => (
+      render: (_: any, record: any) => (
         <ul>
           <li>
             <span className="font-semibold">Product Type:</span> <span>{record.productTypeEnum}</span>
@@ -52,7 +60,7 @@ function OrderCompleteFulfillmentDetail({ data }) {
       dataIndex: 'front',
       key: 'front',
       align: 'center',
-      render: (_, record) => (
+      render: (_: any, record: any) => (
         <>
           {record.frontPrintUrl !== null ? (
             <Link to={record.frontPrintUrl} target="_blank">
@@ -74,7 +82,7 @@ function OrderCompleteFulfillmentDetail({ data }) {
       dataIndex: 'back',
       key: 'back',
       align: 'center',
-      render: (_, record) => (
+      render: (_: any, record: any) => (
         <>
           {record.backPrintUrl !== null ? (
             <Link to={record.backPrintUrl} target="_blank">
@@ -102,7 +110,7 @@ function OrderCompleteFulfillmentDetail({ data }) {
       dataIndex: 'created',
       key: 'created',
       align: 'center',
-      render: (text) => formatDate(text, 'DD/MM/YY hh:mm:ss'),
+      render: (text: string) => formatDate(text, 'DD/MM/YY hh:mm:ss'),
     },
   ];
 
@@ -112,7 +120,7 @@ function OrderCompleteFulfillmentDetail({ data }) {
 
   return (
     <Table
-      columns={columns}
+      columns={columns as ColumnType<any>[]}
       dataSource={dataTableConvert}
       bordered
       pagination={false}

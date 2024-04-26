@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import { useShopsOrder } from '../../store/ordersStore';
 import StoreDetailSectionTitle from './StoreDetailSectionTitle';
-import React from 'react';
 
 function StoreDetailOrderFulfillmentCompleted({ shopId }: { shopId: string }) {
   const navigate = useNavigate();

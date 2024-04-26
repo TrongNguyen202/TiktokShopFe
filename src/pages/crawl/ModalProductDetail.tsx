@@ -1,5 +1,5 @@
-import { Button, Form, Input, Modal, Upload, Spin, Space } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Form, Input, Modal, Space, Spin, Upload } from 'antd';
 import React, { useEffect, useState } from 'react';
 
 import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
@@ -117,12 +117,12 @@ export default function ModalProductDetail({ product, setIsOpenModal, isOpenModa
         setFileList(fileListUpdate);
       }
     };
-    const onFail = (err) => {};
+    const onFail = () => {};
     changeProductImageToWhite(imageUrl, onSuccess, onFail);
   };
 
   const handleOK = () => {
-    const fileListUpdate = fileList.map((item, index) => {
+    const fileListUpdate = fileList.map((item) => {
       let urlItem = '';
       if (item.url) {
         if (item.id || item.url.includes('data:image/png;base64')) {

@@ -1,9 +1,8 @@
 import { Space } from 'antd';
 import Search from 'antd/es/transfer/search';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useDebounce } from '../../hooks/useDebounce';
-import React from 'react';
 
 type SearchInputProps = {
   keyword: string;

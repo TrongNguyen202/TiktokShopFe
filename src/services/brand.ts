@@ -1,6 +1,6 @@
 import { callApi } from '../apis';
 
-const getAllBrand = (id) => {
+const getAllBrand = (id: string) => {
   return callApi(`/shops/${id}/brands`, 'get');
 };
 

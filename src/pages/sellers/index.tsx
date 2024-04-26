@@ -1,10 +1,9 @@
 import { Drawer, Layout, Table } from 'antd';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import TableHeader from '../../components/table-header';
 import { useSellersStore } from '../../store/sellersStore';
 import { formatDate } from '../../utils/date';
 import SellerDetail from './SellerDetail';
-import React from 'react';
 
 export default function Sellers() {
   const { sellers, loading, getAllSellers, searchSeller } = useSellersStore((state) => state);

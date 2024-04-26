@@ -1,13 +1,13 @@
+import { EditOutlined, EyeOutlined } from '@ant-design/icons';
+import { Button, Form, Input, Modal, Space, Table, Tag, Tooltip, message } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Table, Tag, Input, Modal, Form, Tooltip, Space, message } from 'antd';
-import { EditOutlined, EyeOutlined } from '@ant-design/icons';
-import { IntlNumberFormat, removeDuplicates, getPathByIndex } from '../../utils/index';
-import { formatDate } from '../../utils/date';
-import { statusProductTikTokShop } from '../../constants/index';
-import { useProductsStore } from '../../store/productsStore';
 import PageTitle from '../../components/common/PageTitle';
+import { statusProductTikTokShop } from '../../constants/index';
 import { useCategoriesStore } from '../../store/categoriesStore';
+import { useProductsStore } from '../../store/productsStore';
+import { formatDate } from '../../utils/date';
+import { IntlNumberFormat, getPathByIndex, removeDuplicates } from '../../utils/index';
 
 function Products() {
   const navigate = useNavigate();
@@ -123,7 +123,7 @@ function Products() {
       const dataSelect = selectedRows.map((item) => item.id);
       setProductSelected(dataSelect);
     },
-    getCheckboxProps: (record) => {},
+    getCheckboxProps: () => {},
   };
 
   const handleProductCreate = () => {
@@ -184,7 +184,7 @@ function Products() {
     setFilterData([]);
   };
 
-  const handleChangePagination = (current, pageSize) => {
+  const handleChangePagination = (current) => {
     setPageNumber(current);
   };
 

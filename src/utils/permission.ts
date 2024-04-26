@@ -1,5 +1,6 @@
 import { permission } from '../constants';
 
+// eslint-disable-next-line consistent-return
 export const validatePermission = (roles: number[]) => {
   const user = JSON.parse(localStorage.getItem('user') || '');
   if (!user || !Array.isArray(user.role)) return false;

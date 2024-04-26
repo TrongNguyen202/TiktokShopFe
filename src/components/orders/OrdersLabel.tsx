@@ -1,14 +1,21 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { Table, Tag, message } from 'antd';
-import React from 'react';
 
+import { ColumnType } from 'antd/es/table';
 import { useShopsOrder } from '../../store/ordersStore';
 import { getPathByIndex } from '../../utils';
 
 import SectionTitle from '../common/SectionTitle';
 
-function OrdersLabel({ changeNextStep, toShipInfoData }) {
+type Column = ColumnType<Record<string, any>>;
+
+type OrdersLabelProps = {
+  changeNextStep: (value: boolean) => void;
+  toShipInfoData: (data: any) => void;
+};
+
+function OrdersLabel({ changeNextStep, toShipInfoData }: OrdersLabelProps) {
   const location = useLocation();
   const { shippingDoc } = location.state;
   const shopId = getPathByIndex(2);
@@ -17,12 +24,12 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
   const [messageApi, contextHolder] = message.useMessage();
   const { uploadLabelToDriver, packageFulfillmentCompleted, loadingUpload } = useShopsOrder((state) => state);
 
-  const columns = [
+  const columns: Column[] = [
     {
       title: 'STT',
       dataIndex: 'stt',
       align: 'center',
-      render: (_, record, index) => index + 1,
+      render: (_: any, record: any, index: any) => index + 1,
     },
     {
       title: 'Package ID',
@@ -31,9 +38,9 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
     {
       title: 'Order ID',
       dataIndex: 'order_id',
-      render: (_, record) => (
+      render: (_: any, record: any) => (
         <ul className="flex flex-wrap">
-          {record.order_list.map((item) => (
+          {record.order_list.map((item: any) => (
             <Link
               to={`/shops/${shopId}/orders/${item.order_id}`}
               state={{ orderData: item }}
@@ -48,7 +55,7 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
     {
       title: 'Label URL',
       dataIndex: 'label',
-      render: (text) =>
+      render: (text: string) =>
         text ? (
           <Link to={text} target="_blank">
             {text}
@@ -60,13 +67,13 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
   ];
 
   const rowSelection = {
-    onChange: (_, selectedRows) => {
+    onChange: (_: any, selectedRows: any) => {
       setLabelSelected(selectedRows);
       if (selectedRows.length > 0) changeNextStep(true);
     },
-    getCheckboxProps: (record) => {
+    getCheckboxProps: (record: Record<string, string>) => {
       const disabledOrderCompleted = ordersCompleted.filter(
-        (item) => item.pack_id === record.package_id && item.package_status === true,
+        (item: any) => item.pack_id === record.package_id && item.package_status === true,
       );
 
       return {
@@ -75,15 +82,15 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
     },
   };
 
-  const handlePushToDriver = (data) => {
+  const handlePushToDriver = (data: any) => {
     const dataLabelProcess = {
-      order_documents: data?.map((item) => ({
+      order_documents: data?.map((item: any) => ({
         package_id: item.package_id,
         doc_url: item.label,
       })),
     };
 
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         messageApi.open({
           type: 'success',
@@ -92,7 +99,7 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
       }
     };
 
-    const onFail = (err) => messageApi.error(err);
+    const onFail = (err: any) => messageApi.error(err);
     uploadLabelToDriver(dataLabelProcess, onSuccess, onFail);
   };
 
@@ -103,7 +110,7 @@ function OrdersLabel({ changeNextStep, toShipInfoData }) {
   useEffect(() => {
     toShipInfoData(labelSelected);
     packageFulfillmentCompleted(
-      shopId,
+      String(shopId),
       (res) => setOrderCompleted(res),
       () => {},
     );

@@ -5,14 +5,12 @@ import { useShopsStore } from '../../store/shopsStore';
 import { useTemplateStore } from '../../store/templateStore';
 import { useWareHousesStore } from '../../store/warehousesStore';
 import { alerts } from '../../utils/alerts';
-import React from 'react';
 
 export default function ModalUploadProduct({
   isShowModalUpload,
   setShowModalUpload,
   productList,
   imagesLimit = 9,
-  modalErrorInfo,
   setModalErrorInfo,
 }) {
   // const shopId = getPathByIndex(2);
@@ -23,10 +21,10 @@ export default function ModalUploadProduct({
   const { getWarehousesByShopId, warehousesById, loadingWarehouse } = useWareHousesStore();
 
   // eslint-disable-next-line no-unused-vars
-  const [productsJSON, setProductsJSON] = useState(productList);
   const [templateJSON, setTemplateJSON] = useState();
   const [warehouseId, setWarehouseId] = useState();
   const [shopId, setShopId] = useState();
+  const productsJSON = productList;
 
   useEffect(() => {
     getAllTemplate();
@@ -38,10 +36,10 @@ export default function ModalUploadProduct({
     const result = [];
     if (!Array.isArray(stores)) return result;
     stores.forEach((item) => {
-      const { shop_name, id } = item;
+      const { shop_name: shopName, id } = item;
       result.push({
         value: id,
-        label: shop_name,
+        label: shopName,
       });
     });
     return result;
@@ -218,7 +216,7 @@ export default function ModalUploadProduct({
   };
 
   const onSubmit = () => {
-    // if (!handleValidateJsonForm()) return;
+    if (!handleValidateJsonForm()) return;
     if (!shopId) {
       message.warning('Please select shop');
       return;

@@ -5,9 +5,16 @@ import { variationsOption } from '../../constants';
 import { flatMapArray } from '../../utils';
 import CustomSelect from '../../pages/stores/CustomSelect';
 import ProductVariationsPrice from './ProductVariationsPrice';
-import React from 'react';
 
-function ProductCreateAddVariationForm({ handleAdd, handleClose, warehouses }) {
+function ProductCreateAddVariationForm({
+  handleAdd,
+  handleClose,
+  warehouses,
+}: {
+  handleAdd: any;
+  handleClose: any;
+  warehouses: any;
+}) {
   const [form] = Form.useForm();
   const [showModalPrice, setShowModalPrice] = useState(false);
   const [selectedColor, setSelectedColor] = useState([]);
@@ -34,7 +41,7 @@ function ProductCreateAddVariationForm({ handleAdd, handleClose, warehouses }) {
     },
   ];
 
-  const warehouseOptions = warehouses?.warehouse_list?.map((item) => ({
+  const warehouseOptions = warehouses?.warehouse_list?.map((item: any) => ({
     value: item.warehouse_id,
     label: item.warehouse_name,
   }));
@@ -47,10 +54,10 @@ function ProductCreateAddVariationForm({ handleAdd, handleClose, warehouses }) {
     handleAdd(variationsData);
   };
 
-  const handleAddData = (data) => {
-    const newData = data?.map((item) => ({
+  const handleAddData = (data: any) => {
+    const newData = data?.map((item: any) => ({
       ...item,
-      variations: item.variations?.map((item, index) => ({
+      variations: item.variations?.map((item: any, index: any) => ({
         id: index === 0 ? variationsOption[0].value : variationsOption[1].value,
         name: index === 0 ? variationsOption[0].label : variationsOption[1].label,
         ...item,
@@ -83,7 +90,7 @@ function ProductCreateAddVariationForm({ handleAdd, handleClose, warehouses }) {
           type="primary"
           ghost
           onClick={() => setShowModalPrice(true)}
-          icon={<EditOutlined />}
+          icon={<EditOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
           className="block ml-auto mt-9"
         >
           Chỉnh sửa giá

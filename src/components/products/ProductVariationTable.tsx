@@ -1,14 +1,12 @@
 import { DeleteOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Modal, Popconfirm, Table, Tooltip } from 'antd';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { number } from 'prop-types';
 import ProductCreateAddVariationForm from './ProductCreateAddVariationForm';
 import ProductEditAddVariationForm from './ProductEditAddVariationForm';
-import React from 'react';
 
 const EditableContext = React.createContext(null);
 
-function EditableRow({ index, ...props }) {
+function EditableRow({ ...props }) {
   const [form] = Form.useForm();
   return (
     <Form form={form} component={false}>

@@ -1,14 +1,3 @@
-/* eslint-disable no-useless-escape */
-export const getMeta = (metaName) => {
-  const metas = document.getElementsByTagName('meta');
-  for (let i = 0; i < metas.length; i++) {
-    if (metas[i].getAttribute('name') === metaName) {
-      return metas[i].getAttribute('content');
-    }
-  }
-  return '';
-};
-export const store_code = getMeta('store_code') === '' ? window.location.hostname.split('.')[0] : getMeta('store_code');
 export const formatNumber = (str: string) => {
   if (str === undefined || str === null) return '';
   const strFormat = str.toString().replace(/[A-Za-z`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/g, '');
@@ -26,58 +15,14 @@ export const formatNumber = (str: string) => {
   return '';
 };
 
-export const formatPriceOrContact = (p) => {
-  if (!p) return 'Liên hệ';
-  p = Math.round(p);
-  p = p.toString();
-  let n = 0;
-  let tmp = '';
-  let rs = p[0];
-  for (let i = p.length - 1; i > 0; i--) {
-    n++;
-    tmp += p[i];
-    if (n % 3 === 0) {
-      tmp += '.';
-    }
-  }
-  for (let i = tmp.length - 1; i >= 0; i--) {
-    rs += tmp[i];
-  }
-  if (rs === 0) return 'Liên hệ';
-  return `₫${rs}`;
-};
-export const formatPrice = (p, NOD = false) => {
-  if (!p) return '0';
-  p = Math.round(p);
-  p = p.toString();
-  let n = 0;
-  let tmp = '';
-  let rs = p[0];
-  for (let i = p.length - 1; i > 0; i--) {
-    n++;
-    tmp += p[i];
-    if (n % 3 === 0) {
-      tmp += '.';
-    }
-  }
-  for (let i = tmp.length - 1; i >= 0; i--) {
-    rs += tmp[i];
-  }
-  if (NOD === true) return rs;
-  return `₫${rs}`;
-};
-
-export const getQueryParams = (name) => {
-  return new URLSearchParams(window ? window.location.search : {}).get(name);
-};
-
-export const getPathByIndex = (index) => {
+export const getPathByIndex = (index: number) => {
   const path = window.location.pathname;
   const parts = path.split('/');
 
   if (index >= 0 && index < parts.length) {
     return parts[index];
   }
+
   return null;
 };
 
@@ -90,27 +35,18 @@ export const format = (number: number) => {
 };
 
 // style: currency, percent
-export const IntlNumberFormat = (currency: string, style: string, maximumSignificantDigits: string, number: number) => {
+export const IntlNumberFormat = (currency: string, style: string, maximumSignificantDigits: number, number: number) => {
   return new Intl.NumberFormat(currency, {
     style: `${style}`,
     currency: `${currency}`,
-    maximumSignificantDigits: `${maximumSignificantDigits}`,
+    maximumSignificantDigits,
   }).format(number);
 };
 
-export function getCurrencySymbol(locale, currency) {
-  return (0)
-    .toLocaleString(locale, {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    })
-    .replace(/\d/g, '')
-    .trim();
-}
-
-export const buildNestedArrays = (items, parentId) => {
+export const buildNestedArrays = (
+  items: any[],
+  parentId: number | string,
+): { title: string; value: number | string; key: number | string; children: any[] }[] => {
   let nestedItems = [];
   if (items) {
     nestedItems = items.filter((item) => item.parent_id === parentId);
@@ -124,20 +60,7 @@ export const buildNestedArrays = (items, parentId) => {
   }));
 };
 
-// export const buildNestedArraysMenu = (items, parentId) => {
-//   const filteredItems = items?.filter(item => item.parent_id === parentId);
-
-//   if (filteredItems?.length === 0) {
-//     return null;
-//   }
-
-//   return filteredItems?.map(item => {
-//     const children = buildNestedArraysMenu(items, item.id);
-//     return children ? { label: item.local_display_name, key: item.id , children, value: item.id } : { label: item.local_display_name, key: item.id, value: item.id };
-//   });
-// }
-
-export const buildNestedArraysMenu = (items) => {
+export const buildNestedArraysMenu = (items: any[]) => {
   const itemsByParentId = items.reduce((acc, item) => {
     if (!acc[item.parent_id]) {
       acc[item.parent_id] = [];
@@ -146,12 +69,12 @@ export const buildNestedArraysMenu = (items) => {
     return acc;
   }, {});
 
-  const buildTree = (parentId) => {
+  const buildTree = (parentId: number | string) => {
     const children = itemsByParentId[parentId];
     if (!children) {
       return null;
     }
-    return children.map((item) => {
+    return children.map((item: any) => {
       const grandChildren = buildTree(item.id);
       return grandChildren
         ? { label: item.category_name, key: item.id, children: grandChildren, value: item.id }
@@ -162,14 +85,14 @@ export const buildNestedArraysMenu = (items) => {
   return buildTree(0);
 };
 
-export const removeDuplicates = (array, keySelector) => {
-  const cachedObject = {};
+export const removeDuplicates = (array: any[], keySelector: string) => {
+  const cachedObject: { [key: string]: any } = {};
   array.forEach((item) => (cachedObject[item[keySelector]] = item));
   array = Object.values(cachedObject);
   return array;
 };
 
-export const flatMapArray = (array1, array2) => {
+export const flatMapArray = (array1: any[], array2: any[]) => {
   return array1.flatMap((item1) =>
     array2.map((item2) => ({
       data: [{ value_name: item1 }, { value_name: item2 }],
@@ -177,7 +100,7 @@ export const flatMapArray = (array1, array2) => {
   );
 };
 
-export const ConvertProductAttribute = (product_attributes, attributeValues) => {
+export const ConvertProductAttribute = (product_attributes: { [s: string]: unknown } | ArrayLike<unknown>) => {
   const newAttributes =
     product_attributes &&
     Object.entries(product_attributes).map(([id, values]) => ({
@@ -188,45 +111,9 @@ export const ConvertProductAttribute = (product_attributes, attributeValues) => 
   if (!newAttributeConvert) return [];
   return newAttributeConvert.map((item) => ({
     attribute_id: item.id,
-    attribute_values: item.values.map((value) => ({
+    attribute_values: (item.values as Array<{ value: string; label: string }>).map((value) => ({
       value_id: value.value,
       value_name: value.label,
     })),
   }));
-
-  // eslint-disable-next-line array-callback-return, consistent-return
-  // const convertAttributeData = newAttributeConvert?.map((item) => {
-  //   const attributeFilter = attributeValues?.find((attr) => attr.id === item.id);
-
-  //   if (attributeFilter) {
-  //     const attribute_id = item.id;
-  //     let valuesAttr = [];
-  //     let attribute_values = [];
-  //     if (typeof item?.values === 'string') {
-  //       const valuesAttr = attributeFilter?.values?.find((value) => value.id === item.values);
-  //       attribute_values = [
-  //         {
-  //           value_id: valuesAttr?.id,
-  //           value_name: valuesAttr?.name,
-  //         },
-  //       ];
-  //     } else {
-  //       valuesAttr = item?.values?.map((value) => attributeFilter?.values?.find((attrValue) => attrValue.id === value));
-
-  //       attribute_values = valuesAttr?.map((attr) => ({
-  //         value_id: attr?.id,
-  //         value_name: attr?.name,
-  //       }));
-  //     }
-
-  //     if (!attribute_values) return null;
-
-  //     return {
-  //       attribute_id,
-  //       attribute_values,
-  //     };
-  //   }
-  // });
-  // const productAttribute = convertAttributeData?.filter((item) => item !== null);
-  // return productAttribute;
 };

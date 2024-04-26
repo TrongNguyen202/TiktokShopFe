@@ -1,9 +1,8 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Row, Col, Card, Badge, Spin } from 'antd';
 import { useWareHousesStore } from '../../store/warehousesStore';
 import StoreDetailSectionTitle from './StoreDetailSectionTitle';
 import { alerts } from '../../utils/alerts';
-import React from 'react';
 
 function StoreDetailWareHouses({ shopId }: { shopId: string }) {
   const { getWarehousesByShopId, warehousesById, loading } = useWareHousesStore((state) => state);
@@ -17,11 +16,9 @@ function StoreDetailWareHouses({ shopId }: { shopId: string }) {
     getWarehousesByShopId(shopId, onSuccess, onFail);
   }, []);
 
-  const { warehouse_list } = warehousesById;
-
   return (
     <>
-      <StoreDetailSectionTitle title="Thông tin kho" count={warehouse_list?.length} />
+      <StoreDetailSectionTitle title="Thông tin kho" count={warehousesById.warehouse_list?.length} />
       {loading && (
         <p className="text-[#21409A]">
           <Spin className="mr-3" />
@@ -30,7 +27,7 @@ function StoreDetailWareHouses({ shopId }: { shopId: string }) {
       )}
       {!loading && (
         <Row className="mb-5" gutter={[30, 30]}>
-          {warehouse_list?.map((item) => (
+          {warehousesById.warehouse_list?.map((item) => (
             <Col key={item.warehouse_id} md={{ span: 12 }} span={24} className="mb-3 md:mb-0">
               <Card className="relative">
                 {item.is_default && (

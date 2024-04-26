@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
+import React from 'react';
 
-export default function SellerIcon({ className, ...rest }) {
+export default function SellerIcon({ className, ...rest }: { className: string; [key: string]: any }) {
   return (
     <svg
       width="24"

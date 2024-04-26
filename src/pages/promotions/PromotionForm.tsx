@@ -22,7 +22,7 @@ export default function PromotionForm() {
 
   const onSubmit = (dataForm, productSelected) => {
     const shopId = getPathByIndex(2);
-    const onSuccess = (res) => {
+    const onSuccess = () => {
       message.success(`Tạo promotion ${dataForm?.title}  thành công`);
       navigate(`/shops/${shopId}/promotions`);
     };

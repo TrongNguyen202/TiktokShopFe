@@ -1,5 +1,4 @@
 const tokenKey = 'tk-tk';
-const refreshTokenKey = 'refreshToken';
 
 export function getToken() {
   return localStorage.getItem(tokenKey);
@@ -21,7 +20,7 @@ export function removeToken() {
   return localStorage.removeItem(tokenKey);
 }
 
-export function setTokenExpand(tokenKey: string, token: string, expirationTime) {
+export function setTokenExpand(tokenKey: string, token: string, expirationTime: string) {
   const currentTime = Date.now();
   const expireAt = currentTime + expirationTime;
   localStorage.setItem(tokenKey, token);

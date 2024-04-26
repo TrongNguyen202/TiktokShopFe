@@ -1,23 +1,23 @@
-import { DownOutlined, LoadingOutlined, SearchOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { DeleteOutlined, DownOutlined, EditOutlined, LoadingOutlined, SearchOutlined } from '@ant-design/icons';
 import {
   Button,
+  DatePicker,
+  Form,
   Image,
+  Input,
+  Modal,
+  Popconfirm,
   Popover,
+  Radio,
   Space,
   Spin,
   Table,
   Tag,
   Tooltip,
-  Modal,
   message,
-  DatePicker,
-  Form,
-  Input,
-  Popconfirm,
-  Radio,
 } from 'antd';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import dayjs from 'dayjs';
 import { statusOrder } from '../../constants/index';
@@ -49,7 +49,6 @@ function Orders() {
   const [searchText, setSearchText] = useState('');
   const [orderSelected, setOrderSelected] = useState([]);
   const [orderDataTable, setOrderDataTable] = useState([]);
-  const [searchedColumn, setSearchedColumn] = useState('');
   const [messageApi, contextHolder] = message.useMessage();
   const {
     getAllOrders,
@@ -116,11 +115,10 @@ function Orders() {
     });
   };
 
-  const onRangeChange = (dates, dateStrings, confirm, dataIndex, setSelectedKeys, selectedKeys) => {
+  const onRangeChange = (dates, dateStrings, confirm, dataIndex, setSelectedKeys) => {
     confirm();
     setSelectedKeys(dateStrings);
     setSearchText(dateStrings);
-    setSearchedColumn(dataIndex);
   };
 
   const getColumnSearchProps = (dataIndex) => ({
@@ -147,7 +145,6 @@ function Orders() {
                   closeDropdown: false,
                 });
                 setSearchText(selectedKeys[0]);
-                setSearchedColumn(dataIndex);
                 close();
                 setOpenFilterDate(false);
               }}

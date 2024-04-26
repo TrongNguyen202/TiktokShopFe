@@ -1,12 +1,12 @@
 import { MenuFoldOutlined, MenuUnfoldOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Button, Col, Dropdown, Row } from 'antd';
 import PropTypes from 'prop-types';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { StyledHeader } from './Index.style';
 
-function Header({ collapsed, changeCollapsed }) {
+function Header({ collapsed, changeCollapsed }: { collapsed: boolean; changeCollapsed: () => void }) {
   const { profile } = useAuthStore();
   const { logOut } = useAuthStore((state) => state);
   const items = [
@@ -14,7 +14,20 @@ function Header({ collapsed, changeCollapsed }) {
     {
       key: 'Đăng xuất',
       label: (
-        <Link to="/login" onClick={logOut}>
+        <Link
+          to="/login"
+          onClick={(e) => {
+            e.preventDefault();
+            logOut(
+              () => {
+                return {};
+              },
+              () => {
+                return {};
+              },
+            );
+          }}
+        >
           Đăng xuất
         </Link>
       ),

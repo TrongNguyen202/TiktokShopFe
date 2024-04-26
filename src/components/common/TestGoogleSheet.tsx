@@ -1,6 +1,5 @@
 import axios from 'axios';
-import { useEffect } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 function TestGoogleSheet() {
   useEffect(() => {
@@ -28,7 +27,7 @@ function TestGoogleSheet() {
     const data = []; // Initialize an array to store parsed data
     for (let i = 1; i < rows.length; i++) {
       const rowData = rows[i].split(','); // Split the row, handling '\r' characters
-      const rowObject = {};
+      const rowObject: { [key: string]: string } = {}; // Add index signature to allow indexing with a string
       for (let j = 0; j < headers.length; j++) {
         rowObject[headers[j]] = rowData[j];
       }

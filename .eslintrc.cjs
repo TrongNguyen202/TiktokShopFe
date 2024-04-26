@@ -20,6 +20,16 @@ module.exports = {
         endOfLine: 'auto',
       },
     ],
+    'import/extensions': [
+      'error',
+      'ignorePackages',
+      {
+        js: 'never',
+        jsx: 'never',
+        ts: 'never',
+        tsx: 'never',
+      },
+    ],
     camelcase: 'off',
     'no-console': 'off',
     'no-plusplus': 'off',
@@ -36,7 +46,7 @@ module.exports = {
     'no-unused-expressions': 'warn',
     radix: 'off',
     'no-underscore-dangle': 'off',
-
+    'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx', '.ts', '.tsx'] }],
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': 'off',
     'react/jsx-props-no-spreading': 'off',
@@ -98,5 +108,12 @@ module.exports = {
         format: null,
       },
     ],
+  },
+  settings: {
+    'import/resolver': {
+      node: {
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      },
+    },
   },
 };

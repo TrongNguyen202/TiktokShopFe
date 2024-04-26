@@ -36,7 +36,7 @@ export default function URLImage({ imageProps, image, isSelected, checkDeselect,
             y: e.target.y(),
           });
         }}
-        onTransformEnd={(e) => {
+        onTransformEnd={() => {
           const node = imgRef.current;
           const scaleX = node.scaleX();
           const scaleY = node.scaleY();

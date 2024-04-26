@@ -5,7 +5,7 @@ import './EditPriceForm.css';
 
 const EditableContext = React.createContext(null);
 
-function EditableRow({ index, ...props }) {
+function EditableRow({ ...props }) {
   const [form] = Form.useForm();
   return (
     <Form form={form} component={false} className="w-[100px]">
@@ -109,7 +109,7 @@ export default function EditPriceForm({ selectedSize, dataPrice, onSavePrice, se
   ];
 
   // eslint-disable-next-line react/no-unstable-nested-components
-  function EditableCell({ title, editable, children, dataIndex, record, handleSave, ...restProps }) {
+  function EditableCell({ title, editable, children, dataIndex, record, ...restProps }) {
     const [editing, setEditing] = useState(false);
     const inputRef = useRef(null);
     const form = useContext(EditableContext);

@@ -1,19 +1,24 @@
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Modal, Popconfirm, Space, Table, Tooltip, message } from 'antd';
-import { useEffect, useState } from 'react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
+import { ColumnType } from 'antd/es/table';
 import { useShopsOrder } from '../../store/ordersStore';
 
 import SectionTitle from '../common/SectionTitle';
 
-function OrderCheckDesign({ toShipInfoData }: { toShipInfoData: any }) {
+type OrderCheckDesignProps = {
+  toShipInfoData: Record<string, any>[];
+  changeNextStep: (value: boolean) => void;
+};
+
+function OrderCheckDesign({ toShipInfoData }: OrderCheckDesignProps) {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const [openNewDesignModal, setOpenNewDesignModal] = useState(false);
   const [newDesignSku, setNewDesignSku] = useState([]);
   const [openEditDesignModal, setOpenEditDesignModal] = useState(false);
-  const [designSku, setDesignSku] = useState([]);
+  const [designSku, setDesignSku] = useState([] as any);
   const [initialDesignSkuUpdated, setInitialDesignSkuUpdated] = useState(false);
   const [pageIndex, setPageIndex] = useState(1);
   const { getDesignSku, getDesignSkuSize, postDesignSku, putDesignSku, deleteDesignSku, loading } = useShopsOrder(
@@ -25,15 +30,15 @@ function OrderCheckDesign({ toShipInfoData }: { toShipInfoData: any }) {
     },
   };
 
-  const handleCheckDesign = (data) => {
+  const handleCheckDesign = (data: any) => {
     const dataCheck = data
-      .map((order) => {
-        const productList = order.order_list
+      .map((order: Record<string, unknown>) => {
+        const productList = (order as { order_list: any[] })?.order_list
           .map((item, index) => {
             const productItem = item.item_list
-              .map((product) => ({
+              .map((product: Record<string, unknown>) => ({
                 ...product,
-                order_id: order.order_list[index].order_id,
+                order_id: (order as { order_list: any[] }).order_list[index].order_id,
               }))
               .flat();
             return productItem;
@@ -54,17 +59,17 @@ function OrderCheckDesign({ toShipInfoData }: { toShipInfoData: any }) {
 
     const dataCheckSet = new Set();
     const dataCheckResult = dataCheck
-      .map((item) => {
+      .map((item: Record<string, unknown>) => {
         if (!dataCheckSet.has(item.sku_id)) {
           dataCheckSet.add(item.sku_id);
           return item;
         }
         return null;
       })
-      .filter((item) => item !== null);
+      .filter((item: Record<string, unknown>) => item !== null);
 
-    const dataDesignSku = dataCheckResult.filter((checkItem) => {
-      return !designSku?.some((designItem) => designItem.sku_id === checkItem.sku_id);
+    const dataDesignSku = dataCheckResult.filter((checkItem: Record<string, unknown>) => {
+      return !designSku?.some((designItem: Record<string, unknown>) => designItem?.sku_id === checkItem.sku_id);
     });
 
     if (dataDesignSku.length) {
@@ -78,9 +83,9 @@ function OrderCheckDesign({ toShipInfoData }: { toShipInfoData: any }) {
     }
   };
 
-  const handleAddNewDesign = (values) => {
+  const handleAddNewDesign = (values: Record<string, unknown>) => {
     const newData = Object.values(values);
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         messageApi.open({
           type: 'success',
@@ -96,7 +101,7 @@ function OrderCheckDesign({ toShipInfoData }: { toShipInfoData: any }) {
       }
     };
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       messageApi.open({
         type: 'error',
         content: err,
@@ -106,12 +111,12 @@ function OrderCheckDesign({ toShipInfoData }: { toShipInfoData: any }) {
     postDesignSku(newData, onSuccess, onFail);
   };
 
-  const handleEditDesign = (index) => {
+  const handleEditDesign = (index: number) => {
     form.setFieldsValue(designSku[index]);
     setOpenEditDesignModal(true);
   };
 
-  const handleUpdateDesign = (values) => {
+  const handleUpdateDesign = (values: Record<string, unknown>) => {
     const updateItem = {
       image_front: values.image_front,
       image_back: values.image_back,
@@ -119,7 +124,7 @@ function OrderCheckDesign({ toShipInfoData }: { toShipInfoData: any }) {
 
     console.log('updateItem: ', updateItem);
 
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       console.log(res);
       if (res) {
         messageApi.open({
@@ -134,7 +139,7 @@ function OrderCheckDesign({ toShipInfoData }: { toShipInfoData: any }) {
       }
     };
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       messageApi.open({
         type: 'error',
         content: err,
@@ -142,11 +147,11 @@ function OrderCheckDesign({ toShipInfoData }: { toShipInfoData: any }) {
       setOpenEditDesignModal(false);
     };
 
-    putDesignSku(updateItem, values.id, onSuccess, onFail);
+    putDesignSku(updateItem, String(values.id), onSuccess, onFail);
   };
 
-  const handleDeleteDesign = (index) => {
-    const onSuccess = (res) => {
+  const handleDeleteDesign = (index: number) => {
+    const onSuccess = (res: any) => {
       if (res) {
         messageApi.open({
           type: 'success',
@@ -160,41 +165,43 @@ function OrderCheckDesign({ toShipInfoData }: { toShipInfoData: any }) {
       }
     };
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       messageApi.open({
         type: 'error',
         content: err,
       });
     };
 
-    deleteDesignSku(designSku[index].id, onSuccess, onFail);
+    deleteDesignSku(String(designSku[index]?.id), onSuccess, onFail);
   };
 
-  const handleChangePagePagination = (page) => {
-    const onSuccess = (res) => {
+  const handleChangePagePagination = (page: number) => {
+    const onSuccess = (res: any) => {
       if (res) {
-        console.log('res: ', res);
         setPageIndex(page);
         setDesignSku(res.results);
       }
     };
-    getDesignSkuSize(page, onSuccess);
+    const onFail = () => {
+      return null;
+    };
+    getDesignSkuSize(String(page), onSuccess, onFail);
   };
 
-  const generateColumns = (showActionsColumn) => {
+  const generateColumns = (showActionsColumn: boolean) => {
     const columns = [
       {
         title: 'STT',
         dataIndex: 'stt',
         align: 'center',
-        render: (_, record, index) => index + 1,
+        render: (_: any, record: any, index: number) => index + 1,
       },
       {
         title: 'Sku ID',
         dataIndex: 'sku_id',
         align: 'center',
         width: '200px',
-        render: (_, record, index) => (
+        render: (_: any, record: any, index: any) => (
           <>
             {record.order_id ? (
               <Form.Item name={[index, 'sku_id']} initialValue={record.sku_id}>
@@ -210,7 +217,7 @@ function OrderCheckDesign({ toShipInfoData }: { toShipInfoData: any }) {
         title: 'Product name',
         dataIndex: 'product_name',
         width: '200px',
-        render: (_, record, index) => (
+        render: (_: any, record: any, index: any) => (
           <>
             {record.order_id ? (
               <Tooltip title={record.product_name}>
@@ -227,7 +234,7 @@ function OrderCheckDesign({ toShipInfoData }: { toShipInfoData: any }) {
       {
         title: 'Variation',
         dataIndex: 'variation',
-        render: (_, record, index) => (
+        render: (_: any, record: any, index: any) => (
           <>
             {record.order_id ? (
               <Form.Item name={[index, 'variation']} initialValue={record.variation}>
@@ -242,7 +249,7 @@ function OrderCheckDesign({ toShipInfoData }: { toShipInfoData: any }) {
       {
         title: 'Design front image',
         dataIndex: 'image_front',
-        render: (_, record, index) => (
+        render: (_: any, record: any, index: any) => (
           <>
             {record.order_id ? (
               <Form.Item name={[index, 'image_front']}>
@@ -257,7 +264,7 @@ function OrderCheckDesign({ toShipInfoData }: { toShipInfoData: any }) {
       {
         title: 'Design back image',
         dataIndex: 'image_back',
-        render: (_, record, index) => (
+        render: (_: any, record: any, index: any) => (
           <>
             {record.order_id ? (
               <Form.Item name={[index, 'image_back']}>
@@ -276,18 +283,19 @@ function OrderCheckDesign({ toShipInfoData }: { toShipInfoData: any }) {
         title: 'Actions',
         dataIndex: 'actions',
         align: 'center',
+        width: '200px',
         render: (_, record, index) => (
           <>
             {!record.order_id && (
               <Space>
                 <Tooltip title="Sửa design">
                   <Button className="border-none bg-transparent shadow-none" onClick={() => handleEditDesign(index)}>
-                    <EditOutlined />
+                    <EditOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
                   </Button>
                 </Tooltip>
                 <Popconfirm title="Sure to delete?" onConfirm={() => handleDeleteDesign(index)}>
                   <Button className="border-none bg-transparent shadow-none">
-                    <DeleteOutlined />
+                    <DeleteOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
                   </Button>
                 </Popconfirm>
               </Space>
@@ -301,7 +309,7 @@ function OrderCheckDesign({ toShipInfoData }: { toShipInfoData: any }) {
   };
 
   useEffect(() => {
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         setDesignSku(res.results);
         if (!initialDesignSkuUpdated) {
@@ -323,7 +331,7 @@ function OrderCheckDesign({ toShipInfoData }: { toShipInfoData: any }) {
         <Table
           rowKey="order_id"
           scroll={{ x: true }}
-          columns={generateColumns(true)}
+          columns={generateColumns(true) as ColumnType<any>[]}
           dataSource={designSku}
           pagination={{
             current: pageIndex,
@@ -345,7 +353,7 @@ function OrderCheckDesign({ toShipInfoData }: { toShipInfoData: any }) {
       >
         <Form name="basic" onFinish={handleAddNewDesign}>
           <Table
-            columns={generateColumns(false)}
+            columns={generateColumns(false) as ColumnType<any>[]}
             dataSource={newDesignSku}
             pagination={false}
             bordered

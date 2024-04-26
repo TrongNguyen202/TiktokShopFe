@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
+import React from 'react';
 
-export default function UndoIcon({ className, ...rest }) {
+export default function UndoIcon({ className, ...rest }: { className: string; [key: string]: any }) {
   return (
     <svg
       className={`${className}`}

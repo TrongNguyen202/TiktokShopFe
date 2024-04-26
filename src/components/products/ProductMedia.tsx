@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 import { Modal, Upload, Form } from 'antd';
-import React from 'react';
 
 import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';

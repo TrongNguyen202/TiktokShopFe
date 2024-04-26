@@ -2,9 +2,9 @@ import { Popover, Tooltip, Image } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
 import React from 'react';
 
-function OrderProductProver({ data }) {
-  const renderListItemProduct = (record) => {
-    return record.data.order_list[0].item_list.map((item) => {
+function OrderProductProver({ data }: { data: any }) {
+  const renderListItemProduct = (record: any) => {
+    return record.data.order_list[0].item_list.map((item: any) => {
       return (
         <div>
           <div className="flex justify-between items-center gap-3 mt-3 w-[300px]">
@@ -44,11 +44,11 @@ function OrderProductProver({ data }) {
         <div className="flex justify-between">
           <p className="text-[13px] font-semibold">{data.data.order_list[0].item_list.length} sản phẩm</p>
           <p>
-            <DownOutlined className="text-[12px]" />
+            <DownOutlined className="text-[12px]" onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
           </p>
         </div>
         <div className="-my-[12px] flex gap-1">
-          {data.data.order_list[0].item_list.map((item, index) => (
+          {data.data.order_list[0].item_list.map((item: any, index: number) => (
             <div key={index} className=" last:border-b-0 py-1 px-[8px] -mx-[8px] h-[53px] flex flex-wrap items-center">
               <img src={item?.sku_image} className="w-[26px] h-[26px] object-cover" />
             </div>

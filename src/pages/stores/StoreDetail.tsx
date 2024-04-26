@@ -1,10 +1,9 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Col, Row } from 'antd';
 
 // import { useNavigate } from 'react-router-dom';
 import { alerts } from '../../utils/alerts';
 import { getPathByIndex } from '../../utils';
-import React from 'react';
 
 import { useShopsStore } from '../../store/shopsStore';
 
@@ -25,7 +24,7 @@ export default function StoreDetail() {
   const { getStoreById, storeById } = useShopsStore((state) => state);
 
   useEffect(() => {
-    const onSuccess = (res) => {};
+    const onSuccess = () => {};
     const onFail = (err) => {
       alerts.error(err);
     };

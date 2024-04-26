@@ -1,14 +1,13 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Card } from 'antd';
 import { Link } from 'react-router-dom';
-import React from 'react';
 
 import { useShopsBrand } from '../../store/brandStore';
 
 import StoreDetailSectionTitle from './StoreDetailSectionTitle';
 import { alerts } from '../../utils/alerts';
 
-function StoreDetailBrands({ shopId }: { shopId: string }) { {
+function StoreDetailBrands({ shopId }: { shopId: string }) {
   const { brands, getAllBrand } = useShopsBrand((state) => state);
 
   useEffect(() => {

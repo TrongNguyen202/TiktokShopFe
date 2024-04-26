@@ -1,16 +1,14 @@
-import { useEffect, useState } from 'react';
-import { Form, Input, Select, Row, Col, Cascader, message, Spin } from 'antd';
+import { Cascader, Col, Form, Input, Row, Select, Spin, message } from 'antd';
+import React, { useEffect, useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import React from 'react';
 
 import { buildNestedArraysMenu } from '../../utils';
 
 import { useCategoriesStore } from '../../store/categoriesStore';
-import ProductSectionTitle from './ProuctSectionTitle';
-import CustomSelect from '../../pages/stores/CustomSelect';
 import { useProductsStore } from '../../store/productsStore';
 import ProductEditCustomSelect from './ProductEditCustomSelect';
+import ProductSectionTitle from './ProuctSectionTitle';
 
 function ProductInformation({ shopId, categories, brands, getAttributeValues }) {
   const [valueDescription, setValueDescription] = useState('');

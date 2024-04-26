@@ -4,12 +4,19 @@ import { removeDuplicates } from '../../utils';
 import { alerts } from '../../utils/alerts';
 import ProductCreateAddVariationForm from './ProductCreateAddVariationForm';
 import ProductSectionTitle from './ProuctSectionTitle';
-import React from 'react';
 
-function ProductCreateVariation({ shopId, variations, variationsDataTable }) {
+function ProductCreateVariation({
+  shopId,
+  variations,
+  variationsDataTable,
+}: {
+  shopId: any;
+  variations: any;
+  variationsDataTable: any;
+}) {
   const { getWarehousesByShopId, warehousesById } = useWareHousesStore((state) => state);
-  const listAttributesData = variations?.map((item) => item.sales_attributes);
-  const variationData = variations?.map((item) => ({
+  const listAttributesData = variations?.map((item: any) => item.sales_attributes);
+  const variationData = variations?.map((item: any) => ({
     variations: item.sales_attributes,
     price: item?.price?.original_price,
     stock_infos: {
@@ -22,7 +29,7 @@ function ProductCreateVariation({ shopId, variations, variationsDataTable }) {
 
   useEffect(() => {
     const onSuccess = () => {};
-    const onFail = (err) => {
+    const onFail = (err: any) => {
       alerts.error(err);
     };
 

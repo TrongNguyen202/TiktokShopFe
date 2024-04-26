@@ -1,10 +1,9 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Card } from 'antd';
 import { useNavigate, Link } from 'react-router-dom';
 import { alerts } from '../../utils/alerts';
 import { useProductsStore } from '../../store/productsStore';
 import StoreDetailSectionTitle from './StoreDetailSectionTitle';
-import React from 'react';
 
 function StoreDetailProducts({ shopId }: { shopId: string }) {
   const navigate = useNavigate();
