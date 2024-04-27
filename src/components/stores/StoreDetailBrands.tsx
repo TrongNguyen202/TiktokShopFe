@@ -1,19 +1,18 @@
 import React, { useEffect } from 'react';
-import { Card } from 'antd';
+import { Card, message } from 'antd';
 import { Link } from 'react-router-dom';
 
 import { useShopsBrand } from '../../store/brandStore';
 
 import StoreDetailSectionTitle from './StoreDetailSectionTitle';
-import { alerts } from '../../utils/alerts';
 
 function StoreDetailBrands({ shopId }: { shopId: string }) {
   const { brands, getAllBrand } = useShopsBrand((state) => state);
 
   useEffect(() => {
     const onSuccess = () => {};
-    const onFail = (err) => {
-      alerts.error(err);
+    const onFail = (err: string) => {
+      message.error(err);
     };
 
     getAllBrand(shopId, onSuccess, onFail);

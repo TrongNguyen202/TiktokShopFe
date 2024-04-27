@@ -1,9 +1,17 @@
 import { Button, Col, Form, Input, Modal, Row, Select, Spin, message } from 'antd';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useShopsStore } from '../../store/shopsStore';
 import { useUsersStore } from '../../store/usersStore';
 
-export default function ModalUserForm({ isShowModal, setIsShowModal, userSelected }) {
+export default function ModalUserForm({
+  isShowModal,
+  setIsShowModal,
+  userSelected,
+}: {
+  isShowModal: boolean;
+  setIsShowModal: (value: boolean) => void;
+  userSelected: any;
+}) {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const { updateUser, loading, getShopByUser, createUser } = useUsersStore((state) => state);
@@ -16,7 +24,7 @@ export default function ModalUserForm({ isShowModal, setIsShowModal, userSelecte
       label: item.shop_name,
     }));
 
-  const onFinish = (values) => {
+  const onFinish = (values: any) => {
     if (!values?.username) {
       message.warning('');
       return;
@@ -29,8 +37,7 @@ export default function ModalUserForm({ isShowModal, setIsShowModal, userSelecte
       ...values,
       user_id: userSelected?.user_id || '',
     };
-    console.log('dataUpdate: ', dataUpdate);
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       getShopByUser();
       if (res) {
         messageApi.open({
@@ -41,7 +48,7 @@ export default function ModalUserForm({ isShowModal, setIsShowModal, userSelecte
       }
     };
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       messageApi.open({
         type: 'error',
         content: err,
@@ -61,7 +68,7 @@ export default function ModalUserForm({ isShowModal, setIsShowModal, userSelecte
       const newData = {
         ...userSelected,
         username: userSelected?.user_name,
-        shops: userSelected?.shops?.map((item) => item.id),
+        shops: userSelected?.shops?.map((item: any) => item.id),
       };
       form.setFieldsValue(newData);
     }
@@ -128,9 +135,9 @@ export default function ModalUserForm({ isShowModal, setIsShowModal, userSelecte
                       mode="multiple"
                       placeholder="Hãy chọn store"
                       // onChange={handleChange}
-                      options={storesOption}
+                      options={storesOption || []}
                       className="w-full"
-                      filterOption={(input, options) => {
+                      filterOption={(input, options: any) => {
                         return (
                           options.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
                           options.value.toLowerCase().indexOf(input.toLowerCase()) >= 0

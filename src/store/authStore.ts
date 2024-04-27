@@ -14,7 +14,7 @@ interface AuthStore {
   sendOtp: (form: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
   sendEmailOtp: (form: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
   getProfileInfo: (onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
-  logOut: (onSuccess: () => void, onFail: (data: any) => void) => void;
+  logOut: (onSuccess?: () => void, onFail?: (data: any) => void) => void;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
@@ -100,9 +100,9 @@ export const useAuthStore = create<AuthStore>((set) => ({
       localStorage.removeItem('flash-ship-tk');
       localStorage.removeItem('flash-ship-tk-expiration');
       set({ tokenInfo: {} });
-      onSuccess();
+      if (onSuccess) onSuccess();
     } catch (error) {
-      onFail(handleAxiosError(error));
+      if (onFail) onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },

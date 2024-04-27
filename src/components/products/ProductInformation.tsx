@@ -21,11 +21,11 @@ function ProductInformation({ shopId, categories, brands, getAttributeValues }) 
     if (productById?.create_time) {
       const categories = productById?.category_list;
       const categoryId = categories[categories.length - 1].id;
-      const onSuccess = (res) => {
+      const onSuccess = (res: any) => {
         getAttributeValues(res.data.attributes);
       };
 
-      const onFail = (err) => {
+      const onFail = (err: string) => {
         messageApi.open({
           type: 'error',
           content: err,
@@ -50,11 +50,11 @@ function ProductInformation({ shopId, categories, brands, getAttributeValues }) 
 
   const handleChangeCategories = (e) => {
     const categoryId = e[e.length - 1];
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       getAttributeValues(res.data.attributes);
     };
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       messageApi.open({
         type: 'error',
         content: err,

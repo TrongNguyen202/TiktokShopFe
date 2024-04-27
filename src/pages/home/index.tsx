@@ -1,12 +1,17 @@
 import { Col, Row } from 'antd';
 import { Link } from 'react-router-dom';
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import React from 'react';
 import { ArchivedIcon, NoteIcon, ProductIcon } from '../../assets/icons';
 import { useBadgesStore } from '../../store/badgesStore';
 
 export default function Home() {
   const { badges } = useBadgesStore();
-  const { product_progressing, total_orders, total_products } = badges ?? {};
+  const {
+    product_progressing: productProgressing,
+    total_orders: totalOrders,
+    total_products: totalProducts,
+  } = badges ?? {};
 
   const data = {
     sales: [
@@ -565,14 +570,14 @@ export default function Home() {
     // },
     {
       name: 'Tổng đơn hàng',
-      value: total_orders,
+      value: totalOrders,
       icon: <NoteIcon className="text-[#FFC327] w-[40px] h-[40px]" />,
       colorBgIcon: '#FFC32733',
       path: '',
     },
     {
       name: 'Tổng sản phẩm',
-      value: total_products,
+      value: totalProducts,
       icon: <ProductIcon className="text-[#FF8F6B] w-[40px] h-[40px]" />,
       colorBgIcon: '#FF8F6B33',
       path: '/products',
@@ -586,7 +591,7 @@ export default function Home() {
     // },
     {
       name: 'Sản phẩm cần duyệt',
-      value: product_progressing,
+      value: productProgressing,
       icon: <ArchivedIcon className="text-[#CA0CC1] w-[40px] h-[40px]" />,
       colorBgIcon: '#CA0CC133',
       path: '/products/status/0',
@@ -616,7 +621,8 @@ export default function Home() {
                     {icon}
                   </div>
                   <div className="flex flex-col justify-between h-[50px]">
-                    <p className="text-[16px]">{name}</p> <p className="font-medium text-[24px]">{value}</p>
+                    <p className="text-[16px]">{name as string}</p>{' '}
+                    <p className="font-medium text-[24px]">{value as string}</p>
                   </div>
                 </div>
               </Link>
@@ -637,7 +643,7 @@ export default function Home() {
                 const { payload } = prop;
                 return (
                   <ul className="text-right text-[#999] text-[14px]">
-                    {payload.map((item, key) => (
+                    {payload?.map((item, key) => (
                       <li key={key} className="h-[48px] line-clamp-[48px] inline-block ml-[24px]">
                         <span
                           // className={styles.radiusdot}
@@ -663,8 +669,8 @@ export default function Home() {
                 borderRadius: '10px',
               }}
               // eslint-disable-next-line react/no-unstable-nested-components
-              content={(content) => {
-                const list = content.payload.map((item, key) => (
+              content={(content: any) => {
+                const list = content?.payload.map((item: any, key: any) => (
                   <li key={key} className="flex items-center">
                     <span
                       className="w-[12px] h-[12px] mr-[8px] rounded-[50%] inline-block my-[10px]"

@@ -57,7 +57,6 @@ function Login() {
               message: 'Vui lòng nhập số điện thoại!',
             },
           ]}
-          sx={{ justifyContent: 'space-between' }}
         >
           <Input placeholder=" Nhập số điện thoại" type="text" />
         </Form.Item>
@@ -72,7 +71,6 @@ function Login() {
               message: 'Vui lòng nhập Mật khẩu!',
             },
           ]}
-          sx={{ marginBottom: '10px' }}
         >
           <Input.Password placeholder=" Nhập mật khẩu" autoComplete="false" />
         </Form.Item>
@@ -85,11 +83,3 @@ function Login() {
   );
 }
 export default Login;
-
-
-
-
-
-
-
-

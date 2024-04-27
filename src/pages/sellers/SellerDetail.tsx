@@ -1,18 +1,18 @@
-import { useEffect } from 'react';
-import { Col, Row } from 'antd';
+import React, { useEffect } from 'react';
+import { Col, Row, message } from 'antd';
 import { useSellersStore } from '../../store/sellersStore';
 import Loading from '../../components/loading';
 import { formatDate } from '../../utils/date';
 
-export default function SellerDetail({ id }) {
+export default function SellerDetail({ id }: { id: number }) {
   const { loadingById, getSellersById, sellerById } = useSellersStore((state) => state);
 
   useEffect(() => {
     const onSuccess = () => {};
-    const onFail = (err) => {
-      alert.error(err);
+    const onFail = (err: string) => {
+      message.error(err);
     };
-    getSellersById(id, onSuccess, onFail);
+    getSellersById(String(id), onSuccess, onFail);
   }, [id]);
 
   const renderSellerDetail = () => {
@@ -52,19 +52,19 @@ export default function SellerDetail({ id }) {
           <Col span={6} className="text-[#0e2482] font-medium">
             Ngày tạo:
           </Col>
-          <Col>{formatDate(new Date(createdAt), ' HH:mm DD/MM/yyyy').toLocaleString()}</Col>
+          <Col>{formatDate(new Date(createdAt || ''), ' HH:mm DD/MM/yyyy').toLocaleString()}</Col>
         </Row>
         <Row className="items-center gap-[4px] justify-start mt-3 break-words flex-nowrap">
           <Col span={6} className="text-[#0e2482] font-medium">
             Ngày cập nhật:
           </Col>
-          <Col>{formatDate(new Date(updatedAt), ' HH:mm DD/MM/yyyy').toLocaleString()}</Col>
+          <Col>{formatDate(new Date(updatedAt || ''), ' HH:mm DD/MM/yyyy').toLocaleString()}</Col>
         </Row>
         <Row className="items-center gap-[4px] justify-start mt-3 break-words flex-nowrap">
           <Col span={6} className="text-[#0e2482] font-medium">
             Ngày cập nhật:
           </Col>
-          <Col>{formatDate(new Date(lastVisitTime), ' HH:mm DD/MM/yyyy').toLocaleString()}</Col>
+          <Col>{formatDate(new Date(lastVisitTime || ''), ' HH:mm DD/MM/yyyy').toLocaleString()}</Col>
         </Row>
       </>
     );

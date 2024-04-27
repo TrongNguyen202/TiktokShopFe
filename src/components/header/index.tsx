@@ -16,16 +16,8 @@ function Header({ collapsed, changeCollapsed }: { collapsed: boolean; changeColl
       label: (
         <Link
           to="/login"
-          onClick={(e) => {
-            e.preventDefault();
-            logOut(
-              () => {
-                return {};
-              },
-              () => {
-                return {};
-              },
-            );
+          onClick={() => {
+            logOut();
           }}
         >
           Đăng xuất
@@ -37,20 +29,26 @@ function Header({ collapsed, changeCollapsed }: { collapsed: boolean; changeColl
   return (
     <StyledHeader>
       <Row className="justify-end md:justify-between">
-        <Col className="hidden md:block">
+        <div>
           {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
             onClick: () => {
               changeCollapsed();
             },
+            onPointerEnterCapture: () => {},
+            onPointerLeaveCapture: () => {},
           })}
-        </Col>
+        </div>
         <Col>
           <Row justify="center">
             <Col className="flex gap-1 items-center">
               <p className="font-semibold">{profile?.username}</p>
               <Dropdown menu={{ items }} placement="bottomRight" arrow>
                 <Button type="text" className="py-0 hover:!bg-transparent">
-                  <Avatar className="text-[#f56a00] bg-[#fde3cf]" size={30} icon={<UserOutlined />} />
+                  <Avatar
+                    className="text-[#f56a00] bg-[#fde3cf]"
+                    size={30}
+                    icon={<UserOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
+                  />
                 </Button>
               </Dropdown>
             </Col>

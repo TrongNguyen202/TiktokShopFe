@@ -6,7 +6,7 @@ import { useShopsStore } from '../../store/shopsStore';
 import { useUsersStore } from '../../store/usersStore';
 import { alerts } from '../../utils/alerts';
 
-function StoreForm({ code, storeSelected, setShowModal }) {
+function StoreForm({ code, storeSelected, setShowModal }: { code: string; storeSelected: any; setShowModal: any }) {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const { createStore, loading, updateStore } = useShopsStore();
@@ -30,7 +30,7 @@ function StoreForm({ code, storeSelected, setShowModal }) {
     }
   }, [storeSelected]);
 
-  const convertSellerOptions = (data) => {
+  const convertSellerOptions = (data: any[]) => {
     if (!data || !Array.isArray(data) || !data.length) return [];
     return data.map((item) => ({
       label: item.user_name,
@@ -38,13 +38,13 @@ function StoreForm({ code, storeSelected, setShowModal }) {
     }));
   };
 
-  const onSubmit = (value) => {
+  const onSubmit = (value: any) => {
     const onSuccess = () => {
       navigate('/shops');
       message.success('thành công');
       setShowModal(false);
     };
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       alerts.error(err);
     };
     const paramsUpdate = {
@@ -82,7 +82,6 @@ function StoreForm({ code, storeSelected, setShowModal }) {
               name="auth_code"
               labelAlign="left"
               className="font-medium"
-              sx={{ width: '100%' }}
               labelCol={{
                 span: 24,
               }}
@@ -98,7 +97,6 @@ function StoreForm({ code, storeSelected, setShowModal }) {
               name="shop_name"
               labelAlign="left"
               className="font-medium"
-              sx={{ width: '100%' }}
               labelCol={{
                 span: 24,
               }}
@@ -121,7 +119,6 @@ function StoreForm({ code, storeSelected, setShowModal }) {
               name="shop_code"
               labelAlign="left"
               className="font-medium"
-              sx={{ width: '100%' }}
               labelCol={{
                 span: 24,
               }}
@@ -145,7 +142,6 @@ function StoreForm({ code, storeSelected, setShowModal }) {
                 name="user_id"
                 labelAlign="left"
                 className="font-medium"
-                sx={{ width: '100%' }}
                 labelCol={{
                   span: 24,
                 }}
@@ -154,9 +150,9 @@ function StoreForm({ code, storeSelected, setShowModal }) {
                   // mode="multiple"
                   placeholder="Hãy chọn store"
                   // onChange={handleChange}
-                  options={convertSellerOptions(shopsByUser.users)}
+                  options={convertSellerOptions(shopsByUser?.users)}
                   className="w-full"
-                  filterOption={(input, options) => {
+                  filterOption={(input, options: any) => {
                     return (
                       options.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
                       options.value.toLowerCase().indexOf(input.toLowerCase()) >= 0

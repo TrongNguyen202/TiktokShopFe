@@ -84,7 +84,7 @@ function ProductCreate() {
       package_length: values.package_length ? values.package_length : '',
       package_weight: values.package_weight ? values.package_weight : '',
       package_width: values.package_width ? values.package_width : '',
-      product_attributes: product_attributes,
+      product_attributes,
       product_name: values.product_name,
       size_chart: {
         img_id: sizeChart.length ? sizeChart[0].thumbUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, '') : '',
@@ -271,7 +271,8 @@ function ProductCreate() {
                           navigate(`/shops/${shopId}/products`);
                         }
                       };
-                      if (shopId) createOneProductDraff(shopId, dataSend, CreateProductDraffSuccess, (err) => console.log(err));
+                      if (shopId)
+                        createOneProductDraff(shopId, dataSend, CreateProductDraffSuccess, (err) => console.log(err));
                     })
                     .catch((info) => {
                       console.log(info);

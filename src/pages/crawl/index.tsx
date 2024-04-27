@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import * as XLSX from 'xlsx';
 import { senPrintsData } from '../../constants';
-import { ProductImageItem, ProductItem as ProductItemData } from '../../types/productItem';
+import { ProductImageItem, ProductItemCrawl, ProductItem as ProductItemData } from '../../types/productItem';
 import ModalShowError from './ModalShowError';
 import ModalUploadProduct from './ModalUploadProduct';
 import ProductItem from './ProductItem';
@@ -91,11 +91,27 @@ type ProductItemCrawled = {
   warehouse: string;
 };
 
+type ErrorItem = {
+  status: string;
+  title: string;
+  order_in_excel: string;
+  detail: {
+    message: string;
+    data: any;
+  };
+};
+
+type ModalErrorInfo = {
+  isShow: boolean;
+  title: string;
+  data: ErrorItem[];
+};
+
 export default function Crawl() {
   const productListStorage = JSON.parse(localStorage.getItem('productList') || '');
   const userInfo = JSON.parse(localStorage.getItem('user') || '');
   const [productList, setProductList] = useState(productListStorage);
-  const [checkedItems, setCheckedItems] = useState([]);
+  const [checkedItems, setCheckedItems] = useState<any>([]);
   const [isAllChecked, setIsAllChecked] = useState(false);
   const [optionCrawl, setOptionCrawl] = useState(initialCrawl);
   const [loading, setLoading] = useState(false);
@@ -106,7 +122,7 @@ export default function Crawl() {
     code: localStorage.getItem('licenseCode') || '',
     invalid: !localStorage.getItem('licenseCode'),
   });
-  const [modalErrorInfo, setModalErrorInfo] = useState({
+  const [modalErrorInfo, setModalErrorInfo] = useState<ModalErrorInfo>({
     isShow: false,
     data: [],
     title: '',
@@ -129,7 +145,7 @@ export default function Crawl() {
     setProductList(newProductList);
   };
 
-  const handleChangeProduct = (newProduct: ProductItemData) => {
+  const handleChangeProduct = (newProduct: ProductItemCrawl) => {
     const newProductList = productList.map((item: ProductItemData) => {
       if (item.id === newProduct.id) {
         return newProduct;
@@ -159,7 +175,7 @@ export default function Crawl() {
   const renderProductList = () => {
     return (
       <Row gutter={[16, 16]} className="flex py-5 transition-all duration-300">
-        {productList.map((item: ProductItemData, index: number) => {
+        {productList.map((item: ProductItemCrawl, index: number) => {
           return (
             <Col span={4} key={item.id}>
               <ProductItem
@@ -302,10 +318,10 @@ export default function Crawl() {
   };
 
   const convertDataProducts = (isCreateProduct: boolean) => {
-    const selectedProducts = productList.filter((product: ProductItemCrawled) => checkedItems[Number(product.id)]);
+    const selectedProducts = productList.filter((product: ProductItemCrawled) => checkedItems[product.id]);
 
     const convertImageLink = (images: ProductImageItem[]) => {
-      const imageObject = images.reduce((obj, link, index) => {
+      const imageObject = images.reduce((obj: any, link, index) => {
         const key = `image${index + 1}`;
         obj[key] = link.url;
         return obj;
@@ -334,10 +350,10 @@ export default function Crawl() {
   };
 
   const convertDataProductsToSenPrints = () => {
-    const selectedProducts = productList.filter((product: ProductItemCrawled) => checkedItems[Number(product.id)]);
+    const selectedProducts = productList.filter((product: ProductItemCrawled) => checkedItems[product.id]);
 
     const convertImageLink = (images: ProductImageItem[]) => {
-      const imageObject = images.reduce((obj, link, index) => {
+      const imageObject = images.reduce((obj: any, link, index) => {
         const key = `mockup_url_${index + 1}`;
         obj[key] = link.url;
         return obj;
@@ -571,7 +587,7 @@ export default function Crawl() {
           setShowModalUpload={setShowModalUpload}
           productList={convertDataProducts(true)}
           imagesLimit={optionCrawl.imagesLimit}
-          modalErrorInfo={modalErrorInfo}
+          // modalErrorInfo={modalErrorInfo}
           setModalErrorInfo={setModalErrorInfo}
         />
       )}

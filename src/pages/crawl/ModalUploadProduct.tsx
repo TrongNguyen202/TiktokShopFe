@@ -4,7 +4,33 @@ import { useProductsStore } from '../../store/productsStore';
 import { useShopsStore } from '../../store/shopsStore';
 import { useTemplateStore } from '../../store/templateStore';
 import { useWareHousesStore } from '../../store/warehousesStore';
+import { ProductItemCrawl } from '../../types/productItem';
+import { TemplateItem, TypesItem } from '../../types/templateItem';
 import { alerts } from '../../utils/alerts';
+
+type SelectOption = {
+  value: string;
+  label: string;
+};
+
+type WarehouseById = {
+  warehouse_type: number;
+  warehouse_name: string;
+  warehouse_id: string;
+  warehouse_list: any[];
+};
+
+type DetailMessage = {
+  message: string;
+  data: any;
+};
+
+type ErrorItem = {
+  status: string;
+  title: string;
+  order_in_excel: string;
+  detail: DetailMessage;
+};
 
 export default function ModalUploadProduct({
   isShowModalUpload,
@@ -12,6 +38,12 @@ export default function ModalUploadProduct({
   productList,
   imagesLimit = 9,
   setModalErrorInfo,
+}: {
+  isShowModalUpload: boolean;
+  setShowModalUpload: (value: React.SetStateAction<boolean>) => void;
+  productList?: ProductItemCrawl[];
+  imagesLimit?: number;
+  setModalErrorInfo?: (value: React.SetStateAction<any>) => void;
 }) {
   // const shopId = getPathByIndex(2);
 
@@ -19,11 +51,9 @@ export default function ModalUploadProduct({
   const { stores, getAllStores } = useShopsStore((state) => state);
   const { createProductList, loading } = useProductsStore();
   const { getWarehousesByShopId, warehousesById, loadingWarehouse } = useWareHousesStore();
-
-  // eslint-disable-next-line no-unused-vars
-  const [templateJSON, setTemplateJSON] = useState();
+  const [templateJSON, setTemplateJSON] = useState<TemplateItem>();
   const [warehouseId, setWarehouseId] = useState();
-  const [shopId, setShopId] = useState();
+  const [shopId, setShopId] = useState<string>();
   const productsJSON = productList;
 
   useEffect(() => {
@@ -33,34 +63,34 @@ export default function ModalUploadProduct({
   }, []);
 
   const convertShopOption = () => {
-    const result = [];
+    const result: SelectOption[] = [];
     if (!Array.isArray(stores)) return result;
     stores.forEach((item) => {
       const { shop_name: shopName, id } = item;
       result.push({
-        value: id,
-        label: shopName,
+        value: String(id),
+        label: String(shopName),
       });
     });
     return result;
   };
 
   const convertTemplateOption = () => {
-    const result = [];
+    const result: SelectOption[] = [];
     if (!Array.isArray(templates)) return result;
     templates.forEach((item) => {
       const { name, id } = item;
       result.push({
-        value: id,
-        label: name,
+        value: String(id),
+        label: String(name),
       });
     });
     return result;
   };
 
-  const convertDataWarehouse = (data) => {
+  const convertDataWarehouse = (data: WarehouseById[]) => {
     if (!data || !Array.isArray(data) || !data.length) return [];
-    const result = [];
+    const result: SelectOption[] = [];
     data
       ?.filter((item) => item.warehouse_type === 1)
       .forEach((item) => {
@@ -72,18 +102,18 @@ export default function ModalUploadProduct({
     return result;
   };
 
-  const onSelectTemplate = (value) => {
-    const template = templates.find((item) => item.id === value);
+  const onSelectTemplate = (value: string) => {
+    const template = templates.find((item) => item.id === Number(value));
     setTemplateJSON(template);
   };
 
-  const onSelectShop = (value) => {
+  const onSelectShop = (value: number) => {
     const onSuccess = () => {};
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       alerts.error(err);
     };
-    setShopId(value);
-    getWarehousesByShopId(value, onSuccess, onFail);
+    setShopId(String(value));
+    getWarehousesByShopId(String(value), onSuccess, onFail);
   };
 
   const handleCancel = () => {
@@ -92,7 +122,7 @@ export default function ModalUploadProduct({
 
   const handleValidateJsonForm = () => {
     const skus = [];
-    const titles = [];
+    const titles: string[] = [];
 
     if (!Array.isArray(productsJSON)) {
       message.error('No products found. Please upload excel file.');
@@ -100,26 +130,26 @@ export default function ModalUploadProduct({
     }
 
     for (const item of productsJSON) {
-      const { sku, title, images } = item;
+      const { sku, title } = item;
       if (!title?.trim()) {
         message.error('title cannot be empty');
         return false;
       }
 
-      if (
-        !images.image1 &&
-        !images.image2 &&
-        !images.image3 &&
-        !images.image4 &&
-        !images.image5 &&
-        !images.image6 &&
-        !images.image7 &&
-        !images.image8 &&
-        !images.image9
-      ) {
-        message.error(`${sku}: Images must have at least one image url`);
-        return false;
-      }
+      // if (
+      //   !images?.image1 &&
+      //   !images?.image2 &&
+      //   !images?.image3 &&
+      //   !images?.image4 &&
+      //   !images?.image5 &&
+      //   !images?.image6 &&
+      //   !images?.image7 &&
+      //   !images?.image8 &&
+      //   !images?.image9
+      // ) {
+      //   message.error(`${sku}: Images must have at least one image url`);
+      //   return false;
+      // }
 
       skus.push(sku);
       titles.push(title);
@@ -136,10 +166,9 @@ export default function ModalUploadProduct({
     return true;
   };
 
-  function mergeArrays(obj1, arr2) {
+  function mergeArrays(obj1: any, arr2: any) {
     // Convert object to array
     const arr1 = Object.values(obj1);
-    console.log('arr1: ', arr1);
     const arr2Length = arr2?.length || 0;
 
     // Calculate the number of elements to take from imagesLimit
@@ -152,12 +181,12 @@ export default function ModalUploadProduct({
     const mergedArray = elementsFromArr1.concat(arr2);
 
     // Convert array back to object
-    const result = mergedArray.reduce((obj, value, index) => {
+    const result = mergedArray.reduce((obj: Record<string, string>, value: any, index) => {
       obj[`image${index + 1}`] = value?.replace('data:image/png;base64,', '');
       return obj;
     }, {});
 
-    const result2 = Object.keys(result).reduce((obj, key) => {
+    const result2 = Object.keys(result).reduce((obj: any, key: any) => {
       if (result[key]) {
         obj[key] = result[key];
       }
@@ -167,7 +196,7 @@ export default function ModalUploadProduct({
     return result2;
   }
 
-  const sanitizeTitles = (documents) => {
+  const sanitizeTitles = (documents: ProductItemCrawl[]) => {
     const { badWords, suffixTitle } = templateJSON ?? {};
     return documents.map((doc) => {
       let { title } = doc;
@@ -182,17 +211,17 @@ export default function ModalUploadProduct({
         title += ` ${suffixTitle}`;
       }
       doc.title = title.trim();
-      doc.images = mergeArrays(doc.images, templateJSON.fixed_images);
+      doc.images = mergeArrays(doc.images, templateJSON?.fixed_images);
       return doc;
     });
   };
 
   const convertDataSku = () => {
     const { types } = templateJSON ?? {};
-    const result = [];
-    templateJSON.colors.forEach((color) => {
-      types.forEach((item) => {
-        const obj = {};
+    const result: any[] = [];
+    templateJSON?.colors.forEach((color) => {
+      types?.forEach((item: TypesItem) => {
+        const obj: TypesItem = {};
         obj.sales_attributes = [
           {
             attribute_name: 'Color',
@@ -207,7 +236,7 @@ export default function ModalUploadProduct({
         ];
         obj.original_price = item.price;
         obj.stock_infos = [{ warehouse_id: warehouseId, available_stock: item.quantity }];
-        obj.seller_sku = productsJSON.sku || '';
+        obj.seller_sku = '';
         result.push(obj);
       });
     });
@@ -230,32 +259,32 @@ export default function ModalUploadProduct({
       return;
     }
     const {
-      category_id,
-      is_cod_open,
-      warehouse_id,
-      package_height,
-      package_length,
-      package_weight,
-      package_width,
+      category_id: categoryId,
+      is_cod_open: isCodOpen,
+      warehouse_id: warehouseIdd,
+      package_height: packageHeight,
+      package_length: packageLength,
+      package_weight: packageWeight,
+      package_width: packageWidth,
       description,
       // types,
-      size_chart,
+      size_chart: sizeChart,
     } = templateJSON ?? {};
     const dataSubmit = {
-      excel: sanitizeTitles(productsJSON),
-      category_id: String(category_id[category_id.length - 1]),
-      warehouse_id,
-      package_height,
-      package_length,
-      package_weight,
-      package_width,
-      is_cod_open,
+      excel: sanitizeTitles(productsJSON || []),
+      category_id: String(categoryId[categoryId.length - 1]),
+      warehouse_id: warehouseIdd,
+      package_height: packageHeight,
+      package_length: packageLength,
+      package_weight: packageWeight,
+      package_width: packageWidth,
+      is_cod_open: isCodOpen,
       skus: convertDataSku(),
       description,
-      size_chart,
+      size_chart: sizeChart,
     };
     console.log('dataSubmit: ', dataSubmit);
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       handleResponse(res);
     };
     const onFail = () => {
@@ -264,31 +293,35 @@ export default function ModalUploadProduct({
     createProductList(shopId, dataSubmit, onSuccess, onFail);
   };
 
-  const handleResponse = (res) => {
-    const countProductSuccess = res.filter((item) => item.status === 'success').length;
-    const countProductFail = res.filter((item) => item.status === 'error').length;
-    if (countProductSuccess === productsJSON.length) {
+  const handleResponse = (res: any) => {
+    const countProductSuccess = res.filter((item: ErrorItem) => item.status === 'success').length;
+    const countProductFail = res.filter((item: ErrorItem) => item.status === 'error').length;
+    if (countProductSuccess === productsJSON?.length) {
       message.success(`Upload products successfully ${countProductSuccess}/${countProductSuccess}`);
       handleCancel();
       return;
     }
-    if (countProductSuccess < productsJSON.length && countProductSuccess > 0) {
-      message.success(`Upload products successfully ${productsJSON.length - countProductFail}/${productsJSON.length}`);
-      setModalErrorInfo({
-        isShow: true,
-        data: res,
-        title: `Upload failed ${countProductFail} products`,
-      });
+    if (productsJSON && countProductSuccess < productsJSON?.length && countProductSuccess > 0) {
+      message.success(
+        `Upload products successfully ${productsJSON?.length || 0 - countProductFail}/${productsJSON?.length}`,
+      );
+      if (setModalErrorInfo)
+        setModalErrorInfo({
+          isShow: true,
+          data: res,
+          title: `Upload failed ${countProductFail} products`,
+        });
       handleCancel();
       return;
     }
     if (countProductSuccess === 0) {
       message.error('Upload failed all products');
-      setModalErrorInfo({
-        isShow: true,
-        data: res,
-        title: 'Upload failed all products',
-      });
+      if (setModalErrorInfo)
+        setModalErrorInfo({
+          isShow: true,
+          data: res,
+          title: 'Upload failed all products',
+        });
     }
   };
 
@@ -298,7 +331,6 @@ export default function ModalUploadProduct({
       title={`Upload ${productList?.length} Products`}
       okText="Upload"
       onOk={onSubmit}
-      loading={loading}
       // footer={null}
       onCancel={handleCancel}
       width={450}

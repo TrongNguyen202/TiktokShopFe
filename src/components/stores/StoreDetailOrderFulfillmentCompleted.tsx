@@ -9,11 +9,11 @@ function StoreDetailOrderFulfillmentCompleted({ shopId }: { shopId: string }) {
   const { packageFulfillmentCompleted } = useShopsOrder((state) => state);
   const [orders, setOrder] = useState([]);
   useEffect(() => {
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       setOrder(res);
     };
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       console.log(err);
     };
     packageFulfillmentCompleted(shopId, onSuccess, onFail);
@@ -26,7 +26,7 @@ function StoreDetailOrderFulfillmentCompleted({ shopId }: { shopId: string }) {
     >
       <StoreDetailSectionTitle
         title="Đơn hàng đã Fulfillment"
-        count={orders?.length > 0 ? orders?.length : '0'}
+        count={orders?.length > 0 ? orders?.length : 0}
         isShowButton
       />
       <Link to={`/shops/${shopId}/orders/fulfillment/completed`}>Xem thêm</Link>

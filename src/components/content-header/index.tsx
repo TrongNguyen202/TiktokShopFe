@@ -7,7 +7,11 @@ export default function ContentHeader({ title }: { title: string }) {
   const navigate = useNavigate();
   return (
     <p className="mt-4 text-[20px] font-semibold flex gap-3 items-center">
-      <ArrowLeftOutlined onClick={() => navigate(-1)} />
+      <ArrowLeftOutlined
+        onClick={() => navigate(-1)}
+        onPointerEnterCapture={undefined}
+        onPointerLeaveCapture={undefined}
+      />
       {title}
     </p>
   );

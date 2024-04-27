@@ -32,6 +32,7 @@
     "@dnd-kit/core": "^6.1.0",
     "@dnd-kit/sortable": "^8.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@types/react-lazy-load-image-component": "^1.6.4",
     "antd": "^5.0.0",
     "axios": "^1.4.0",
     "dayjs": "^1.11.9",

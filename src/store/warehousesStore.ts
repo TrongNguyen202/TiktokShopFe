@@ -9,7 +9,8 @@ interface WareHousesStore {
 }
 
 export const useWareHousesStore = create<WareHousesStore>((set) => ({
-  warehousesById: [],
+  warehousesById: {},
+  loading: false,
   loadingWarehouse: false,
   getWarehousesByShopId: async (id, onSuccess, onFail) => {
     try {
@@ -18,7 +19,7 @@ export const useWareHousesStore = create<WareHousesStore>((set) => ({
       set({ warehousesById: response?.data.data });
       if (onSuccess) onSuccess(response?.data.data);
     } catch (error) {
-      if(onFail) onFail(handleAxiosError(error));
+      if (onFail) onFail(handleAxiosError(error));
     }
     set({ loadingWarehouse: false });
   },

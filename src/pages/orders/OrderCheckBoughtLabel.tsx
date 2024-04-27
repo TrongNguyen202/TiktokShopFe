@@ -73,7 +73,12 @@ function OrderCheckBoughtLabel() {
               title={`Thông tin tìm kiếm  cho [ ${label.replace('.pdf', '')} ]`}
               className="mb-3"
               extra={
-                <DownloadOutlined onClick={() => handleDownloadFile(label)} className="text-[20px] cursor-pointer" onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
+                <DownloadOutlined
+                  onClick={() => handleDownloadFile(label)}
+                  className="text-[20px] cursor-pointer"
+                  onPointerEnterCapture={undefined}
+                  onPointerLeaveCapture={undefined}
+                />
               }
             >
               <p>

@@ -21,7 +21,12 @@ function PageTitle({ title, showBack, count }: PageTitleProps) {
   return (
     <div className="text-[20px] font-semibold mb-5">
       {showBack && (
-        <ArrowLeftOutlined onClick={() => BackClearProductZustand()} className="inline-block align-middle mr-5" />
+        <ArrowLeftOutlined
+          onClick={() => BackClearProductZustand()}
+          className="inline-block align-middle mr-5"
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
+        />
       )}
       <h1 className="inline-block align-middle">
         {title}
@@ -32,4 +37,3 @@ function PageTitle({ title, showBack, count }: PageTitleProps) {
 }
 
 export default PageTitle;
-

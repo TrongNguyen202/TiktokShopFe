@@ -1,23 +1,23 @@
 import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from '@ant-design/icons';
 import { Button, Layout, Modal, Popconfirm, Space, Table, Tooltip, Upload } from 'antd';
 import Search from 'antd/es/transfer/search';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { ColumnsType } from 'antd/es/table';
 import { useTemplateStore } from '../../store/templateStore';
 import { alerts } from '../../utils/alerts';
 import TemplateForm from '../stores/TemplateForm';
+import { TemplateItem } from '../../types/templateItem';
 
 function Template() {
   const { getAllTemplate, templates, loading, deleteTemplate } = useTemplateStore();
 
-  const [templateSelected, setTemplateSelected] = useState(null);
+  const [templateSelected, setTemplateSelected] = useState<TemplateItem | null>();
   const [isShowModal, setShowModal] = useState(false);
-  const [templatesData, setTemplateData] = useState([]);
+  const [templatesData, setTemplateData] = useState<TemplateItem[]>([]);
 
   useEffect(() => {
-    const onSuccess = (res) => {
-      console.log('res: ', res);
-    };
-    const onFail = (err) => {
+    const onSuccess = () => {};
+    const onFail = (err: string) => {
       alerts.error(err);
     };
     getAllTemplate(onSuccess, onFail);
@@ -27,21 +27,20 @@ function Template() {
     setTemplateData(templates);
   }, [JSON.stringify(templates)]);
 
-  const handleDeleteTemplate = (id) => {
+  const handleDeleteTemplate = (id: number) => {
     const onSuccess = () => {
       alerts.success('Xoá template thành công');
       getAllTemplate();
     };
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       alerts.error(err);
     };
-    deleteTemplate(id, onSuccess, onFail);
+    deleteTemplate(String(id), onSuccess, onFail);
   };
 
-  const handleDownload = (template) => {
+  const handleDownload = (template: TemplateItem) => {
     // Thêm trường để đánh dấu là file download
     const dataTemplate = { ...template, isFromFile: true };
-    console.log('dataTemplate: ', dataTemplate);
     const json = JSON.stringify(dataTemplate);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -51,10 +50,10 @@ function Template() {
     link.click();
   };
 
-  const handleFileUpload = (file) => {
+  const handleFileUpload = (file: any) => {
     const reader = new FileReader();
 
-    reader.onload = (event) => {
+    reader.onload = (event: any) => {
       const data = JSON.parse(event.target.result);
       setTemplateSelected(data);
       setShowModal(true);
@@ -64,19 +63,19 @@ function Template() {
     return false;
   };
 
-  const storesTable = [
+  const storesTable: ColumnsType<any> = [
     {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
       fixed: 'left',
-      sorter: (store1, store2) => +store1.id - +store2.id,
+      sorter: (store1: TemplateItem, store2: TemplateItem) => +store1.id - +store2.id,
     },
     {
       title: 'Tên',
       dataIndex: 'name',
       key: 'name',
-      render: (name, store) => (
+      render: (name: string, store: TemplateItem) => (
         <p
           className="text-[#0e2482] font-medium cursor-pointer"
           onClick={() => {
@@ -92,7 +91,7 @@ function Template() {
       title: 'Mô tả',
       dataIndex: 'description',
       key: 'description',
-      render: (description) => (
+      render: (description: string) => (
         <div>
           <div dangerouslySetInnerHTML={{ __html: description }} className="line-clamp-4" />
         </div>
@@ -106,15 +105,14 @@ function Template() {
     {
       title: '',
       key: 'action',
-      // fixed: "right",
       align: 'center',
-      render: (banner) => {
+      render: (banner: TemplateItem) => {
         return (
           <Space size="middle">
             <Tooltip title="Download" color="blue">
               <Button
                 size="small"
-                icon={<DownloadOutlined />}
+                icon={<DownloadOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
                 onClick={() => {
                   handleDownload(banner);
                 }}
@@ -123,7 +121,7 @@ function Template() {
             <Tooltip title="Sửa" color="blue">
               <Button
                 size="small"
-                icon={<EditOutlined />}
+                icon={<EditOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
                 onClick={() => {
                   setShowModal(true);
                   setTemplateSelected(banner);
@@ -138,7 +136,7 @@ function Template() {
               <Tooltip title="Xóa" color="red">
                 <Button
                   size="small"
-                  icon={<DeleteOutlined />}
+                  icon={<DeleteOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
                   danger
                   //   onClick={() => handleDeleteBanner(banner.id)}
                 />
@@ -150,11 +148,11 @@ function Template() {
     },
   ];
 
-  const toggleModal = (value) => {
+  const toggleModal = (value: boolean) => {
     setShowModal(value);
   };
 
-  const onSearch = (e) => {
+  const onSearch = (e: any) => {
     const storesFilter = templates?.filter((item) => {
       return item.name.toLowerCase().includes(e.target.value.toLowerCase());
     });
@@ -166,12 +164,14 @@ function Template() {
       <p className="my-5 font-semibold text-[20px]">Danh sách template</p>
       <div className="mb-4 flex justify-between">
         <div className="w-[400px]">
-          <Search placeholder="Tìm kiếm..." name="search" onChange={onSearch} />
+          <Search placeholder="Tìm kiếm..." onChange={onSearch} />
         </div>
         <div className="flex gap-2">
           <Tooltip title="Upload" color="blue">
             <Upload accept=".json" beforeUpload={handleFileUpload} multiple={false}>
-              <Button icon={<UploadOutlined />}>Thêm bằng file</Button>
+              <Button icon={<UploadOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}>
+                Thêm bằng file
+              </Button>
             </Upload>
           </Tooltip>
           <Button

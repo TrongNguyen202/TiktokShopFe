@@ -11,5 +11,5 @@
   "[typescriptreact]": {
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
-  "cSpell.words": ["antd", "Zustand"]
+  "cSpell.words": ["antd", "Konva", "Zustand"]
 }

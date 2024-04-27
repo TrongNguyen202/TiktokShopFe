@@ -56,7 +56,6 @@ function AntdTest() {
       file.preview = await getBase64(file.originFileObj);
     }
 
-    console.log('file: ', file);
     setPreviewImage(file.url || file.preview);
     setPreviewOpen(true);
   };
@@ -85,7 +84,6 @@ function AntdTest() {
   );
 
   const handleAddImageFromComputer = ({ fileList: newFileList }: { fileList: any[] }) => {
-    console.log('newFileList: ', newFileList);
     setFileList(newFileList);
   };
   return (

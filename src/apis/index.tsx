@@ -35,7 +35,6 @@ export const callApi = (endPoint: string, method: string, body?: any) => {
         return response;
       },
       (error) => {
-        console.log('error: 11111', error);
         if (error?.response?.data?.code === 404) {
           // window.location.replace("/khong-tim-thay-trang");
         } else if (error?.response?.data?.code === 401) {

@@ -4,10 +4,10 @@ import { handleAxiosError } from '../utils/handleAxiosError';
 
 interface ShopsStore {
   stores: Record<string, unknown>[];
-  storeById: Record<string, unknown>;
+  storeById: any;
   infoTable: Record<string, unknown>;
   loading: boolean;
-  getAllStores: (onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getAllStores: (onSuccess?: (data: any) => void, onFail?: (data: any) => void) => void;
   createStore: (data: Record<string, unknown>, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
   getStoreById: (id: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
   updateStore: (

@@ -11,7 +11,7 @@ function StoreDetailOrder({ shopId }: { shopId: string }) {
   useEffect(() => {
     const onSuccess = () => {};
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       console.log(err);
     };
     getAllOrders(shopId, onSuccess, onFail);
@@ -19,7 +19,7 @@ function StoreDetailOrder({ shopId }: { shopId: string }) {
 
   return (
     <Card className="cursor-pointer hover:shadow-md" onClick={() => navigate(`/shops/${shopId}/orders`)}>
-      <StoreDetailSectionTitle title="Đơn hàng" count={orderList?.length > 0 ? orderList?.length : '0'} isShowButton />
+      <StoreDetailSectionTitle title="Đơn hàng" count={orderList?.length > 0 ? orderList?.length : 0} isShowButton />
       <Link to={`/shops/${shopId}/orders`}>Xem thêm</Link>
     </Card>
   );

@@ -21,9 +21,9 @@ export const useShopsBrand = create<ShopsStore>((set) => ({
         Promise.reject(new Error(response?.data?.message));
       }
       set({ brands: response?.data.data });
-      if(onSuccess) onSuccess(response?.data.data);
+      if (onSuccess) onSuccess(response?.data.data);
     } catch (error) {
-      if(onFail) onFail(handleAxiosError(error));
+      if (onFail) onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },

@@ -5,11 +5,11 @@ import React, { useRef, useState } from 'react';
 
 let indexOption = 0;
 
-const initialOptions = (optionsSelect, selectedDefault) => {
+const initialOptions = (optionsSelect: any, selectedDefault: any) => {
   if (!optionsSelect) return [];
   const options = [...optionsSelect];
   if (selectedDefault && selectedDefault?.length) {
-    selectedDefault.forEach((item) => {
+    selectedDefault.forEach((item: any) => {
       if (!options.find((option) => option.value === item)) {
         options.push({ label: item, value: item });
       }
@@ -18,16 +18,32 @@ const initialOptions = (optionsSelect, selectedDefault) => {
   return options;
 };
 
-export default function CustomSelect({ optionsSelect, type, onChange, selectedDefault }) {
+type OptionType = {
+  label: string;
+  value: string;
+  key: string;
+};
+
+export default function CustomSelect({
+  optionsSelect,
+  type,
+  onChange,
+  selectedDefault,
+}: {
+  optionsSelect: OptionType;
+  type: string;
+  onChange: (value: any) => void;
+  selectedDefault: any;
+}) {
   const [options, setOptions] = useState(initialOptions(optionsSelect, selectedDefault));
   const [valueTextAreas, setValueTextAreas] = useState('');
   const inputRef = useRef(null);
 
-  const onChangeTextArea = (event) => {
+  const onChangeTextArea = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setValueTextAreas(event.target.value);
   };
 
-  const addMultipleItem = (e) => {
+  const addMultipleItem = (e: any) => {
     e.preventDefault();
     const value = valueTextAreas.split(', ');
     if (!value || !value.length) return;
@@ -53,8 +69,8 @@ export default function CustomSelect({ optionsSelect, type, onChange, selectedDe
     setValueTextAreas('');
   };
 
-  const handleChangeSelect = (value) => {
-    const convertValue = value && value.length ? value.map((item) => item.key) : [];
+  const handleChangeSelect = (value: OptionType[]) => {
+    const convertValue = value && value.length ? value.map((item: OptionType) => item.key) : [];
     onChange(convertValue);
   };
 
@@ -118,7 +134,12 @@ export default function CustomSelect({ optionsSelect, type, onChange, selectedDe
                 className="w-[250px]"
                 rows={4}
               />
-              <Button type="primary" ghost icon={<PlusOutlined />} onClick={addMultipleItem}>
+              <Button
+                type="primary"
+                ghost
+                icon={<PlusOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
+                onClick={addMultipleItem}
+              >
                 Thêm
               </Button>
             </Space>

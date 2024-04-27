@@ -67,4 +67,3 @@ function FlashDealForm() {
 }
 
 export default FlashDealForm;
-

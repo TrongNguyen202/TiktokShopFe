@@ -309,7 +309,6 @@ function CreateLabel() {
           label: res.doc_urls[index],
           package_id: item.data.package_id,
         }));
-        console.log('shippingDocData: ', shippingDocData);
 
         navigate(`/shops/${shopId}/orders/fulfillment`, { state: { shippingDoc: shippingDocData } });
       }
@@ -337,13 +336,13 @@ function CreateLabel() {
       key: 'items',
       render: (_: any, record: CreateLabelType) => {
         const sumItem = record.data.order_info_list
-        .map((item: orderDetail) => {
-          if (item.item_list && item.item_list.length > 0) {
-            return item.item_list.length;
-          }
-          return item?.sku_list?.length ?? 0;
-        })
-        .reduce((partialSum: number, a: number) => partialSum + a, 0);
+          .map((item: orderDetail) => {
+            if (item.item_list && item.item_list.length > 0) {
+              return item.item_list.length;
+            }
+            return item?.sku_list?.length ?? 0;
+          })
+          .reduce((partialSum: number, a: number) => partialSum + a, 0);
 
         return (
           <Popover
@@ -500,7 +499,15 @@ function CreateLabel() {
           <Button type="primary" onClick={handleStartFulfillment}>
             Fulfillment &nbsp;<span>({buyLabelSelected.length})</span>
             {buyLabelSelected.length > 0 && loading && (
-              <Spin indicator={<LoadingOutlined className="text-white ml-3" onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />} />
+              <Spin
+                indicator={
+                  <LoadingOutlined
+                    className="text-white ml-3"
+                    onPointerEnterCapture={undefined}
+                    onPointerLeaveCapture={undefined}
+                  />
+                }
+              />
             )}
           </Button>
         )}
@@ -508,7 +515,15 @@ function CreateLabel() {
           <Button type="primary" onClick={handleBuyLabel} disabled={!buyLabelSelected.length}>
             Mua Label &nbsp;<span>({buyLabelSelected.length})</span>
             {buyLabelSelected.length > 0 && loading && (
-              <Spin indicator={<LoadingOutlined className="text-white ml-3" onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />} />
+              <Spin
+                indicator={
+                  <LoadingOutlined
+                    className="text-white ml-3"
+                    onPointerEnterCapture={undefined}
+                    onPointerLeaveCapture={undefined}
+                  />
+                }
+              />
             )}
           </Button>
         )}

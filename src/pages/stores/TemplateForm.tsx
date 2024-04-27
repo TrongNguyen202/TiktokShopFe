@@ -13,7 +13,7 @@ import { useTemplateStore } from '../../store/templateStore';
 import 'react-quill/dist/quill.snow.css';
 // import { useShopsBrand } from '../../store/brandStore';
 
-const getBase64 = (file) =>
+const getBase64 = (file: any) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -21,7 +21,7 @@ const getBase64 = (file) =>
     reader.onerror = (error) => reject(error);
   });
 
-function DraggableUploadListItem({ originNode, file }) {
+function DraggableUploadListItem({ originNode, file }: { originNode: any; file: any }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: file.uid,
   });
@@ -124,8 +124,13 @@ const initBadWordOptions = [
   },
 ];
 
-export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, templateJson }) {
-  console.log('templateJson: ', templateJson);
+type TemplateFormProps = {
+  onSaveTemplate: (data: any) => void;
+  setShowModalAddTemplate: (value: boolean) => void;
+  templateJson: any;
+};
+
+export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, templateJson }: TemplateFormProps) {
   // const { getAllBrand, brands } = useShopsBrand();
   const { getAllCategoriesIsLeaf, categoriesIsLeaf } = useCategoriesStore();
   const { createTemplate, loading, getAllTemplate, updateTemplate } = useTemplateStore();
@@ -241,7 +246,7 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
       getAllTemplate(shopId);
       setShowModalAddTemplate(false);
     };
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       message.error(err);
     };
     // eslint-disable-next-line no-unused-expressions
@@ -294,8 +299,8 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
   };
 
   const handlePreview = async (file) => {
-    if (!file.url && !file.preview) file.preview = await getBase64(file.originFileObj);
-    setPreviewImage(file.url || file.preview);
+    if (!file.url && !file.preview && !file.thumbUrl) file.preview = await getBase64(file.originFileObj);
+    setPreviewImage(file.url || file.thumbUrl);
     setPreviewOpen(true);
     // setPreviewTitle(
     //   file.name || file.url.substring(file.url.lastIndexOf("/") + 1)
@@ -373,10 +378,10 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
                   options={categoriesData}
                   // onChange={handleChangeCategories}
                   placeholder="Chọn danh mục"
-                  showSearch={(input, options) => {
+                  showSearch={(input: any, options: any) => {
                     return (
-                      options.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
-                      options.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                      options?.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
+                      options?.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
                     );
                   }}
                   onSearch={(value) => console.log(value)}
@@ -506,7 +511,7 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
                   >
                     {sizeChart.length ? null : (
                       <button style={{ border: 0, background: 'none' }} type="button">
-                        <PlusOutlined />
+                        <PlusOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
                         <div style={{ marginTop: 8 }}> Upload</div>
                       </button>
                     )}
@@ -526,7 +531,7 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
                         onPreview={handlePreview}
                         onChange={handleChangeFixedImages}
                         beforeUpload={() => false}
-                        previewFile={getBase64}
+                        previewFile={(file: any) => getBase64(file) as Promise<string>}
                         multiple
                         // eslint-disable-next-line react/no-unstable-nested-components
                         itemRender={(originNode, file) => (
@@ -535,7 +540,7 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
                       >
                         {fixedImages?.length >= 2 ? null : (
                           <button style={{ border: 0, background: 'none' }} type="button">
-                            <PlusOutlined />
+                            <PlusOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
                             <div style={{ marginTop: 8 }}> Upload</div>
                           </button>
                         )}
@@ -586,7 +591,6 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
                     message: 'Vui lòng lựa chọn màu!',
                   },
                 ]}
-                sx={{ justifyContent: 'space-between' }}
                 initialValue={selectedColor}
               >
                 <CustomSelect
@@ -664,7 +668,7 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
                 type="primary"
                 ghost
                 onClick={() => setShowModalPrice(true)}
-                icon={<EditOutlined />}
+                icon={<EditOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
                 className="block ml-auto mt-9"
               >
                 Chỉnh sửa giá
@@ -687,7 +691,7 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
                 >
                   <EditPriceForm
                     selectedSize={selectedSize}
-                    setShowModalPrice={(value) => setShowModalPrice(value)}
+                    setShowModalPrice={(value: any) => setShowModalPrice(value)}
                     onSavePrice={onSavePrice}
                     dataPrice={
                       // dataPrice.current ||

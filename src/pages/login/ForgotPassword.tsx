@@ -1,5 +1,5 @@
 import { Button } from 'antd';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import OTPInput from 'react-otp-input';
 import LOGO from '../../assets/images/logo.svg';
 
@@ -8,7 +8,7 @@ export default function ForgotPassword() {
   const [timer, setTimer] = useState(30);
 
   useEffect(() => {
-    let interval;
+    let interval: any;
     if (timer > 0) {
       interval = setInterval(() => {
         setTimer((prevTimer) => prevTimer - 1);

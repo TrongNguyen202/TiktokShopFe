@@ -90,7 +90,12 @@ function EditableCell({ title, editable, children, dataIndex, record, handleSave
   return <td {...restProps}>{children}</td>;
 }
 
-function ProductCreateVariationTable({ variationsData, variationsDataTable, isProductCreate, warehouses }: ProductCreateVariationTableProps) {
+function ProductCreateVariationTable({
+  variationsData,
+  variationsDataTable,
+  isProductCreate,
+  warehouses,
+}: ProductCreateVariationTableProps) {
   const [dataSource, setDataSource] = useState<SkuProductForm[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const variationsEdit = variationsData?.map((item: any) => item.variations);
@@ -150,7 +155,8 @@ function ProductCreateVariationTable({ variationsData, variationsDataTable, isPr
     {
       title: 'Color',
       dataIndex: ['variations', 'Color'],
-      render: (_: any, record: SkuProductForm) => record?.variations?.map((item) => item.id === '100000' && item.value_name),
+      render: (_: any, record: SkuProductForm) =>
+        record?.variations?.map((item) => item.id === '100000' && item.value_name),
     },
     {
       title: 'Size',
@@ -176,7 +182,7 @@ function ProductCreateVariationTable({ variationsData, variationsDataTable, isPr
       align: 'center',
       editable: true,
       width: '200px',
-      render: (_: any, record: SkuProductForm) => record.stock_infos[0].available_stock,
+      render: (_: any, record: SkuProductForm) => record.stock_infos[0]?.available_stock,
     },
     {
       title: 'Hành động',

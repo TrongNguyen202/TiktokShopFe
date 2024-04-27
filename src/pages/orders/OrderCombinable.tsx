@@ -84,7 +84,11 @@ function OrderCombinable({ data, popOverContent, dataOrderDetail, isOpenModal }:
             <div className="flex justify-between">
               <p className="text-[13px] font-semibold">{record?.item_list?.length} sản phẩm</p>
               <p>
-                <DownOutlined className="text-[12px]" onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
+                <DownOutlined
+                  className="text-[12px]"
+                  onPointerEnterCapture={undefined}
+                  onPointerLeaveCapture={undefined}
+                />
               </p>
             </div>
             <div className="-my-[12px] flex gap-1">

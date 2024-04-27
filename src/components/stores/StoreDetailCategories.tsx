@@ -10,7 +10,7 @@ function StoreDetailCategories({ shopId }: { shopId: string }) {
 
   useEffect(() => {
     const onSuccess = () => {};
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       alerts.error(err);
     };
 
@@ -21,7 +21,7 @@ function StoreDetailCategories({ shopId }: { shopId: string }) {
     <Card className="cursor-pointer hover:shadow-md">
       <StoreDetailSectionTitle
         title="Danh mục"
-        count={categoriesById.category_list?.length > 0 ? categoriesById.category_list?.length : '0'}
+        count={categoriesById.category_list?.length > 0 ? categoriesById.category_list?.length : 0}
       />
       <Link to={`/shops/${shopId}/categories`}>Xem thêm</Link>
     </Card>

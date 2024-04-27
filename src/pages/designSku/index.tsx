@@ -1,19 +1,34 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Table, Button, Space, Input, Select, Form, message, Tooltip, Popconfirm, Pagination, Tabs, Modal } from 'antd';
 import { DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
 
+import { ColumnsType } from 'antd/es/table';
 import { useShopsOrder } from '../../store/ordersStore';
 import { useUsersStore } from '../../store/usersStore';
 
 import SectionTitle from '../../components/common/SectionTitle';
 import DesignEdit from '../../components/design-sku/DesignEdit';
 
+type DesignSkuType = {
+  count?: number;
+  next?: string;
+  previous?: string;
+  results?: {
+    id: number;
+    sku_id: string;
+    product_name: string;
+    variation: string;
+    image_front: string;
+    image_back: string;
+  }[];
+};
+
 function DesignSku() {
   const [groups, setGroups] = useState([]);
   const [groupIndex, setGroupIndex] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
-  const [designSku, setDesignSku] = useState([]);
+  const [designSku, setDesignSku] = useState<DesignSkuType>({});
   const [recordEdit, setRecordEdit] = useState({});
   const [openEditModal, setOpenEditModal] = useState(false);
   const [openSearchModal, setOpenSearchModal] = useState(false);
@@ -24,13 +39,13 @@ function DesignSku() {
   );
   const { getGroupUser } = useUsersStore((state) => state);
 
-  const handleEditDesign = (index) => {
-    setRecordEdit(designSku.results[index]);
+  const handleEditDesign = (index: number) => {
+    setRecordEdit(designSku?.results ? designSku?.results[index] : []);
     setOpenEditModal(true);
   };
 
-  const handleDeleteDesign = (index) => {
-    const onSuccess = (res) => {
+  const handleDeleteDesign = (index: number) => {
+    const onSuccess = (res: any) => {
       if (res) {
         messageApi.open({
           type: 'success',
@@ -38,63 +53,63 @@ function DesignSku() {
         });
 
         getDesignSkuByGroup(
-          groupIndex,
+          String(groupIndex),
           (newRes) => setDesignSku(newRes),
           (err) => console.log('Error when fetching design SKU: ', err),
         );
       }
     };
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       messageApi.open({
         type: 'error',
         content: err,
       });
     };
 
-    deleteDesignSku(designSku.results[index].id, onSuccess, onFail);
+    deleteDesignSku(String(designSku?.results ? designSku.results[index]?.id : ''), onSuccess, onFail);
   };
 
-  const onChangeTab = (key) => {
+  const onChangeTab = (key: number) => {
     setGroupIndex(key);
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         setDesignSku(res);
       }
     };
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       messageApi.open({
         type: 'error',
         content: `${err} - Lỗi khi lấy danh sách Design`,
       });
     };
-    getDesignSkuByGroup(key, onSuccess, onFail);
+    getDesignSkuByGroup(String(key), onSuccess, onFail);
   };
 
-  const handleChangePagePagination = (page) => {
-    const onSuccess = (res) => {
+  const handleChangePagePagination = (page: number) => {
+    const onSuccess = (res: any) => {
       if (res) {
         setPageIndex(page);
         setDesignSku(res);
       }
     };
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       console.log(err);
     };
-    getDesignSkuByGroupSize(groupIndex, page, onSuccess, onFail);
+    getDesignSkuByGroupSize(String(groupIndex), String(page), onSuccess, onFail);
   };
 
-  const handleRefreshDesign = (newData) => {
+  const handleRefreshDesign = (newData: DesignSkuType) => {
     setDesignSku(newData);
   };
 
-  const handleSearchDesign = (values) => {
+  const handleSearchDesign = (values: any) => {
     setHadSearch(true);
     setGroupIndex(values.group_id);
     setOpenSearchModal(false);
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         messageApi.open({
           type: 'success',
@@ -104,7 +119,7 @@ function DesignSku() {
       }
     };
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       messageApi.open({
         type: 'error',
         content: `${err} - Lỗi khi tìm Design`,
@@ -115,16 +130,16 @@ function DesignSku() {
   };
 
   const handleClearSearch = () => {
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         setHadSearch(false);
         setDesignSku(res);
       }
     };
-    getDesignSkuByGroup(groupIndex, onSuccess, (err) => console.log(err));
+    getDesignSkuByGroup(String(groupIndex), onSuccess, (err) => console.log(err));
   };
 
-  const tabContent = (data) => {
+  const tabContent = (data: any) => {
     return (
       <div className="text-right">
         <Table scroll={{ x: true }} columns={columns} dataSource={data} bordered pagination={false} loading={loading} />
@@ -132,19 +147,19 @@ function DesignSku() {
           className="mt-10"
           current={pageIndex}
           total={designSku?.count}
-          pageSize={100}
+          pageSize={20}
           onChange={handleChangePagePagination}
         />
       </div>
     );
   };
 
-  const columns = [
+  const columns: ColumnsType<any> = [
     {
       title: 'STT',
       dataIndex: 'stt',
       align: 'center',
-      render: (_, record, index) => index + 1,
+      render: (_: any, record: any, index: any) => index + 1,
     },
     {
       title: 'Sku ID',
@@ -161,7 +176,7 @@ function DesignSku() {
     {
       title: 'Design image front',
       dataIndex: 'image_front',
-      render: (text) => (
+      render: (text: string) => (
         <Link to={text} target="_blank" className="inline-block max-w-[200px]">
           {text}
         </Link>
@@ -170,7 +185,7 @@ function DesignSku() {
     {
       title: 'Design image back',
       dataIndex: 'image_back',
-      render: (text) => (
+      render: (text: string) => (
         <Link to={text} target="_blank" className="inline-block max-w-[200px]">
           {text}
         </Link>
@@ -180,16 +195,16 @@ function DesignSku() {
       title: 'Actions',
       dataIndex: 'actions',
       align: 'center',
-      render: (_, record, index) => (
+      render: (_: any, record: any, index: number) => (
         <Space>
           <Tooltip title="Sửa design">
             <Button className="border-none bg-transparent shadow-none" onClick={() => handleEditDesign(index)}>
-              <EditOutlined />
+              <EditOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
             </Button>
           </Tooltip>
           <Popconfirm title="Sure to delete?" onConfirm={() => handleDeleteDesign(index)}>
             <Button className="border-none bg-transparent shadow-none">
-              <DeleteOutlined />
+              <DeleteOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
             </Button>
           </Popconfirm>
         </Space>
@@ -197,14 +212,14 @@ function DesignSku() {
     },
   ];
 
-  const items = groups.map((group) => ({
+  const items = groups.map((group: any) => ({
     key: group.id,
     label: group.group_name,
     children: tabContent(designSku && designSku?.results),
   }));
 
   useEffect(() => {
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         setGroups(res);
         getDesignSkuByGroup(
@@ -215,7 +230,7 @@ function DesignSku() {
       }
     };
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       messageApi.open({
         type: 'error',
         content: `${err}`,
@@ -235,23 +250,33 @@ function DesignSku() {
         <Space size="large">
           <div className="cursor-pointer" onClick={() => setOpenSearchModal(true)}>
             <Tooltip title="Tìm kiếm">
-              <SearchOutlined className="text-[20px]" />
+              <SearchOutlined
+                className="text-[20px]"
+                onPointerEnterCapture={undefined}
+                onPointerLeaveCapture={undefined}
+              />
             </Tooltip>
           </div>
           {hadSearch && (
-            <Tooltip title="Xoá kết quả tìm kiếm" onClick={handleClearSearch}>
-              <DeleteOutlined className="text-[20px]" />
+            <Tooltip title="Xoá kết quả tìm kiếm">
+              <DeleteOutlined
+                onClick={handleClearSearch}
+                className="text-[20px]"
+                onPointerEnterCapture={undefined}
+                onPointerLeaveCapture={undefined}
+              />
             </Tooltip>
           )}
         </Space>
       </div>
 
+      {/* @ts-expect-error konva */}
       <Tabs activeKey={groupIndex} items={items} onChange={onChangeTab} />
       <DesignEdit
         openModal={[openEditModal, setOpenEditModal]}
         initData={recordEdit}
         refreshDesign={handleRefreshDesign}
-        groupId={groupIndex}
+        groupId={String(groupIndex)}
       />
 
       <Modal
@@ -267,9 +292,10 @@ function DesignSku() {
           </Form.Item>
           <Form.Item name="group_id" className="font-bold" label="Chọn nhóm">
             <Select
+              // @ts-expect-error initialValues
               initialValues={groups && groups[0]?.id}
               onChange={() => {}}
-              options={groups.map((group) => ({
+              options={groups.map((group: any) => ({
                 value: group.id,
                 label: group.group_name,
               }))}

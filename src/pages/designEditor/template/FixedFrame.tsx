@@ -1,14 +1,30 @@
 import React, { useEffect } from 'react';
 import { Layer, Rect, Transformer } from 'react-konva';
 
-export default function FixedFrame({ selectedId, selectShape, fixedFrameInfo, setFixedFrameInfo }) {
-  const boxRef = React.useRef(null);
-  const transformerRef = React.useRef(null);
+type FixedFrameProps = {
+  selectedId: string;
+  selectShape: (id: string) => void;
+  fixedFrameInfo: FixedFrameInfo;
+  setFixedFrameInfo: (info?: any) => void;
+};
+
+type FixedFrameInfo = {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  rotation?: number;
+  src?: string;
+};
+
+export default function FixedFrame({ selectedId, selectShape, fixedFrameInfo, setFixedFrameInfo }: FixedFrameProps) {
+  const boxRef: React.MutableRefObject<any> = React.useRef(null);
+  const transformerRef: React.MutableRefObject<any> = React.useRef(null);
 
   useEffect(() => {
     if (selectedId === 'box') {
-      transformerRef.current.nodes([boxRef.current]);
-      transformerRef.current.getLayer().batchDraw();
+      transformerRef?.current?.nodes([boxRef.current]);
+      transformerRef?.current?.getLayer().batchDraw();
     }
   }, [selectedId]);
   return (
@@ -25,11 +41,11 @@ export default function FixedFrame({ selectedId, selectShape, fixedFrameInfo, se
         onDragEnd={() => {
           const node = boxRef.current;
           setFixedFrameInfo({
-            x: node.x(),
-            y: node.y(),
-            width: node.width(),
-            height: node.height(),
-            rotation: node.rotation(),
+            x: node?.x(),
+            y: node?.y(),
+            width: node?.width(),
+            height: node?.height(),
+            rotation: node?.rotation(),
           });
         }}
         onTransformEnd={() => {

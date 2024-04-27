@@ -99,7 +99,7 @@ export const useProductsStore = create<ProductsStore>((set, get: any) => ({
       set({ loading: true });
       const response = await RepositoryRemote.products.getProductsById(shopId, productId);
       set({ productById: response?.data.data });
-      if(onSuccess) onSuccess(response?.data.data);
+      if (onSuccess) onSuccess(response?.data.data);
     } catch (error) {
       if (onFail) onFail(handleAxiosError(error));
     }

@@ -1,16 +1,34 @@
 import { Modal } from 'antd';
 import React from 'react';
 
+type DetailMessage = {
+  message: string;
+  data: any;
+};
+
+type ErrorItem = {
+  status: string;
+  title: string;
+  order_in_excel: string;
+  detail: DetailMessage;
+};
+
+type ModalErrorInfo = {
+  isShow: boolean;
+  title: string;
+  data: ErrorItem[];
+};
+
 export default function ModalShowError({
   setModalErrorInfo,
   modalErrorInfo,
 }: {
   setModalErrorInfo: (value: React.SetStateAction<any>) => void;
-  modalErrorInfo: any;
+  modalErrorInfo: ModalErrorInfo;
 }) {
-  const errorResponse = modalErrorInfo.data.filter((item) => item.status === 'error');
+  const errorResponse = modalErrorInfo.data.filter((item: ErrorItem) => item.status === 'error');
 
-  const renderDetailMessage = (data) => {
+  const renderDetailMessage = (data: DetailMessage) => {
     if (Array.isArray(data)) {
       return 'All photos are defective!';
     }
@@ -22,12 +40,12 @@ export default function ModalShowError({
 
   const renderError = () => {
     if (!errorResponse || !errorResponse.length) return null;
-    return errorResponse.map((item, index) => {
-      const { detail, title, order_in_excel } = item;
+    return errorResponse.map((item: ErrorItem, index: number) => {
+      const { detail, title, order_in_excel: orderInExcel } = item;
       return (
         <div key={index} className="text-[16px] bg-[#F0EBF8] mb-5 p-5 rounded-md">
           <div className="flex gap-2">
-            <span className="block w-[150px] shrink-0">Vị trí sản phẩm:</span> <span>{order_in_excel}</span>
+            <span className="block w-[150px] shrink-0">Vị trí sản phẩm:</span> <span>{orderInExcel}</span>
           </div>
           <div className="flex gap-2 line-clamp-1">
             <span className="block w-[150px] shrink-0">Tên sản phẩm:</span> <p className="line-clamp-1">{title}</p>

@@ -58,8 +58,6 @@ export const usePromotionsStore = create<PromotionsStore>((set, get: any) => ({
 
       set({ promotions: [...get().promotions, data.promotion_list] });
 
-      console.log(data.promotion_list);
-
       if (onSuccess) onSuccess(promotions);
     } catch (error) {
       if (onFail) onFail(handleAxiosError(error));

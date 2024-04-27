@@ -4,11 +4,33 @@ import React, { useEffect, useState } from 'react';
 import ModalShowError from '../crawl/ModalShowError';
 import ModalUploadProduct from '../crawl/ModalUploadProduct';
 import ProductItem from '../crawl/ProductItem';
+import { ProductImageItem } from '../../types/productItem';
 
-export default function ProductList({ imageEdited }) {
+type ProductItemType = {
+  id: string;
+  title: string;
+  price: number;
+  url: string;
+  sku: string;
+  description: string;
+  images: ProductImageItem[];
+  listing_id: number;
+  last_modified: string;
+  sold: number;
+  total_sold: number;
+  views: number;
+  views_24h: number;
+  original_creation: string;
+  estimated_revenue: string;
+  daily_views: number;
+  num_favorers: number;
+  hey: number;
+};
+
+export default function ProductList({ imageEdited }: { imageEdited: ProductItemType[] }) {
   const [checkedItems, setCheckedItems] = useState([]);
   const [isAllChecked, setIsAllChecked] = useState(false);
-  const [productList, setProductList] = useState(imageEdited || []);
+  const [productList, setProductList] = useState<ProductItemType[]>(imageEdited || []);
   const [isShowModalUpload, setShowModalUpload] = useState(false);
   const [modalErrorInfo, setModalErrorInfo] = useState({
     isShow: false,
@@ -28,12 +50,12 @@ export default function ProductList({ imageEdited }) {
     } else setIsAllChecked(false);
   }, [checkedItems]);
 
-  const handleDeleteProduct = (product_id) => {
-    const newProductList = productList.filter((item) => item.id !== product_id);
+  const handleDeleteProduct = (productId: string) => {
+    const newProductList = productList.filter((item) => item.id !== productId);
     setProductList(newProductList);
   };
 
-  const handleChangeProduct = (newProduct) => {
+  const handleChangeProduct = (newProduct: ProductItemType) => {
     const newProductList = productList.map((item) => {
       if (item.id === newProduct.id) {
         return newProduct;
@@ -43,26 +65,26 @@ export default function ProductList({ imageEdited }) {
     setProductList(newProductList);
   };
 
-  const handleCheckAllChange = (event) => {
-    const newCheckedItems = productList.reduce((acc, cur) => {
+  const handleCheckAllChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newCheckedItems = productList.reduce((acc: any, cur) => {
       acc[cur.id] = event.target.checked;
       return acc;
     }, {});
     setCheckedItems(newCheckedItems);
   };
 
-  const handleCheckChange = (event) => {
+  const handleCheckChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCheckedItems({
       ...checkedItems,
       [event.target.name]: event.target.checked,
     });
   };
 
-  const convertDataProducts = (isCreateProduct) => {
-    const selectedProducts = productList.filter((product) => checkedItems[product.id]);
+  const convertDataProducts = (isCreateProduct: boolean) => {
+    const selectedProducts = productList.filter((product) => checkedItems[Number(product.id)]);
 
-    const convertImageLink = (images) => {
-      const imageObject = images.reduce((obj, link, index) => {
+    const convertImageLink = (images: any) => {
+      const imageObject = images.reduce((obj: any, link: any, index: number) => {
         const key = `image${index + 1}`;
         obj[key] = link.url;
         return obj;
@@ -116,7 +138,12 @@ export default function ProductList({ imageEdited }) {
         <div>
           Total: <span className="font-semibold">{productList ? productList.length : 0} products</span>
         </div>
-        <Button className="w-fit block" type="primary" icon={<CloudUploadOutlined />} onClick={onClickUploadProduct}>
+        <Button
+          className="w-fit block"
+          type="primary"
+          icon={<CloudUploadOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
+          onClick={onClickUploadProduct}
+        >
           Upload products
         </Button>
       </div>
@@ -142,8 +169,7 @@ export default function ProductList({ imageEdited }) {
           isShowModalUpload={isShowModalUpload}
           setShowModalUpload={setShowModalUpload}
           productList={convertDataProducts(true)}
-          imagesLimit={productList.images}
-          modalErrorInfo={modalErrorInfo}
+          imagesLimit={9}
           setModalErrorInfo={setModalErrorInfo}
         />
       )}

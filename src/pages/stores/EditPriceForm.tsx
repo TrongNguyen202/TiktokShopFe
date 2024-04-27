@@ -1,9 +1,9 @@
-import { Button, Form, Input, Table } from 'antd';
+import { Button, Form, FormInstance, Input, Table } from 'antd';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import './EditPriceForm.css';
 // import { data } from 'autoprefixer';
 
-const EditableContext = React.createContext(null);
+const EditableContext = React.createContext<FormInstance<any> | null>(null);
 
 function EditableRow({ ...props }) {
   const [form] = Form.useForm();
@@ -46,8 +46,17 @@ function EditableRow({ ...props }) {
 //   return sortByType(data);
 // };
 
-export default function EditPriceForm({ selectedSize, dataPrice, onSavePrice, setShowModalPrice }) {
-  console.log('dataPrice: ', dataPrice);
+export default function EditPriceForm({
+  selectedSize,
+  dataPrice,
+  onSavePrice,
+  setShowModalPrice,
+}: {
+  selectedSize: any;
+  dataPrice: any;
+  onSavePrice: any;
+  setShowModalPrice: any;
+}) {
   const [dataSource, setDataSource] = useState(dataPrice);
 
   const dataSource2 = useRef(dataPrice);
@@ -58,7 +67,7 @@ export default function EditPriceForm({ selectedSize, dataPrice, onSavePrice, se
       title: 'Type',
       dataIndex: 'type',
       width: '25%',
-      render: (text, row, index) => {
+      render: (text: string, row: any, index: number) => {
         if (index % selectedSize.length === 0) {
           return {
             children: text,
@@ -79,7 +88,7 @@ export default function EditPriceForm({ selectedSize, dataPrice, onSavePrice, se
       dataIndex: 'quantity',
       width: '25%',
       editable: true,
-      render: (text, row, index) => {
+      render: (text: string, row: any, index: number) => {
         if (index % selectedSize.length === 0) {
           return {
             children: text,
@@ -109,13 +118,26 @@ export default function EditPriceForm({ selectedSize, dataPrice, onSavePrice, se
   ];
 
   // eslint-disable-next-line react/no-unstable-nested-components
-  function EditableCell({ title, editable, children, dataIndex, record, ...restProps }) {
+  function EditableCell({
+    title,
+    editable,
+    children,
+    dataIndex,
+    record,
+    ...restProps
+  }: {
+    title: string;
+    editable: boolean;
+    children: any;
+    dataIndex: string;
+    record: any;
+  }) {
     const [editing, setEditing] = useState(false);
-    const inputRef = useRef(null);
-    const form = useContext(EditableContext);
+    const inputRef: any = useRef(null);
+    const form: any = useContext(EditableContext);
     useEffect(() => {
       if (editing) {
-        inputRef.current.focus();
+        inputRef?.current.focus();
       }
     }, [editing]);
 
@@ -141,8 +163,8 @@ export default function EditPriceForm({ selectedSize, dataPrice, onSavePrice, se
     //     console.log('Save failed:', errInfo);
     //   }
     // };
-    const handleChangeInput = (e, record, dataIndex) => {
-      const updatedItems = dataSource2.current.map((item) => {
+    const handleChangeInput = (e: any, record: any, dataIndex: number) => {
+      const updatedItems = dataSource2.current.map((item: any) => {
         if (item.id === record.id) {
           return { ...item, [dataIndex]: e.target.value };
         }
@@ -169,7 +191,7 @@ export default function EditPriceForm({ selectedSize, dataPrice, onSavePrice, se
           ]}
         >
           {/* <Input ref={inputRef} onPressEnter={save} onBlur={save} /> */}
-          <Input ref={inputRef} type="text" onChange={(e) => handleChangeInput(e, record, dataIndex)} />
+          <Input ref={inputRef} type="text" onChange={(e) => handleChangeInput(e, record, Number(dataIndex))} />
         </Form.Item>
       ) : (
         <div
@@ -195,7 +217,7 @@ export default function EditPriceForm({ selectedSize, dataPrice, onSavePrice, se
     },
   };
 
-  const handleSave = (row) => {
+  const handleSave = (row: any) => {
     const newData = [...dataSource];
     const index = newData.findIndex((item) => row.key === item.key);
     const item = newData[index];
@@ -212,7 +234,7 @@ export default function EditPriceForm({ selectedSize, dataPrice, onSavePrice, se
     }
     return {
       ...col,
-      onCell: (record) => ({
+      onCell: (record: any) => ({
         record,
         editable: col.editable,
         dataIndex: col.dataIndex,
@@ -222,15 +244,15 @@ export default function EditPriceForm({ selectedSize, dataPrice, onSavePrice, se
     };
   });
 
-  const synchronizeQuantity = (data) => {
-    const firstQuantities = data.reduce((acc, item) => {
+  const synchronizeQuantity = (data: any) => {
+    const firstQuantities = data.reduce((acc: any, item: any) => {
       if (!acc[item.type]) {
         acc[item.type] = Number(item.quantity);
       }
       return acc;
     }, {});
 
-    const updatedData = data.map((item) => ({
+    const updatedData = data.map((item: any) => ({
       ...item,
       quantity: firstQuantities[item.type].toString(),
     }));

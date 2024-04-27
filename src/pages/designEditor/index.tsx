@@ -1,28 +1,27 @@
 import { Button, message } from 'antd';
 import React, { useEffect, useState } from 'react';
-
 import { useTemplateStore } from '../../store/templateStore';
 import ModalUploadProduct from '../crawl/ModalUploadProduct';
 import ProductList from './ProductList';
 import UploadDesign from './UploadDesign';
 import DesignTemplate from './template';
+import { DesignTemplates, FixedFrameInfo } from '../../types/designTemplate';
 
 export default function DesignEditor() {
   const { designTemplates } = useTemplateStore();
-  const [images, setImages] = useState([]);
-  const [imagesDesign, setImagesDesign] = useState([]);
+  const [images, setImages] = useState<DesignTemplates[]>([]);
+  const [imagesDesign, setImagesDesign] = useState<DesignTemplates[]>([]);
   const [imageEdited, setImageEdited] = useState([]);
   const [isShowModalUpload, setShowModalUpload] = useState(false);
   const [checkedItems, setCheckedItems] = useState([]);
 
   useEffect(() => {
     if (checkedItems && checkedItems.length === 0) return;
-    // kiểm tra nhưng id của template trong mảng checkedItem có giá trị là true thì set lại giá trị có id đó trong mảng designTemplates vào state imagesDesign
     const newImagesDesign = designTemplates.filter((template) => checkedItems[template.id]);
     setImages(newImagesDesign);
   }, [checkedItems]);
 
-  const onChangeImageDesign = (newImages) => {
+  const onChangeImageDesign = (newImages: DesignTemplates[]) => {
     const newImagesDesign = newImages.map((image, i) => ({
       ...image,
       id: i,
@@ -39,9 +38,9 @@ export default function DesignEditor() {
       message.warning('Please choose design image!');
       return;
     }
-    const newImageEdited = [];
-    const handleBeforeMerge = async (imageDesign) => {
-      const newImages = [];
+    const newImageEdited: any = [];
+    const handleBeforeMerge = async (imageDesign: FixedFrameInfo) => {
+      const newImages: any = [];
       await Promise.all(
         images.map(async (imageInfo, index) => {
           const container = document.createElement('div');
@@ -68,7 +67,7 @@ export default function DesignEditor() {
                 height: 510,
               });
               newLayer.add(newImage);
-              resolve();
+              resolve(null);
             };
           });
 
@@ -85,7 +84,7 @@ export default function DesignEditor() {
                 rotation: content.rotation,
               });
               newLayer.add(newImage);
-              resolve();
+              resolve(null);
             };
           });
 
@@ -101,6 +100,7 @@ export default function DesignEditor() {
       );
       newImageEdited.push({ images: newImages, id: imageDesign.id });
     };
+    // @ts-expect-error promise
     await Promise.all(imagesDesign.map(handleBeforeMerge));
     setImageEdited(newImageEdited);
   };
@@ -126,7 +126,7 @@ export default function DesignEditor() {
           isShowModalUpload={isShowModalUpload}
           setShowModalUpload={setShowModalUpload}
           // productList={convertDataProducts(true)}
-          imagesLimit={imageEdited}
+          imagesLimit={imageEdited.length}
           // modalErrorInfo={modalErrorInfo}
           // setModalErrorInfo={setModalErrorInfo}
         />

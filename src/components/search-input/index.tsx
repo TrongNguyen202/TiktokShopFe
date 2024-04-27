@@ -19,7 +19,7 @@ export default function SearchInput({ keyword, onChange, onSearch }: SearchInput
   return (
     <div>
       <Space direction="vertical" style={{ width: 300 }} size="large">
-        <Search placeholder="Tìm kiếm..." name="search" onChange={(e) => onChange(e.target.value)} />
+        <Search placeholder="Tìm kiếm..." onChange={(e) => onChange(e.target.value)} />
       </Space>
     </div>
   );

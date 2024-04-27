@@ -1,13 +1,15 @@
 import { create } from 'zustand';
 import { RepositoryRemote } from '../services';
 import { handleAxiosError } from '../utils/handleAxiosError';
+import { TemplateItem } from '../types/templateItem';
+import { DesignTemplates } from '../types/designTemplate';
 
 interface TemplateStore {
-  templates: Record<string, unknown>[];
-  designTemplates: Record<string, unknown>[];
+  templates: TemplateItem[];
+  designTemplates: DesignTemplates[];
   templateById: Record<string, unknown>;
   loading: boolean;
-  getAllTemplate: (onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getAllTemplate: (onSuccess?: (data?: any) => void, onFail?: (data?: any) => void) => void;
   createTemplate: (
     params: Record<string, unknown>,
     onSuccess: (data: any) => void,
@@ -20,7 +22,7 @@ interface TemplateStore {
     onFail: (data: any) => void,
   ) => void;
   deleteTemplate: (id: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
-  getAllDesignTemplate: (onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getAllDesignTemplate: (onSuccess?: (data: any) => void, onFail?: (data: any) => void) => void;
   createDesignTemplate: (
     params: Record<string, unknown>,
     onSuccess: (data: any) => void,
@@ -32,7 +34,7 @@ interface TemplateStore {
     onSuccess: (data: any) => void,
     onFail: (data: any) => void,
   ) => void;
-  deleteDesignTemplate: (id: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  deleteDesignTemplate: (id: number, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
 }
 
 export const useTemplateStore = create<TemplateStore>((set) => ({
@@ -45,9 +47,9 @@ export const useTemplateStore = create<TemplateStore>((set) => ({
       set({ loading: true });
       const response = await RepositoryRemote.template.getAllTemplate();
       set({ templates: response?.data });
-      onSuccess(response?.data.data);
+      if (onSuccess) onSuccess(response?.data.data);
     } catch (error) {
-      onFail(handleAxiosError(error));
+      if (onFail) onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },
@@ -86,9 +88,9 @@ export const useTemplateStore = create<TemplateStore>((set) => ({
       set({ loading: true });
       const response = await RepositoryRemote.template.getAllDesignTemplate();
       set({ designTemplates: response?.data });
-      onSuccess(response?.data);
+      if (onSuccess) onSuccess(response?.data);
     } catch (error) {
-      onFail(handleAxiosError(error));
+      if (onFail) onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },
@@ -115,7 +117,7 @@ export const useTemplateStore = create<TemplateStore>((set) => ({
   deleteDesignTemplate: async (id, onSuccess, onFail) => {
     try {
       set({ loading: true });
-      const response = await RepositoryRemote.template.deleteDesignTemplate(id);
+      const response = await RepositoryRemote.template.deleteDesignTemplate(String(id));
       onSuccess(response?.data.data);
     } catch (error) {
       onFail(handleAxiosError(error));

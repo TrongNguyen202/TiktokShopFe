@@ -57,7 +57,12 @@ function ProductEditCustomSelect({ optionsSelect, type, onChange, selectedDefaul
               onChange={onChangeName}
               onKeyDown={(e) => e.stopPropagation()}
             />
-            <Button type="primary" ghost icon={<PlusOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />} onClick={addItem}>
+            <Button
+              type="primary"
+              ghost
+              icon={<PlusOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
+              onClick={addItem}
+            >
               Thêm
             </Button>
           </Space>

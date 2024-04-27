@@ -1,13 +1,14 @@
 import { CreditCardOutlined, DeleteOutlined, EyeOutlined, HourglassOutlined, StarOutlined } from '@ant-design/icons';
-import { Input, Modal, Skeleton, Tag, Tooltip, Upload } from 'antd';
+import { Input, Modal, Skeleton, Tag, Tooltip, Upload, UploadFile } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import ModalProductDetail from './ModalProductDetail';
+import { ProductImageItem, ProductItemCrawl } from '../../types/productItem';
 
-const getBase64 = (file) =>
+const getBase64 = (file: any) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -15,7 +16,7 @@ const getBase64 = (file) =>
     reader.onerror = (error) => reject(error);
   });
 
-function DraggableUploadListItem({ originNode, file }) {
+function DraggableUploadListItem({ originNode, file }: { originNode: any; file: any }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: file.uid,
   });
@@ -37,6 +38,38 @@ function DraggableUploadListItem({ originNode, file }) {
   );
 }
 
+type ProductItemType = {
+  id: string;
+  title: string;
+  price: number;
+  url: string;
+  sku: string;
+  description: string;
+  images: ProductImageItem[];
+  listing_id: number;
+  last_modified: string;
+  sold: number;
+  total_sold: number;
+  views: number;
+  views_24h: number;
+  original_creation: string;
+  estimated_revenue: string;
+  daily_views: number;
+  num_favorers: number;
+  hey: number;
+};
+
+type ProductItemProps = {
+  product: ProductItemType;
+  index: number;
+  handleDeleteProduct: (productId: string) => void;
+  checkedItems: any;
+  handleCheckChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleChangeProduct: (newProduct: ProductItemCrawl) => void;
+  showSkeleton?: boolean;
+  showOutsideImages?: boolean;
+};
+
 export default function ProductItem({
   product,
   index,
@@ -46,25 +79,25 @@ export default function ProductItem({
   handleChangeProduct,
   showSkeleton,
   showOutsideImages,
-}) {
+}: ProductItemProps) {
   const [isOpenModal, setIsOpenModal] = useState(false);
-  const [fileList, setFileList] = useState(product.images);
+  const [fileList, setFileList] = useState<ProductImageItem[]>(product.images || []);
   const [productSku, setProductSku] = useState(product.sku);
   const [productTitle, setProductTitle] = useState(product.title);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
   const [previewTitle, setPreviewTitle] = useState('');
   const {
-    listing_id,
-    last_modified,
+    listing_id: listingId,
+    last_modified: lastModified,
     sold,
-    total_sold,
+    total_sold: totalSold,
     views,
-    views_24h,
-    original_creation,
-    estimated_revenue,
-    daily_views,
-    num_favorers,
+    views_24h: views24h,
+    original_creation: originalCreation,
+    estimated_revenue: estimatedRevenue,
+    daily_views: dailyViews,
+    num_favorers: numFavorers,
     hey,
   } = product ?? {};
 
@@ -73,7 +106,7 @@ export default function ProductItem({
   }, [fileList]);
 
   useEffect(() => {
-    setFileList(product.images);
+    setFileList(product.images || []);
   }, [product.images]);
 
   useEffect(() => {
@@ -84,14 +117,14 @@ export default function ProductItem({
     setProductTitle(product.title);
   }, [product.title]);
 
-  const handlePreview = async (file) => {
+  const handlePreview = async (file: any) => {
     if (!file.url && !file.preview) file.preview = await getBase64(file.originFileObj);
     setPreviewImage(file.url || file.preview);
     setPreviewOpen(true);
     setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
   };
 
-  const handleChange = ({ fileList: newFileList }) => {
+  const handleChange = ({ fileList: newFileList }: { fileList: any }) => {
     setFileList(newFileList);
     // imgBase64(newFileList);
   };
@@ -104,11 +137,11 @@ export default function ProductItem({
 
   const handleCancel = () => setPreviewOpen(false);
 
-  const onDragEnd = ({ active, over }) => {
+  const onDragEnd = ({ active, over }: { active: any; over: any }) => {
     if (active.id !== over?.id) {
-      setFileList((prev) => {
-        const activeIndex = prev.findIndex((i) => i.uid === active.id);
-        const overIndex = prev.findIndex((i) => i.uid === over?.id);
+      setFileList((prev: ProductImageItem[]) => {
+        const activeIndex = prev.findIndex((i: ProductImageItem) => i.uid === active.id);
+        const overIndex = prev.findIndex((i: ProductImageItem) => i.uid === over?.id);
         return arrayMove(prev, activeIndex, overIndex);
       });
     }
@@ -118,7 +151,7 @@ export default function ProductItem({
     <div className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-md hover:shadow-blue-300 duration-300 hover:translate-y-[-5px] h-full">
       <div className="w-[100%] h-[13vw] relative">
         <LazyLoadImage
-          src={product?.images[0]?.thumbUrl || product?.images[0]?.url}
+          src={product?.images && product?.images.length ? product?.images[0]?.thumbUrl || product?.images[0]?.url : ''}
           alt="Image main"
           className="w-full h-full object-cover cursor-pointer"
           onClick={() => setIsOpenModal(true)}
@@ -131,9 +164,9 @@ export default function ProductItem({
           onChange={handleCheckChange}
           className="absolute top-2 left-2 cursor-pointer w-6 h-6"
         />
-        <Tooltip title={`Có ${product.images.length} ảnh`} placement="top">
+        <Tooltip title={`Có ${product?.images ? product?.images.length : 0} ảnh`} placement="top">
           <p className="absolute font-medium h-7 w-7 flex justify-center items-center rounded-md bg-gray-100 bottom-3 right-2 text-green-600 shadow-md border-gray-300 border-solid border-[1px]">
-            {product.images.length}
+            {product?.images ? product?.images.length : 0}
           </p>
         </Tooltip>
         <p
@@ -141,7 +174,7 @@ export default function ProductItem({
           onClick={() => handleDeleteProduct(product.id)}
         >
           <Tooltip title="Xóa" placement="top">
-            <DeleteOutlined />
+            <DeleteOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
           </Tooltip>
         </p>
       </div>
@@ -177,14 +210,18 @@ export default function ProductItem({
       </div>
       <div className={`flex justify-center px-2 ${showOutsideImages ? 'block' : 'hidden'}`}>
         <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
-          <SortableContext items={fileList?.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
+          <SortableContext
+            // @ts-expect-error filelist
+            items={fileList && fileList.length ? fileList?.filter?.((i) => i.uid !== undefined).map((i) => i.uid) : []}
+            strategy={verticalListSortingStrategy}
+          >
             <Upload
               listType="picture-card"
-              fileList={fileList}
+              fileList={fileList as UploadFile<any>[]}
               onPreview={handlePreview}
               onChange={handleChange}
               beforeUpload={() => false}
-              previewFile={getBase64}
+              previewFile={(file: any) => getBase64(file) as Promise<string>}
               multiple
               // eslint-disable-next-line react/no-unstable-nested-components
               itemRender={(originNode, file) => <DraggableUploadListItem originNode={originNode} file={file} />}
@@ -199,29 +236,45 @@ export default function ProductItem({
           </SortableContext>
         </DndContext>
       </div>
-      {listing_id ? (
+      {listingId ? (
         <div className="rounded-md flex flex-col gap-1 p-2 px-3 text-[14px] font-semibold">
           <div className="flex justify-between gap-1">
             <Tooltip title="Show in the Last 24 Hours" placement="top">
-              <Tag color="#22C55E" className="w-full py-[3px] text-[14px] flex-1 mr-0" icon={<StarOutlined />}>
+              <Tag
+                color="#22C55E"
+                className="w-full py-[3px] text-[14px] flex-1 mr-0"
+                icon={<StarOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
+              >
                 {sold}+ Sold
               </Tag>
             </Tooltip>
             <Tooltip title="Views in the Last 24 Hours" placement="top">
-              <Tag color="#F97316" className="w-full py-[3px] text-[14px] flex-1 mr-0" icon={<EyeOutlined />}>
-                {views_24h}+ Views
+              <Tag
+                color="#F97316"
+                className="w-full py-[3px] text-[14px] flex-1 mr-0"
+                icon={<EyeOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
+              >
+                {views24h}+ Views
               </Tag>
             </Tooltip>
           </div>
           <div className="flex justify-between gap-1">
             <Tooltip title="Estimated Total Sales" placement="top">
-              <Tag color="#3B82F6" className="w-full py-[3px] text-[14px] flex-1 mr-0" icon={<HourglassOutlined />}>
-                {total_sold}+ Sold
+              <Tag
+                color="#3B82F6"
+                className="w-full py-[3px] text-[14px] flex-1 mr-0"
+                icon={<HourglassOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
+              >
+                {totalSold}+ Sold
               </Tag>
             </Tooltip>
             <Tooltip title="Estimated Revenue" placement="top">
-              <Tag color="#A855F7" className="w-full py-[3px] text-[14px] flex-1 mr-0" icon={<CreditCardOutlined />}>
-                {estimated_revenue}
+              <Tag
+                color="#A855F7"
+                className="w-full py-[3px] text-[14px] flex-1 mr-0"
+                icon={<CreditCardOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
+              >
+                {estimatedRevenue}
               </Tag>
             </Tooltip>
           </div>
@@ -230,7 +283,7 @@ export default function ProductItem({
             <div className="flex justify-between border-b-[1px] border-solid border-gray-300 border-l-0 border-r-0 border-t-0 py-2">
               <p className="w-[60px]">Views</p>
               <Tooltip title="This is the estimate average daily view" placement="top">
-                <p className="text-[#e11d48] text-center">{daily_views}(Avg)</p>
+                <p className="text-[#e11d48] text-center">{dailyViews}(Avg)</p>
               </Tooltip>
               <Tooltip title="This is the estimate average daily view" placement="top">
                 <p className="text-[#e11d48]">{views}</p>
@@ -243,21 +296,21 @@ export default function ProductItem({
                 <p className="text-[#2563eb] text-center">{hey}%</p>
               </Tooltip>
               <Tooltip title="Total number of favorites for this listing" placement="top">
-                <p className="text-[#2563eb]">{num_favorers}</p>
+                <p className="text-[#2563eb]">{numFavorers}</p>
               </Tooltip>
             </div>
             {/* Created */}
             <div className="flex justify-between border-b-[1px] border-solid border-gray-300 border-l-0 border-r-0 border-t-0 py-2">
               <p>Created</p>
               <Tooltip title="This listing was create" placement="top">
-                <p className="text-[#0d9488] text-center">{original_creation}</p>
+                <p className="text-[#0d9488] text-center">{originalCreation}</p>
               </Tooltip>
             </div>
             {/* Updated */}
             <div className="flex justify-between  py-2">
               <p>Updated</p>
               <Tooltip title="When it is sold, reviewed, or updateed" placement="top">
-                <p className="text-[#0d9488] text-center">{last_modified}</p>
+                <p className="text-[#0d9488] text-center">{lastModified}</p>
               </Tooltip>
             </div>
           </div>
