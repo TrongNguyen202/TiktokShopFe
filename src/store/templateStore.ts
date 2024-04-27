@@ -1,13 +1,14 @@
 import { create } from 'zustand';
 import { RepositoryRemote } from '../services';
 import { handleAxiosError } from '../utils/handleAxiosError';
+import { TemplateItem } from '../types/templateItem';
 
 interface TemplateStore {
-  templates: Record<string, unknown>[];
-  designTemplates: Record<string, unknown>[];
+  templates: TemplateItem[];
+  designTemplates: DesignTemplates[];
   templateById: Record<string, unknown>;
   loading: boolean;
-  getAllTemplate: (onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getAllTemplate: (onSuccess?: (data?: any) => void, onFail?: (data?: any) => void) => void;
   createTemplate: (
     params: Record<string, unknown>,
     onSuccess: (data: any) => void,
@@ -20,7 +21,7 @@ interface TemplateStore {
     onFail: (data: any) => void,
   ) => void;
   deleteTemplate: (id: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
-  getAllDesignTemplate: (onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getAllDesignTemplate: (onSuccess?: (data: any) => void, onFail?: (data: any) => void) => void;
   createDesignTemplate: (
     params: Record<string, unknown>,
     onSuccess: (data: any) => void,
@@ -32,8 +33,22 @@ interface TemplateStore {
     onSuccess: (data: any) => void,
     onFail: (data: any) => void,
   ) => void;
-  deleteDesignTemplate: (id: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  deleteDesignTemplate: (id: number, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
 }
+
+type DesignTemplates = {
+  id: number;
+  user: number;
+  content: {
+    name: string;
+    src: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    rotation: number;
+  };
+};
 
 export const useTemplateStore = create<TemplateStore>((set) => ({
   templates: [],

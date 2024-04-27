@@ -99,7 +99,7 @@ function ProductCreate() {
 
   useEffect(() => {
     const onSuccess = () => {};
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       messageApi.open({
         type: 'error',
         content: err,
@@ -130,7 +130,7 @@ function ProductCreate() {
       }
 
       timeoutRef.current = setTimeout(() => {
-        const onSuccess = (res) => {
+        const onSuccess = (res: any) => {
           const categories = res.category.data.categories;
           if (categories && categories.length) {
             form.setFieldsValue({

@@ -1,14 +1,17 @@
 export type ProductImageItem = {
-  id: string;
-  uid: string;
+  id?: string;
+  uid?: string;
   url: string;
+  thumbUrl?: string;
 };
 export type ProductItem = {
   id: string;
-  sku: any[];
+  sku: any[] | string;
   title: string;
   warehouse: string;
   description: string;
-  images: ProductImageItem[];
+  images?: ProductImageItem[];
   siteProductId: string;
+  price: number;
+  url: string;
 };

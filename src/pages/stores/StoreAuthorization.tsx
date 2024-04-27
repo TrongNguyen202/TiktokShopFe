@@ -9,15 +9,15 @@ import { constants as c } from '../../constants';
 function StoreAuthorization() {
   const { createStore } = useShopsStore();
 
-  const onSubmit = (value) => {
+  const onSubmit = (value: any) => {
     const params = {
       ...value,
       auth_code: value.auth_code.split('code=')[1],
     };
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       console.log('res: ', res);
     };
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       alerts.error(err);
     };
     createStore(params, onSuccess, onFail);

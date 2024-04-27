@@ -91,6 +91,22 @@ type ProductItemCrawled = {
   warehouse: string;
 };
 
+type ErrorItem = {
+  status: string;
+  title: string;
+  order_in_excel: string;
+  detail: {
+    message: string;
+    data: any;
+  };
+};
+
+type ModalErrorInfo = {
+  isShow: boolean;
+  title: string;
+  data: ErrorItem[];
+};
+
 export default function Crawl() {
   const productListStorage = JSON.parse(localStorage.getItem('productList') || '');
   const userInfo = JSON.parse(localStorage.getItem('user') || '');
@@ -106,7 +122,7 @@ export default function Crawl() {
     code: localStorage.getItem('licenseCode') || '',
     invalid: !localStorage.getItem('licenseCode'),
   });
-  const [modalErrorInfo, setModalErrorInfo] = useState({
+  const [modalErrorInfo, setModalErrorInfo] = useState<ModalErrorInfo>({
     isShow: false,
     data: [],
     title: '',
@@ -571,7 +587,7 @@ export default function Crawl() {
           setShowModalUpload={setShowModalUpload}
           productList={convertDataProducts(true)}
           imagesLimit={optionCrawl.imagesLimit}
-          modalErrorInfo={modalErrorInfo}
+          // modalErrorInfo={modalErrorInfo}
           setModalErrorInfo={setModalErrorInfo}
         />
       )}

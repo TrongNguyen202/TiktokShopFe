@@ -58,13 +58,13 @@ export default function ModalProductDetail({
   handleChangeProduct,
 }: {
   product: ProductItem;
-  setIsOpenModal: boolean;
+  setIsOpenModal: (value: boolean) => void;
   isOpenModal: boolean;
-  imgBase64: any;
+  imgBase64?: any;
   handleChangeProduct: (product: ProductItem) => void;
 }) {
   const { changeProductImageToWhite, loadingImage } = useProductsStore((state) => state);
-  const [fileList, setFileList] = useState<ProductImageItem[]>(product.images);
+  const [fileList, setFileList] = useState<ProductImageItem[]>(product.images || []);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
   const [previewTitle, setPreviewTitle] = useState('');
@@ -116,10 +116,7 @@ export default function ModalProductDetail({
     if (!imageLink) return;
     setFileList((prev) => [
       ...prev,
-      {
-        id: new Date().getTime(),
-        url: imageLink,
-      },
+      { id: new Date().getTime().toString(), uid: new Date().getTime().toString(), url: imageLink },
     ]);
     setImageLink('');
   };
@@ -130,7 +127,7 @@ export default function ModalProductDetail({
       img_url: fileListUpdate[0].url,
     };
 
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         const newItem = {
           url: `white_${res.output_image_base64}`,
@@ -153,7 +150,7 @@ export default function ModalProductDetail({
           urlItem = item.url.replace('data:image/png;base64,', 'white_');
         }
       } else {
-        urlItem = item.thumbUrl.replace(/^data:image\/(jpeg|png|jpg);base64,/, '');
+        urlItem = item?.thumbUrl ? item?.thumbUrl.replace(/^data:image\/(jpeg|png|jpg);base64,/, '') : '';
       }
       return {
         ...item,
@@ -171,7 +168,7 @@ export default function ModalProductDetail({
     setIsOpenModal(false);
   };
 
-  const ShowImageFileList = (data) => {
+  const ShowImageFileList = (data: ProductImageItem[]) => {
     const itemRemoveBackground = data.find((item) => item?.url?.includes('white_'));
     if (itemRemoveBackground) {
       itemRemoveBackground.url = itemRemoveBackground.url.replace('white_', 'data:image/png;base64,');
@@ -198,21 +195,31 @@ export default function ModalProductDetail({
               onPreview={handlePreview}
               onChange={handleChange}
               beforeUpload={() => false}
-              previewFile={getBase64}
+              previewFile={(file: any) => getBase64(file) as Promise<string>}
               multiple
               // eslint-disable-next-line react/no-unstable-nested-components
               itemRender={(originNode, file) => <DraggableUploadListItem originNode={originNode} file={file} />}
             >
               {fileList?.length > 7 ? null : (
                 <span>
-                  <PlusOutlined /> Add image
+                  <PlusOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} /> Add image
                 </span>
               )}
             </Upload>
             <Space>
               <Button type="primary" className="my-5" onClick={handleWhiteBackgroundForMainImage}>
                 White background for main image
-                {loadingImage && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
+                {loadingImage && (
+                  <Spin
+                    indicator={
+                      <LoadingOutlined
+                        className="text-white ml-3"
+                        onPointerEnterCapture={undefined}
+                        onPointerLeaveCapture={undefined}
+                      />
+                    }
+                  />
+                )}
               </Button>
             </Space>
           </SortableContext>

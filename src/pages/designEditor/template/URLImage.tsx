@@ -1,10 +1,19 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Image, Transformer } from 'react-konva';
 import useImage from 'use-image';
 
-export default function URLImage({ imageProps, image, isSelected, checkDeselect, onSelect, onChange }) {
+type URLImageProps = {
+  imageProps: any;
+  image: any;
+  isSelected: boolean;
+  checkDeselect: () => void;
+  onSelect: (id: string) => void;
+  onChange: (newAttrs: any) => void;
+};
+
+export default function URLImage({ imageProps, image, isSelected, checkDeselect, onSelect, onChange }: URLImageProps) {
   const imgRef = useRef();
-  const trRef = useRef();
+  const trRef: any = useRef();
   const [img] = useImage(image.src);
 
   useEffect(() => {
@@ -37,7 +46,7 @@ export default function URLImage({ imageProps, image, isSelected, checkDeselect,
           });
         }}
         onTransformEnd={() => {
-          const node = imgRef.current;
+          const node: any = imgRef.current;
           const scaleX = node.scaleX();
           const scaleY = node.scaleY();
           node.scaleX(1);

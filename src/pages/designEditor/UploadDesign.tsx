@@ -2,7 +2,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Upload, Modal } from 'antd';
 import React, { useState } from 'react';
 
-const getBase64 = (file) =>
+const getBase64 = (file: any) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -10,19 +10,19 @@ const getBase64 = (file) =>
     reader.onerror = (error) => reject(error);
   });
 
-export default function UploadDesign({ fileList, setFileList }) {
+export default function UploadDesign({ fileList, setFileList }: { fileList: any; setFileList: any }) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
 
-  const handlePreview = async (file) => {
+  const handlePreview = async (file: any) => {
     if (!file.url && !file.preview) file.preview = await getBase64(file.originFileObj);
     setPreviewImage(file.url || file.preview);
     setPreviewOpen(true);
   };
 
-  const onChangeFileList = async ({ fileList: newFileList }) => {
+  const onChangeFileList = async ({ fileList: newFileList }: { fileList: any }) => {
     const updatedFileList = await Promise.all(
-      newFileList.map(async (file) => {
+      newFileList.map(async (file: any) => {
         if (!file.url && !file.preview) {
           file.src = await getBase64(file.originFileObj);
         }
@@ -42,12 +42,12 @@ export default function UploadDesign({ fileList, setFileList }) {
         onPreview={handlePreview}
         onChange={onChangeFileList}
         beforeUpload={() => false}
-        previewFile={getBase64}
+        previewFile={(file: any) => getBase64(file) as Promise<string>}
         multiple
       >
         {fileList.length > 8 ? null : (
           <button style={{ border: 0, background: 'none' }} type="button">
-            <PlusOutlined />
+            <PlusOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
             <div style={{ marginTop: 8 }}> Upload</div>
           </button>
         )}

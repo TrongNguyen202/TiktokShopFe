@@ -69,7 +69,7 @@ function Promotion() {
       promotion_ids: promotionSelected,
     };
 
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         console.log('res: ', res);
         setPromotionSelected([]);

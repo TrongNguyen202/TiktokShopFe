@@ -14,7 +14,7 @@ function OrderCheckBoughtLabel() {
   const { loading, pdfLabelSearch, pdfLabelDownload } = useShopsOrder((state) => state);
 
   const onSearch = (values) => {
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         if (res.length === 0) {
           messageApi.open({
@@ -29,7 +29,7 @@ function OrderCheckBoughtLabel() {
   };
 
   const handleDownloadFile = (fileName) => {
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         const url = `${c.API_URL}/pdf-download/?filename=${fileName}`;
         const a = document.createElement('a');

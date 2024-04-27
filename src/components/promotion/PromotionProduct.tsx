@@ -48,7 +48,7 @@ function PromotionProduct({ changeStatusModal, dataProductSelected, promotionTyp
   ];
 
   useEffect(() => {
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         setProductSelect(res);
       }

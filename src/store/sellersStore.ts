@@ -2,9 +2,20 @@ import { create } from 'zustand';
 import { RepositoryRemote } from '../services';
 import { handleAxiosError } from '../utils/handleAxiosError';
 
+type SellerById = {
+  id?: string;
+  name?: string;
+  phone_number?: string;
+  stores?: any[];
+  created_at?: string;
+  updated_at?: string;
+  last_visit_time?: string;
+  email?: string;
+};
+
 interface SellersStore {
   sellers: Record<string, unknown>;
-  sellerById: Record<string, unknown>;
+  sellerById: SellerById;
   infoTable: Record<string, unknown>;
   loading: boolean;
   loadingById: boolean;

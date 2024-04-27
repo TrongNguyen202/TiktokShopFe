@@ -1,5 +1,5 @@
 import { Button, Select, Spin, message } from 'antd';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGoogleTrendStore } from '../../store/googleTrendStore';
 
 const initDataKeyword = [
@@ -68,7 +68,16 @@ const initDataTimes = [
   },
 ];
 
-const initTrendData = {
+type TrendDataType = {
+  keyword: string;
+  time_frame: string;
+  data: {
+    crawled_at: string;
+    content: string;
+  }[];
+};
+
+const initTrendData: TrendDataType = {
   keyword: 'shirt',
   time_frame: '1_day',
   data: [
@@ -88,18 +97,15 @@ export default function GoogleTrends() {
 
   const [keywordOptions, setKeywordOptions] = useState(initDataKeyword);
   const [timeOptions, setTimeOptions] = useState(initDataTimes);
-  const [trendsData, setTrendsData] = useState(initTrendData);
-  const [inputValue, setInputValue] = useState('');
-
-  const inputRef = useRef(null);
+  const [trendsData, setTrendsData] = useState<TrendDataType[]>([initTrendData]);
 
   const [params, setParams] = useState({
     keyword: 'poster',
     time_frame: '1_hour',
   });
 
-  const convertDataOptions = (data) => {
-    return data.map((item) => {
+  const convertDataOptions = (data: any) => {
+    return data.map((item: any) => {
       return {
         label: item,
         value: item,
@@ -108,7 +114,7 @@ export default function GoogleTrends() {
   };
 
   useEffect(() => {
-    const onSuccess = (data) => {
+    const onSuccess = (data: any) => {
       setKeywordOptions(convertDataOptions(data?.keywords));
       setTimeOptions(convertDataOptions(data?.time_frames));
       setParams({
@@ -116,17 +122,17 @@ export default function GoogleTrends() {
         time_frame: data?.time_frames[0],
       });
     };
-    const onFail = (error) => {
+    const onFail = (error: string) => {
       message.error(error);
     };
     getGoogleTrendOptions(onSuccess, onFail);
   }, []);
 
   const onSubmit = () => {
-    const onSuccess = (data) => {
+    const onSuccess = (data: any) => {
       setTrendsData(data);
     };
-    const onFail = (error) => {
+    const onFail = (error: string) => {
       message.error(error);
     };
     const query = `?keyword=${params.keyword}&time_frame=${params.time_frame}&max_results=20`;
@@ -191,7 +197,7 @@ export default function GoogleTrends() {
           </p>
 
           {trendsData && trendsData.length ? (
-            trendsData.map((item, index) => {
+            trendsData.map((item: any, index: any) => {
               return (
                 <div
                   key={index}
@@ -202,7 +208,7 @@ export default function GoogleTrends() {
                   </p>
 
                   <p className="p-5 py-2 rounded-md bg-[#F8F9FB] mt-2">
-                    <code style={{ whiteSpace: 'pre' }}>{item.content.replace('```', '')}</code>
+                    <code style={{ whiteSpace: 'pre' }}>{item?.content?.replace('```', '')}</code>
                   </p>
                   {/* <p className="p-5 rounded-md bg-[#F8F9FB] mt-2">{item.content}</p> */}
                   {/* <div dangerouslySetInnerHTML={{ __html: item.content.replace('```', '') }} /> */}

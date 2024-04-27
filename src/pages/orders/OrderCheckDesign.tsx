@@ -115,7 +115,7 @@ function OrderCheckDesign() {
     };
 
     if (oauthAccessToken) {
-      const onSuccess = (res) => {
+      const onSuccess = (res: any) => {
         if (res) {
           setHasNewDesignData(true);
         }
@@ -130,7 +130,7 @@ function OrderCheckDesign() {
       // console.log('res: ', res);
     };
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       console.log(err);
     };
     getAllSheetInfo('Team Truong', onSuccess, onFail);

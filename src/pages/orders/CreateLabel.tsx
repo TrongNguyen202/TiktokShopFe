@@ -220,14 +220,14 @@ function CreateLabel() {
   };
 
   const handleGetShippingService = (newStatus, packageId) => {
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         const shippingService = res.data;
         setShippingServiceData(shippingService);
       }
     };
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       messageApi.open({
         type: 'error',
         content: `Không lấy được thông tin vận chuyển khác. ${err}`,
@@ -302,7 +302,7 @@ function CreateLabel() {
       package_ids: buyLabelSelected.map((label) => label.data.package_id),
     };
 
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         const shippingDocData = buyLabelSelected.map((item, index) => ({
           order_list: item.data.order_info_list,

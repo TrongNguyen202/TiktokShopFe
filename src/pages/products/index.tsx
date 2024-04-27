@@ -145,7 +145,7 @@ function Products() {
       product_ids: productSelected,
     };
 
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         setProductSelected([]);
         setRefreshProduct(true);
@@ -156,7 +156,7 @@ function Products() {
       }
     };
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       message.open({
         type: 'error',
         content: `Xoá sản phẩm thất bại. ${err}`,
@@ -189,12 +189,12 @@ function Products() {
   };
 
   useEffect(() => {
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res.products.length > 0) {
         setProductDataTable(res.products);
       }
     };
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       console.log(err);
     };
 

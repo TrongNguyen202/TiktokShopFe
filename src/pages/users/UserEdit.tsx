@@ -103,7 +103,7 @@ function UserEdit() {
                 mode="multiple"
                 placeholder="Hãy chọn store"
                 // onChange={handleChange}
-                options={storesOption}
+                options={storesOption || []}
                 className="w-full"
                 filterOption={(input, options) => {
                   const label = typeof options?.label === 'string' ? options.label : '';

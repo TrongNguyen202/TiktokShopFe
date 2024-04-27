@@ -6,19 +6,34 @@ import { useTemplateStore } from '../../../store/templateStore';
 import FixedFrame from './FixedFrame';
 import URLImage from './URLImage';
 
-let history = [];
+type FixedFrameInfo = {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  rotation?: number;
+  src: string;
+};
+
+let history: FixedFrameInfo[] = [];
 let historyStep = 0;
 
-export default function ModalTemplateForm({ isShowModal, setShowModal }) {
+export default function ModalTemplateForm({
+  isShowModal,
+  setShowModal,
+}: {
+  isShowModal: boolean;
+  setShowModal: (value: boolean) => void;
+}) {
   const { createDesignTemplate, getAllDesignTemplate } = useTemplateStore();
-  const stageRef = React.useRef(null);
+  const stageRef: React.MutableRefObject<any> = React.useRef(null);
   const [templateName, setTemplateName] = useState('');
-  const [images, setImages] = useState([]);
-  const [selectedId, selectShape] = useState(null);
+  const [images, setImages] = useState<FixedFrameInfo[]>([]);
+  const [selectedId, selectShape] = useState<string>('');
   const [fixedFrameInfo, setFixedFrameInfo] = useState({ x: 20, y: 20, width: 100, height: 100, rotation: 0 });
 
   useEffect(() => {
-    history = [images];
+    history = [...images];
     historyStep = 0;
   }, []);
 
@@ -44,8 +59,8 @@ export default function ModalTemplateForm({ isShowModal, setShowModal }) {
 
     const baseImage = new window.Image();
     baseImage.src = images[0].src;
-    baseImage.width = stageRef.current.width();
-    baseImage.height = stageRef.current.height();
+    baseImage.width = stageRef?.current.width();
+    baseImage.height = stageRef?.current.height();
 
     const loadBaseImage = new Promise((resolve) => {
       baseImage.onload = () => {
@@ -57,7 +72,7 @@ export default function ModalTemplateForm({ isShowModal, setShowModal }) {
           height: images[0].height,
         });
         newLayer.add(newBaseImage);
-        resolve();
+        resolve(null);
       };
     });
 
@@ -80,7 +95,7 @@ export default function ModalTemplateForm({ isShowModal, setShowModal }) {
       getAllDesignTemplate();
       message.success('Create template success!');
     };
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       message.error(err);
     };
     createDesignTemplate(params, onSuccess, onFail);
@@ -90,16 +105,17 @@ export default function ModalTemplateForm({ isShowModal, setShowModal }) {
     setShowModal(false);
   };
 
-  const handleImageChange = (i, newImages) => {
+  const handleImageChange = (i: number, newImages: FixedFrameInfo) => {
     const imgs = images.slice();
     imgs[i] = newImages;
     history = history.slice(0, historyStep + 1);
-    history = history.concat([imgs]);
+    history = history.concat([...imgs]);
     historyStep += 1;
     setImages(imgs);
   };
 
-  const checkDeselect = (e, value) => {
+  // eslint-disable-next-line consistent-return
+  const checkDeselect = (e: any, value: any) => {
     if (!value) {
       selectShape(null);
       return null;
@@ -115,7 +131,7 @@ export default function ModalTemplateForm({ isShowModal, setShowModal }) {
     input.type = 'file';
     input.accept = 'image/*';
     input.onchange = (e) => {
-      const file = e.target.files[0];
+      const file = e?.target?.files[0];
       const reader = new FileReader();
       reader.onload = (event) => {
         const img = new window.Image();
@@ -175,14 +191,13 @@ export default function ModalTemplateForm({ isShowModal, setShowModal }) {
               message: 'Please enter template name!',
             },
           ]}
-          sx={{ justifyContent: 'space-between' }}
         >
           <Input placeholder="Enter template name" type="text" onChange={(e) => setTemplateName(e.target.value)} />
         </Form.Item>
 
         <Button
           onClick={handleAddImageBase}
-          icon={<CloudUploadOutlined />}
+          icon={<CloudUploadOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
           className="w-[50%] mb-6"
           ghost
           type="primary"
@@ -210,14 +225,14 @@ export default function ModalTemplateForm({ isShowModal, setShowModal }) {
               className="border-[1px] w-[513px] border-solid border-gray-200 hover:border-gray-500  inset-0"
             >
               <Layer>
-                {images.map((image, i) => (
+                {images.map((image: any, i) => (
                   <URLImage
                     key={i}
                     imageProps={image}
                     image={image}
                     isSelected={image.id === selectedId}
-                    onSelect={(value) => selectShape(value)}
-                    onChange={(newAttrs) => handleImageChange(i, newAttrs)}
+                    onSelect={(value: any) => selectShape(value)}
+                    onChange={(newAttrs: any) => handleImageChange(i, newAttrs)}
                     checkDeselect={checkDeselect}
                   />
                 ))}

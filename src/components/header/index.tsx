@@ -16,16 +16,8 @@ function Header({ collapsed, changeCollapsed }: { collapsed: boolean; changeColl
       label: (
         <Link
           to="/login"
-          onClick={(e) => {
-            e.preventDefault();
-            logOut(
-              () => {
-                return {};
-              },
-              () => {
-                return {};
-              },
-            );
+          onClick={() => {
+            logOut();
           }}
         >
           Đăng xuất

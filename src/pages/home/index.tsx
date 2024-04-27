@@ -1,6 +1,7 @@
 import { Col, Row } from 'antd';
 import { Link } from 'react-router-dom';
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import React from 'react';
 import { ArchivedIcon, NoteIcon, ProductIcon } from '../../assets/icons';
 import { useBadgesStore } from '../../store/badgesStore';
 
@@ -616,7 +617,8 @@ export default function Home() {
                     {icon}
                   </div>
                   <div className="flex flex-col justify-between h-[50px]">
-                    <p className="text-[16px]">{name}</p> <p className="font-medium text-[24px]">{value}</p>
+                    <p className="text-[16px]">{name as string}</p>{' '}
+                    <p className="font-medium text-[24px]">{value as string}</p>
                   </div>
                 </div>
               </Link>
@@ -637,7 +639,7 @@ export default function Home() {
                 const { payload } = prop;
                 return (
                   <ul className="text-right text-[#999] text-[14px]">
-                    {payload.map((item, key) => (
+                    {payload?.map((item, key) => (
                       <li key={key} className="h-[48px] line-clamp-[48px] inline-block ml-[24px]">
                         <span
                           // className={styles.radiusdot}
@@ -663,8 +665,8 @@ export default function Home() {
                 borderRadius: '10px',
               }}
               // eslint-disable-next-line react/no-unstable-nested-components
-              content={(content) => {
-                const list = content.payload.map((item, key) => (
+              content={(content: any) => {
+                const list = content?.payload.map((item: any, key: any) => (
                   <li key={key} className="flex items-center">
                     <span
                       className="w-[12px] h-[12px] mr-[8px] rounded-[50%] inline-block my-[10px]"

@@ -4,7 +4,12 @@ import React, { useEffect, useState } from 'react';
 import { useTemplateStore } from '../../../store/templateStore';
 import ModalTemplateForm from './ModalTemplateForm';
 
-export default function DesignTemplate({ checkedItems, setCheckedItems }) {
+type DesignTemplateProps = {
+  checkedItems: any;
+  setCheckedItems: (value: React.SetStateAction<boolean>) => void;
+};
+
+export default function DesignTemplate({ checkedItems, setCheckedItems }: DesignTemplateProps) {
   const { getAllDesignTemplate, designTemplates, deleteDesignTemplate } = useTemplateStore();
   const [isShowModal, setShowModal] = useState(false);
   const [isAllChecked, setIsAllChecked] = useState(false);
@@ -21,27 +26,27 @@ export default function DesignTemplate({ checkedItems, setCheckedItems }) {
     } else setIsAllChecked(false);
   }, [checkedItems]);
 
-  const handleCheckAllChange = (event) => {
-    const newCheckedItems = designTemplates.reduce((acc, cur) => {
+  const handleCheckAllChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newCheckedItems = designTemplates.reduce((acc: any, cur: any) => {
       acc[cur.id] = event.target.checked;
       return acc;
     }, {});
     setCheckedItems(newCheckedItems);
   };
 
-  const handleCheckChange = (event) => {
+  const handleCheckChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCheckedItems({
       ...checkedItems,
       [event.target.name]: event.target.checked,
     });
   };
 
-  const handleDeleteTemplate = (id) => {
+  const handleDeleteTemplate = (id: number) => {
     const onSuccess = () => {
       getAllDesignTemplate();
       message.success('Delete template success!');
     };
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       message.error(err);
     };
     deleteDesignTemplate(id, onSuccess, onFail);
@@ -49,7 +54,7 @@ export default function DesignTemplate({ checkedItems, setCheckedItems }) {
 
   return (
     <div>
-      <Button type="primary ml-auto block" onClick={() => setShowModal(true)}>
+      <Button type="primary" onClick={() => setShowModal(true)}>
         Thêm template
       </Button>
       <div className="flex items-center gap-4 mt-4">
@@ -63,7 +68,7 @@ export default function DesignTemplate({ checkedItems, setCheckedItems }) {
       </div>
       <div className="flex gap-3 bg-[#F7F8F9] p-3 mt-3 flex-wrap ">
         {designTemplates && designTemplates.length
-          ? designTemplates.map((item) => (
+          ? designTemplates.map((item: any) => (
               <div
                 key={item.id}
                 className="bg-white relative rounded-lg overflow-hidden shadow-lg hover:shadow-md hover:shadow-blue-300 h-full"
@@ -85,7 +90,7 @@ export default function DesignTemplate({ checkedItems, setCheckedItems }) {
                     onClick={() => handleDeleteTemplate(item.id)}
                   >
                     <Tooltip title="Xóa" placement="top">
-                      <DeleteOutlined />
+                      <DeleteOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
                     </Tooltip>
                   </p>
                 </div>

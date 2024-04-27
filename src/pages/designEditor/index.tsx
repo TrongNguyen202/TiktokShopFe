@@ -7,10 +7,27 @@ import ProductList from './ProductList';
 import UploadDesign from './UploadDesign';
 import DesignTemplate from './template';
 
+type DesignTemplates = {
+  id: number;
+  user: number;
+  content: FixedFrameInfo;
+};
+
+type FixedFrameInfo = {
+  id: number;
+  name: string;
+  src: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+};
+
 export default function DesignEditor() {
   const { designTemplates } = useTemplateStore();
-  const [images, setImages] = useState([]);
-  const [imagesDesign, setImagesDesign] = useState([]);
+  const [images, setImages] = useState<DesignTemplates[]>([]);
+  const [imagesDesign, setImagesDesign] = useState<DesignTemplates[]>([]);
   const [imageEdited, setImageEdited] = useState([]);
   const [isShowModalUpload, setShowModalUpload] = useState(false);
   const [checkedItems, setCheckedItems] = useState([]);
@@ -22,7 +39,7 @@ export default function DesignEditor() {
     setImages(newImagesDesign);
   }, [checkedItems]);
 
-  const onChangeImageDesign = (newImages) => {
+  const onChangeImageDesign = (newImages: DesignTemplates[]) => {
     const newImagesDesign = newImages.map((image, i) => ({
       ...image,
       id: i,
@@ -39,9 +56,9 @@ export default function DesignEditor() {
       message.warning('Please choose design image!');
       return;
     }
-    const newImageEdited = [];
-    const handleBeforeMerge = async (imageDesign) => {
-      const newImages = [];
+    const newImageEdited: any = [];
+    const handleBeforeMerge = async (imageDesign: FixedFrameInfo) => {
+      const newImages: any = [];
       await Promise.all(
         images.map(async (imageInfo, index) => {
           const container = document.createElement('div');
@@ -68,7 +85,7 @@ export default function DesignEditor() {
                 height: 510,
               });
               newLayer.add(newImage);
-              resolve();
+              resolve(null);
             };
           });
 
@@ -85,7 +102,7 @@ export default function DesignEditor() {
                 rotation: content.rotation,
               });
               newLayer.add(newImage);
-              resolve();
+              resolve(null);
             };
           });
 

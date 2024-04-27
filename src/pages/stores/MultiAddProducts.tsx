@@ -309,7 +309,7 @@ function MultiAddProducts() {
       size_chart,
     };
     console.log('dataSubmit: ', dataSubmit);
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       // message.success('Thêm sản phẩm thành công');
       // navigate(`/shops/${shopId}/products`);
       handleResponse(res);

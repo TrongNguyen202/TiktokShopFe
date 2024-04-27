@@ -26,7 +26,7 @@ export default function PromotionForm() {
       message.success(`Tạo promotion ${dataForm?.title}  thành công`);
       navigate(`/shops/${shopId}/promotions`);
     };
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       message.error(`Tạo promotion thất bại. ${err}`);
     };
 

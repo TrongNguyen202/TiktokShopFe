@@ -29,13 +29,13 @@ function OrderCombinable({ data, popOverContent, dataOrderDetail, isOpenModal })
       pre_combine_pkg_list: dataCombine,
     };
 
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         isOpenModal(false);
       }
     };
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       console.log(err);
     };
 

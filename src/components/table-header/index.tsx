@@ -45,7 +45,7 @@ export default function TableHeader({
     <div>
       <div className="flex justify-between my-3">
         <Space direction="vertical" style={{ width: 300 }} size="large">
-          <Search placeholder="Tìm kiếm..." name="search" onChange={(e) => changeParams('search', e.target.value)} />
+          <Search placeholder="Tìm kiếm..."  onChange={(e) => changeParams('search', e.target.value)} />
         </Space>
         <Button type="primary">Xuất Excel</Button>
       </div>

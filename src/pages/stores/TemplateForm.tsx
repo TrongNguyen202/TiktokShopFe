@@ -13,7 +13,7 @@ import { useTemplateStore } from '../../store/templateStore';
 import 'react-quill/dist/quill.snow.css';
 // import { useShopsBrand } from '../../store/brandStore';
 
-const getBase64 = (file) =>
+const getBase64 = (file: any) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -21,7 +21,7 @@ const getBase64 = (file) =>
     reader.onerror = (error) => reject(error);
   });
 
-function DraggableUploadListItem({ originNode, file }) {
+function DraggableUploadListItem({ originNode, file }: { originNode: any; file: any }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: file.uid,
   });
@@ -124,7 +124,13 @@ const initBadWordOptions = [
   },
 ];
 
-export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, templateJson }) {
+type TemplateFormProps = {
+  onSaveTemplate: (data: any) => void;
+  setShowModalAddTemplate: (value: boolean) => void;
+  templateJson: any;
+};
+
+export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, templateJson }: TemplateFormProps) {
   console.log('templateJson: ', templateJson);
   // const { getAllBrand, brands } = useShopsBrand();
   const { getAllCategoriesIsLeaf, categoriesIsLeaf } = useCategoriesStore();
@@ -241,7 +247,7 @@ export default function TemplateForm({ onSaveTemplate, setShowModalAddTemplate, 
       getAllTemplate(shopId);
       setShowModalAddTemplate(false);
     };
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       message.error(err);
     };
     // eslint-disable-next-line no-unused-expressions

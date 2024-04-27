@@ -11,10 +11,10 @@ function MainLayout() {
   const { getProfileInfo } = useAuthStore();
   const [collapsed, setCollapsed] = useState(true);
   useEffect(() => {
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       localStorage.setItem('user', JSON.stringify(res.data));
     };
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       console.log(err);
     };
 

@@ -40,7 +40,7 @@ function Stores() {
   };
 
   const handleRefreshToken = (shopId) => {
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         messageApi.open({
           type: 'success',
@@ -59,7 +59,7 @@ function Stores() {
       });
       setShopData(shopData.filter((item) => item.id !== store.id));
     };
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       messageApi.open({
         type: 'error',
         content: err,
@@ -169,12 +169,12 @@ function Stores() {
   };
 
   useEffect(() => {
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res.length > 0) {
         setShopData(res);
       }
     };
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       console.log(err);
     };
 

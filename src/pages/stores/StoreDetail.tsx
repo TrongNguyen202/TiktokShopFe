@@ -25,10 +25,10 @@ export default function StoreDetail() {
 
   useEffect(() => {
     const onSuccess = () => {};
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       alerts.error(err);
     };
-    getStoreById(shopId, onSuccess, onFail);
+    getStoreById(String(shopId), onSuccess, onFail);
   }, []);
 
   return (
@@ -51,15 +51,15 @@ export default function StoreDetail() {
             </Col> */}
 
           <Col md={{ span: 6 }} span={12}>
-            <StoreDetailProducts shopId={shopId} />
+            <StoreDetailProducts shopId={shopId || ''} />
           </Col>
 
           <Col md={{ span: 6 }} span={12}>
-            <StoreDetailOrder shopId={shopId} />
+            <StoreDetailOrder shopId={shopId || ''} />
           </Col>
 
           <Col md={{ span: 6 }} span={12}>
-            <StoreDetailOrderFulfillmentCompleted shopId={shopId} />
+            <StoreDetailOrderFulfillmentCompleted shopId={shopId || ''} />
           </Col>
 
           <Col md={{ span: 6 }} span={12}>
@@ -69,7 +69,7 @@ export default function StoreDetail() {
       </div>
 
       <div className="mb-10">
-        <StoreDetailWareHouses shopId={shopId} />
+        <StoreDetailWareHouses shopId={shopId || ''} />
       </div>
     </div>
   );

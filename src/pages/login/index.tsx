@@ -11,13 +11,13 @@ function Login() {
   const navigate = useNavigate();
   const { login, loading } = useAuthStore((state) => state);
 
-  const onSubmit = (value) => {
-    const onSuccess = (token) => {
+  const onSubmit = (value: any) => {
+    const onSuccess = (token: string) => {
       setToken('tk-tk', token);
       navigate(PATH.HOME);
       alerts.success('Thành công');
     };
-    const onFail = (error) => {
+    const onFail = (error: string) => {
       alerts.error(error);
     };
 
@@ -52,7 +52,6 @@ function Login() {
               message: 'Vui lòng nhập số điện thoại!',
             },
           ]}
-          sx={{ justifyContent: 'space-between' }}
         >
           <Input placeholder=" Nhập số điện thoại" type="text" />
         </Form.Item>
@@ -67,7 +66,6 @@ function Login() {
               message: 'Vui lòng nhập Mật khẩu!',
             },
           ]}
-          sx={{ marginBottom: '10px' }}
         >
           <Input.Password placeholder=" Nhập mật khẩu" autoComplete="false" />
         </Form.Item>

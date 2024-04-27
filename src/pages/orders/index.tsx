@@ -191,7 +191,7 @@ function Orders() {
   });
 
   const handleGetAllCombine = () => {
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res && res.data.data.total !== 0) {
         setOpen(true);
       } else {
@@ -202,7 +202,7 @@ function Orders() {
       }
     };
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       console.log(err);
     };
 
@@ -243,7 +243,7 @@ function Orders() {
   };
 
   const handleCreateLabels = () => {
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         const resConvert = res.map((resItem) => ({
           data: {
@@ -322,7 +322,7 @@ function Orders() {
       package_ids: orderBoughtLabelUnique.map((item) => item.package_list[0].package_id),
     };
 
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         const shippingDocData = orderBoughtLabel.map((item, index) => ({
           order_list: item,
@@ -342,7 +342,7 @@ function Orders() {
       order_id: orderId,
     };
 
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         if (res.data !== null) {
           messageApi.open({
@@ -358,7 +358,7 @@ function Orders() {
       }
     };
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       message.open({
         type: 'error',
         content: `Huỷ đơn thất bại. ${err}`,
@@ -547,7 +547,7 @@ function Orders() {
   ];
 
   useEffect(() => {
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         const orderList = res?.flatMap((order) => order?.data?.order_list);
         const orderListSort = sortByPackageId(orderList).map((item, index) => ({

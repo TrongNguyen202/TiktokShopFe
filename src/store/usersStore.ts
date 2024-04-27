@@ -2,10 +2,20 @@ import { create } from 'zustand';
 import { RepositoryRemote } from '../services';
 import { handleAxiosError } from '../utils/handleAxiosError';
 
+type UserType = {
+  id: string;
+  user_id: string;
+  user_name: string;
+  user_code: string;
+  shops: any[];
+  group_name: string;
+  users: any[];
+};
+
 interface UsersStore {
-  shopsByUser: Record<string, unknown>[];
+  shopsByUser: UserType[];
   loading: boolean;
-  getShopByUser: (onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getShopByUser: (onSuccess?: (data: any) => void, onFail?: (data: any) => void) => void;
   getUserInfo: (userId: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
   updateUser: (data: Record<string, unknown>, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
   createUser: (data: Record<string, unknown>, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
@@ -20,9 +30,9 @@ export const useUsersStore = create<UsersStore>((set, get: any) => ({
       set({ loading: true });
       const response = await RepositoryRemote.users.getShopByUser();
       set({ shopsByUser: response?.data.data });
-      onSuccess(response?.data.data);
+      if (onSuccess) onSuccess(response?.data.data);
     } catch (error) {
-      onFail(handleAxiosError(error));
+      if (onFail) onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },

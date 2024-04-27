@@ -27,7 +27,7 @@ function ProductVariation({ shopId, variations, variationsDataTable, isProductCr
 
   useEffect(() => {
     const onSuccess = () => {};
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       alerts.error(err);
     };
 
