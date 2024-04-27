@@ -4,16 +4,16 @@ import React, { useRef, useState } from 'react';
 
 let indexOption = 0;
 
-function ProductEditCustomSelect({ optionsSelect, type, onChange, selectedDefault }) {
+function ProductEditCustomSelect({ optionsSelect, type, onChange, selectedDefault }: any) {
   const [options, setOptions] = useState(optionsSelect);
   const [valueInput, setValueInput] = useState('');
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const onChangeName = (event) => {
+  const onChangeName = (event: any) => {
     setValueInput(event.target.value);
   };
 
-  const addItem = (e) => {
+  const addItem = (e: any) => {
     e.preventDefault();
     indexOption += 1;
     setOptions([
@@ -25,12 +25,14 @@ function ProductEditCustomSelect({ optionsSelect, type, onChange, selectedDefaul
     ]);
     setValueInput('');
     setTimeout(() => {
-      inputRef.current?.focus();
+      if (inputRef.current) {
+        inputRef.current?.focus();
+      }
     }, 0);
   };
 
-  const handleChangeSelect = (value) => {
-    const selectedOption = value?.map((item) => options.find((option) => option.value === item));
+  const handleChangeSelect = (value: any) => {
+    const selectedOption = value?.map((item: any) => options.find((option: any) => option.value === item));
     onChange(selectedOption);
   };
 
@@ -55,7 +57,7 @@ function ProductEditCustomSelect({ optionsSelect, type, onChange, selectedDefaul
               onChange={onChangeName}
               onKeyDown={(e) => e.stopPropagation()}
             />
-            <Button type="primary" ghost icon={<PlusOutlined />} onClick={addItem}>
+            <Button type="primary" ghost icon={<PlusOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />} onClick={addItem}>
               Thêm
             </Button>
           </Space>

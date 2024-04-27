@@ -5,7 +5,7 @@ import { handleAxiosError } from '../utils/handleAxiosError';
 
 interface ProductsStore {
   products: Record<string, unknown>[];
-  productById: Record<string, unknown>;
+  productById: any;
   infoTable: any;
   newProduct: Record<string, unknown>;
   loading: boolean;

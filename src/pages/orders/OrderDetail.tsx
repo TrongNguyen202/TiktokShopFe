@@ -1,8 +1,10 @@
+import React from 'react';
 import { Row, Col, Tooltip, Image } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
 import dayjs from 'dayjs';
 import PageTitle from '../../components/common/PageTitle';
 import { getPathByIndex } from '../../utils';
+import { orderDetail } from '../../types';
 
 function OrderDetail() {
   const location = useLocation();
@@ -102,7 +104,7 @@ function OrderDetail() {
 
   console.log('orderData: ', orderData);
 
-  const renderPackageInfo = (orderData) => {
+  const renderPackageInfo = (orderData: orderDetail) => {
     return (
       <ul>
         {orderData.item_list.map((item) => (

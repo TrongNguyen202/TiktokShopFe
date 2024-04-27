@@ -8,23 +8,23 @@ import { removeDuplicates } from '../../utils';
 import ProductEditCustomSelect from './ProductEditCustomSelect';
 import ProductVariationsPrice from './ProductVariationsPrice';
 
-function ProductEditAddVariationForm({ handleAdd, handleClose, warehouses, variationsSelect }) {
+function ProductEditAddVariationForm({ handleAdd, handleClose, warehouses, variationsSelect }: any) {
   const [form] = Form.useForm();
   const [showModalPrice, setShowModalPrice] = useState(false);
   const [variationsData, setVariationsData] = useState([]);
-  const warehouseOptions = warehouses?.warehouse_list?.map((item) => ({
+  const warehouseOptions = warehouses?.warehouse_list?.map((item: any) => ({
     value: item.warehouse_id,
     label: item.warehouse_name,
   }));
   const variationsSelectColor = variationsSelect
-    ?.filter((item) => item.name === 'Color')
-    ?.map((item) => ({
+    ?.filter((item: any) => item.name === 'Color')
+    ?.map((item: any) => ({
       label: item.value_name,
       value: item.value_id,
     }));
   const variationsSelectSize = variationsSelect
-    ?.filter((item) => item.name === 'Size')
-    .map((item) => ({
+    ?.filter((item: any) => item.name === 'Size')
+    .map((item: any) => ({
       label: item.value_name,
       value: item.value_id,
     }));
@@ -50,11 +50,11 @@ function ProductEditAddVariationForm({ handleAdd, handleClose, warehouses, varia
     handleAdd(variationsData);
   };
 
-  const handleAddData = (data) => {
-    const newData = data?.map((item) => ({
+  const handleAddData = (data: any) => {
+    const newData = data?.map((item: any) => ({
       ...item,
-      variations: item.variations?.map((item) => ({
-        id: variationsOption.find((option) => option.label === item.name).value,
+      variations: item.variations?.map((item: any) => ({
+        id: variationsOption.find((option: any) => option.label === item.name).value,
         ...item,
       })),
     }));
@@ -85,7 +85,7 @@ function ProductEditAddVariationForm({ handleAdd, handleClose, warehouses, varia
           type="primary"
           ghost
           onClick={() => setShowModalPrice(true)}
-          icon={<EditOutlined />}
+          icon={<EditOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
           className="block ml-auto mt-9"
         >
           Chỉnh sửa giá

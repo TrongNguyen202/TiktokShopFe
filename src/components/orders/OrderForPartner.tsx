@@ -100,7 +100,7 @@ function OrderForPartner({ toShipInfoData }: { toShipInfoData: any }) {
           isFlashShip = false;
         } else {
           const variationObjectSize = (variationObject as { size?: string; color?: string })?.size
-            ?.split(/[\s-,]/)
+            ?.split(/[\s,-]/)
             .filter(Boolean);
           const checkProductType = flashShipVariants?.filter((variant: Record<string, unknown>) =>
             variationObjectSize?.find(
@@ -391,12 +391,9 @@ function OrderForPartner({ toShipInfoData }: { toShipInfoData: any }) {
   const handleLoginFlashShip = (values: any) => {
     const onSuccess = (res: any) => {
       if (res) {
-        setTokenExpand('flash-ship-tk', res.access_token, String(c.TOKEN_FLASH_SHIP_EXPIRATION));
+        setTokenExpand('flash-ship-tk', res.access_token, c.TOKEN_FLASH_SHIP_EXPIRATION as unknown as string);
         setOpenLoginFlashShip(false);
-        messageApi.open({
-          type: 'success',
-          content: `Đăng nhập thành công. Vui lòng click lại để xem hoặc huỷ đơn`,
-        });
+        handleCreateOrderFlashShipAPI();
       }
     };
 

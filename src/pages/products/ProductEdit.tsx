@@ -47,12 +47,11 @@ function ProductEdit() {
   const { warehousesById, getWarehousesByShopId } = useWareHousesStore((state) => state);
   const { getAllBrand, brands } = useShopsBrand((state) => state);
 
-  const priceDataForm = productById?.skus?.length === 1 ? formatNumber(productById?.skus[0].price.original_price) : '';
-  const availableDataForm =
-    productById?.skus?.length === 1 ? formatNumber(productById?.skus[0].stock_infos[0].available_stock) : '';
-  const skuDataForm = productById?.skus?.length === 1 ? formatNumber(productById?.skus[0].seller_sku) : '';
-  const warehouse_id = productById?.skus?.length === 1 ? productById?.skus[0].stock_infos[0].warehouse_id : '';
-  const available_stock = productById?.skus?.length === 1 ? productById?.skus[0].stock_infos[0].available_stock : '';
+  const priceDataForm: number|string = productById?.skus?.length === 1 ? formatNumber(productById?.skus[0]?.price?.original_price ?? '') : '';
+  const availableDataForm: number|string = productById?.skus?.length === 1 ? formatNumber(productById?.skus[0]?.stock_infos[0]?.available_stock ?? '') : '';
+  const skuDataForm: number|string = productById?.skus?.length === 1 ? formatNumber(productById?.skus[0]?.seller_sku ?? '') : '';
+  const warehouse_id: string = productById?.skus?.length === 1 ? productById?.skus[0]?.stock_infos[0]?.warehouse_id : '';
+  const available_stock: number = productById?.skus?.length === 1 ? productById?.skus[0]?.stock_infos[0]?.available_stock : '';
 
   const getImageBase64 = () => {
     const imgBase64List = imgBase64?.filter((item: any) => item.thumbUrl);

@@ -5,11 +5,11 @@ import React from 'react';
 
 import { getPathByIndex } from '../../utils';
 
-function PromotionSelectedProduct({ data, promotionType, discount }) {
+function PromotionSelectedProduct({ data, promotionType, discount }: any) {
   const shopId = getPathByIndex(2);
 
-  const expandedRowRender = (record) => {
-    const columnsRow = [
+  const expandedRowRender = (record: any) => {
+    const columnsRow: any = [
       {
         title: 'SKU Name',
         dataIndex: 'seller_sku',
@@ -20,7 +20,7 @@ function PromotionSelectedProduct({ data, promotionType, discount }) {
         dataIndex: 'price',
         key: 'price',
         align: 'center',
-        render: (text) => (
+        render: (text: any) => (
           <p>
             <span>$</span>
             <span>{text.original_price}</span>
@@ -32,7 +32,7 @@ function PromotionSelectedProduct({ data, promotionType, discount }) {
         dataIndex: 'price',
         key: 'price',
         align: 'center',
-        render: (text) => {
+        render: (text: any) => {
           const dealPrice = Number(text.original_price) - Number(text.original_price) * (discount / 100);
           return (
             <p>
@@ -54,7 +54,7 @@ function PromotionSelectedProduct({ data, promotionType, discount }) {
     );
   };
 
-  const columns = [
+  const columns: any = [
     // Table.EXPAND_COLUMN,
     {
       title: 'Product Id',
@@ -72,13 +72,17 @@ function PromotionSelectedProduct({ data, promotionType, discount }) {
       key: 'actions',
       align: 'center',
       width: '100px',
-      render: (_, record) => (
+      render: (_: any, record: any) => (
         <Link to={`/shops/${shopId}/products/${record.id}`} target="_blank">
-          <EyeOutlined />
+          <EyeOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
         </Link>
       ),
     },
   ];
+
+  function handleRowClick(record: any): void {
+    throw new Error('Function not implemented.');
+  }
 
   return (
     <div className="w-full">

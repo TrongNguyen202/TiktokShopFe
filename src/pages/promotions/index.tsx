@@ -117,10 +117,10 @@ function Promotion() {
       }
 
       const promotions = data.promotion_list.map((promotion: PromotionProps) => {
-        const begin_time: string = new Date((promotion.begin_time as number) * 1000).toLocaleString('en-US', {
+        const begin_time: string = new Date((promotion.begin_time as unknown as number) * 1000).toLocaleString('en-US', {
           timeZone: 'America/Los_Angeles',
         });
-        const end_time: string = new Date((promotion.end_time as number) * 1000).toLocaleString('en-US', {
+        const end_time: string = new Date((promotion.end_time as unknown as number) * 1000).toLocaleString('en-US', {
           timeZone: 'America/Los_Angeles',
         });
         return {
@@ -184,7 +184,7 @@ function Promotion() {
             <Button type="primary" disabled={!promotionSelected.length} onClick={handleInactivePromotion}>
               Stop promotion ({promotionSelected?.length || '0'})
               {promotionSelected.length > 0 && loading && (
-                <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />
+                <Spin indicator={<LoadingOutlined className="text-white ml-3" onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />} />
               )}
             </Button>
           </div>

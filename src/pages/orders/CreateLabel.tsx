@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Table, Popover, Image, Button, Modal, Form, Input, Radio, Space, Spin, message } from 'antd';
 import { DownOutlined, EditOutlined, LoadingOutlined } from '@ant-design/icons';
 
 import { getPathByIndex } from '../../utils';
 import { OrderPackageWeightSize } from '../../constants';
+import { CreateLabelData, CreateLabelType, orderDetail, shippingService } from '../../types/order';
 
 import { useShopsOrder } from '../../store/ordersStore';
 
@@ -15,10 +16,10 @@ function CreateLabel() {
   const shopId = getPathByIndex(2);
   const [open, setOpen] = useState(false);
   const [startFulfillment, setStartFulfillment] = useState(false);
-  const [tableData, setTableData] = useState([]);
+  const [tableData, setTableData] = useState<any>([]);
   const [shippingServiceData, setShippingServiceData] = useState([]);
   const [dataSizeChart, setDataSizeChart] = useState(OrderPackageWeightSize);
-  const [buyLabelSelected, setBuyLabelSelected] = useState([]);
+  const [buyLabelSelected, setBuyLabelSelected] = useState<CreateLabelType[]>([]);
   const { buyLabel, shippingService, getShippingDoc, getPackageBought, loading } = useShopsOrder((state) => state);
   const [messageApi, contextHolder] = message.useMessage();
   const dataSizeChartConvert = dataSizeChart
@@ -30,25 +31,26 @@ function CreateLabel() {
       })),
     )
     .flat();
-  const dataCombineConvert = dataCombine.map((item, index) => ({
+  const dataCombineConvert = dataCombine.map((item: any, index: number) => ({
     key: index + 1,
     ...item,
   }));
 
-  const dataTableWeightSize = (dataInput) => {
-    const labelItems = dataInput.map((label) => {
-      const orderList = label.data.order_info_list?.map((order) => {
+  const dataTableWeightSize = (dataInput: CreateLabelType[]) => {
+    const labelItems = dataInput.map((label: CreateLabelType) => {
+      const orderList = label.data.order_info_list?.map((order: orderDetail) => {
         const orderItemList = order?.item_list || order?.sku_list;
         const productList = orderItemList?.map((product) => {
           let variationSize = '';
-          const variationSplit = product?.sku_name.split(',').map((item) => item.trim());
+          const variationSplit: any = product?.sku_name.split(',').map((item) => item.trim());
           if (variationSplit.length === 3) {
-            variationSize = variationSplit[1] - variationSplit[2];
+            variationSize = (variationSplit[1] - variationSplit[2]).toString();
           } else {
             variationSize = variationSplit[1];
           }
 
-          const variationSizeSplit = variationSize?.split(/[\s-,]/).filter(Boolean);
+          const variationSizeSplit = variationSize?.split(/[\s,-]/).filter(Boolean);
+
           let orderPackageList = dataSizeChart?.find((variant) =>
             variationSizeSplit?.find((item) => item.toUpperCase() === variant.name.toUpperCase()),
           );
@@ -62,10 +64,10 @@ function CreateLabel() {
           );
 
           if (orderPackageSizeChart === undefined) {
-            orderPackageSizeChart = dataSizeChart.find((orderPackage) => orderPackage.name === 'shirt').items[0];
+            orderPackageSizeChart = dataSizeChart.find((orderPackage) => orderPackage.name === 'shirt')?.items[0];
           }
 
-          const orderPackageWeight = Number(orderPackageSizeChart.weight) * Number(product.quantity);
+          const orderPackageWeight = Number(orderPackageSizeChart?.weight) * Number(product.quantity);
           const orderPackageSize = orderPackageSizeChart?.size;
           return { orderPackageWeight, orderPackageSize };
         });
@@ -79,7 +81,7 @@ function CreateLabel() {
       });
 
       let packageWeight = orderList
-        .map((item) => parseFloat(item.sumWeight))
+        .map((item: any) => parseFloat(item.sumWeight))
         .reduce((partialSum, current) => partialSum + current, 0);
       packageWeight = parseFloat(packageWeight.toFixed(4));
       const sumPackageCombine = {
@@ -102,12 +104,12 @@ function CreateLabel() {
     getPackageBought();
   }, [dataCombine, dataSizeChart]);
 
-  const renderListItemProduct = (data) => {
-    const skuList = data.order_info_list.map((item) => (item.item_list ? item.item_list : item.sku_list));
-    return skuList.map((skuItem, index) => {
+  const renderListItemProduct = (data: CreateLabelData) => {
+    const skuList = data.order_info_list.map((item: orderDetail) => (item.item_list ? item.item_list : item.sku_list));
+    return skuList.map((skuItem: any, index: number) => {
       return (
         <>
-          {skuItem.map((item) => (
+          {skuItem.map((item: any) => (
             <div key={index}>
               <div className="flex justify-between items-center gap-3 mt-3 w-[400px]">
                 <div className="flex items-center gap-2">
@@ -128,12 +130,10 @@ function CreateLabel() {
     });
   };
 
-  const handleUpdatePackage = (e, key, index) => {
-    const dataUpdate = [...tableData];
-
+  const handleUpdatePackage = (e: React.ChangeEvent<HTMLInputElement>, key: string, index: number): void => {
+    const dataUpdate: any = [...tableData];
     if (key.includes('package_size')) {
-      // const originalSize = dataTableConvert[index];
-      const position = key.slice(key.lastIndexOf('_') + 1);
+      const position = parseInt(key.slice(key.lastIndexOf('_') + 1), 10);
       dataUpdate[index].package_size[position] = e.target.value;
     } else {
       dataUpdate[index][key] = parseFloat(e.target.value);
@@ -141,7 +141,7 @@ function CreateLabel() {
     setTableData(dataUpdate);
   };
 
-  const handleUpdateSizeChart = (values) => {
+  const handleUpdateSizeChart = (values: any) => {
     const hasTypePosition = Object.keys(values)
       .map((key) => ({ index: key, type: values[key].type }))
       .filter((item) => item.type !== undefined)
@@ -157,9 +157,9 @@ function CreateLabel() {
 
     const result = Object.values(values).slice(hasTypePosition[hasTypePosition.length - 1]);
     sizeChartSplice.push(result);
-    const sizeChartUpdate = sizeChartSplice.map((itemUpdate) => ({
+    const sizeChartUpdate = sizeChartSplice.map((itemUpdate: any) => ({
       name: itemUpdate[0].type,
-      items: itemUpdate.map((item) => ({
+      items: itemUpdate.map((item: any) => ({
         name: item.name,
         weight: item.weight,
         size: item.size,
@@ -169,7 +169,7 @@ function CreateLabel() {
     setOpen(false);
   };
 
-  const contentPopover = (data, key, index) => {
+  const contentPopover = (data: string[], key: string, index: number) => {
     return (
       <>
         {key === 'size' && (
@@ -219,27 +219,27 @@ function CreateLabel() {
     );
   };
 
-  const handleGetShippingService = (newStatus, packageId) => {
-    const onSuccess = (res) => {
+  const handleGetShippingService = (newStatus: boolean, packageId: string) => {
+    const onSuccess = (res: any) => {
       if (res) {
         const shippingService = res.data;
         setShippingServiceData(shippingService);
       }
     };
 
-    const onFail = (err) => {
+    const onFail = (err: string) => {
       messageApi.open({
         type: 'error',
         content: `Không lấy được thông tin vận chuyển khác. ${err}`,
       });
     };
 
-    if (newStatus === true) {
+    if (newStatus === true && shopId) {
       shippingService(shopId, packageId, onSuccess, onFail);
     }
   };
 
-  const handleChangeShippingService = (e, index) => {
+  const handleChangeShippingService = (e: any, index: number) => {
     const shippingService = e.target.value.split('-');
     const dataShippingServiceUpdate = [...tableData];
     dataShippingServiceUpdate[index].data.shipping_provider_id = shippingService[0];
@@ -247,14 +247,14 @@ function CreateLabel() {
     setTableData(dataShippingServiceUpdate);
   };
 
-  const contentPopoverShipping = (index) => {
+  const contentPopoverShipping = (index: number) => {
     return (
       <div className="p-5">
         <Spin spinning={loading}>
           <Radio.Group onChange={(e) => handleChangeShippingService(e, index)}>
             <Space direction="vertical">
               {shippingServiceData.length > 0 &&
-                shippingServiceData.map((item) => (
+                shippingServiceData.map((item: shippingService) => (
                   <Radio key={item.id} value={`${item.id}-${item.name}`}>
                     {item.name}
                   </Radio>
@@ -267,13 +267,13 @@ function CreateLabel() {
   };
 
   const rowSelection = {
-    onChange: (_, selectedRows) => {
+    onChange: (_: any, selectedRows: CreateLabelType[]) => {
       setBuyLabelSelected(selectedRows);
     },
   };
 
   const handleBuyLabel = () => {
-    const dataBuyLabel = buyLabelSelected.map((item) => ({
+    const dataBuyLabel = buyLabelSelected.map((item: any) => ({
       dimension: {
         length: item.package_size[0],
         width: item.package_size[1],
@@ -294,7 +294,7 @@ function CreateLabel() {
 
       setStartFulfillment(true);
     };
-    buyLabel(shopId, dataBuyLabel, onSuccess, (err) => console.log(err));
+    if (shopId) buyLabel(shopId, dataBuyLabel, onSuccess, (err) => console.log(err));
   };
 
   const handleStartFulfillment = () => {
@@ -302,7 +302,7 @@ function CreateLabel() {
       package_ids: buyLabelSelected.map((label) => label.data.package_id),
     };
 
-    const onSuccess = (res) => {
+    const onSuccess = (res: any) => {
       if (res) {
         const shippingDocData = buyLabelSelected.map((item, index) => ({
           order_list: item.data.order_info_list,
@@ -315,10 +315,10 @@ function CreateLabel() {
       }
     };
 
-    getShippingDoc(shopId, packageIds, onSuccess, (err) => console.log(err));
+    if (shopId) getShippingDoc(shopId, packageIds, onSuccess, (err) => console.log(err));
   };
 
-  const columns = [
+  const columns: any = [
     {
       title: 'STT',
       dataIndex: 'key',
@@ -329,21 +329,21 @@ function CreateLabel() {
       title: 'Đơn hàng',
       dataIndex: 'combine_item',
       key: 'combine_item',
-      render: (_, record) => <p>{record.data.order_info_list.length} orders combined</p>,
+      render: (_: any, record: CreateLabelType) => <p>{record.data.order_info_list.length} orders combined</p>,
     },
     {
       title: 'Sản phẩm',
       dataIndex: 'items',
       key: 'items',
-      render: (_, record) => {
+      render: (_: any, record: CreateLabelType) => {
         const sumItem = record.data.order_info_list
-          .map((item) => {
-            if (item.item_list && item.item_list.length > 0) {
-              return item.item_list.length;
-            }
-            return item.sku_list.length;
-          })
-          .reduce((partialSum, a) => partialSum + a, 0);
+        .map((item: orderDetail) => {
+          if (item.item_list && item.item_list.length > 0) {
+            return item.item_list.length;
+          }
+          return item?.sku_list?.length ?? 0;
+        })
+        .reduce((partialSum: number, a: number) => partialSum + a, 0);
 
         return (
           <Popover
@@ -366,7 +366,7 @@ function CreateLabel() {
                   })}
                 </ul>
               </div>
-              <DownOutlined />
+              <DownOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
             </div>
           </Popover>
         );
@@ -377,7 +377,7 @@ function CreateLabel() {
       dataIndex: 'package_weight',
       key: 'package_weight',
       align: 'center',
-      render: (_, record, index) => {
+      render: (_: any, record: any, index: number) => {
         return (
           <Popover
             title="Sửa cân nặng"
@@ -389,7 +389,7 @@ function CreateLabel() {
               {record.package_weight} <span>lb</span>
             </p>
             <span className="cursor-pointer absolute top-[50%] right-5 -translate-y-[50%]">
-              <EditOutlined />
+              <EditOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
             </span>
           </Popover>
         );
@@ -400,7 +400,7 @@ function CreateLabel() {
       dataIndex: 'package-size',
       key: 'package-size',
       align: 'center',
-      render: (_, record, index) => {
+      render: (_: any, record: any, index: number) => {
         return (
           <Popover
             title="Sửa kích thước"
@@ -412,7 +412,7 @@ function CreateLabel() {
               {record.package_size[0]} x {record.package_size[1]} x {record.package_size[2]} <span>in</span>
             </p>
             <span className="cursor-pointer absolute top-[50%] right-5 -translate-y-[50%]">
-              <EditOutlined />
+              <EditOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
             </span>
           </Popover>
         );
@@ -422,7 +422,7 @@ function CreateLabel() {
       title: 'Vận chuyển',
       dataIndex: 'shipping_provider',
       key: 'shipping_provider',
-      render: (_, record, index) => {
+      render: (_: any, record: any, index: number) => {
         const shippingServiceData = {
           package_id: record.data.package_id,
         };
@@ -436,7 +436,7 @@ function CreateLabel() {
           >
             <p className="flex-1">{record.data.shipping_provider}</p>
             <span className="cursor-pointer absolute top-[50%] right-5 -translate-y-[50%]">
-              <EditOutlined />
+              <EditOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
             </span>
           </Popover>
         );
@@ -444,25 +444,25 @@ function CreateLabel() {
     },
   ];
 
-  const columnsSizeChart = [
+  const columnsSizeChart: any = [
     {
       title: 'Loại',
       dataIndex: 'type',
       key: 'type',
       align: 'center',
-      render: (text, _, index) => (
+      render: (text: string, _: any, index: number) => (
         <Form.Item name={[index, 'type']} initialValue={text}>
           <Input className="pointer-events-none border-0 text-center bg-transparent" />
         </Form.Item>
       ),
-      onCell: (record) => ({ rowSpan: record.rowSpan }),
+      onCell: (record: any) => ({ rowSpan: record.rowSpan }),
     },
     {
       title: 'Tên',
       dataIndex: 'name',
       key: 'name',
       align: 'center',
-      render: (text, _, index) => (
+      render: (text: string, _: any, index: number) => (
         <Form.Item name={[index, 'name']} initialValue={text}>
           <Input className="pointer-events-none border-0 text-center bg-transparent" />
         </Form.Item>
@@ -473,7 +473,7 @@ function CreateLabel() {
       dataIndex: 'weight',
       key: 'weight',
       align: 'center',
-      render: (text, _, index) => (
+      render: (text: string, _: any, index: number) => (
         <Form.Item name={[index, 'weight']} initialValue={text}>
           <Input className="text-center" />
         </Form.Item>
@@ -484,7 +484,7 @@ function CreateLabel() {
       dataIndex: 'size',
       key: 'size',
       align: 'center',
-      render: (text, _, index) => (
+      render: (text: string, _: any, index: number) => (
         <Form.Item name={[index, 'size']} initialValue={text}>
           <Input className="text-center" />
         </Form.Item>
@@ -500,7 +500,7 @@ function CreateLabel() {
           <Button type="primary" onClick={handleStartFulfillment}>
             Fulfillment &nbsp;<span>({buyLabelSelected.length})</span>
             {buyLabelSelected.length > 0 && loading && (
-              <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />
+              <Spin indicator={<LoadingOutlined className="text-white ml-3" onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />} />
             )}
           </Button>
         )}
@@ -508,7 +508,7 @@ function CreateLabel() {
           <Button type="primary" onClick={handleBuyLabel} disabled={!buyLabelSelected.length}>
             Mua Label &nbsp;<span>({buyLabelSelected.length})</span>
             {buyLabelSelected.length > 0 && loading && (
-              <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />
+              <Spin indicator={<LoadingOutlined className="text-white ml-3" onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />} />
             )}
           </Button>
         )}
