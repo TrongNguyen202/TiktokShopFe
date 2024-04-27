@@ -10,8 +10,10 @@ interface PromotionsStore {
   getPromotions: (
     shopId: string,
     pageNumber: number,
-    onSuccess: (data: any) => void,
-    onFail: (data: any) => void,
+    searchValue: string,
+    filterStatus: string,
+    onSuccess?: (data: any) => void,
+    onFail?: (data: any) => void,
   ) => void;
   getPromotionDetail: (
     shopId: string,
@@ -44,10 +46,10 @@ interface PromotionsStore {
 export const usePromotionsStore = create<PromotionsStore>((set, get: any) => ({
   promotions: [],
   loading: false,
-  getPromotions: async (shopId, pageNumber, onSuccess, onFail) => {
+  getPromotions: async (shopId, pageNumber, searchValue, filterStatus, onSuccess, onFail) => {
     try {
       set({ loading: true });
-      const response = await RepositoryRemote.promotions.getPromotions(shopId, pageNumber);
+      const response = await RepositoryRemote.promotions.getPromotions(shopId, pageNumber, searchValue, filterStatus);
       const data = response?.data;
       if (data.success === false) {
         alerts.error(data.message);
@@ -56,9 +58,9 @@ export const usePromotionsStore = create<PromotionsStore>((set, get: any) => ({
 
       set({ promotions: [...get().promotions, data.promotion_list] });
 
-      onSuccess(promotions);
+      if (onSuccess) onSuccess(promotions);
     } catch (error) {
-      onFail(handleAxiosError(error));
+      if (onFail) onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },

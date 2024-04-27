@@ -7,17 +7,6 @@ function ProductCreateShipping() {
   return (
     <>
       <ProductSectionTitle title="Thông tin vận chuyển" />
-      {/* <Row gutter={30}>
-                <Col md={{ span: 6 }} span={24}>
-                    <Form.Item name='is_cod_open' label='Chấp nhận thanh toán khi nhận hàng: '>
-                        <Switch {...(isProductCreate && { defaultChecked: true })}
-                            checkedChildren='Bật'
-                            unCheckedChildren='Tắt'
-                        />
-                    </Form.Item>
-                </Col>
-            </Row> */}
-
       <Row gutter={30}>
         <Col md={{ span: 6 }} span={12}>
           <Form.Item

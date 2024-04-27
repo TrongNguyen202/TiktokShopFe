@@ -62,7 +62,7 @@ function OrderCompleteFulfillment() {
   const flashShipTokenExpiration = getTokenKey('flash-ship-tk-expiration');
   const [messageApi, contextHolder] = message.useMessage();
   const [dataPackage, setDataPackage] = useState<DataPackage[]>([]);
-  const [dataOrderDetail, setDataOrderDetail] = useState({} as DataOrderDetail);
+  const [dataOrderDetail, setDataOrderDetail] = useState<DataOrderDetail>({});
   const [rejectOrderNote, setRejectOrderNote] = useState<RejectOrderNote | null>(null);
   const [rejectOrder, setRejectOrder] = useState<RejectOrder | null>(null);
   const [openLoginFlashShip, setOpenLoginFlashShip] = useState(false);

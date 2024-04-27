@@ -6,10 +6,10 @@ import { Link } from 'react-router-dom';
 import { getPathByIndex } from '../../utils';
 import { usePromotionsStore } from '../../store/promotionsStore';
 
-function PromotionProduct({ changeStatusModal, dataProductSelected, promotionType }) {
+function PromotionProduct({ changeStatusModal, dataProductSelected, promotionType }: any) {
   const shopId = getPathByIndex(2);
-  const [productSelect, setProductSelect] = useState([]);
-  const [productSelected, setProductSelected] = useState([]);
+  const [productSelect, setProductSelect] = useState<any>([]);
+  const [productSelected, setProductSelected] = useState<any>([]);
   const { listProductNoDiscount, listProductNoFlashDeal, loading } = usePromotionsStore((state) => state);
   const handleDone = () => {
     dataProductSelected(productSelected);
@@ -17,12 +17,12 @@ function PromotionProduct({ changeStatusModal, dataProductSelected, promotionTyp
   };
 
   const rowSelection = {
-    onChange: (_, selectedRows) => {
+    onChange: (_: any, selectedRows: any) => {
       setProductSelected(selectedRows);
     },
   };
 
-  const columns = [
+  const columns: any = [
     {
       title: 'Product Id',
       dataIndex: 'id',
@@ -39,9 +39,9 @@ function PromotionProduct({ changeStatusModal, dataProductSelected, promotionTyp
       key: 'actions',
       align: 'center',
       width: '100px',
-      render: (_, record) => (
+      render: (_: any, record:any) => (
         <Link to={`/shops/${shopId}/products/${record.id}`} target="_blank">
-          <EyeOutlined />
+          <EyeOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
         </Link>
       ),
     },
@@ -55,10 +55,12 @@ function PromotionProduct({ changeStatusModal, dataProductSelected, promotionTyp
     };
 
     const OnFail = () => {};
-    if (promotionType === 'FlashSale') {
-      listProductNoFlashDeal(shopId, onSuccess, OnFail);
-    } else {
-      listProductNoDiscount(shopId, onSuccess, OnFail);
+    if (shopId) {
+      if (promotionType === 'FlashSale') {
+        listProductNoFlashDeal(shopId, onSuccess, OnFail);
+      } else {
+        listProductNoDiscount(shopId, onSuccess, OnFail);
+      }
     }
   }, [shopId]);
   return (

@@ -7,11 +7,16 @@ import { useAuthStore } from '../../store/authStore';
 import { alerts } from '../../utils/alerts';
 import { setToken } from '../../utils/auth';
 
+interface LoginProps {
+  username: string;
+  password: string;
+}
+
 function Login() {
   const navigate = useNavigate();
   const { login, loading } = useAuthStore((state) => state);
 
-  const onSubmit = (value: any) => {
+  const onSubmit = (value: LoginProps) => {
     const onSuccess = (token: string) => {
       setToken('tk-tk', token);
       navigate(PATH.HOME);

@@ -26,8 +26,8 @@ interface CategoriesStore {
   recommendCategory: (
     shopId: string,
     data: Record<string, unknown>,
-    onSuccess: (data: any) => void,
-    onFail: (data: any) => void,
+    onSuccess?: (data: any) => void,
+    onFail?: (data: any) => void,
   ) => void;
 }
 

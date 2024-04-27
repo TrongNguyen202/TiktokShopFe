@@ -16,10 +16,11 @@ import {
   Tooltip,
   message,
 } from 'antd';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import dayjs from 'dayjs';
+import { RangeValue } from 'rc-picker/lib/interface';
 import { statusOrder } from '../../constants/index';
 import { useShopsOrder } from '../../store/ordersStore';
 import { getPathByIndex } from '../../utils';
@@ -27,6 +28,8 @@ import { formatDate } from '../../utils/date';
 
 import PageTitle from '../../components/common/PageTitle';
 import OrderCombinable from './OrderCombinable';
+import { OrderDistrictInfo, orderLineList, packageList, PaymentInfo, recipientAddress } from '../../types';
+import { orderDetail, itemList } from '../../types/order';
 
 const { RangePicker } = DatePicker;
 const rangePresets = [
@@ -41,14 +44,15 @@ function Orders() {
   const shopId = getPathByIndex(2);
   const navigate = useNavigate();
   const location = useLocation();
+  const [form] = Form.useForm();
   const [open, setOpen] = useState(false);
   const [openFilterDate, setOpenFilterDate] = useState(false);
   const [reasonRejectOrder, setReasonRejectOrder] = useState('');
   const [openOrderCustom, setOpenOrderCustom] = useState(false);
-  const [orderCustomEdit, setOrderCustomEdit] = useState({});
-  const [searchText, setSearchText] = useState('');
+  const [orderCustomEdit, setOrderCustomEdit] = useState<any>({});
+  const [searchText, setSearchText] = useState<any>('');
   const [orderSelected, setOrderSelected] = useState([]);
-  const [orderDataTable, setOrderDataTable] = useState([]);
+  const [orderDataTable, setOrderDataTable] = useState<orderDetail[]>([]);
   const [messageApi, contextHolder] = message.useMessage();
   const {
     getAllOrders,
@@ -64,9 +68,8 @@ function Orders() {
     loadingFulfillment,
     loadingRejectOrder,
   } = useShopsOrder((state) => state);
-
-  const sortByPackageId = (arr) => {
-    const grouped = arr.reduce((acc, item) => {
+  const sortByPackageId = (arr: orderDetail[]) => {
+    const grouped: { [key: string]: orderDetail[] } = arr.reduce((acc, item) => {
       const key = item.package_list.length > 0 ? item.package_list[0].package_id : null;
       if (!acc[key]) {
         acc[key] = [];
@@ -74,18 +77,16 @@ function Orders() {
       acc[key].push(item);
       return acc;
     }, {});
-
     const sortedGroups = Object.values(grouped).sort((a, b) => {
-      if (a[0].package_id < b[0].package_id) return -1;
-      if (a[0].package_id > b[0].package_id) return 1;
+      if (a[0].package_list[0].package_id < b[0].package_list[0].package_id) return -1;
+      if (a[0].package_list[0].package_id > b[0].package_list[0].package_id) return 1;
       return 0;
     });
-
     const sortedArray = [].concat(...sortedGroups);
     return sortedArray;
   };
 
-  const renderListItemProduct = (record) => {
+  const renderListItemProduct = (record: orderDetail) => {
     const { item_list } = record;
     return item_list.map((item, index) => {
       return (
@@ -115,15 +116,21 @@ function Orders() {
     });
   };
 
-  const onRangeChange = (dates, dateStrings, confirm, dataIndex, setSelectedKeys) => {
+  const onRangeChange: any = (
+    dates: RangeValue<dayjs.Dayjs>,
+    dateStrings: string,
+    confirm: () => void,
+    dataIndex: any,
+    setSelectedKeys: (arg0: any) => void,
+  ) => {
     confirm();
     setSelectedKeys(dateStrings);
     setSearchText(dateStrings);
   };
 
-  const getColumnSearchProps = (dataIndex) => ({
+  const getColumnSearchProps = (dataIndex: any): any => ({
     // eslint-disable-next-line react/no-unstable-nested-components
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => {
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }: any) => {
       return (
         <div onKeyDown={(e) => e.stopPropagation()} className="px-5 py-3">
           <RangePicker
@@ -131,9 +138,7 @@ function Orders() {
             presets={[...rangePresets]}
             format="DD/MM/YYYY"
             onOk={false}
-            onChange={(date, dateStrings) =>
-              onRangeChange(date, dateStrings, confirm, dataIndex, setSelectedKeys, selectedKeys)
-            }
+            onChange={(date, dateStrings) => onRangeChange(date, dateStrings, confirm, dataIndex, setSelectedKeys)}
           />
 
           <Space className="mt-3 ml-3">
@@ -172,12 +177,17 @@ function Orders() {
     },
 
     // eslint-disable-next-line react/no-unstable-nested-components
-    filterIcon: (filtered) => (
-      <SearchOutlined onClick={() => setOpenFilterDate(!openFilterDate)} className={filtered ? '#1677ff' : undefined} />
+    filterIcon: (filtered: string) => (
+      <SearchOutlined
+        onClick={() => setOpenFilterDate(!openFilterDate)}
+        className={filtered ? '#1677ff' : undefined}
+        onPointerEnterCapture={undefined}
+        onPointerLeaveCapture={undefined}
+      />
     ),
     filterDropdownOpen: openFilterDate,
 
-    onFilter: (value, record) => {
+    onFilter: (value: string, record: orderDetail) => {
       if (searchText.length === 2) {
         const startDate = dayjs(searchText[0], 'DD/MM/YYYY').startOf('day').valueOf();
         const endDate = dayjs(searchText[1], 'DD/MM/YYYY').endOf('day').valueOf();
@@ -187,7 +197,7 @@ function Orders() {
 
       return false;
     },
-    render: (text) => formatDate(Number(text), 'DD/MM/YYYY, hh:mm:ss a'),
+    render: (text: string) => formatDate(Number(text), 'DD/MM/YYYY, hh:mm:ss a'),
   });
 
   const handleGetAllCombine = () => {
@@ -206,27 +216,39 @@ function Orders() {
       console.log(err);
     };
 
-    getAllCombine(shopId, onSuccess, onFail);
+    if (shopId) getAllCombine(shopId, onSuccess, onFail);
   };
 
-  const handleOpenModal = (isOpenModal) => {
+  const handleOpenModal = (isOpenModal: boolean) => {
     setOpen(isOpenModal);
-    getAllOrders(shopId);
+    if (shopId) getAllOrders(shopId);
   };
 
-  const handleOpenModalOrderCustom = (orderId) => {
-    const orderCustom = orderDataTable.find((order) => order.order_id === orderId);
-    setOpenOrderCustom(true);
-    setOrderCustomEdit(orderCustom);
+  const handleOpenModalOrderCustom = (orderId: string) => {
+    const orderCustom: any = orderDataTable.find((order: orderDetail) => order.order_id === orderId);
+    if (orderCustom) {
+      const formData = orderCustom.item_list.map((item: itemList) => ({
+        sku_id: item.sku_id,
+        sku_name: item.sku_name,
+      }));
+      form.setFieldsValue(formData);
+      setOpenOrderCustom(true);
+      setOrderCustomEdit(orderCustom);
+    } else {
+      messageApi.open({
+        type: 'warning',
+        content: 'Không tìm thấy dữ liệu',
+      });
+    }
   };
 
-  const onFinishOrderCustom = (values) => {
-    const valuesArray = Object.values(values);
-    const orderCustomTable = orderDataTable.map((order) => {
+  const onFinishOrderCustom = (values: any) => {
+    const valuesArray = Object.values<any>(values);
+    const orderCustomTable = orderDataTable.map((order: orderDetail) => {
       const newOrder = { ...order };
       if (newOrder.order_id === orderCustomEdit.order_id) {
         const itemListUpdate = valuesArray.map((value) => {
-          const checkOrderEdit = order.item_list?.find((item) => item.sku_id === value.sku_id);
+          const checkOrderEdit: any = order.item_list?.find((item: any) => item.sku_id === value.sku_id);
           return {
             ...checkOrderEdit,
             sku_name: value.sku_name,
@@ -238,14 +260,15 @@ function Orders() {
 
       return newOrder;
     });
+
     setOrderDataTable(orderCustomTable);
     setOpenOrderCustom(false);
   };
 
   const handleCreateLabels = () => {
-    const onSuccess = (res: any) => {
+    const onSuccess = (res) => {
       if (res) {
-        const resConvert = res.map((resItem) => ({
+        const resConvert = res.map((resItem: { data: any }) => ({
           data: {
             ...resItem.data,
             shipping_provider: 'USPS Ground Advantage™',
@@ -259,13 +282,18 @@ function Orders() {
             const packageId = {
               package_id: item.data.package_id,
             };
-            const onSuccessShipping = (resShipping) => {
+            const onSuccessShipping = (resShipping: {
+              data: {
+                name: any;
+                id: any;
+              }[];
+            }) => {
               if (resShipping) {
                 const dataOrderCombine = resConvert
-                  .map((itemCombine) => ({
+                  .map((itemCombine: { data: { order_info_list: any[] } }) => ({
                     data: {
                       ...itemCombine.data,
-                      order_info_list: itemCombine.data.order_info_list.map((itemCombineOrder) =>
+                      order_info_list: itemCombine.data.order_info_list.map((itemCombineOrder: { order_id: any }) =>
                         orderDataTable.find((order) => order.order_id === itemCombineOrder.order_id),
                       ),
                     },
@@ -273,7 +301,7 @@ function Orders() {
                   .flat();
 
                 const dataCreateLabel = dataOrderCombine.find(
-                  (resItem) => resItem.data.package_id === packageId.package_id,
+                  (resItem: { data: { package_id: any } }) => resItem.data.package_id === packageId.package_id,
                 );
                 if (dataCreateLabel) {
                   dataCreateLabel.data.shipping_provider = resShipping.data[0].name;
@@ -322,7 +350,7 @@ function Orders() {
       package_ids: orderBoughtLabelUnique.map((item) => item.package_list[0].package_id),
     };
 
-    const onSuccess = (res: any) => {
+    const onSuccess = (res) => {
       if (res) {
         const shippingDocData = orderBoughtLabel.map((item, index) => ({
           order_list: item,
@@ -336,7 +364,7 @@ function Orders() {
     getShippingDoc(shopId, packageIds, onSuccess, (err) => console.log(err));
   };
 
-  const handleCancelOrder = (orderId) => {
+  const handleCancelOrder = (orderId: string) => {
     const dataSubmit = {
       cancel_reason_key: reasonRejectOrder,
       order_id: orderId,
@@ -365,7 +393,7 @@ function Orders() {
       });
     };
 
-    cancelOrder(shopId, dataSubmit, onSuccess, onFail);
+    if (shopId) cancelOrder(shopId, dataSubmit, onSuccess, onFail);
   };
 
   const contentRejectOrder = (
@@ -383,12 +411,14 @@ function Orders() {
   );
 
   const rowSelection = {
-    onChange: (_, selectedRows) => {
-      const selectedRowsPackageId = selectedRows.map((item) => item.package_list[0].package_id);
+    onChange: (_: any, selectedRows: any[]) => {
+      const selectedRowsPackageId = selectedRows.map(
+        (item: { package_list: { package_id: any }[] }) => item.package_list[0].package_id,
+      );
       const uniqueArray = Array.from(new Set(selectedRowsPackageId));
       setOrderSelected(uniqueArray);
     },
-    getCheckboxProps: (record) => {
+    getCheckboxProps: (record: { order_status: number; package_list: string | any[] }) => {
       const disabledStatus = [140, 130, 122, 121, 105, 100];
       const disabledLabel = packageBought.map((item) => item.package_id);
 
@@ -415,10 +445,10 @@ function Orders() {
       dataIndex: 'package_id',
       key: 'package_id',
       align: 'center',
-      render: (_, record) =>
+      render: (_: any, record: { package_list: string | any[] }) =>
         record.package_list.length > 0 ? record.package_list[0].package_id : 'Hiện chưa có package ID',
       // eslint-disable-next-line consistent-return
-      onCell: (record, index) => {
+      onCell: (record: { package_id: any; order_id: any }, index: any) => {
         const rowSpanData = orderDataTable.filter(
           (item) => item.package_id === record.package_id && item.package_id !== null,
         );
@@ -449,7 +479,21 @@ function Orders() {
       title: 'Mã đơn',
       dataIndex: 'order_code',
       key: 'order_code',
-      render: (_, record) => (
+      render: (
+        _: any,
+        record: {
+          order_id:
+            | string
+            | number
+            | boolean
+            | React.ReactElement<any, string | React.JSXElementConstructor<any>>
+            | Iterable<React.ReactNode>
+            | React.ReactPortal
+            | null
+            | undefined;
+          update_time: number;
+        },
+      ) => (
         <Link to={`/shops/${shopId}/orders/${record?.order_id}`} state={{ orderData: record }} className="font-medium">
           {record?.order_id}{' '}
           <p style={{ fontSize: 11, color: 'grey' }}>
@@ -464,7 +508,45 @@ function Orders() {
       dataIndex: 'item',
       key: 'item',
       width: 200,
-      render: (_, record) => (
+      render: (
+        _: any,
+        record: {
+          item_list: any;
+          buyer_email?: string;
+          buyer_message?: string | undefined;
+          buyer_uid?: string;
+          cancel_order_sla?: number;
+          create_time?: string;
+          delivery_option?: string;
+          delivery_option_description?: string;
+          delivery_option_id?: string;
+          delivery_option_type?: number;
+          delivery_sla?: number;
+          district_info_list?: OrderDistrictInfo[];
+          ext_status?: number;
+          fulfillment_type?: number;
+          is_cod?: boolean;
+          is_sample_order?: boolean;
+          order_id?: string;
+          order_line_list?: orderLineList[];
+          order_status?: number;
+          package_list?: packageList[];
+          paid_time?: number;
+          payment_info?: PaymentInfo;
+          payment_method?: string;
+          payment_method_name?: string;
+          payment_method_type?: number;
+          receiver_address_updated?: number;
+          recipient_address?: recipientAddress;
+          rts_sla?: number;
+          shipping_provider?: string;
+          shipping_provider_id?: string;
+          tracking_number?: string;
+          tts_sla?: string;
+          update_time?: string;
+          warehouse_id?: string;
+        },
+      ) => (
         <Popover
           content={renderListItemProduct(record)}
           title={`${record.item_list.length} sản phẩm`}
@@ -475,18 +557,24 @@ function Orders() {
             <div className="flex justify-between">
               <p className="text-[13px] font-semibold">{record?.item_list?.length} sản phẩm</p>
               <p>
-                <DownOutlined className="text-[12px]" />
+                <DownOutlined
+                  className="text-[12px]"
+                  onPointerEnterCapture={undefined}
+                  onPointerLeaveCapture={undefined}
+                />
               </p>
             </div>
             <div className="-my-[12px] flex gap-1">
-              {record?.item_list?.map((item, index) => (
-                <div
-                  key={index}
-                  className=" last:border-b-0 py-1 px-[8px] -mx-[8px] h-[53px] flex flex-wrap items-center"
-                >
-                  <img src={item?.sku_image} className="w-[26px] h-[26px] object-cover" />
-                </div>
-              ))}
+              {record?.item_list?.map(
+                (item: { sku_image: string | undefined }, index: React.Key | null | undefined) => (
+                  <div
+                    key={index}
+                    className=" last:border-b-0 py-1 px-[8px] -mx-[8px] h-[53px] flex flex-wrap items-center"
+                  >
+                    <img src={item?.sku_image} className="w-[26px] h-[26px] object-cover" />
+                  </div>
+                ),
+              )}
             </div>
           </div>
         </Popover>
@@ -496,12 +584,13 @@ function Orders() {
       title: 'Trạng thái đơn hàng',
       dataIndex: 'order_status',
       key: 'order_status',
-      onFilter: (value, record) => record.order_status === value,
+      onFilter: (value: any, record: { order_status: any }) => record.order_status === value,
       filters: statusOrder?.map((item) => ({
         text: item.title,
         value: item.value,
       })),
-      render: (text) => statusOrder.map((item) => item.value === text && <Tag color={item.color}>{item.title}</Tag>),
+      render: (text: number) =>
+        statusOrder.map((item) => item.value === text && <Tag color={item.color}>{item.title}</Tag>),
     },
     {
       title: 'Thời gian tạo đơn',
@@ -519,7 +608,7 @@ function Orders() {
       dataIndex: 'action',
       key: 'action',
       align: 'center',
-      render: (_, record) => (
+      render: (_: any, record: { order_id: string }) => (
         <div className="flex flex-wrap items-center justify-center gap-5">
           <Tooltip
             placement="top"
@@ -527,7 +616,7 @@ function Orders() {
             className="cursor-pointer w-[30px] h-[30px] leading-[30px]"
           >
             <span onClick={() => handleOpenModalOrderCustom(record.order_id)}>
-              <EditOutlined />
+              <EditOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
             </span>
           </Tooltip>
 
@@ -538,7 +627,7 @@ function Orders() {
               onConfirm={() => handleCancelOrder(record.order_id)}
               className="w-[30px] h-[30px] leading-[30px]"
             >
-              <DeleteOutlined />
+              <DeleteOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
             </Popconfirm>
           </Tooltip>
         </div>
@@ -549,8 +638,8 @@ function Orders() {
   useEffect(() => {
     const onSuccess = (res: any) => {
       if (res) {
-        const orderList = res?.flatMap((order) => order?.data?.order_list);
-        const orderListSort = sortByPackageId(orderList).map((item, index) => ({
+        const orderList: any = res?.flatMap((order: { data: { order_list: any } }) => order?.data?.order_list);
+        const orderListSort: any = sortByPackageId(orderList).map((item: any, index: number) => ({
           key: index + 1,
           package_id: item.package_list.length ? item.package_list[0].package_id : null,
           ...item,
@@ -559,25 +648,49 @@ function Orders() {
       }
     };
     const onFail = () => {};
-    getAllOrders(shopId, onSuccess, onFail);
+    if (shopId) getAllOrders(shopId, onSuccess, onFail);
     getPackageBought();
   }, [location.state, shopId]);
 
   return (
     <div className="p-3 md:p-10">
       {contextHolder}
-      <PageTitle title="Danh sách đơn hàng" showBack count={orderDataTable?.length ? orderDataTable?.length : '0'} />
+      <PageTitle
+        title="Danh sách đơn hàng"
+        showBack
+        count={orderDataTable?.length ? Number(orderDataTable?.length) : 0}
+      />
       <Space className="mb-3">
         <Button type="primary" onClick={handleGetAllCombine}>
           Get All Combinable
         </Button>
         <Button type="primary" onClick={handleStartFulfillment}>
           Fulfillment
-          {loadingFulfillment && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
+          {loadingFulfillment && (
+            <Spin
+              indicator={
+                <LoadingOutlined
+                  className="text-white ml-3"
+                  onPointerEnterCapture={undefined}
+                  onPointerLeaveCapture={undefined}
+                />
+              }
+            />
+          )}
         </Button>
         <Button type="primary" onClick={handleCreateLabels} disabled={!orderSelected.length}>
           Create Label &nbsp;<span>({orderSelected.length})</span>
-          {orderSelected.length > 0 && loading && <Spin indicator={<LoadingOutlined className="text-white ml-3" />} />}
+          {orderSelected.length > 0 && loading && (
+            <Spin
+              indicator={
+                <LoadingOutlined
+                  className="text-white ml-3"
+                  onPointerEnterCapture={undefined}
+                  onPointerLeaveCapture={undefined}
+                />
+              }
+            />
+          )}
         </Button>
       </Space>
       <Table
@@ -613,8 +726,8 @@ function Orders() {
         width={1000}
         footer={false}
       >
-        <Form onFinish={onFinishOrderCustom}>
-          {orderCustomEdit?.item_list?.map((item, index) => (
+        <Form onFinish={onFinishOrderCustom} form={form}>
+          {orderCustomEdit?.item_list?.map((item: any, index: number) => (
             <>
               <h3 className="mb-3 text-[#1677ff]">
                 {index + 1}. {item.product_name}

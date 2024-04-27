@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Input, Form, message, Card } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 
@@ -13,7 +13,7 @@ function OrderCheckBoughtLabel() {
   const [messageApi, contextHolder] = message.useMessage();
   const { loading, pdfLabelSearch, pdfLabelDownload } = useShopsOrder((state) => state);
 
-  const onSearch = (values) => {
+  const onSearch = (values: any) => {
     const onSuccess = (res: any) => {
       if (res) {
         if (res.length === 0) {
@@ -28,7 +28,7 @@ function OrderCheckBoughtLabel() {
     pdfLabelSearch(values.package_id, onSuccess, () => {});
   };
 
-  const handleDownloadFile = (fileName) => {
+  const handleDownloadFile = (fileName: string) => {
     const onSuccess = (res: any) => {
       if (res) {
         const url = `${c.API_URL}/pdf-download/?filename=${fileName}`;
@@ -68,12 +68,17 @@ function OrderCheckBoughtLabel() {
 
       {labelSearch.length > 0 && (
         <div className="mt-5">
-          {labelSearch.map((label) => (
+          {labelSearch.map((label: string) => (
             <Card
               title={`Thông tin tìm kiếm  cho [ ${label.replace('.pdf', '')} ]`}
               className="mb-3"
               extra={
-                <DownloadOutlined onClick={() => handleDownloadFile(label)} className="text-[20px] cursor-pointer" />
+                <DownloadOutlined
+                  onClick={() => handleDownloadFile(label)}
+                  className="text-[20px] cursor-pointer"
+                  onPointerEnterCapture={undefined}
+                  onPointerLeaveCapture={undefined}
+                />
               }
             >
               <p>

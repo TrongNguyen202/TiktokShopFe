@@ -1,9 +1,12 @@
 /* eslint-disable react/no-danger */
+import React, { useEffect } from 'react';
 import { Col, Image, Row, Table, Tag } from 'antd';
-import { useEffect } from 'react';
+import type { TableColumnsType } from 'antd';
+
 import { statusProductTikTokShop } from '../../constants/index';
 import { useProductsStore } from '../../store/productsStore';
 import { IntlNumberFormat, getPathByIndex } from '../../utils';
+import { productDetail, SkuProductDetail } from '../../types/products';
 import ImageDefault from '../../assets/images/image-default.jpg';
 import PageTitle from '../../components/common/PageTitle';
 import Loading from '../../components/loading';
@@ -14,18 +17,19 @@ export default function ProductDetail() {
   const { productById, getProductsById, loading } = useProductsStore((state) => state);
 
   useEffect(() => {
-    getProductsById(shopId, productId);
-  }, []);
+    if (shopId && productId) getProductsById(shopId, productId);
+  }, [shopId, productId]);
 
-  const { product_name, images, skus, product_id, video_url, description, category_list, product_status } = productById;
+  const { product_name, images, skus, product_id, video, description, category_list, product_status }: productDetail =
+    productById as unknown as productDetail;
 
-  const columnsProductAttribute = [
+  const columnsProductAttribute: TableColumnsType<SkuProductDetail> = [
     {
       title: 'Color',
       dataIndex: ['variations', 'Color'],
       key: 'Color',
       align: 'center',
-      render: (_, record) =>
+      render: (_: any, record) =>
         record.sales_attributes.map((item) => (
           <span key={item.value_id}>{item.name === 'Color' && item.value_name}</span>
         )),
@@ -157,29 +161,33 @@ export default function ProductDetail() {
       <>
         <p className="text-[20px] font-semibold">Video, ảnh sản phẩm</p>
         <Col className="text-[#0e2482] font-medium mt-2">
-          {video_url && (
-            // eslint-disable-next-line jsx-a11y/media-has-caption
-            <video controls width="200px" height="110px">
-              <source src={video_url} type="video/mp4" />
-            </video>
-          )}
-          {images && images.length ? (
+          {(!images?.length || !video) && <p>Chưa có video và ảnh sản phẩm'</p>}
+          {(images?.length || video) && (
             <div className="flex gap-4 flex-wrap">
-              {images.map((item) => (
+              {images.length && (
                 <>
-                  {item.url_list && (
-                    <Image
-                      width={120}
-                      height={120}
-                      className="object-cover border-[1px] border-solid border-[rgba(128,_128,_128,_0.42)]"
-                      src={item.url_list[0] || item.url_list[1] || ImageDefault}
-                    />
-                  )}
+                  {images?.map((item, index) => (
+                    <>
+                      {item.url_list && (
+                        <Image
+                          width={120}
+                          height={120}
+                          className="object-cover border-[1px] border-solid border-[rgba(128,_128,_128,_0.42)]"
+                          src={item.url_list[0] || item.url_list[1] || ImageDefault}
+                        />
+                      )}
+                    </>
+                  ))}
                 </>
-              ))}
+              )}
+
+              {video && (
+                <video width={240} height={120} controls>
+                  <source src={video?.video_infos[0]?.main_url} type="video/mp4" />
+                  Your browser does not support HTML video.
+                </video>
+              )}
             </div>
-          ) : (
-            'Chưa có video và ảnh sản phẩm'
           )}
         </Col>
       </>
@@ -224,27 +232,6 @@ export default function ProductDetail() {
             <div dangerouslySetInnerHTML={{ __html: description }} />
           </div>
         </div>
-
-        {/* <div className='bg-[#F5F5F5] h-[10px]' />
-        <div className='bg-white p-10'>
-          <h2 className='text-[20px] font-semibold'>Tối ưu SEO</h2>
-          <Row className='bg-white gap-[4px] justify-start mt-3 break-words flex-nowrap'>
-            <Col span={4} className='font-medium'>
-              Title:
-            </Col>
-            <Col className='font-medium'>
-              <div dangerouslySetInnerHTML={{ __html: seo_title }} />
-            </Col>
-          </Row>
-          <Row className='bg-white gap-[4px] justify-start py-5 break-words flex-nowrap'>
-            <Col span={4} className='font-medium'>
-              Mô tả:
-            </Col>
-            <Col className='font-medium'>
-              <div dangerouslySetInnerHTML={{ __html: seo_description }} />
-            </Col>
-          </Row>
-        </div> */}
       </div>
     </div>
   );

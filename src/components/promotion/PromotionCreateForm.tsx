@@ -262,3 +262,4 @@ function PromotionCreateForm({ initialData, loading, onSubmit }: PromotionCreate
 }
 
 export default PromotionCreateForm;
+

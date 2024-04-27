@@ -1,3 +1,5 @@
+import { AttributeProduct } from "../types";
+
 export const formatNumber = (str: string) => {
   if (str === undefined || str === null) return '';
   const strFormat = str.toString().replace(/[A-Za-z`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/g, '');
@@ -100,7 +102,7 @@ export const flatMapArray = (array1: any[], array2: any[]) => {
   );
 };
 
-export const ConvertProductAttribute = (product_attributes: { [s: string]: unknown } | ArrayLike<unknown>) => {
+export const ConvertProductAttribute = (product_attributes: AttributeProduct | ArrayLike<unknown>) => {
   const newAttributes =
     product_attributes &&
     Object.entries(product_attributes).map(([id, values]) => ({

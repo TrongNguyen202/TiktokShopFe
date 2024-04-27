@@ -3,19 +3,39 @@ import { Button, Popconfirm, Popover, Table } from 'antd';
 import React, { useState } from 'react';
 import { useShopsOrder } from '../../store/ordersStore';
 import { getPathByIndex, IntlNumberFormat } from '../../utils';
+import { orderDetail } from '../../types';
 
-function OrderCombinable({ data, popOverContent, dataOrderDetail, isOpenModal }) {
+interface removeCombineItemProps {
+  order_id_list: string[];
+  pre_combine_pkg_id: string;
+}
+
+interface DataProps {
+  more: boolean;
+  next_cursor: string;
+  pre_combine_pkg_list: removeCombineItemProps[];
+  total: number;
+}
+
+interface OrderCombinableProps {
+  data: DataProps;
+  popOverContent: any;
+  dataOrderDetail: orderDetail[];
+  isOpenModal: any;
+}
+
+function OrderCombinable({ data, popOverContent, dataOrderDetail, isOpenModal }: OrderCombinableProps) {
   const shopId = getPathByIndex(2);
   const { confirmCombine } = useShopsOrder((state) => state);
   const [dataCombine, setDataCombine] = useState(data.pre_combine_pkg_list);
 
-  const handleRemoveCombineItem = (CombinePkgId, orderId) => {
-    const dataRemoved = dataCombine.map((item) => {
+  const handleRemoveCombineItem = (CombinePkgId: string, orderId: string) => {
+    const dataRemoved = dataCombine.map((item: removeCombineItemProps) => {
       return {
         pre_combine_pkg_id: item.pre_combine_pkg_id,
         order_id_list:
           item.pre_combine_pkg_id === CombinePkgId
-            ? item.order_id_list.filter((order) => order !== orderId)
+            ? item.order_id_list.filter((order: any) => order !== orderId)
             : item.order_id_list,
       };
     });
@@ -39,10 +59,10 @@ function OrderCombinable({ data, popOverContent, dataOrderDetail, isOpenModal })
       console.log(err);
     };
 
-    confirmCombine(shopId, dataCombineConfirm, onSuccess, onFail);
+    if (shopId) confirmCombine(shopId, dataCombineConfirm, onSuccess, onFail);
   };
 
-  const columnsOrderCombine = [
+  const columnsOrderCombine: any = [
     {
       title: 'Order ID',
       dataIndex: 'order_id',
@@ -53,7 +73,7 @@ function OrderCombinable({ data, popOverContent, dataOrderDetail, isOpenModal })
       title: 'Sản phẩm',
       dataIndex: 'item',
       key: 'item',
-      render: (_, record) => (
+      render: (_: any, record: any) => (
         <Popover
           content={popOverContent(record)}
           title={`${record.item_list.length} sản phẩm`}
@@ -64,11 +84,11 @@ function OrderCombinable({ data, popOverContent, dataOrderDetail, isOpenModal })
             <div className="flex justify-between">
               <p className="text-[13px] font-semibold">{record?.item_list?.length} sản phẩm</p>
               <p>
-                <DownOutlined className="text-[12px]" />
+                <DownOutlined className="text-[12px]" onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
               </p>
             </div>
             <div className="-my-[12px] flex gap-1">
-              {record?.item_list?.map((item, index) => (
+              {record?.item_list?.map((item: any, index: number) => (
                 <div
                   key={index}
                   className=" last:border-b-0 py-1 px-[8px] -mx-[8px] h-[53px] flex flex-wrap items-center"
@@ -86,14 +106,14 @@ function OrderCombinable({ data, popOverContent, dataOrderDetail, isOpenModal })
       dataIndex: 'payment_info',
       key: 'payment_info',
       align: 'center',
-      render: (_, record) =>
+      render: (_: any, record: any) =>
         IntlNumberFormat(record?.payment_info?.currency, 'currency', 5, record?.payment_info?.total_amount),
     },
     {
       dataIndex: 'actions',
       key: 'actions',
       align: 'center',
-      render: (_, record) => (
+      render: (_: any, record: any) => (
         <Popconfirm
           title="Bạn có chắc chắn muốn xoá order này?"
           onConfirm={() => handleRemoveCombineItem(record.pre_combine_pkg_id, record.order_id)}

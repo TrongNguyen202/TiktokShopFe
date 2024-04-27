@@ -5,7 +5,6 @@ import { handleAxiosError } from '../utils/handleAxiosError';
 interface WareHousesStore {
   warehousesById: any;
   loadingWarehouse: boolean;
-  loading: boolean;
   getWarehousesByShopId: (id: string, onSuccess?: (data: any) => void, onFail?: (data: any) => void) => void;
 }
 

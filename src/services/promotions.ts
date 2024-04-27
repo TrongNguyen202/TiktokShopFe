@@ -1,6 +1,6 @@
 import { callApi } from '../apis';
 
-const getPromotions = (id: string, pageNumber: number, searchValue = '', filterStatus = undefined) => {
+const getPromotions = (id: string, pageNumber: number, searchValue: string , filterStatus: string ) => {
   return callApi(
     `/shops/${id}/promotions?page_number=${pageNumber}&title=${searchValue}${filterStatus && filterStatus !== 'all' ? `&status=${filterStatus}` : ''}`,
     'get',

@@ -26,7 +26,7 @@ interface ShopsOrder {
   shippingService: (shopId: string, body: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
   buyLabel: (shopId: string, body: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
   getShippingDoc: (id: string, body: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
-  getPackageBought: (onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getPackageBought: (onSuccess?: (data: any) => void, onFail?: (data: any) => void) => void;
   pdfLabelSearch: (packageId: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
   pdfLabelLinkSearch: (body: any, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
   pdfLabelDownload: (fileName: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
@@ -187,9 +187,9 @@ export const useShopsOrder = create<ShopsOrder>((set) => ({
     try {
       const response = await RepositoryRemote.orders.getPackageBought();
       set({ packageBought: response?.data });
-      onSuccess(response?.data);
+      if (onSuccess) onSuccess(response?.data);
     } catch (error) {
-      onFail(handleAxiosError(error));
+      if (onFail) onFail(handleAxiosError(error));
     }
   },
   pdfLabelSearch: async (packageId, onSuccess, onFail) => {

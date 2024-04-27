@@ -47,7 +47,7 @@ export default function PromotionForm() {
 
     // console.log('submitData: ', submitData);
 
-    createPromotion(shopId, submitData, onSuccess, onFail);
+    if (shopId) createPromotion(shopId, submitData, onSuccess, onFail);
   };
 
   return <PromotionCreateForm initialData={initialData} loading={loading} onSubmit={onSubmit} />;

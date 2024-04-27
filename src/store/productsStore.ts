@@ -5,14 +5,14 @@ import { handleAxiosError } from '../utils/handleAxiosError';
 
 interface ProductsStore {
   products: Record<string, unknown>[];
-  productById: Record<string, unknown>;
-  infoTable: Record<string, unknown>;
+  productById: any;
+  infoTable: any;
   newProduct: Record<string, unknown>;
   loading: boolean;
   loadingImage: boolean;
   getAllProducts: (
     id: string,
-    page_number: string,
+    page_number: number,
     onSuccess: (data: any) => void,
     onFail: (data: any) => void,
   ) => void;

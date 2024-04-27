@@ -1,21 +1,40 @@
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Modal, Space, Table, Tag, Tooltip, message } from 'antd';
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import PageTitle from '../../components/common/PageTitle';
+import type { TableColumnsType } from 'antd';
+
+import { IntlNumberFormat, getPathByIndex, removeDuplicates } from '../../utils/index';
+import { formatDate } from '../../utils/date';
+import { SkuProductDetail } from '../../types/products';
 import { statusProductTikTokShop } from '../../constants/index';
 import { useCategoriesStore } from '../../store/categoriesStore';
 import { useProductsStore } from '../../store/productsStore';
-import { formatDate } from '../../utils/date';
-import { IntlNumberFormat, getPathByIndex, removeDuplicates } from '../../utils/index';
+
+import PageTitle from '../../components/common/PageTitle';
+
+interface ProductItemProp {
+  id: string;
+  create_time: number;
+  update_time: number;
+  status: number;
+  sale_regions: string[];
+  name: string;
+  skus: SkuProductDetail[];
+}
+
+interface SearchForm {
+  product_id?: string;
+  product_name?: string;
+}
 
 function Products() {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const shopId = getPathByIndex(2);
-  const [filterData, setFilterData] = useState([]);
-  const [productSelected, setProductSelected] = useState([]);
-  const [productDataTable, setProductDataTable] = useState([]);
+  const [filterData, setFilterData] = useState<SearchForm>({});
+  const [productSelected, setProductSelected] = useState<string[]>([]);
+  const [productDataTable, setProductDataTable] = useState<ProductItemProp[]>([]);
   const [refreshProduct, setRefreshProduct] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const { products, getAllProducts, loading, resetProductById, infoTable, removeProduct } = useProductsStore(
@@ -23,10 +42,9 @@ function Products() {
   );
 
   const { resetCategoryData } = useCategoriesStore();
-  // eslint-disable-next-line no-unused-vars
-  const [pageNumber, setPageNumber] = useState(1);
+  const [pageNumber, setPageNumber] = useState<number>(1);
 
-  const columnProduct = [
+  const columnProduct: TableColumnsType<ProductItemProp> = [
     {
       title: 'Mã sản phẩm',
       dataIndex: 'id',
@@ -119,11 +137,12 @@ function Products() {
   ];
 
   const rowSelection = {
-    onChange: (_, selectedRows) => {
-      const dataSelect = selectedRows.map((item) => item.id);
+    onChange: (_: any, selectedRows: ProductItemProp[]) => {
+      const dataSelect: string[] = selectedRows.map((item) => item.id);
+      console.log('dataSelect: ', dataSelect);
+
       setProductSelected(dataSelect);
     },
-    getCheckboxProps: () => {},
   };
 
   const handleProductCreate = () => {
@@ -132,11 +151,11 @@ function Products() {
     resetCategoryData();
   };
 
-  const handleProductEdit = (productId) => {
+  const handleProductEdit = (productId: string) => {
     navigate(`/shops/${shopId}/products/${productId}/edit`);
   };
 
-  const handleProductDetail = (productId) => {
+  const handleProductDetail = (productId: string) => {
     navigate(`/shops/${shopId}/products/${productId}`);
   };
 
@@ -147,6 +166,8 @@ function Products() {
 
     const onSuccess = (res: any) => {
       if (res) {
+        console.log('res: ', res);
+
         setProductSelected([]);
         setRefreshProduct(true);
         message.open({
@@ -166,25 +187,26 @@ function Products() {
     removeProduct(shopId, dataSubmit, onSuccess, onFail);
   };
 
-  const onFinish = (values) => {
+  const onFinish = (values: SearchForm) => {
     setFilterData(values);
-    const productFilter = products?.filter((item) => {
+    const productFilter: any = products?.filter((item: any) => {
       return (
         (!values.product_id || item.id.includes(values.product_id)) &&
         (!values.product_name || item.name.includes(values.product_name))
       );
     });
+
     setProductDataTable(productFilter);
     setShowSearchModal(false);
     form.resetFields();
   };
 
   const handleRemoveFilter = () => {
-    setProductDataTable(products);
-    setFilterData([]);
+    setProductDataTable(products as any);
+    setFilterData({});
   };
 
-  const handleChangePagination = (current) => {
+  const handleChangePagination = (current: number) => {
     setPageNumber(current);
   };
 
@@ -198,29 +220,20 @@ function Products() {
       console.log(err);
     };
 
-    getAllProducts(shopId, pageNumber, onSuccess, onFail);
+    if (shopId) getAllProducts(shopId, pageNumber, onSuccess, onFail);
 
     return () => {
       resetProductById();
     };
-  }, [pageNumber, refreshProduct]);
+  }, [shopId, pageNumber, refreshProduct]);
 
   return (
     <div className="p-3 md:p-10">
-      <PageTitle title="Danh sách sản phẩm" count={infoTable?.data?.total || '0'} showBack />
+      <PageTitle title="Danh sách sản phẩm" count={infoTable?.data?.total || 0} showBack />
       <div className="flex flex-wrap items-center">
         <Button type="primary" className="mr-3" size="small" onClick={() => setShowSearchModal(true)}>
           Tìm kiếm
         </Button>
-        {/* <Button
-          type="primary"
-          className="mr-3"
-          size="small"
-          onClick={() => setPageNumber(pageNumber+1)}
-          disabled = {productDataTable?.length == infoTable?.data?.total}
-        >
-          Load More Products
-        </Button> */}
         <Button size="small" type="primary" onClick={handleProductCreate} className="mt-5 mb-5 mr-3">
           Thêm sản phẩm
         </Button>

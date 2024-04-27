@@ -8,6 +8,16 @@ import { CSS } from '@dnd-kit/utilities';
 import ProductSectionTitle from './ProuctSectionTitle';
 import { removeDuplicates } from '../../utils';
 
+interface ProductMediaProps {
+  productData: any;
+  imgBase64: any;
+  isProductCreate?: boolean;
+  setFileList: any;
+  fileList: any;
+  sizeChart: any;
+  setSizeChart: any;
+}
+
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -38,7 +48,7 @@ function DraggableUploadListItem({ originNode, file }) {
   );
 }
 
-function ProductMedia({ productData, imgBase64, isProductCreate, setFileList, fileList, sizeChart, setSizeChart }) {
+function ProductMedia({ productData, imgBase64, isProductCreate, setFileList, fileList, sizeChart, setSizeChart }: ProductMediaProps) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
   const [previewTitle, setPreviewTitle] = useState('');
@@ -74,19 +84,19 @@ function ProductMedia({ productData, imgBase64, isProductCreate, setFileList, fi
 
   const handleCancel = () => setPreviewOpen(false);
 
-  const handlePreview = async (file) => {
+  const handlePreview = async (file: any) => {
     if (!file.url && !file.preview) file.preview = await getBase64(file.originFileObj);
     setPreviewImage(file.url || file.preview);
     setPreviewOpen(true);
     setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
   };
 
-  const handleChange = ({ fileList: newFileList }) => {
+  const handleChange = ({ fileList: newFileList }: any) => {
     setFileList(newFileList);
     imgBase64(newFileList);
   };
 
-  const onChangeSizeChart = ({ fileList: newFileList }) => {
+  const onChangeSizeChart = ({ fileList: newFileList }: any) => {
     console.log('newFileList: ', newFileList);
     setSizeChart(newFileList);
   };
