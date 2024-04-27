@@ -3,6 +3,7 @@ import { Button, Input, Popconfirm, Row, Space, Table, Tag, Tooltip, message } f
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { ColumnsType } from 'antd/es/table';
 import { useUsersStore } from '../../store/usersStore';
 
 import PageTitle from '../../components/common/PageTitle';
@@ -21,7 +22,7 @@ type UserType = {
 function Users() {
   const { getShopByUser, shopsByUser, updateUser } = useUsersStore((state) => state);
 
-  const [userData, setUserData] = useState<UserType[]>([]);
+  const [userData, setUserData] = useState<UserType | null>(null);
   const [isShowModal, setIsShowModal] = useState(false);
   const [userSelected, setUserSelected] = useState({});
 
@@ -61,7 +62,7 @@ function Users() {
     setIsShowModal(true);
   };
 
-  const columns = [
+  const columns: ColumnsType<any> = [
     {
       title: 'Tên nhân viên',
       dataIndex: 'user_name',
@@ -129,7 +130,7 @@ function Users() {
     const userFilter = shopsByUser?.users?.filter((item: any) => {
       return item.user_name.toLowerCase().includes(e.target.value.toLowerCase());
     });
-    setUserData((prevState) => ({ ...prevState, users: userFilter }));
+    setUserData((prevState) => (prevState ? { ...prevState, users: userFilter } : null));
   };
 
   useEffect(() => {

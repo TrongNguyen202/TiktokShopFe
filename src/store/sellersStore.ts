@@ -14,18 +14,18 @@ type SellerById = {
 };
 
 interface SellersStore {
-  sellers: Record<string, unknown>;
+  sellers: SellerById[];
   sellerById: SellerById;
   infoTable: Record<string, unknown>;
   loading: boolean;
   loadingById: boolean;
   getAllSellers: (onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
   getSellersById: (id: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
-  searchSeller: (query: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  searchSeller: (query: string, onSuccess?: (data: any) => void, onFail?: (data: any) => void) => void;
 }
 
 export const useSellersStore = create<SellersStore>((set) => ({
-  sellers: {},
+  sellers: [],
   sellerById: {},
   infoTable: {},
   loading: false,
@@ -59,9 +59,9 @@ export const useSellersStore = create<SellersStore>((set) => ({
       const response = await RepositoryRemote.sellers.searchSeller(query);
       set({ sellers: response?.data.data.data });
       set({ infoTable: response?.data.data });
-      onSuccess(response?.data.data);
+      if (onSuccess) onSuccess(response?.data.data);
     } catch (error) {
-      onFail(handleAxiosError(error));
+      if (onFail) onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },

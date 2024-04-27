@@ -1,5 +1,6 @@
 import { Drawer, Layout, Table, message } from 'antd';
 import React, { useEffect, useState } from 'react';
+import { ColumnsType } from 'antd/es/table';
 import TableHeader from '../../components/table-header';
 import { useSellersStore } from '../../store/sellersStore';
 import { formatDate } from '../../utils/date';
@@ -19,7 +20,7 @@ export default function Sellers() {
   const { sellers, loading, getAllSellers, searchSeller } = useSellersStore((state) => state);
 
   const [isOpenDrawer, setOpenDrawer] = useState(false);
-  const [selectedId, setSelectedId] = useState('');
+  const [selectedId, setSelectedId] = useState(0);
   const [params, setParams] = useState({
     page: 1,
     search: '',
@@ -29,7 +30,7 @@ export default function Sellers() {
     end_last_visit_time: '',
   });
 
-  const sellersTable = [
+  const sellersTable: ColumnsType<any> = [
     {
       title: 'ID',
       dataIndex: 'id',
@@ -48,7 +49,7 @@ export default function Sellers() {
           className="text-[#0e2482] font-medium cursor-pointer"
           onClick={() => {
             setOpenDrawer(true);
-            setSelectedId(String(seller.id));
+            setSelectedId(seller.id);
           }}
         >
           {name}
@@ -65,7 +66,7 @@ export default function Sellers() {
           className="text-[#0e2482] font-medium cursor-pointer"
           onClick={() => {
             setOpenDrawer(true);
-            setSelectedId(String(seller.id));
+            setSelectedId(seller.id);
           }}
         >
           {phone}

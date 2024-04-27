@@ -19,5 +19,5 @@
     "strictFunctionTypes": true,
     "strictPropertyInitialization": false
   },
-  "include": ["src", "types"]
+  "include": ["src", "types", "index.d.ts"]
 }

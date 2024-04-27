@@ -1,28 +1,11 @@
 import { Button, message } from 'antd';
 import React, { useEffect, useState } from 'react';
-
 import { useTemplateStore } from '../../store/templateStore';
 import ModalUploadProduct from '../crawl/ModalUploadProduct';
 import ProductList from './ProductList';
 import UploadDesign from './UploadDesign';
 import DesignTemplate from './template';
-
-type DesignTemplates = {
-  id: number;
-  user: number;
-  content: FixedFrameInfo;
-};
-
-type FixedFrameInfo = {
-  id: number;
-  name: string;
-  src: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  rotation: number;
-};
+import { DesignTemplates, FixedFrameInfo } from '../../types/designTemplate';
 
 export default function DesignEditor() {
   const { designTemplates } = useTemplateStore();
@@ -34,7 +17,6 @@ export default function DesignEditor() {
 
   useEffect(() => {
     if (checkedItems && checkedItems.length === 0) return;
-    // kiểm tra nhưng id của template trong mảng checkedItem có giá trị là true thì set lại giá trị có id đó trong mảng designTemplates vào state imagesDesign
     const newImagesDesign = designTemplates.filter((template) => checkedItems[template.id]);
     setImages(newImagesDesign);
   }, [checkedItems]);

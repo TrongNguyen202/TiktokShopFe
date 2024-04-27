@@ -146,7 +146,7 @@ function DesignSku() {
           className="mt-10"
           current={pageIndex}
           total={designSku?.count}
-          pageSize={100}
+          pageSize={20}
           onChange={handleChangePagePagination}
         />
       </div>

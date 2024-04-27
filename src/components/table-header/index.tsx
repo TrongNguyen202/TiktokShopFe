@@ -10,7 +10,7 @@ type TableHeaderProps = {
   setParams: any;
   titleDatePicker1: string;
   titleDatePicker2: string;
-  isStore: boolean;
+  isStore?: boolean;
 };
 export default function TableHeader({
   onSearch,
@@ -22,16 +22,16 @@ export default function TableHeader({
 }: TableHeaderProps) {
   const {
     search,
-    begin_date_register,
-    end_date_register,
-    begin_last_visit_time,
-    end_last_visit_time,
-    begin_date_expried,
-    end_date_expried,
+    begin_date_register: beginDateRegister,
+    end_date_register: endDateRegister,
+    begin_last_visit_time: beginLastVisitRime,
+    end_last_visit_time: endLastVisitTime,
+    begin_date_expried: beginDateExpired,
+    end_date_expried: endDateExpried,
   } = params;
   const keywordSearch = useDebounce(search, 500);
-  const query = `page=1&search=${search}&begin_date_register=${begin_date_register}&end_date_register=${end_date_register}&begin_last_visit_time=${begin_last_visit_time}&end_last_visit_time=${end_last_visit_time}`;
-  const queryStore = `page=1&search=${search}&begin_date_register=${begin_date_register}&end_date_register=${end_date_register}&begin_date_expried=${begin_date_expried}&end_date_expried=${end_date_expried}`;
+  const query = `page=1&search=${search}&begin_date_register=${beginDateRegister}&end_date_register=${endDateRegister}&begin_last_visit_time=${beginLastVisitRime}&end_last_visit_time=${endLastVisitTime}`;
+  const queryStore = `page=1&search=${search}&begin_date_register=${beginDateExpired}&end_date_register=${endDateRegister}&begin_date_expried=${beginDateExpired}&end_date_expried=${endDateExpried}`;
 
   useEffect(() => {
     onSearch(isStore ? queryStore : query);
@@ -45,7 +45,7 @@ export default function TableHeader({
     <div>
       <div className="flex justify-between my-3">
         <Space direction="vertical" style={{ width: 300 }} size="large">
-          <Search placeholder="Tìm kiếm..."  onChange={(e) => changeParams('search', e.target.value)} />
+          <Search placeholder="Tìm kiếm..." onChange={(e: any) => changeParams('search', e.target.value)} />
         </Space>
         <Button type="primary">Xuất Excel</Button>
       </div>

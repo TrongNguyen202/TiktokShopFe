@@ -111,7 +111,8 @@ export default function Crawl() {
   const productListStorage = JSON.parse(localStorage.getItem('productList') || '');
   const userInfo = JSON.parse(localStorage.getItem('user') || '');
   const [productList, setProductList] = useState(productListStorage);
-  const [checkedItems, setCheckedItems] = useState([]);
+  const [checkedItems, setCheckedItems] = useState<any>([]);
+  console.log('checkedItems: ', checkedItems);
   const [isAllChecked, setIsAllChecked] = useState(false);
   const [optionCrawl, setOptionCrawl] = useState(initialCrawl);
   const [loading, setLoading] = useState(false);
@@ -318,7 +319,7 @@ export default function Crawl() {
   };
 
   const convertDataProducts = (isCreateProduct: boolean) => {
-    const selectedProducts = productList.filter((product: ProductItemCrawled) => checkedItems[Number(product.id)]);
+    const selectedProducts = productList.filter((product: ProductItemCrawled) => checkedItems[product.id]);
 
     const convertImageLink = (images: ProductImageItem[]) => {
       const imageObject = images.reduce((obj: any, link, index) => {
@@ -350,7 +351,7 @@ export default function Crawl() {
   };
 
   const convertDataProductsToSenPrints = () => {
-    const selectedProducts = productList.filter((product: ProductItemCrawled) => checkedItems[Number(product.id)]);
+    const selectedProducts = productList.filter((product: ProductItemCrawled) => checkedItems[product.id]);
 
     const convertImageLink = (images: ProductImageItem[]) => {
       const imageObject = images.reduce((obj: any, link, index) => {

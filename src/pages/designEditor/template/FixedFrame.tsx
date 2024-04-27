@@ -4,14 +4,8 @@ import { Layer, Rect, Transformer } from 'react-konva';
 type FixedFrameProps = {
   selectedId: string;
   selectShape: (id: string) => void;
-  fixedFrameInfo: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    rotation: number;
-  };
-  setFixedFrameInfo: (info: FixedFrameInfo) => void;
+  fixedFrameInfo: FixedFrameInfo;
+  setFixedFrameInfo: (info?: any) => void;
 };
 
 type FixedFrameInfo = {
@@ -20,6 +14,7 @@ type FixedFrameInfo = {
   width?: number;
   height?: number;
   rotation?: number;
+  src?: string;
 };
 
 export default function FixedFrame({ selectedId, selectShape, fixedFrameInfo, setFixedFrameInfo }: FixedFrameProps) {

@@ -12,7 +12,7 @@ type FixedFrameInfo = {
   width?: number;
   height?: number;
   rotation?: number;
-  src: string;
+  src?: string;
 };
 
 let history: FixedFrameInfo[] = [];
@@ -30,7 +30,14 @@ export default function ModalTemplateForm({
   const [templateName, setTemplateName] = useState('');
   const [images, setImages] = useState<FixedFrameInfo[]>([]);
   const [selectedId, selectShape] = useState<string>('');
-  const [fixedFrameInfo, setFixedFrameInfo] = useState({ x: 20, y: 20, width: 100, height: 100, rotation: 0 });
+  const [fixedFrameInfo, setFixedFrameInfo] = useState<FixedFrameInfo>({
+    x: 20,
+    y: 20,
+    width: 100,
+    height: 100,
+    rotation: 0,
+    src: '',
+  });
 
   useEffect(() => {
     history = [...images];
@@ -115,14 +122,14 @@ export default function ModalTemplateForm({
   };
 
   // eslint-disable-next-line consistent-return
-  const checkDeselect = (e: any, value: any) => {
+  const checkDeselect = (e?: any, value?: any) => {
     if (!value) {
-      selectShape(null);
+      selectShape('');
       return null;
     }
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty) {
-      selectShape(null);
+      selectShape('');
     }
   };
 

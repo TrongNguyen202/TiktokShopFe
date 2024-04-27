@@ -13,7 +13,7 @@ type UserType = {
 };
 
 interface UsersStore {
-  shopsByUser: UserType[];
+  shopsByUser: UserType;
   loading: boolean;
   getShopByUser: (onSuccess?: (data: any) => void, onFail?: (data: any) => void) => void;
   getUserInfo: (userId: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
@@ -23,7 +23,7 @@ interface UsersStore {
 }
 
 export const useUsersStore = create<UsersStore>((set, get: any) => ({
-  shopsByUser: [],
+  shopsByUser: {} as UserType,
   loading: false,
   getShopByUser: async (onSuccess, onFail) => {
     try {

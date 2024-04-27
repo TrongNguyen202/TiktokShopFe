@@ -7,7 +7,11 @@ import { useBadgesStore } from '../../store/badgesStore';
 
 export default function Home() {
   const { badges } = useBadgesStore();
-  const { product_progressing, total_orders, total_products } = badges ?? {};
+  const {
+    product_progressing: productProgressing,
+    total_orders: totalOrders,
+    total_products: totalProducts,
+  } = badges ?? {};
 
   const data = {
     sales: [
@@ -566,14 +570,14 @@ export default function Home() {
     // },
     {
       name: 'Tổng đơn hàng',
-      value: total_orders,
+      value: totalOrders,
       icon: <NoteIcon className="text-[#FFC327] w-[40px] h-[40px]" />,
       colorBgIcon: '#FFC32733',
       path: '',
     },
     {
       name: 'Tổng sản phẩm',
-      value: total_products,
+      value: totalProducts,
       icon: <ProductIcon className="text-[#FF8F6B] w-[40px] h-[40px]" />,
       colorBgIcon: '#FF8F6B33',
       path: '/products',
@@ -587,7 +591,7 @@ export default function Home() {
     // },
     {
       name: 'Sản phẩm cần duyệt',
-      value: product_progressing,
+      value: productProgressing,
       icon: <ArchivedIcon className="text-[#CA0CC1] w-[40px] h-[40px]" />,
       colorBgIcon: '#CA0CC133',
       path: '/products/status/0',

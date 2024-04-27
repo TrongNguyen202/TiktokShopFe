@@ -335,7 +335,7 @@ function OrderCheckDesign({ toShipInfoData }: OrderCheckDesignProps) {
           dataSource={designSku}
           pagination={{
             current: pageIndex,
-            pageSize: 100,
+            pageSize: 20,
             total: designSku.count,
             onChange: handleChangePagePagination,
           }}

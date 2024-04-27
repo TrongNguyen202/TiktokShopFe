@@ -3,14 +3,14 @@ import { RepositoryRemote } from '../services';
 import { handleAxiosError } from '../utils/handleAxiosError';
 
 interface WareHousesStore {
-  warehousesById: Record<string, unknown>[];
+  warehousesById: any;
   loadingWarehouse: boolean;
   loading: boolean;
   getWarehousesByShopId: (id: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
 }
 
 export const useWareHousesStore = create<WareHousesStore>((set) => ({
-  warehousesById: [],
+  warehousesById: {},
   loading: false,
   loadingWarehouse: false,
   getWarehousesByShopId: async (id, onSuccess, onFail) => {

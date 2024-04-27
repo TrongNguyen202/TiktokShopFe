@@ -6,7 +6,7 @@ import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import ModalProductDetail from './ModalProductDetail';
-import { ProductImageItem, ProductItem as ProductItemType } from '../../types/productItem';
+import { ProductImageItem } from '../../types/productItem';
 
 const getBase64 = (file: any) =>
   new Promise((resolve, reject) => {
@@ -38,6 +38,27 @@ function DraggableUploadListItem({ originNode, file }: { originNode: any; file: 
   );
 }
 
+type ProductItemType = {
+  id: string;
+  title: string;
+  price: number;
+  url: string;
+  sku: string;
+  description: string;
+  images: ProductImageItem[];
+  listing_id: number;
+  last_modified: string;
+  sold: number;
+  total_sold: number;
+  views: number;
+  views_24h: number;
+  original_creation: string;
+  estimated_revenue: string;
+  daily_views: number;
+  num_favorers: number;
+  hey: number;
+};
+
 type ProductItemProps = {
   product: ProductItemType;
   index: number;
@@ -67,16 +88,16 @@ export default function ProductItem({
   const [previewImage, setPreviewImage] = useState('');
   const [previewTitle, setPreviewTitle] = useState('');
   const {
-    listing_id,
-    last_modified,
+    listing_id: listingId,
+    last_modified: lastModified,
     sold,
-    total_sold,
+    total_sold: totalSold,
     views,
-    views_24h,
-    original_creation,
-    estimated_revenue,
-    daily_views,
-    num_favorers,
+    views_24h: views24h,
+    original_creation: originalCreation,
+    estimated_revenue: estimatedRevenue,
+    daily_views: dailyViews,
+    num_favorers: numFavorers,
     hey,
   } = product ?? {};
 
@@ -214,7 +235,7 @@ export default function ProductItem({
           </SortableContext>
         </DndContext>
       </div>
-      {listing_id ? (
+      {listingId ? (
         <div className="rounded-md flex flex-col gap-1 p-2 px-3 text-[14px] font-semibold">
           <div className="flex justify-between gap-1">
             <Tooltip title="Show in the Last 24 Hours" placement="top">
@@ -232,7 +253,7 @@ export default function ProductItem({
                 className="w-full py-[3px] text-[14px] flex-1 mr-0"
                 icon={<EyeOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
               >
-                {views_24h}+ Views
+                {views24h}+ Views
               </Tag>
             </Tooltip>
           </div>
@@ -243,7 +264,7 @@ export default function ProductItem({
                 className="w-full py-[3px] text-[14px] flex-1 mr-0"
                 icon={<HourglassOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
               >
-                {total_sold}+ Sold
+                {totalSold}+ Sold
               </Tag>
             </Tooltip>
             <Tooltip title="Estimated Revenue" placement="top">
@@ -252,7 +273,7 @@ export default function ProductItem({
                 className="w-full py-[3px] text-[14px] flex-1 mr-0"
                 icon={<CreditCardOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />}
               >
-                {estimated_revenue}
+                {estimatedRevenue}
               </Tag>
             </Tooltip>
           </div>
@@ -261,7 +282,7 @@ export default function ProductItem({
             <div className="flex justify-between border-b-[1px] border-solid border-gray-300 border-l-0 border-r-0 border-t-0 py-2">
               <p className="w-[60px]">Views</p>
               <Tooltip title="This is the estimate average daily view" placement="top">
-                <p className="text-[#e11d48] text-center">{daily_views}(Avg)</p>
+                <p className="text-[#e11d48] text-center">{dailyViews}(Avg)</p>
               </Tooltip>
               <Tooltip title="This is the estimate average daily view" placement="top">
                 <p className="text-[#e11d48]">{views}</p>
@@ -274,21 +295,21 @@ export default function ProductItem({
                 <p className="text-[#2563eb] text-center">{hey}%</p>
               </Tooltip>
               <Tooltip title="Total number of favorites for this listing" placement="top">
-                <p className="text-[#2563eb]">{num_favorers}</p>
+                <p className="text-[#2563eb]">{numFavorers}</p>
               </Tooltip>
             </div>
             {/* Created */}
             <div className="flex justify-between border-b-[1px] border-solid border-gray-300 border-l-0 border-r-0 border-t-0 py-2">
               <p>Created</p>
               <Tooltip title="This listing was create" placement="top">
-                <p className="text-[#0d9488] text-center">{original_creation}</p>
+                <p className="text-[#0d9488] text-center">{originalCreation}</p>
               </Tooltip>
             </div>
             {/* Updated */}
             <div className="flex justify-between  py-2">
               <p>Updated</p>
               <Tooltip title="When it is sold, reviewed, or updateed" placement="top">
-                <p className="text-[#0d9488] text-center">{last_modified}</p>
+                <p className="text-[#0d9488] text-center">{lastModified}</p>
               </Tooltip>
             </div>
           </div>

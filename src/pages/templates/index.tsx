@@ -2,6 +2,7 @@ import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from '
 import { Button, Layout, Modal, Popconfirm, Space, Table, Tooltip, Upload } from 'antd';
 import Search from 'antd/es/transfer/search';
 import React, { useEffect, useState } from 'react';
+import { ColumnsType } from 'antd/es/table';
 import { useTemplateStore } from '../../store/templateStore';
 import { alerts } from '../../utils/alerts';
 import TemplateForm from '../stores/TemplateForm';
@@ -65,7 +66,7 @@ function Template() {
     return false;
   };
 
-  const storesTable = [
+  const storesTable: ColumnsType<any> = [
     {
       title: 'ID',
       dataIndex: 'id',

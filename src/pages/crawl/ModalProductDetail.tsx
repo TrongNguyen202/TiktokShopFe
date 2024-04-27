@@ -195,7 +195,7 @@ export default function ModalProductDetail({
               onPreview={handlePreview}
               onChange={handleChange}
               beforeUpload={() => false}
-              previewFile={(file: any) => getBase64(file) as Promise<string>}
+              previewFile={getBase64}
               multiple
               // eslint-disable-next-line react/no-unstable-nested-components
               itemRender={(originNode, file) => <DraggableUploadListItem originNode={originNode} file={file} />}

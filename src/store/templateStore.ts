@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { RepositoryRemote } from '../services';
 import { handleAxiosError } from '../utils/handleAxiosError';
 import { TemplateItem } from '../types/templateItem';
+import { DesignTemplates } from '../types/designTemplate';
 
 interface TemplateStore {
   templates: TemplateItem[];
@@ -36,20 +37,6 @@ interface TemplateStore {
   deleteDesignTemplate: (id: number, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
 }
 
-type DesignTemplates = {
-  id: number;
-  user: number;
-  content: {
-    name: string;
-    src: string;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    rotation: number;
-  };
-};
-
 export const useTemplateStore = create<TemplateStore>((set) => ({
   templates: [],
   designTemplates: [],
@@ -60,9 +47,9 @@ export const useTemplateStore = create<TemplateStore>((set) => ({
       set({ loading: true });
       const response = await RepositoryRemote.template.getAllTemplate();
       set({ templates: response?.data });
-      onSuccess(response?.data.data);
+      if (onSuccess) onSuccess(response?.data.data);
     } catch (error) {
-      onFail(handleAxiosError(error));
+      if (onFail) onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },
@@ -101,9 +88,9 @@ export const useTemplateStore = create<TemplateStore>((set) => ({
       set({ loading: true });
       const response = await RepositoryRemote.template.getAllDesignTemplate();
       set({ designTemplates: response?.data });
-      onSuccess(response?.data);
+      if (onSuccess) onSuccess(response?.data);
     } catch (error) {
-      onFail(handleAxiosError(error));
+      if (onFail) onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },
@@ -130,7 +117,7 @@ export const useTemplateStore = create<TemplateStore>((set) => ({
   deleteDesignTemplate: async (id, onSuccess, onFail) => {
     try {
       set({ loading: true });
-      const response = await RepositoryRemote.template.deleteDesignTemplate(id);
+      const response = await RepositoryRemote.template.deleteDesignTemplate(String(id));
       onSuccess(response?.data.data);
     } catch (error) {
       onFail(handleAxiosError(error));

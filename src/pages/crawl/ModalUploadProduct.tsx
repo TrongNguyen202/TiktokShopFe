@@ -51,12 +51,11 @@ export default function ModalUploadProduct({
   const { stores, getAllStores } = useShopsStore((state) => state);
   const { createProductList, loading } = useProductsStore();
   const { getWarehousesByShopId, warehousesById, loadingWarehouse } = useWareHousesStore();
-
-  // eslint-disable-next-line no-unused-vars
   const [templateJSON, setTemplateJSON] = useState<TemplateItem>();
   const [warehouseId, setWarehouseId] = useState();
   const [shopId, setShopId] = useState<string>();
   const productsJSON = productList;
+  console.log('productsJSON: ', productsJSON);
 
   useEffect(() => {
     getAllTemplate();
@@ -132,26 +131,26 @@ export default function ModalUploadProduct({
     }
 
     for (const item of productsJSON) {
-      const { sku, title, images } = item;
+      const { sku, title } = item;
       if (!title?.trim()) {
         message.error('title cannot be empty');
         return false;
       }
 
-      if (
-        !images?.image1 &&
-        !images?.image2 &&
-        !images?.image3 &&
-        !images?.image4 &&
-        !images?.image5 &&
-        !images?.image6 &&
-        !images?.image7 &&
-        !images?.image8 &&
-        !images?.image9
-      ) {
-        message.error(`${sku}: Images must have at least one image url`);
-        return false;
-      }
+      // if (
+      //   !images?.image1 &&
+      //   !images?.image2 &&
+      //   !images?.image3 &&
+      //   !images?.image4 &&
+      //   !images?.image5 &&
+      //   !images?.image6 &&
+      //   !images?.image7 &&
+      //   !images?.image8 &&
+      //   !images?.image9
+      // ) {
+      //   message.error(`${sku}: Images must have at least one image url`);
+      //   return false;
+      // }
 
       skus.push(sku);
       titles.push(title);
@@ -239,7 +238,7 @@ export default function ModalUploadProduct({
         ];
         obj.original_price = item.price;
         obj.stock_infos = [{ warehouse_id: warehouseId, available_stock: item.quantity }];
-        obj.seller_sku = productsJSON.sku || '';
+        obj.seller_sku = '';
         result.push(obj);
       });
     });
@@ -262,29 +261,29 @@ export default function ModalUploadProduct({
       return;
     }
     const {
-      category_id,
-      is_cod_open,
-      warehouse_id,
-      package_height,
-      package_length,
-      package_weight,
-      package_width,
+      category_id: categoryId,
+      is_cod_open: isCodOpen,
+      warehouse_id: warehouseIdd,
+      package_height: packageHeight,
+      package_length: packageLength,
+      package_weight: packageWeight,
+      package_width: packageWidth,
       description,
       // types,
-      size_chart,
+      size_chart: sizeChart,
     } = templateJSON ?? {};
     const dataSubmit = {
       excel: sanitizeTitles(productsJSON),
-      category_id: String(category_id[category_id.length - 1]),
-      warehouse_id,
-      package_height,
-      package_length,
-      package_weight,
-      package_width,
-      is_cod_open,
+      category_id: String(categoryId[categoryId.length - 1]),
+      warehouse_id: warehouseIdd,
+      package_height: packageHeight,
+      package_length: packageLength,
+      package_weight: packageWeight,
+      package_width: packageWidth,
+      is_cod_open: isCodOpen,
       skus: convertDataSku(),
       description,
-      size_chart,
+      size_chart: sizeChart,
     };
     console.log('dataSubmit: ', dataSubmit);
     const onSuccess = (res: any) => {
