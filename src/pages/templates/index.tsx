@@ -16,9 +16,7 @@ function Template() {
   const [templatesData, setTemplateData] = useState<TemplateItem[]>([]);
 
   useEffect(() => {
-    const onSuccess = (res: any) => {
-      console.log('res: ', res);
-    };
+    const onSuccess = () => {};
     const onFail = (err: string) => {
       alerts.error(err);
     };
@@ -43,7 +41,6 @@ function Template() {
   const handleDownload = (template: TemplateItem) => {
     // Thêm trường để đánh dấu là file download
     const dataTemplate = { ...template, isFromFile: true };
-    console.log('dataTemplate: ', dataTemplate);
     const json = JSON.stringify(dataTemplate);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);

@@ -65,7 +65,6 @@ function ProductEdit() {
   };
 
   const variationsDataTable = (data) => {
-    console.log('data: ', data);
     setSkusData(data);
   };
 

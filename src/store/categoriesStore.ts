@@ -13,7 +13,7 @@ interface CategoriesStore {
   loadingById: boolean;
   attributeLoading: boolean;
   getAllCategories: (onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
-  getAllCategoriesIsLeaf: (onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getAllCategoriesIsLeaf: (onSuccess?: (data: any) => void, onFail?: (data: any) => void) => void;
   getAllCategoriesIsLeafType2: (shopId: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
   getCategoriesById: (id: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
   getAttributeByCategory: (
@@ -58,9 +58,9 @@ export const useCategoriesStore = create<CategoriesStore>((set) => ({
       set({ loading: true });
       const response = await RepositoryRemote.categories.getAllCategoriesIsLeaf();
       set({ categoriesIsLeaf: response?.data.data.category_list });
-      onSuccess(response?.data.data);
+      if (onSuccess) onSuccess(response?.data.data);
     } catch (error) {
-      onFail(handleAxiosError(error));
+      if (onFail) onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },

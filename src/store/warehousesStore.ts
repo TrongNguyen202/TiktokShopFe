@@ -6,7 +6,7 @@ interface WareHousesStore {
   warehousesById: any;
   loadingWarehouse: boolean;
   loading: boolean;
-  getWarehousesByShopId: (id: string, onSuccess: (data: any) => void, onFail: (data: any) => void) => void;
+  getWarehousesByShopId: (id: string, onSuccess?: (data: any) => void, onFail?: (data: any) => void) => void;
 }
 
 export const useWareHousesStore = create<WareHousesStore>((set) => ({
@@ -18,9 +18,9 @@ export const useWareHousesStore = create<WareHousesStore>((set) => ({
       set({ loadingWarehouse: true });
       const response = await RepositoryRemote.warehouses.getWarehousesByShopId(id);
       set({ warehousesById: response?.data.data });
-      onSuccess(response?.data.data);
+      if (onSuccess) onSuccess(response?.data.data);
     } catch (error) {
-      onFail(handleAxiosError(error));
+      if (onFail) onFail(handleAxiosError(error));
     }
     set({ loadingWarehouse: false });
   },

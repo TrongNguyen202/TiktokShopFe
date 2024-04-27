@@ -309,7 +309,6 @@ function CreateLabel() {
           label: res.doc_urls[index],
           package_id: item.data.package_id,
         }));
-        console.log('shippingDocData: ', shippingDocData);
 
         navigate(`/shops/${shopId}/orders/fulfillment`, { state: { shippingDoc: shippingDocData } });
       }

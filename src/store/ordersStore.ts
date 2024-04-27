@@ -80,9 +80,9 @@ export const useShopsOrder = create<ShopsOrder>((set) => ({
       set({ loading: true });
       const response = await RepositoryRemote.orders.getAllOrders(id);
       set({ orders: response?.data.data });
-      onSuccess(response?.data.data);
+      if (onSuccess) onSuccess(response?.data.data);
     } catch (error) {
-      onFail(handleAxiosError(error));
+      if (onFail) onFail(handleAxiosError(error));
     }
     set({ loading: false });
   },
@@ -125,7 +125,6 @@ export const useShopsOrder = create<ShopsOrder>((set) => ({
       set({ combineList: response?.data.data.data });
       onSuccess(response?.data);
     } catch (error) {
-      console.log('error: ', error);
       onFail(handleAxiosError(error));
     }
   },

@@ -6,7 +6,7 @@ import ModalTemplateForm from './ModalTemplateForm';
 
 type DesignTemplateProps = {
   checkedItems: any;
-  setCheckedItems: (value: React.SetStateAction<boolean>) => void;
+  setCheckedItems: (value: any) => void;
 };
 
 export default function DesignTemplate({ checkedItems, setCheckedItems }: DesignTemplateProps) {

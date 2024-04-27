@@ -6,7 +6,7 @@ import { DndContext, PointerSensor, useSensor } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import ModalProductDetail from './ModalProductDetail';
-import { ProductImageItem } from '../../types/productItem';
+import { ProductImageItem, ProductItemCrawl } from '../../types/productItem';
 
 const getBase64 = (file: any) =>
   new Promise((resolve, reject) => {
@@ -65,7 +65,7 @@ type ProductItemProps = {
   handleDeleteProduct: (productId: string) => void;
   checkedItems: any;
   handleCheckChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  handleChangeProduct: (newProduct: ProductItemType) => void;
+  handleChangeProduct: (newProduct: ProductItemCrawl) => void;
   showSkeleton?: boolean;
   showOutsideImages?: boolean;
 };
@@ -211,6 +211,7 @@ export default function ProductItem({
       <div className={`flex justify-center px-2 ${showOutsideImages ? 'block' : 'hidden'}`}>
         <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
           <SortableContext
+            // @ts-expect-error filelist
             items={fileList && fileList.length ? fileList?.filter?.((i) => i.uid !== undefined).map((i) => i.uid) : []}
             strategy={verticalListSortingStrategy}
           >

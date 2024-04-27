@@ -29,13 +29,15 @@ function Header({ collapsed, changeCollapsed }: { collapsed: boolean; changeColl
   return (
     <StyledHeader>
       <Row className="justify-end md:justify-between">
-        {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
-          onClick: () => {
-            changeCollapsed();
-          },
-          onPointerEnterCapture: () => {},
-          onPointerLeaveCapture: () => {},
-        })}
+        <div>
+          {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
+            onClick: () => {
+              changeCollapsed();
+            },
+            onPointerEnterCapture: () => {},
+            onPointerLeaveCapture: () => {},
+          })}
+        </div>
         <Col>
           <Row justify="center">
             <Col className="flex gap-1 items-center">

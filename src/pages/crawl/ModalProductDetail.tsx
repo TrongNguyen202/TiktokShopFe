@@ -8,7 +8,7 @@ import { CSS } from '@dnd-kit/utilities';
 
 import ReactQuill from 'react-quill';
 import { useProductsStore } from '../../store/productsStore';
-import { ProductImageItem, ProductItem } from '../../types/productItem';
+import { ProductImageItem, ProductItemCrawl } from '../../types/productItem';
 
 const getBase64 = (file: any) =>
   new Promise((resolve, reject) => {
@@ -57,11 +57,11 @@ export default function ModalProductDetail({
   imgBase64,
   handleChangeProduct,
 }: {
-  product: ProductItem;
+  product: ProductItemCrawl;
   setIsOpenModal: (value: boolean) => void;
   isOpenModal: boolean;
   imgBase64?: any;
-  handleChangeProduct: (product: ProductItem) => void;
+  handleChangeProduct: (product: ProductItemCrawl) => void;
 }) {
   const { changeProductImageToWhite, loadingImage } = useProductsStore((state) => state);
   const [fileList, setFileList] = useState<ProductImageItem[]>(product.images || []);
@@ -188,7 +188,12 @@ export default function ModalProductDetail({
         width="50vw"
       >
         <DndContext sensors={[sensor]} onDragEnd={onDragEnd}>
-          <SortableContext items={fileList?.map((i) => i.uid)} strategy={verticalListSortingStrategy}>
+          <SortableContext
+            // @ts-expect-error filelist is'nt id
+            items={fileList?.map((i) => i.uid)}
+            strategy={verticalListSortingStrategy}
+          >
+            {/* @ts-expect-error upload */}
             <Upload
               listType="picture-card"
               fileList={ShowImageFileList(fileList)}

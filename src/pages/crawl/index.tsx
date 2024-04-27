@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import * as XLSX from 'xlsx';
 import { senPrintsData } from '../../constants';
-import { ProductImageItem, ProductItem as ProductItemData } from '../../types/productItem';
+import { ProductImageItem, ProductItemCrawl, ProductItem as ProductItemData } from '../../types/productItem';
 import ModalShowError from './ModalShowError';
 import ModalUploadProduct from './ModalUploadProduct';
 import ProductItem from './ProductItem';
@@ -112,7 +112,6 @@ export default function Crawl() {
   const userInfo = JSON.parse(localStorage.getItem('user') || '');
   const [productList, setProductList] = useState(productListStorage);
   const [checkedItems, setCheckedItems] = useState<any>([]);
-  console.log('checkedItems: ', checkedItems);
   const [isAllChecked, setIsAllChecked] = useState(false);
   const [optionCrawl, setOptionCrawl] = useState(initialCrawl);
   const [loading, setLoading] = useState(false);
@@ -146,7 +145,7 @@ export default function Crawl() {
     setProductList(newProductList);
   };
 
-  const handleChangeProduct = (newProduct: ProductItemData) => {
+  const handleChangeProduct = (newProduct: ProductItemCrawl) => {
     const newProductList = productList.map((item: ProductItemData) => {
       if (item.id === newProduct.id) {
         return newProduct;
@@ -176,7 +175,7 @@ export default function Crawl() {
   const renderProductList = () => {
     return (
       <Row gutter={[16, 16]} className="flex py-5 transition-all duration-300">
-        {productList.map((item: ProductItemData, index: number) => {
+        {productList.map((item: ProductItemCrawl, index: number) => {
           return (
             <Col span={4} key={item.id}>
               <ProductItem

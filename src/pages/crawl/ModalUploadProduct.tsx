@@ -4,9 +4,9 @@ import { useProductsStore } from '../../store/productsStore';
 import { useShopsStore } from '../../store/shopsStore';
 import { useTemplateStore } from '../../store/templateStore';
 import { useWareHousesStore } from '../../store/warehousesStore';
-import { alerts } from '../../utils/alerts';
-import { ProductItem } from '../../types/productItem';
+import { ProductItemCrawl } from '../../types/productItem';
 import { TemplateItem, TypesItem } from '../../types/templateItem';
+import { alerts } from '../../utils/alerts';
 
 type SelectOption = {
   value: string;
@@ -41,9 +41,9 @@ export default function ModalUploadProduct({
 }: {
   isShowModalUpload: boolean;
   setShowModalUpload: (value: React.SetStateAction<boolean>) => void;
-  productList: ProductItem[];
-  imagesLimit: number;
-  setModalErrorInfo: (value: React.SetStateAction<any>) => void;
+  productList?: ProductItemCrawl[];
+  imagesLimit?: number;
+  setModalErrorInfo?: (value: React.SetStateAction<any>) => void;
 }) {
   // const shopId = getPathByIndex(2);
 
@@ -55,7 +55,6 @@ export default function ModalUploadProduct({
   const [warehouseId, setWarehouseId] = useState();
   const [shopId, setShopId] = useState<string>();
   const productsJSON = productList;
-  console.log('productsJSON: ', productsJSON);
 
   useEffect(() => {
     getAllTemplate();
@@ -170,7 +169,6 @@ export default function ModalUploadProduct({
   function mergeArrays(obj1: any, arr2: any) {
     // Convert object to array
     const arr1 = Object.values(obj1);
-    console.log('arr1: ', arr1);
     const arr2Length = arr2?.length || 0;
 
     // Calculate the number of elements to take from imagesLimit
@@ -198,7 +196,7 @@ export default function ModalUploadProduct({
     return result2;
   }
 
-  const sanitizeTitles = (documents: ProductItem[]) => {
+  const sanitizeTitles = (documents: ProductItemCrawl[]) => {
     const { badWords, suffixTitle } = templateJSON ?? {};
     return documents.map((doc) => {
       let { title } = doc;
@@ -273,7 +271,7 @@ export default function ModalUploadProduct({
       size_chart: sizeChart,
     } = templateJSON ?? {};
     const dataSubmit = {
-      excel: sanitizeTitles(productsJSON),
+      excel: sanitizeTitles(productsJSON || []),
       category_id: String(categoryId[categoryId.length - 1]),
       warehouse_id: warehouseIdd,
       package_height: packageHeight,
@@ -298,28 +296,32 @@ export default function ModalUploadProduct({
   const handleResponse = (res: any) => {
     const countProductSuccess = res.filter((item: ErrorItem) => item.status === 'success').length;
     const countProductFail = res.filter((item: ErrorItem) => item.status === 'error').length;
-    if (countProductSuccess === productsJSON.length) {
+    if (countProductSuccess === productsJSON?.length) {
       message.success(`Upload products successfully ${countProductSuccess}/${countProductSuccess}`);
       handleCancel();
       return;
     }
-    if (countProductSuccess < productsJSON.length && countProductSuccess > 0) {
-      message.success(`Upload products successfully ${productsJSON.length - countProductFail}/${productsJSON.length}`);
-      setModalErrorInfo({
-        isShow: true,
-        data: res,
-        title: `Upload failed ${countProductFail} products`,
-      });
+    if (productsJSON && countProductSuccess < productsJSON?.length && countProductSuccess > 0) {
+      message.success(
+        `Upload products successfully ${productsJSON?.length || 0 - countProductFail}/${productsJSON?.length}`,
+      );
+      if (setModalErrorInfo)
+        setModalErrorInfo({
+          isShow: true,
+          data: res,
+          title: `Upload failed ${countProductFail} products`,
+        });
       handleCancel();
       return;
     }
     if (countProductSuccess === 0) {
       message.error('Upload failed all products');
-      setModalErrorInfo({
-        isShow: true,
-        data: res,
-        title: 'Upload failed all products',
-      });
+      if (setModalErrorInfo)
+        setModalErrorInfo({
+          isShow: true,
+          data: res,
+          title: 'Upload failed all products',
+        });
     }
   };
 

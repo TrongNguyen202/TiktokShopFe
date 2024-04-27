@@ -2,7 +2,7 @@ import { CloudUploadOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Col, Modal, Row, Select, Spin, message } from 'antd';
 import Dragger from 'antd/es/upload/Dragger';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as xlsx from 'xlsx';
 import ContentHeader from '../../components/content-header/index';
 import { useProductsStore } from '../../store/productsStore';
@@ -13,6 +13,51 @@ import { getToken } from '../../utils/auth';
 import { getPathByIndex } from '../../utils/index';
 import ModalShowError from '../crawl/ModalShowError';
 import TemplateForm from './TemplateForm';
+import { TemplateItem } from '../../types/templateItem';
+
+type SelectOption = {
+  value: string;
+  label: string;
+};
+
+type WarehouseById = {
+  warehouse_type: number;
+  warehouse_name: string;
+  warehouse_id: string;
+  warehouse_list: any[];
+};
+
+type ProductItemExcel = {
+  sku: string;
+  title: string;
+  warehouse: string;
+  image1: string;
+  image2: string;
+  image3: string;
+  image4: string;
+  image5: string;
+  image6: string;
+  image7: string;
+  image8: string;
+  image9: string;
+};
+
+type ProductItem = {
+  sku: string;
+  title: string;
+  warehouse: string;
+  images: {
+    image1: string;
+    image2: string;
+    image3: string;
+    image4: string;
+    image5: string;
+    image6: string;
+    image7: string;
+    image8: string;
+    image9: string;
+  };
+};
 
 function MultiAddProducts() {
   const customerTokenKey = getToken();
@@ -23,7 +68,7 @@ function MultiAddProducts() {
   const { getWarehousesByShopId, warehousesById } = useWareHousesStore();
 
   const [productsJSON, setProductsJSON] = useState();
-  const [templateJSON, setTemplateJSON] = useState();
+  const [templateJSON, setTemplateJSON] = useState<TemplateItem>();
   const [isShowModalAddTemplate, setShowModalAddTemplate] = useState(false);
   const [warehouseId, setWarehouseId] = useState();
   const [modalErrorInfo, setModalErrorInfo] = useState({
@@ -38,21 +83,21 @@ function MultiAddProducts() {
   }, []);
 
   const convertTemplateOption = () => {
-    const result = [];
+    const result: SelectOption[] = [];
     if (!Array.isArray(templates)) return result;
     templates.forEach((item) => {
       const { name, id } = item;
       result.push({
-        value: id,
+        value: String(id),
         label: name,
       });
     });
     return result;
   };
 
-  const convertDataWarehouse = (data) => {
+  const convertDataWarehouse = (data: WarehouseById[]) => {
     if (!data || !Array.isArray(data) || !data.length) return [];
-    const result = [];
+    const result: SelectOption[] = [];
     data
       ?.filter((item) => item.warehouse_type === 1)
       ?.forEach((item) => {
@@ -64,8 +109,8 @@ function MultiAddProducts() {
     return result;
   };
 
-  const onSelectTemplate = (value) => {
-    const template = templates.find((item) => item.id === value);
+  const onSelectTemplate = (value: string) => {
+    const template = templates.find((item) => item.id === Number(value));
     setTemplateJSON(template);
   };
 
@@ -73,15 +118,16 @@ function MultiAddProducts() {
     if (files) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        const data = e.target.result;
+        // @ts-expect-error event
+        const data = e?.target.result;
         const workbook = xlsx.read(data, { type: 'array' });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = xlsx.utils.sheet_to_json(worksheet);
 
-        let convertJson = [];
+        let convertJson: ProductItem[] = [];
         if (Array.isArray(jsonData) && jsonData.length) {
-          convertJson = jsonData.map((item) => {
+          convertJson = jsonData.map((item: ProductItemExcel) => {
             const { sku, title, warehouse, image1, image2, image3, image4, image5, image6, image7, image8, image9 } =
               item;
             return {
@@ -284,29 +330,29 @@ function MultiAddProducts() {
       return;
     }
     const {
-      category_id,
-      is_cod_open,
-      warehouse_id,
-      package_height,
-      package_length,
-      package_weight,
-      package_width,
+      category_id: categoryId,
+      is_cod_open: isCodOpen,
+      warehouse_id: warehouseIdd,
+      package_height: packageHeight,
+      package_length: packageLength,
+      package_weight: packageWeight,
+      package_width: packageWidth,
       description,
       // types,
-      size_chart,
+      size_chart: sizeChart,
     } = templateJSON ?? {};
     const dataSubmit = {
-      excel: sanitizeTitles(productsJSON),
-      category_id: String(category_id[category_id.length - 1]),
-      warehouse_id,
-      package_height,
-      package_length,
-      package_weight,
-      package_width,
-      is_cod_open,
+      excel: sanitizeTitles(productsJSON || []),
+      category_id: String(categoryId[categoryId.length - 1]),
+      warehouse_id: warehouseIdd,
+      package_height: packageHeight,
+      package_length: packageLength,
+      package_weight: packageWeight,
+      package_width: packageWidth,
+      is_cod_open: isCodOpen,
       skus: convertDataSku(),
       description,
-      size_chart,
+      size_chart: sizeChart,
     };
     console.log('dataSubmit: ', dataSubmit);
     const onSuccess = (res: any) => {

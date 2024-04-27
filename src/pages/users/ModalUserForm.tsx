@@ -37,7 +37,6 @@ export default function ModalUserForm({
       ...values,
       user_id: userSelected?.user_id || '',
     };
-    console.log('dataUpdate: ', dataUpdate);
     const onSuccess = (res: any) => {
       getShopByUser();
       if (res) {

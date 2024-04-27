@@ -1,6 +1,6 @@
 export const formatNumber = (str: string) => {
   if (str === undefined || str === null) return '';
-  const strFormat = str.toString().replace(/[A-Za-z`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/g, '');
+  const strFormat = str.toString().replace(/[A-Za-z`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/g, '');
   if (Number(strFormat) >= 1000) {
     return strFormat
       .split('')
@@ -23,7 +23,7 @@ export const getPathByIndex = (index: number) => {
     return parts[index];
   }
 
-  return null;
+  return '';
 };
 
 export const format = (number: number) => {

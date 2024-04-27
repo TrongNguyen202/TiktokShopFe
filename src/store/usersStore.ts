@@ -54,7 +54,6 @@ export const useUsersStore = create<UsersStore>((set, get: any) => ({
       const newShopsByUser = get().shopsByUser;
       const index = newShopsByUser.users.findIndex((item: Record<string, unknown>) => item.user_id === userId);
       newShopsByUser.users[index] = data;
-      console.log('newShopsByUser: ', newShopsByUser);
       set({ shopsByUser: newShopsByUser });
       onSuccess(response?.data);
     } catch (error) {

@@ -4,7 +4,28 @@ import React, { useEffect, useState } from 'react';
 import ModalShowError from '../crawl/ModalShowError';
 import ModalUploadProduct from '../crawl/ModalUploadProduct';
 import ProductItem from '../crawl/ProductItem';
-import { ProductItem as ProductItemType } from '../../types/productItem';
+import { ProductImageItem } from '../../types/productItem';
+
+type ProductItemType = {
+  id: string;
+  title: string;
+  price: number;
+  url: string;
+  sku: string;
+  description: string;
+  images: ProductImageItem[];
+  listing_id: number;
+  last_modified: string;
+  sold: number;
+  total_sold: number;
+  views: number;
+  views_24h: number;
+  original_creation: string;
+  estimated_revenue: string;
+  daily_views: number;
+  num_favorers: number;
+  hey: number;
+};
 
 export default function ProductList({ imageEdited }: { imageEdited: ProductItemType[] }) {
   const [checkedItems, setCheckedItems] = useState([]);

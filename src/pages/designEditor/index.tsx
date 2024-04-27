@@ -100,6 +100,7 @@ export default function DesignEditor() {
       );
       newImageEdited.push({ images: newImages, id: imageDesign.id });
     };
+    // @ts-expect-error promise
     await Promise.all(imagesDesign.map(handleBeforeMerge));
     setImageEdited(newImageEdited);
   };
@@ -125,7 +126,7 @@ export default function DesignEditor() {
           isShowModalUpload={isShowModalUpload}
           setShowModalUpload={setShowModalUpload}
           // productList={convertDataProducts(true)}
-          imagesLimit={imageEdited}
+          imagesLimit={imageEdited.length}
           // modalErrorInfo={modalErrorInfo}
           // setModalErrorInfo={setModalErrorInfo}
         />

@@ -65,6 +65,7 @@ export default function ModalTemplateForm({
     newStage.add(newLayer);
 
     const baseImage = new window.Image();
+    // @ts-expect-error image
     baseImage.src = images[0].src;
     baseImage.width = stageRef?.current.width();
     baseImage.height = stageRef?.current.height();
@@ -138,10 +139,12 @@ export default function ModalTemplateForm({
     input.type = 'file';
     input.accept = 'image/*';
     input.onchange = (e) => {
+      // @ts-expect-error file
       const file = e?.target?.files[0];
       const reader = new FileReader();
       reader.onload = (event) => {
         const img = new window.Image();
+        // @ts-expect-error image
         img.src = event.target.result;
         img.onload = () => {
           const newWidth = 510;

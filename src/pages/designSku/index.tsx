@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Table, Button, Space, Input, Select, Form, message, Tooltip, Popconfirm, Pagination, Tabs, Modal } from 'antd';
 import { DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
 
+import { ColumnsType } from 'antd/es/table';
 import { useShopsOrder } from '../../store/ordersStore';
 import { useUsersStore } from '../../store/usersStore';
 
@@ -153,7 +154,7 @@ function DesignSku() {
     );
   };
 
-  const columns = [
+  const columns: ColumnsType<any> = [
     {
       title: 'STT',
       dataIndex: 'stt',
@@ -257,8 +258,9 @@ function DesignSku() {
             </Tooltip>
           </div>
           {hadSearch && (
-            <Tooltip title="Xoá kết quả tìm kiếm" onClick={handleClearSearch}>
+            <Tooltip title="Xoá kết quả tìm kiếm">
               <DeleteOutlined
+                onClick={handleClearSearch}
                 className="text-[20px]"
                 onPointerEnterCapture={undefined}
                 onPointerLeaveCapture={undefined}
@@ -268,6 +270,7 @@ function DesignSku() {
         </Space>
       </div>
 
+      {/* @ts-expect-error konva */}
       <Tabs activeKey={groupIndex} items={items} onChange={onChangeTab} />
       <DesignEdit
         openModal={[openEditModal, setOpenEditModal]}
@@ -289,6 +292,7 @@ function DesignSku() {
           </Form.Item>
           <Form.Item name="group_id" className="font-bold" label="Chọn nhóm">
             <Select
+              // @ts-expect-error initialValues
               initialValues={groups && groups[0]?.id}
               onChange={() => {}}
               options={groups.map((group: any) => ({

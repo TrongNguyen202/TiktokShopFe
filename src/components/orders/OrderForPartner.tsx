@@ -159,9 +159,7 @@ function OrderForPartner({ toShipInfoData }: { toShipInfoData: any }) {
       setDesignSkuById(res);
     };
 
-    const onFail = (err: any) => {
-      console.log('getDesignSkuById: ', err);
-    };
+    const onFail = () => {};
     getDesignSkuById(skuId, onSuccess, onFail);
   };
 
