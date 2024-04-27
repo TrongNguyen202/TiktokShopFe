@@ -39,7 +39,7 @@ function PromotionProduct({ changeStatusModal, dataProductSelected, promotionTyp
       key: 'actions',
       align: 'center',
       width: '100px',
-      render: (_: any, record:any) => (
+      render: (_: any, record: any) => (
         <Link to={`/shops/${shopId}/products/${record.id}`} target="_blank">
           <EyeOutlined onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />
         </Link>

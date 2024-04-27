@@ -1,7 +1,7 @@
 import { Form, Input, InputNumber, Row, Col, Select } from 'antd';
 import React from 'react';
 
-import { WareHouseProduct } from "../../types/products"
+import { WareHouseProduct } from '../../types/products';
 import ProductSectionTitle from './ProuctSectionTitle';
 
 interface ProductSaleProps {

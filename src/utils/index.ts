@@ -1,4 +1,4 @@
-import { AttributeProduct } from "../types";
+import { AttributeProduct } from '../types';
 
 export const formatNumber = (str: string) => {
   if (str === undefined || str === null) return '';

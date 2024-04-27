@@ -48,7 +48,15 @@ function DraggableUploadListItem({ originNode, file }) {
   );
 }
 
-function ProductMedia({ productData, imgBase64, isProductCreate, setFileList, fileList, sizeChart, setSizeChart }: ProductMediaProps) {
+function ProductMedia({
+  productData,
+  imgBase64,
+  isProductCreate,
+  setFileList,
+  fileList,
+  sizeChart,
+  setSizeChart,
+}: ProductMediaProps) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
   const [previewTitle, setPreviewTitle] = useState('');

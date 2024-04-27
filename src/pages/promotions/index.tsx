@@ -117,16 +117,19 @@ function Promotion() {
       }
 
       const promotions = data.promotion_list.map((promotion: PromotionProps) => {
-        const begin_time: string = new Date((promotion.begin_time as unknown as number) * 1000).toLocaleString('en-US', {
-          timeZone: 'America/Los_Angeles',
-        });
+        const begin_time: string = new Date((promotion.begin_time as unknown as number) * 1000).toLocaleString(
+          'en-US',
+          {
+            timeZone: 'America/Los_Angeles',
+          },
+        );
         const end_time: string = new Date((promotion.end_time as unknown as number) * 1000).toLocaleString('en-US', {
           timeZone: 'America/Los_Angeles',
         });
         return {
           ...promotion,
-          begin_time: begin_time,
-          end_time: end_time,
+          begin_time,
+          end_time,
           promotion_type: promotion.promotion_type === 3 ? 'Flash sale' : 'Discount',
           status: renderStatusPromotion(promotion),
         };
@@ -184,7 +187,15 @@ function Promotion() {
             <Button type="primary" disabled={!promotionSelected.length} onClick={handleInactivePromotion}>
               Stop promotion ({promotionSelected?.length || '0'})
               {promotionSelected.length > 0 && loading && (
-                <Spin indicator={<LoadingOutlined className="text-white ml-3" onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} />} />
+                <Spin
+                  indicator={
+                    <LoadingOutlined
+                      className="text-white ml-3"
+                      onPointerEnterCapture={undefined}
+                      onPointerLeaveCapture={undefined}
+                    />
+                  }
+                />
               )}
             </Button>
           </div>

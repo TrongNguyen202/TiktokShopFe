@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useWareHousesStore } from '../../store/warehousesStore';
 import { alerts } from '../../utils/alerts';
-import { SkuProductForm, stockInfosProduct } from "../../types/products"
+import { SkuProductForm, stockInfosProduct } from '../../types/products';
 
 import ProductVariationTable from './ProductVariationTable';
 import ProductSectionTitle from './ProuctSectionTitle';

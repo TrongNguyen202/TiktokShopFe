@@ -37,4 +37,3 @@ function PageTitle({ title, showBack, count }: PageTitleProps) {
 }
 
 export default PageTitle;
-
