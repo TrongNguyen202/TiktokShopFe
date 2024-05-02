@@ -116,6 +116,11 @@ shop_urls = [
         tiktok.promotion_action.DeactivePromotion.as_view(),
         name="deactive_promotion",
     ),
+    path(
+        "shops/<int:shop_id>/promotions/<int:promo_id>/detail_promotion",
+        tiktok.promotion_action.DetailPromo.as_view(),
+        name="detail_promotion",
+    ),
 ]
 
 template_urls = [

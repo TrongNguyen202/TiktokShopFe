@@ -132,3 +132,11 @@ class DeactivePromotion(APIView):
             data.append(response.get("title"))
 
         return JsonResponse(data, safe=False)
+
+
+class DetailPromo(APIView):
+    def get(self, request, shop_id, promo_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        access_token = shop.access_token
+        res = promotion.detail_promotion(access_token=access_token, promotion_id=promo_id)
+        return JsonResponse(res, safe=False)
