@@ -711,3 +711,31 @@ def deactivate_promotion(access_token: str, promotion_id: int):
     logger.info("Promotion deactivated " + str(promotion_id))
 
     return data["data"]
+
+
+def detail_promotion(access_token: str, promotion_id: int):
+    """
+    Deactivate promotion
+    """
+    url = TIKTOK_API_URL["url_detail_promo"]
+
+    query_params = {
+        "app_key": app_key,
+        "access_token": access_token,
+        "timestamp": SIGN.get_timestamp(),
+        "promotion_id": promotion_id,
+    }
+
+    sign = SIGN.cal_sign(secret=secret, url=urllib.parse.urlparse(url), query_params=query_params)
+
+    query_params["sign"] = sign
+
+    response = requests.get(url=url, params=query_params)
+
+    data = response.json()
+    if data["code"] != 0:
+        raise BadRequestException(data["message"])
+
+    logger.info("Promotion deactivated " + str(promotion_id))
+
+    return data["data"]
