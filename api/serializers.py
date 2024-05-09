@@ -16,6 +16,8 @@ from .models import (
     Shop,
     TemplateDesign,
     Templates,
+    Image,
+    ImageFolder
 )
 
 
@@ -256,3 +258,23 @@ class NotiPutSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = "is_read"
+
+
+class NestedImageFolderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImageFolder
+        fields = '__all__'
+
+
+class ImageFolderSerializer(serializers.ModelSerializer):
+    children = NestedImageFolderSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ImageFolder
+        fields = '__all__'
+
+
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Image
+        fields = '__all__'

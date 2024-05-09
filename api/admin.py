@@ -44,8 +44,8 @@ class CustomUserAdmin(admin.ModelAdmin):
 
 @admin.register(Image)
 class ImageAdmin(admin.ModelAdmin):
-    list_display = ("image_data",)
-    search_fields = ("image_data",)
+    list_display = ("image_url","folder")
+    search_fields = ("image_url", "folder")
 
 
 @admin.register(Templates)

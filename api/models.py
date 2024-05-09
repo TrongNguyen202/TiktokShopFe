@@ -48,8 +48,8 @@ class Shop(models.Model):
     shop_cipher = models.CharField(null=True, max_length=500)
 
 
-class Image(models.Model):
-    image_data = models.TextField()
+# class Image(models.Model):
+#     image_data = models.TextField()
 
 
 class AppKey(models.Model):
@@ -209,3 +209,15 @@ class Notification(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+
+class ImageFolder(models.Model):
+    name = models.CharField(max_length=255)
+    parent = models.ForeignKey(
+        'self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
+    user = models.ForeignKey(User, verbose_name=("user_image"), on_delete=models.CASCADE)
+
+
+class Image(models.Model):
+    image_url = models.CharField(max_length=255, null=True, default="")
+    folder = models.ForeignKey(ImageFolder, on_delete=models.SET_NULL, null=True)

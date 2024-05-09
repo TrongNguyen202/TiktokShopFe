@@ -118,6 +118,16 @@ class TemplateDesignDetail(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def post(self, request,pk):
+        data = request.data.copy()
+        data["user"] = 2
+
+        serializer = TemplateDesignSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def delete(self, request, pk):
         template_design = self.get_object(pk)
         template_design.delete()
