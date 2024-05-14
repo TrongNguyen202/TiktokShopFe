@@ -41,7 +41,7 @@ const Promotion = lazy(() => import('./pages/promotions'));
 const Crawl = lazy(() => import('./pages/crawl'));
 const GoogleTrends = lazy(() => import('./pages/googleTrends'));
 const DesignEditor = lazy(() => import('./pages/designEditor'));
-
+const ArtWork = lazy(()=>import('./pages/artwork'))
 function PrivateRoute() {
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -318,6 +318,14 @@ function App() {
                 element={
                   <Suspense fallback={<Loading />}>
                     <DesignEditor />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/artwork"
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <ArtWork />
                   </Suspense>
                 }
               />

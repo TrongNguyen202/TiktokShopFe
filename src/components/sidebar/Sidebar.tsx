@@ -9,6 +9,7 @@ import {
   ShopOutlined,
   UsergroupAddOutlined,
   SkinOutlined,
+  PictureFilled 
 } from '@ant-design/icons';
 import { Menu } from 'antd';
 import PropTypes from 'prop-types';
@@ -183,12 +184,31 @@ function Sidebar({ collapsed }: { collapsed: boolean }) {
           onPointerLeaveCapture={undefined}
         />
       ),
+      
       label: (
         <Link className="flex justify-between" to="/design-sku">
           Design Sku
         </Link>
       ),
       hasPer: validatePermission(permissionMap['/design-sku']),
+    },
+    {
+      key: '/artwork',
+      icon: (
+        <PictureFilled
+          style={{ color: '#0f2aff' }}
+          className="w-[16px]"
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
+        />
+      ),
+      
+      label: (
+        <Link className="flex justify-between" to="/artwork">
+          Artwork
+        </Link>
+      ),
+      hasPer: validatePermission(permissionMap['/artwork']),
     },
   ];
 

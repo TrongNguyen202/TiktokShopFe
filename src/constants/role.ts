@@ -15,4 +15,5 @@ export const permissionMap = {
   '/design-editor': [permission.ADMIN, permission.MANAGER, permission.DESIGNER],
   '/check-label': [permission.ADMIN, permission.MANAGER, permission.SELLER],
   '/design-sku': [permission.ADMIN, permission.MANAGER, permission.DESIGNER],
+  '/artwork': [permission.ADMIN, permission.MANAGER, permission.DESIGNER, permission.SELLER],
 };

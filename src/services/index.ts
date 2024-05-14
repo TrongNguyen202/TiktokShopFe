@@ -13,7 +13,7 @@ import { flashShip } from './flashShip';
 import { users } from './users';
 import { promotions } from './promotions';
 import { googleTrends } from './googleTrends';
-
+import {artwork} from './artwork';
 export const RepositoryRemote = {
   auth,
   sellers,
@@ -30,4 +30,5 @@ export const RepositoryRemote = {
   users,
   promotions,
   googleTrends,
+  artwork
 };
