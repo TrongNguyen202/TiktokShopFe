@@ -4,7 +4,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 import api.views.google_trend as google_trend
 import api.views.image_action as image_action
-
+import api.views.media as media
 # Import các views module
 # import api.views.google_trend as google_trend
 import api.views.tiktok as tiktok
@@ -242,6 +242,24 @@ web_hook_url = [
         name="mark-as-read-noti",
     ),
 ]
+media_image = [
+    path(
+        "folder-images",
+        media.ImageFolderListCreateAPIView.as_view(),
+        name="getlist and post folder images parent",
+    ),
+    path(
+        "folder-images/<int:id>",
+        media.SubfoldersListAPIView.as_view(),
+        name="getlist and post sub-folder images ",
+    ),
+    path('folder-images/<int:pk>/',
+         media.ImageFolderRetrieveUpdateDestroyAPIView.as_view(), name='image-folder-detail'),
+    path('upload-folder-images/<int:folder_id>',
+         media.UploadImageIntoFolder.as_view(), name='post image into folder'),
+    path('get-all-folder/<int:id>',
+         media.GetImageAndSubFolder.as_view(), name='get all image and folder'),
+]
 
 
 # Tách URLs ra thành các nhóm URLs nhỏ để dễ quản lý
@@ -256,4 +274,5 @@ urlpatterns = (
     + google_trend_urls
     + image_process_urls
     + web_hook_url
+    + media_image
 )

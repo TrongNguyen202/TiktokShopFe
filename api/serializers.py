@@ -260,21 +260,27 @@ class NotiPutSerializer(serializers.ModelSerializer):
         fields = "is_read"
 
 
+# class ImageSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Image
+#         fields = '__all__'
+
+
 class NestedImageFolderSerializer(serializers.ModelSerializer):
+    children = serializers.SerializerMethodField()
+
+    def get_children(self, obj):
+        children_qs = obj.children.all()
+        serializer = NestedImageFolderSerializer(children_qs, many=True)
+        return serializer.data
+
     class Meta:
         model = ImageFolder
         fields = '__all__'
 
 
 class ImageFolderSerializer(serializers.ModelSerializer):
-    children = NestedImageFolderSerializer(many=True, read_only=True)
 
     class Meta:
         model = ImageFolder
-        fields = '__all__'
-
-
-class ImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Image
-        fields = '__all__'
+        fields = ['id','name','parent']

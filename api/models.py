@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models import JSONField
-
+from django.utils import timezone
 from api.utils import constant
 
 
@@ -220,4 +220,11 @@ class ImageFolder(models.Model):
 
 class Image(models.Model):
     image_url = models.CharField(max_length=255, null=True, default="")
-    folder = models.ForeignKey(ImageFolder, on_delete=models.SET_NULL, null=True)
+    folder = models.ForeignKey(
+        ImageFolder, on_delete=models.SET_NULL, null=True)
+    image_name = models.CharField(max_length=255, null=True, default="no name")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.image_name
