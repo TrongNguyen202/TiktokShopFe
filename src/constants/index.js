@@ -17,7 +17,7 @@ export const constants = {
   // STATUS
   // API_URL: getMeta("domain_api") + "/api",
   // API_URL: 'http://127.0.0.1:8000' + '/api',
-  API_URL: 'https://g8jp59nl-8001.asse.devtunnels.ms/api',
+  API_URL: 'http://localhost:8001/api',
   API_TIKTOK_SHOP: 'https://auth.tiktok-shops.com/api',
   // STORE_CODE: store_code,
   STORE_CODE: 'chinhbv',
