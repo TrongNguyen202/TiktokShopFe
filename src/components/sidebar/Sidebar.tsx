@@ -6,6 +6,7 @@ import {
   ShopOutlined,
   ShoppingOutlined,
   UserOutlined,
+  AppstoreOutlined,
 } from '@ant-design/icons'
 import { Menu } from 'antd'
 import { useEffect } from 'react'
@@ -74,6 +75,16 @@ const Sidebar = ({ collapsed }) => {
       label: (
         <Link className='flex justify-between' to='shops'>
           Cửa hàng <div>{/* ( <span className='font-medium'>{total_stores}</span> ) */}</div>
+        </Link>
+      ),
+    },
+    {
+      key: '/all-packages',
+      // icon: <StoreIcon classNstyle={{color: "#ff98aa"}}ame="w-[16px]"/>,
+      icon: <AppstoreOutlined style={{ color: '#ff9001'}} />,
+      label: (
+        <Link className='flex justify-between' to='all-packages'>
+          All Packages <div>{/* ( <span className='font-medium'>{total_stores}</span> ) */}</div>
         </Link>
       ),
     },

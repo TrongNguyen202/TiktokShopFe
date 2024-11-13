@@ -18,8 +18,10 @@ export const callApi = (endPoint, method, body) => {
     axios.interceptors.request.use(
       (config) => {
         const token = getToken()
+        
         if (token) {
           config.headers['access_token'] = token
+          config.headers['Authorization'] = `Bearer ${token}`;
         }
         return config
       },

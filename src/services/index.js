@@ -11,6 +11,7 @@ import { bannersAds } from './bannersAds'
 import { buttonMenu } from './buttonMenu'
 import { badges } from './badges'
 import { warehouses } from './warehouses'
+import { orders } from './orders'
 
 export const RepositoryRemote = {
   auth,
@@ -25,5 +26,6 @@ export const RepositoryRemote = {
   bannersAds,
   buttonMenu,
   badges,
-  warehouses
+  warehouses,
+  orders
 }

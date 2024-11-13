@@ -11,7 +11,7 @@ const Login = () => {
   const { login, loading } = useAuthStore((state) => state)
 
   const onSubmit = (value) => {
-    const onSuccess = (token) => {
+    const onSuccess = (token) => {      
       setToken(token)
       navigate(PATH.HOME)
       alerts.success('Thành công')
