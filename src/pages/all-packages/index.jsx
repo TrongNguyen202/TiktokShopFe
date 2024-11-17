@@ -88,21 +88,40 @@ const AllPackages = () => {
         form.setFieldsValue(defaultValues);
     };
 
-    const handleExport = () => {        
+    const handleExport = () => {
+        console.log("package", packages);
         if (packages?.length) {
-            const dataExport = packages?.flatMap((item) => {
-                const result = item?.products?.map((product) => ({
+            // Nhóm dữ liệu theo order_id và pack_id
+            const groupedData = packages.reduce((acc, item) => {
+                const key = `${item.order_id}-${item.pack_id}`;
+                if (!acc[key]) {
+                    acc[key] = [];
+                }
+                acc[key].push(...item.products.map(product => ({
                     ...item,
                     ...product
-                }));
-
-                return result;
+                })));
+                return acc;
+            }, {});
+    
+            // Tạo dữ liệu xuất ra Excel với dropdown cho order_id
+            const dataExport = Object.values(groupedData).flatMap((group) => {
+                return group.map((item, index) => {
+                    // Giữ lại `order_id` chỉ ở dòng đầu tiên trong nhóm
+                    const orderIdDropdown = index === 0 ? item.order_id : "";
+                    return {
+                        ...item,
+                        order_id: orderIdDropdown
+                    };
+                });
             });
-            
+    
+            // Xóa thuộc tính products không cần thiết
             dataExport.forEach(obj => {
                 delete obj.products;
             });
-
+    
+            // Xuất dữ liệu ra file Excel
             const worksheet = XLSX.utils.json_to_sheet(dataExport);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
@@ -228,6 +247,7 @@ const AllPackages = () => {
                                     { value: 'Flashship', label: 'Flashship' },
                                     { value: 'Princare', label: 'Princare' },
                                     { value: 'Ckf', label: 'Ckf' },
+                                    { value: 'Platform', label: 'Platform' },
                                 ]}
                             />
                         </Form.Item>
