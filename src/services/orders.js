@@ -7,8 +7,12 @@ const getUserGroup = () => {
 const getAllPackages = (params) => {
   return callApi(`/packages/filter${params}`, 'get')
 }
+const updateProductPackage = (id, body)=>{
+  return callApi(`/product-package/${id}/update/`, 'put', body)
+}
 
 export const orders = {
   getUserGroup,
-  getAllPackages
+  getAllPackages,
+  updateProductPackage
 }
