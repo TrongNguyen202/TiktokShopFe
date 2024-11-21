@@ -11,8 +11,18 @@ const updateProductPackage = (id, body)=>{
   return callApi(`/product-package/${id}/update/`, 'put', body)
 }
 
+const updatePackageStatus = (id, body)=>{
+  return callApi(`/package/${id}/update-status/`, 'put', body)
+}
+
+const updateFulfillmentName = (id, body)=>{
+  return callApi(`/package/${id}/update-fulfillment-name/`, 'put', body)
+}
+
 export const orders = {
   getUserGroup,
   getAllPackages,
-  updateProductPackage
+  updateProductPackage,
+  updatePackageStatus,
+  updateFulfillmentName
 }

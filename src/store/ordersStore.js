@@ -45,4 +45,33 @@ export const useOrdersStore = create((set) => ({
     set({ loadingProductPackage: false });
   },
 
+  updatePackageStatus: async (id, body, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      console.log("Starting updatePackageStatus with ID:", id);
+      console.log("Body:", body);
+      set({ loading: true });
+      const response = await RepositoryRemote.orders.updatePackageStatus(id, body);
+      console.log("Update response:", response);
+      onSuccess(response.data.data);
+    } catch (error) {
+      console.error("Update failed:", error);
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
+    }
+    set({ loading: false });
+  },
+
+  updateFulfillmentName: async (id, body, onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      console.log("Starting updateFulfillmentName with ID:", id);
+      console.log("Body:", body);
+      set({ loading: true });
+      const response = await RepositoryRemote.orders.updateFulfillmentName(id, body);
+      console.log("Update response:", response);
+      onSuccess(response.data.data);
+    } catch (error) {
+      console.error("Update failed:", error);
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
+    }
+    set({ loading: false });
+  },
 }))

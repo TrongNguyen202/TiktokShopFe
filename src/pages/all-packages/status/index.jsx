@@ -1,19 +1,32 @@
 import React, { useEffect, useState } from "react";
-import { Button, Radio, Form, Input, Select } from 'antd';
+import { Button, Radio, Form, Input, Select, Tooltip } from 'antd';
 import { ReloadOutlined, CloudDownloadOutlined } from "@ant-design/icons";
 import * as XLSX from 'xlsx';
-
-import { useOrdersStore } from "../../store/ordersStore";
-import AllPackagesTable from "../../components/all-packages/AllPackagesTable";
 import { DatePicker } from 'antd';
 import dayjs from 'dayjs';
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useOrdersStore } from "../../../store/ordersStore";
+import PackagesStatusTable from "../../../components/all-packages/PackagesStatusTable";
 
 const optionSort = [
     { value: 'desc', label: 'Mới nhất'},
     { value: 'asc', label: 'Cũ nhất'},
 ];
+
+const status = [
+    { value: 'no_design', label: 'No design' },
+    { value: 'has_design', label: 'Has design' },
+    { value: 'print_pending', label: 'Print pending' },
+    { value: 'printed', label: 'Printed' },
+    { value: 'in_production', label: 'In production' },
+    { value: 'production_done', label: 'Production done' },
+    { value: 'shipping_to_us', label: 'Shipping to us' },
+    { value: 'shipped_to_us', label: 'Shipped to us' },
+    { value: 'shipping_within_us', label: 'Shipping within us' },
+    { value: 'delivered_to_customer', label: 'Delivered to customer' },
+    { value: 'cancelled', label: 'Cancelled' }
+]
 
 const defaultValues = {
     sort: optionSort[0].value,
@@ -24,16 +37,17 @@ const defaultValues = {
     create_time_lt: '',
     limit: 10,
     offset: 0,
+    status: [status[0].value]
 };
 
-const AllPackages = () => {
+const PackagesStatus = () => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
     const [users, setUsers] = useState([]);
     const [shops, setShops] = useState([]);
     const [packageSelected, setPackageSelected] = useState([]);
     const [packages, setPackages] = useState([]);
-    const { getUserGroup, getAllPackages, loadingAllPackages, updateFulfillmentName } = useOrdersStore();
+    const { getUserGroup, getAllPackages, loadingAllPackages, updatePackageStatus } = useOrdersStore();
 
     const handleChangeUser = (values) => {
         const idsSet = new Set(values);
@@ -68,6 +82,13 @@ const AllPackages = () => {
         if (state?.shop && Array.isArray(state.shop)) {
             const shopIds = state.shop.join(',');
             query += `&shop_id=${shopIds}`;
+        }
+
+        if (state?.status) {
+            console.log('status: ', state?.status);
+            
+            const statusString = state?.status.map(status => `&status_name=${status}`).join("");
+            query += statusString;
         }
     
         // Xử lý fulfillment_name nếu có
@@ -170,33 +191,18 @@ const AllPackages = () => {
         getUserGroup(onSuccess);
     }, []);
 
-    // console.log('packages: ', packages);
-
-    // const handleDateChange = (date, dateString, fieldName, form) => {
-    //     if (dayjs(date).isValid()) {
-    //         const unixTimestamp = dayjs(date).unix();  // Chuyển ngày thành Unix timestamp
-    //         const currentValues = form.getFieldsValue(); // Lấy tất cả giá trị hiện tại của form
-    //         currentValues[fieldName] = unixTimestamp; // Cập nhật giá trị tương ứng với trường ngày tháng
-    //         form.setFieldsValue(currentValues); // Cập nhật lại form với giá trị mới
-    //     } else {
-    //         // Nếu ngày không hợp lệ, đặt giá trị là rỗng
-    //         const currentValues = form.getFieldsValue();
-    //         currentValues[fieldName] = ''; // Đặt trường ngày tháng về giá trị trống
-    //         form.setFieldsValue(currentValues);
-    //     }
-    // };
-
     const handlePackageSelected = (data) => {
         console.log(data);
         
         setPackageSelected(data);
     }
 
-    const handleNavigate = () => {
+    const handleUpdateStatus = () => {
+        const statusUpdate = form.getFieldValue('status');
+
         const onSuccess = (res) => {
             if (res) {
                 toast.success('Update thành công!');
-                navigate('/all-packages/status');
             }         
         }
 
@@ -204,12 +210,16 @@ const AllPackages = () => {
             console.log(err);            
         }
 
-        packageSelected?.map((item) => {
-            const dataSubmit = {
-                "fulfillment_name": "Teelover"
-            }
-            updateFulfillmentName(item.id, dataSubmit, onSuccess, onFail);
-        });
+        if (statusUpdate?.length > 1) toast.error('Bạn đang chọn nhiều trạng thái khác nhau. Vui lòng chỉ chọn 1!');
+        else {
+            packageSelected?.map((item) => {
+                const dataSubmit = {
+                    status: statusUpdate[0]
+                }
+                
+                updatePackageStatus(item.id, dataSubmit, onSuccess, onFail);
+            });
+        }
     }
 
     return (
@@ -267,10 +277,6 @@ const AllPackages = () => {
                             <Input />
                         </Form.Item>
 
-                        <Form.Item label="Thời gian tạo:" name="sort" className="w-full md:flex-1">
-                            <Radio.Group block options={optionSort} />
-                        </Form.Item>
-
                         <Form.Item
                             label="Tên đơn vị vận chuyển"
                             name="fulfillment_name"
@@ -286,6 +292,24 @@ const AllPackages = () => {
                                     { value: 'TeeClub', label: 'TeeClub' },
                                 ]}
                             />
+                        </Form.Item>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-5">
+                        <Form.Item
+                            label="Trạng thái"
+                            name="status"
+                            className="w-full md:flex-1"
+                        >
+                            <Select
+                                mode="multiple"
+                                onChange={handleChangeUser}
+                                options={status}
+                            />
+                        </Form.Item>
+
+                        <Form.Item label="Thời gian tạo:" name="sort" className="w-full md:flex-1">
+                            <Radio.Group block options={optionSort} />
                         </Form.Item>
 
                         <Form.Item
@@ -314,10 +338,7 @@ const AllPackages = () => {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-5">
-                        <Button type="primary" disabled={!packageSelected?.length} onClick={handleNavigate}>Chuyển qua xưởng Teelover</Button>
-                        <Button type="primary" icon={<CloudDownloadOutlined />} onClick={handleExport} disabled={!packages?.length}>
-                            Export
-                        </Button>
+                        <Button type="primary" disabled={!packageSelected?.length} icon={<CloudDownloadOutlined/>} onClick={handleExport}>Export</Button>
 
                         <Form.Item label={null} className="!mb-0">
                             <Button type="primary" htmlType="submit" icon={<ReloadOutlined />}>
@@ -325,17 +346,30 @@ const AllPackages = () => {
                             </Button>
                         </Form.Item>
 
+                        <Button type="primary" disabled={!packageSelected?.length} onClick={handleUpdateStatus}>
+                            <Tooltip title="Cập nhật theo trạng thái đã chọn ở trên">
+                                Update status
+                            </Tooltip>
+                        </Button>
+
                         <Button type="link" onClick={handleReset}>
                             Mặc định
                         </Button>
+
                     </div>
                 </Form>
 
             </div>
 
-            <AllPackagesTable data={packages} loading={loadingAllPackages} packageSelected={handlePackageSelected} onSaveSuccess={onFinish} />
+            <PackagesStatusTable 
+                data={packages} 
+                loading={loadingAllPackages} 
+                packageSelected={handlePackageSelected} 
+                onSaveSuccess={onFinish}
+                packageStatus={form.getFieldValue('status')}
+            />
         </div>
     );
 };
 
-export default AllPackages;
+export default PackagesStatus;

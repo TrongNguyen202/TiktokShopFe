@@ -21,6 +21,7 @@ const Products = lazy(() => import('./pages/products'))
 const Customers = lazy(() => import('./pages/customers'))
 const Categories = lazy(() => import('./pages/categories'))
 const AllPackages = lazy(() => import('./pages/all-packages'))
+const PackagesStatus = lazy(() => import('./pages/all-packages/status'))
 const HomepageInterface = lazy(() => import('./pages/settings/homepageInterface'))
 const IdentityRequest = lazy(() => import('./pages/identityRequest/Index'))
 const StoreDetail = lazy(() => import('./pages/stores/StoreDetail.jsx'))
@@ -113,6 +114,16 @@ const App = () => {
                   </Suspense>
                 }
               />
+
+              <Route
+                path='/all-packages/status'
+                element={
+                  <Suspense fallback={<Loading />}>
+                    <PackagesStatus />
+                  </Suspense>
+                }
+              />
+              
 
               {/* Products */}
               <Route

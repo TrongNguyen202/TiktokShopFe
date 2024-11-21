@@ -44,12 +44,22 @@ const columns = [
             </div>
         ),
     },
-  
     {
         title: 'Label',
         dataIndex: 'linkLabel',
         key: 'linkLabel',
         render: (text) => <a href={text}>{text}</a>
+    },
+    {
+        title: 'Số lượng sản phẩm',
+        dataIndex: 'quantity',
+        key: 'products',
+        render: (_, record) => {
+            const totalQuantity = record.products.reduce((sum, product) => sum + product.quantity, 0)
+            return (
+                <div>{totalQuantity}</div>
+            )
+        }
     },
     {
         title: 'Shipping information',
@@ -71,10 +81,11 @@ const columns = [
     },
 ];
 
-const AllPackagesTable = ({ data,onSaveSuccess }) => {
+const AllPackagesTable = ({ data, onSaveSuccess, packageSelected }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [editedProducts, setEditedProducts] = useState([]);
+    const [selectedRows, setSelectedRows] = useState([]);
     const { loadingProductPackage,updateProductPackage } = useOrdersStore();
     const [LoadingSave, setLoadingSave] = useState(loadingProductPackage);
 
@@ -144,9 +155,19 @@ const AllPackagesTable = ({ data,onSaveSuccess }) => {
         handlePackageClick: handlePackageClick
     }));
 
+    const onSelectChange = (_, newSelectedRows) => {
+        setSelectedRows(newSelectedRows);
+        packageSelected(newSelectedRows);
+    };
+
+    const rowSelection = {
+        selectedRows,
+        onChange: onSelectChange,
+    };
+
     return (
         <>
-            <Table columns={columns} dataSource={dataWithHandlers} loading={LoadingSave} />
+            <Table rowKey="order_id" rowSelection={rowSelection} columns={columns} dataSource={dataWithHandlers} loading={LoadingSave} />
             <Modal
                 title="Edit Products"
                 visible={isModalVisible}

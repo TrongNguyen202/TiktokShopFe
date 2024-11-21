@@ -41,7 +41,7 @@
     "react-custom-scrollbars": "^4.2.1",
     "react-dom": "^18.2.0",
     "react-otp-input": "^3.0.2",
-    "react-router-dom": "^6.14.1",
+    "react-router-dom": "^6.28.0",
     "react-toastify": "^9.1.3",
     "recharts": "^2.7.2",
     "sass": "^1.80.7",
