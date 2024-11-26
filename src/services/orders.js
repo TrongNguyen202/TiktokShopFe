@@ -18,11 +18,20 @@ const updatePackageStatus = (id, body)=>{
 const updateFulfillmentName = (id, body)=>{
   return callApi(`/package/${id}/update-fulfillment-name/`, 'put', body)
 }
+const getFlashShipPodVariants =() => {
+  
+  return callApi(`/flashship/all`)
+};
+const getCkfPodVariants = ()=>{
+  return callApi(`/ckf/all`)
+}
 
 export const orders = {
   getUserGroup,
   getAllPackages,
   updateProductPackage,
   updatePackageStatus,
-  updateFulfillmentName
+  updateFulfillmentName,
+  getFlashShipPodVariants,
+  getCkfPodVariants
 }

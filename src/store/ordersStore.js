@@ -7,6 +7,34 @@ export const useOrdersStore = create((set) => ({
   loading: false,
   loadingAllPackages: false,
   loadingProductPackage: false,
+  podVariants:[],
+  ckfVariants:[],
+  getFlashShipVariants: async (onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      // console.log("hello")
+      set({ loading: true })
+      const response = await RepositoryRemote.orders.getFlashShipPodVariants()
+      set({ podVariants: response.data })
+      onSuccess(response.data)
+      // console.log("response", response)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  },
+  getCkfVariants: async (onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.orders.getCkfPodVariants()
+      set({ ckfVariants: response.data })
+      onSuccess(response.data)
+      console.log("response", response)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  },
+
   getUserGroup: async (onSuccess = () => {}, onFail = () => {}) => {
     try {
       set({ loading: true })

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Radio, Form, Input, Select } from 'antd';
+import { Button, Radio, Form, Input, Select, Tooltip } from 'antd';
 import { ReloadOutlined, CloudDownloadOutlined } from "@ant-design/icons";
 import * as XLSX from 'xlsx';
 
@@ -33,8 +33,18 @@ const AllPackages = () => {
     const [shops, setShops] = useState([]);
     const [packageSelected, setPackageSelected] = useState([]);
     const [packages, setPackages] = useState([]);
-    const { getUserGroup, getAllPackages, loadingAllPackages, updateFulfillmentName } = useOrdersStore();
-
+    const { getUserGroup, getAllPackages, loadingAllPackages, updateFulfillmentName,getFlashShipVariants,podVariants,ckfVariants,getCkfVariants } = useOrdersStore();
+  
+    console.log("package", packages)
+    function markPacksWithEmptyDesigns(packs) {
+        return packs.map(pack => {
+          const hasMissingDesign = pack.products.some(product =>
+            !product.printer_design_front_url && !product.printer_design_back_url
+          );
+          return { ...pack, isMissingDesign: hasMissingDesign };
+        });
+      }
+      
     const handleChangeUser = (values) => {
         const idsSet = new Set(values);
         const userSelected = users.filter(user => idsSet.has(user.value));
@@ -49,6 +59,43 @@ const AllPackages = () => {
         }));
         setShops(shopByUser);
     };
+    const [isUserLoaded, setIsUserLoaded] = useState(false);
+    useEffect(() => {
+        const onSuccess = (res) => {
+            if (res) {
+                const dataResConvert = res.users?.map((user) => ({
+                    value: user.user_id,
+                    label: user.user_name,
+                    shops: user.shops
+                }));
+                setUsers(dataResConvert);
+                setIsUserLoaded(true); // Đánh dấu dữ liệu đã load xong
+            }
+        };
+        getUserGroup(onSuccess);
+    }, []);
+    
+    useEffect(() => {
+        if (isUserLoaded) { // Chỉ chạy khi users đã load xong
+            const userSelected = users;
+            // console.log("user selected", userSelected);
+            const allShops = userSelected.flatMap(item => item.shops);
+            const uniqueShops = Array.from(
+                new Map(allShops.map(shop => [shop.id, shop])).values()
+            );
+    
+            const shopByUser = uniqueShops?.map((shop) => ({
+                value: shop.id,
+                label: `${shop.id} - ${shop.name}`
+            }));
+    
+            // console.log("shop by user", shopByUser);
+            setShops(shopByUser);
+            form.setFieldsValue({ shop: shopByUser });
+        }
+    }, [isUserLoaded, users, form]); // Chỉ chạy khi `isUserLoaded` thay đổi
+    
+    
     
     const handleQuery = (state) => {
         let query = ``;
@@ -66,7 +113,10 @@ const AllPackages = () => {
         }
     
         if (state?.shop && Array.isArray(state.shop)) {
-            const shopIds = state.shop.join(',');
+            // console.log("state shop", state.shop)
+            const shopIds = state.shop.map((item)=>{
+                return item.value
+            })
             query += `&shop_id=${shopIds}`;
         }
     
@@ -87,7 +137,7 @@ const AllPackages = () => {
             query += `&create_time[$lt]=${createTimeLtUnix}`;
         }
     
-        console.log('Success:', state, query);
+        // console.log('Success:', state, query);
     
         if (query) return '?' + query;
         else return '';
@@ -96,7 +146,7 @@ const AllPackages = () => {
     const handleReset = () => {
         form.setFieldsValue(defaultValues);
     };
-
+    // console.log("package", packages);
     const handleExport = () => {
         console.log("package", packages);
         if (packages?.length) {
@@ -142,10 +192,15 @@ const AllPackages = () => {
 
     const onFinish = (values) => {
         const onSuccess = (res) => {
-            if (res) setPackages(res);
+          if (res) {
+            // Đánh dấu các packages
+            const updatedPackages = markPacksWithEmptyDesigns(res);
+            setPackages(updatedPackages);
+          }
         };
+      
         getAllPackages(handleQuery(values), onSuccess);
-    };
+      };
 
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);
@@ -155,21 +210,7 @@ const AllPackages = () => {
         form.setFieldsValue(defaultValues);
     }, [defaultValues, form]);
 
-    useEffect(() => {
-        const onSuccess = (res) => {
-            if (res) {
-                const dataResConvert = res.users?.map((user) => ({
-                    value: user.user_id,
-                    label: user.user_name,
-                    shops: user.shops
-                }));
-                
-                setUsers(dataResConvert);
-            }
-        };
-        getUserGroup(onSuccess);
-    }, []);
-
+    
     // console.log('packages: ', packages);
 
     // const handleDateChange = (date, dateString, fieldName, form) => {
@@ -191,6 +232,7 @@ const AllPackages = () => {
         
         setPackageSelected(data);
     }
+    console.log("package selected", packageSelected);
 
     const handleNavigate = () => {
         const onSuccess = (res) => {
@@ -211,7 +253,149 @@ const AllPackages = () => {
             updateFulfillmentName(item.id, dataSubmit, onSuccess, onFail);
         });
     }
+    // console.log("user",users)
+    // console.log("shops", shops)
+    useEffect(() => {
+        if (users.length) {
+            const defaultUserValues = users.map(user => user.value); // Lấy tất cả IDs của users
+            form.setFieldsValue({ user: defaultUserValues });
+        }
+    }, [users, form]);
+    
+    // useEffect(() => {
+    //     if (users.length) {
+    //         const allShops = users.flatMap(user => user.shops);
+    //         console.log("allshop", allShops)
+    //         form.setFieldsValue({ shop: allShops });
+    //     }
+    // }, [shops, form]);
+    const handleExportFlashShip =()=>{
+        const rows = [];
+    packageSelected.forEach((packageItem) => {
+    packageItem.products.forEach((product) => {
+        rows.push({
+        'External ID': 'POD196',
+        'Order ID': packageItem.order_id,
+        'Shipping method': packageItem.shipment,
+        'First Name': packageItem.buyer_first_name,
+        'Last Name': packageItem.buyer_last_name,
+        Email: packageItem.buyer_email,
+        Phone: packageItem.buyer_phone,
+        Country: packageItem.buyer_country_code,
+        Region: packageItem.buyer_province_code,
+        'Address line 1': packageItem.buyer_address1,
+        'Address line 2': packageItem.buyer_address2,
+        City: packageItem.buyer_city,
+        Zip: packageItem.buyer_zip,
+        Quantity: product.quantity,
+        'Variant ID': product.sku_custom,
+        'Print area front': product.printer_design_front_url || '',
+        'Print area back': product.printer_design_back_url || '',
+        'Mockup Front': product.mock_up_front_url || '',
+        'Mockup Back': product.mock_up_back_url || '',
+        'Product note': product.note || '',
+        'Link label': packageItem.linkLabel,
+        });
+    });
+    });
 
+    // Xuất ra Excel
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+
+    // Lưu file Excel
+    XLSX.writeFile(workbook, "orderflashship.xlsx");
+
+    console.log("Export completed!");
+    }
+    const handleExportPrincare =()=>{
+        const rows = [];
+    packageSelected.forEach((packageItem) => {
+    packageItem.products.forEach((product) => {
+        rows.push({
+        'External ID': 'POD196',
+        'Order ID': packageItem.order_id,
+        'Shipping method': packageItem.shipment,
+        'First Name': packageItem.buyer_first_name,
+        'Last Name': packageItem.buyer_last_name,
+        Email: packageItem.buyer_email,
+        Phone: packageItem.buyer_phone,
+        Country: packageItem.buyer_country_code,
+        Region: packageItem.buyer_province_code,
+        'Address line 1': packageItem.buyer_address1,
+        'Address line 2': packageItem.buyer_address2,
+        City: packageItem.buyer_city,
+        Zip: packageItem.buyer_zip,
+        Quantity: product.quantity,
+        'Variant ID': product.sku_custom,
+        'Print area front': product.printer_design_front_url || '',
+        'Print area back': product.printer_design_back_url || '',
+        'Mockup Front': product.mock_up_front_url || '',
+        'Mockup Back': product.mock_up_back_url || '',
+        'Product note': product.note || '',
+        'Link label': packageItem.linkLabel,
+        'Tracking ID':packageItem.tracking_id
+        });
+    });
+    });
+
+    // Xuất ra Excel
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+
+    // Lưu file Excel
+    XLSX.writeFile(workbook, "orderPrincare.xlsx");
+
+    console.log("Export completed!");
+    }
+    const handleExportCkf =()=>{
+        const rows = [];
+        const today = new Date();
+        packageSelected.forEach((packageItem) => {
+        packageItem.products.forEach((product) => {
+            rows.push({
+               
+                    'Process day':`${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`,
+                    'Sent out day':'',
+                    'Order ID':packageItem.order_id,
+                    'Label Tiktok':packageItem.linkLabel,
+                    'Tracking':packageItem.tracking_id,
+                    'tracking status':'',
+                    '店铺编号':'',
+                    'Customer Note':product.note || " ",
+                    'Phone (Billing)':'',
+                    'Name (Shipping)':packageItem.buyer_first_name +" "+ packageItem.buyer_last_name,
+                    'Address 1&2 (Shipping)':packageItem.buyer_address1 || packageItem.buyer_address2,
+                    'City (Shipping)':packageItem.buyer_city,
+                    'State Code (Shipping)':packageItem.buyer_province_code,
+                    'Postcode Code (Shipping)':packageItem.buyer_zip,
+                    'Country Code (Shipping)':"US",
+                    'SKU BASIC':product.sku_custom,
+                    'SKU Custom':product.seller_sku || '',
+                    'Item Name': product.product_name,
+                    'Type':product.product_type,
+                    "Size":product.size,
+                    "Color":product.color,
+                    "Quantity":product.quantity,
+                    'Design Front': product?.image_design_front || '',
+                    'Design Back': product?.image_design_back || '',
+                    'Mockup link':product?.mockup_front || '',
+            });
+        });
+        });
+    
+        // Xuất ra Excel
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.json_to_sheet(rows);
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+    
+        // Lưu file Excel
+        XLSX.writeFile(workbook, "orderCkf.xlsx");
+    
+        console.log("Export completed!");
+    }
     return (
         <div className="p-10">
             <div className="mb-10">
@@ -246,8 +430,17 @@ const AllPackages = () => {
                             <Select
                                 mode="multiple"
                                 options={shops}
-                            />
-                        </Form.Item>
+                                maxTagCount="responsive" // Tự động ẩn các thẻ khi có quá nhiều
+                                maxTagPlaceholder={(omittedValues) => (
+                                    <Tooltip
+                                        overlayStyle={{ pointerEvents: 'none' }}
+                                        title={omittedValues.map(({ label }) => label).join(', ')}
+                                    >
+                                        <span>...</span>
+                                    </Tooltip>
+        )}
+    />
+        </Form.Item>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-5">
@@ -279,8 +472,8 @@ const AllPackages = () => {
                             <Select
                                 mode="multiple"
                                 options={[
-                                    { value: 'Flashship', label: 'Flashship' },
-                                    { value: 'Princare', label: 'Princare' },
+                                    { value: 'FlashShip', label: 'FlashShip' },
+                                    { value: 'PrinCare', label: 'PrinCare' },
                                     { value: 'Ckf', label: 'Ckf' },
                                     { value: 'Platform', label: 'Platform' },
                                     { value: 'TeeClub', label: 'TeeClub' },
@@ -318,7 +511,15 @@ const AllPackages = () => {
                         <Button type="primary" icon={<CloudDownloadOutlined />} onClick={handleExport} disabled={!packages?.length}>
                             Export
                         </Button>
-
+                        <Button type="primary" icon={<CloudDownloadOutlined />} onClick={handleExportFlashShip} disabled={!packageSelected?.length}>
+                            Export FlashShip
+                        </Button>
+                        <Button type="primary" icon={<CloudDownloadOutlined />} onClick={handleExportPrincare} disabled={!packageSelected?.length}>
+                            Export Printcare
+                        </Button>
+                        <Button type="primary" icon={<CloudDownloadOutlined />} onClick={handleExportCkf} disabled={!packageSelected?.length}>
+                            Export Ckf
+                        </Button>
                         <Form.Item label={null} className="!mb-0">
                             <Button type="primary" htmlType="submit" icon={<ReloadOutlined />}>
                                 Làm mới 

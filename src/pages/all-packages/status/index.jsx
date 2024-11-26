@@ -64,6 +64,47 @@ const PackagesStatus = () => {
         setShops(shopByUser);
     };
     
+    const [isUserLoaded, setIsUserLoaded] = useState(false);
+    useEffect(() => {
+        const onSuccess = (res) => {
+            if (res) {
+                const dataResConvert = res.users?.map((user) => ({
+                    value: user.user_id,
+                    label: user.user_name,
+                    shops: user.shops
+                }));
+                setUsers(dataResConvert);
+                setIsUserLoaded(true); // Đánh dấu dữ liệu đã load xong
+            }
+        };
+        getUserGroup(onSuccess);
+    }, []);
+    
+    useEffect(() => {
+        if (isUserLoaded) { // Chỉ chạy khi users đã load xong
+            const userSelected = users;
+            console.log("user selected", userSelected);
+            const allShops = userSelected.flatMap(item => item.shops);
+            const uniqueShops = Array.from(
+                new Map(allShops.map(shop => [shop.id, shop])).values()
+            );
+    
+            const shopByUser = uniqueShops?.map((shop) => ({
+                value: shop.id,
+                label: `${shop.id} - ${shop.name}`
+            }));
+    
+            console.log("shop by user", shopByUser);
+            setShops(shopByUser);
+            form.setFieldsValue({ shop: shopByUser });
+        }
+    }, [isUserLoaded, users, form]); // Chỉ chạy khi `isUserLoaded` thay đổi
+    useEffect(() => {
+        if (users.length) {
+            const defaultUserValues = users.map(user => user.value); // Lấy tất cả IDs của users
+            form.setFieldsValue({ user: defaultUserValues });
+        }
+    }, [users, form]);
     const handleQuery = (state) => {
         let query = ``;
     
@@ -80,7 +121,10 @@ const PackagesStatus = () => {
         }
     
         if (state?.shop && Array.isArray(state.shop)) {
-            const shopIds = state.shop.join(',');
+            // console.log("state shop", state.shop)
+            const shopIds = state.shop.map((item)=>{
+                return item.value
+            })
             query += `&shop_id=${shopIds}`;
         }
 
@@ -92,11 +136,16 @@ const PackagesStatus = () => {
         }
     
         // Xử lý fulfillment_name nếu có
-        if (state?.fulfillment_name && Array.isArray(state.fulfillment_name)) {
+        if (Array.isArray(state.fulfillment_name)) {
+            if (state.fulfillment_name.length === 0) {
+                state.fulfillment_name = ["TeeClub"]; // Gán giá trị mặc định nếu mảng rỗng
+            }
+            console.log("state?.fulfillment_name", state?.fulfillment_name);
             state.fulfillment_name.forEach(name => {
                 query += `&fulfillment_name=${name}`;
             });
         }
+        
     
         // Chuyển create_time_gte và create_time_lt sang Unix timestamp khi filter
         if (state?.create_time_gte) {
@@ -160,7 +209,7 @@ const PackagesStatus = () => {
             toast.info('Không có package nào!');
         }
     };
-
+    
     const onFinish = (values) => {
         const onSuccess = (res) => {
             if (res) setPackages(res);
@@ -190,7 +239,7 @@ const PackagesStatus = () => {
         };
         getUserGroup(onSuccess);
     }, []);
-
+    
     const handlePackageSelected = (data) => {
         console.log(data);
         
@@ -221,6 +270,7 @@ const PackagesStatus = () => {
             });
         }
     }
+    
 
     return (
         <div className="p-10">
@@ -256,8 +306,17 @@ const PackagesStatus = () => {
                             <Select
                                 mode="multiple"
                                 options={shops}
-                            />
-                        </Form.Item>
+                                maxTagCount="responsive" // Tự động ẩn các thẻ khi có quá nhiều
+                                maxTagPlaceholder={(omittedValues) => (
+                                    <Tooltip
+                                        overlayStyle={{ pointerEvents: 'none' }}
+                                        title={omittedValues.map(({ label }) => label).join(', ')}
+                                    >
+                                        <span>...</span>
+                                    </Tooltip>
+        )}
+    />
+        </Form.Item>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-5">
@@ -281,17 +340,9 @@ const PackagesStatus = () => {
                             label="Tên đơn vị vận chuyển"
                             name="fulfillment_name"
                             className="w-full md:flex-1"
+                            initialValue={["TeeClub"]} // Đặt giá trị mặc định là mảng
                         >
-                            <Select
-                                mode="multiple"
-                                options={[
-                                    { value: 'Flashship', label: 'Flashship' },
-                                    { value: 'Princare', label: 'Princare' },
-                                    { value: 'Ckf', label: 'Ckf' },
-                                    { value: 'Platform', label: 'Platform' },
-                                    { value: 'TeeClub', label: 'TeeClub' },
-                                ]}
-                            />
+                            <Input value="TeeClub" readOnly /> {/* Chỉ hiển thị giá trị TeeClub */}
                         </Form.Item>
                     </div>
 

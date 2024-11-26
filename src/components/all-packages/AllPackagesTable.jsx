@@ -45,11 +45,16 @@ const columns = [
         ),
     },
     {
-        title: 'Label',
-        dataIndex: 'linkLabel',
-        key: 'linkLabel',
-        render: (text) => <a href={text}>{text}</a>
+        title: 'Missing Design',
+        dataIndex: 'isMissingDesign',
+        key: 'isMissingDesign',
+        render: (isMissingDesign) => (
+            <span style={{ color: isMissingDesign ? 'red' : 'green' }}>
+                {isMissingDesign ? 'Missing' : 'Complete'}
+            </span>
+        ),
     },
+    
     {
         title: 'Số lượng sản phẩm',
         dataIndex: 'quantity',
@@ -79,6 +84,12 @@ const columns = [
             </div>
         )
     },
+    {
+        title: 'Label',
+        dataIndex: 'linkLabel',
+        key: 'linkLabel',
+        render: (text) => <a href={text}>{text}</a>
+    },
 ];
 
 const AllPackagesTable = ({ data, onSaveSuccess, packageSelected }) => {
@@ -86,7 +97,7 @@ const AllPackagesTable = ({ data, onSaveSuccess, packageSelected }) => {
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [editedProducts, setEditedProducts] = useState([]);
     const [selectedRows, setSelectedRows] = useState([]);
-    const { loadingProductPackage,updateProductPackage } = useOrdersStore();
+    const { loadingProductPackage,updateProductPackage,loadingAllPackages } = useOrdersStore();
     const [LoadingSave, setLoadingSave] = useState(loadingProductPackage);
 
     const handlePackageClick = (products) => {
@@ -150,10 +161,12 @@ const AllPackagesTable = ({ data, onSaveSuccess, packageSelected }) => {
         setEditedProducts([]);
     };
 
-    const dataWithHandlers = data.map((record) => ({
+    const dataWithHandlers = data
+    .map((record) => ({
         ...record,
-        handlePackageClick: handlePackageClick
-    }));
+        handlePackageClick: handlePackageClick,
+    }))
+    .sort((a, b) => (b.isMissingDesign ? 1 : 0) - (a.isMissingDesign ? 1 : 0)); // Đưa packages `isMissingDesign` lên đầu
 
     const onSelectChange = (_, newSelectedRows) => {
         setSelectedRows(newSelectedRows);
@@ -167,98 +180,124 @@ const AllPackagesTable = ({ data, onSaveSuccess, packageSelected }) => {
 
     return (
         <>
-            <Table rowKey="order_id" rowSelection={rowSelection} columns={columns} dataSource={dataWithHandlers} loading={LoadingSave} />
+            <Table rowKey="order_id" rowSelection={rowSelection} columns={columns} dataSource={dataWithHandlers} loading={loadingAllPackages} />
             <Modal
-                title="Edit Products"
-                visible={isModalVisible}
-                onOk={handleSave}
-                onCancel={handleCancel}
-                footer={[
-                    <Button key="back" onClick={handleCancel}>
-                        Cancel
-                    </Button>,
-                    <Button key="submit" type="primary" onClick={handleSave}>
-                        Save
-                    </Button>,
-                ]}
-            >
-                {editedProducts.map((product, index) => (
-                    <div key={index} style={{ marginBottom: '15px', borderBottom: '1px solid #ddd', paddingBottom: '10px' }}>
-                        <img
-                            src={product.mock_up_front_url}
-                            alt={`Product Mockup ${index + 1}`}
-                            style={{ width: '100%', height: 'auto', marginBottom: '5px' }}
-                        />
-                        <Input
-                            placeholder="Product Name"
-                            value={product.product_name}
-                            onChange={(e) => handleInputChange(index, 'product_name', e.target.value)}
-                            style={{ marginBottom: '10px' }}
-                        />
-                        <Input
-                            placeholder="Quantity"
-                            type="number"
-                            value={product.quantity}
-                            onChange={(e) => handleInputChange(index, 'quantity', e.target.value)}
-                            style={{ marginBottom: '10px' }}
-                        />
-                        <Input
-                            placeholder="Variant ID"
-                            value={product.variant_id}
-                            onChange={(e) => handleInputChange(index, 'variant_id', e.target.value)}
-                            style={{ marginBottom: '10px' }}
-                        />
-                        <Input
-                            placeholder="Color"
-                            value={product.color}
-                            onChange={(e) => handleInputChange(index, 'color', e.target.value)}
-                            style={{ marginBottom: '10px' }}
-                        />
-                        <Input
-                            placeholder="Size"
-                            value={product.size}
-                            onChange={(e) => handleInputChange(index, 'size', e.target.value)}
-                            style={{ marginBottom: '10px' }}
-                        />
-                        <Input
-                            placeholder="Style"
-                            value={product.style}
-                            onChange={(e) => handleInputChange(index, 'style', e.target.value)}
-                            style={{ marginBottom: '10px' }}
-                        />
-                        <Input
-                            placeholder="Mock Up Front URL"
-                            value={product.mock_up_front_url}
-                            onChange={(e) => handleInputChange(index, 'mock_up_front_url', e.target.value)}
-                            style={{ marginBottom: '10px' }}
-                        />
-                        <Input
-                            placeholder="Mock Up Back URL"
-                            value={product.mock_up_back_url}
-                            onChange={(e) => handleInputChange(index, 'mock_up_back_url', e.target.value)}
-                            style={{ marginBottom: '10px' }}
-                        />
-                        <Input
-                            placeholder="Printer Design Front URL"
-                            value={product.printer_design_front_url}
-                            onChange={(e) => handleInputChange(index, 'printer_design_front_url', e.target.value)}
-                            style={{ marginBottom: '10px' }}
-                        />
-                        <Input
-                            placeholder="Printer Design Back URL"
-                            value={product.printer_design_back_url}
-                            onChange={(e) => handleInputChange(index, 'printer_design_back_url', e.target.value)}
-                            style={{ marginBottom: '10px' }}
-                        />
-                        <Input.TextArea
-                            placeholder="Note"
-                            value={product.note}
-                            onChange={(e) => handleInputChange(index, 'note', e.target.value)}
-                            style={{ marginBottom: '10px' }}
-                        />
-                    </div>
-                ))}
-            </Modal>
+    title="Edit Products"
+    visible={isModalVisible}
+    onOk={handleSave}
+    onCancel={handleCancel}
+    footer={[
+        <Button key="back" onClick={handleCancel}>
+            Cancel
+        </Button>,
+        <Button key="submit" type="primary" onClick={handleSave}>
+            Save
+        </Button>,
+    ]}
+>
+    {editedProducts.map((product, index) => (
+        <div
+            key={index}
+            style={{ marginBottom: '15px', borderBottom: '1px solid #ddd', paddingBottom: '10px' }}
+        >
+            <img
+                src={product.mock_up_front_url}
+                alt={`Product Mockup ${index + 1}`}
+                style={{ width: '100%', height: 'auto', marginBottom: '5px' }}
+            />
+            <div style={{ marginBottom: '10px' }}>
+                <label>Product Name</label>
+                <Input
+                    placeholder="Product Name"
+                    value={product.product_name}
+                    onChange={(e) => handleInputChange(index, 'product_name', e.target.value)}
+                />
+            </div>
+            <div style={{ marginBottom: '10px' }}>
+                <label>Quantity</label>
+                <Input
+                    placeholder="Quantity"
+                    type="number"
+                    value={product.quantity}
+                    onChange={(e) => handleInputChange(index, 'quantity', e.target.value)}
+                />
+            </div>
+            <div style={{ marginBottom: '10px' }}>
+                <label>Variant ID</label>
+                <Input
+                    placeholder="Variant ID"
+                    value={product.variant_id}
+                    onChange={(e) => handleInputChange(index, 'variant_id', e.target.value)}
+                />
+            </div>
+            <div style={{ marginBottom: '10px' }}>
+                <label>Color</label>
+                <Input
+                    placeholder="Color"
+                    value={product.color}
+                    onChange={(e) => handleInputChange(index, 'color', e.target.value)}
+                />
+            </div>
+            <div style={{ marginBottom: '10px' }}>
+                <label>Size</label>
+                <Input
+                    placeholder="Size"
+                    value={product.size}
+                    onChange={(e) => handleInputChange(index, 'size', e.target.value)}
+                />
+            </div>
+            <div style={{ marginBottom: '10px' }}>
+                <label>Style</label>
+                <Input
+                    placeholder="Style"
+                    value={product.style}
+                    onChange={(e) => handleInputChange(index, 'style', e.target.value)}
+                />
+            </div>
+            <div style={{ marginBottom: '10px' }}>
+                <label>Mock Up Front URL</label>
+                <Input
+                    placeholder="Mock Up Front URL"
+                    value={product.mock_up_front_url}
+                    onChange={(e) => handleInputChange(index, 'mock_up_front_url', e.target.value)}
+                />
+            </div>
+            <div style={{ marginBottom: '10px' }}>
+                <label>Mock Up Back URL</label>
+                <Input
+                    placeholder="Mock Up Back URL"
+                    value={product.mock_up_back_url}
+                    onChange={(e) => handleInputChange(index, 'mock_up_back_url', e.target.value)}
+                />
+            </div>
+            <div style={{ marginBottom: '10px' }}>
+                <label>Printer Design Front URL</label>
+                <Input
+                    placeholder="Printer Design Front URL"
+                    value={product.printer_design_front_url}
+                    onChange={(e) => handleInputChange(index, 'printer_design_front_url', e.target.value)}
+                />
+            </div>
+            <div style={{ marginBottom: '10px' }}>
+                <label>Printer Design Back URL</label>
+                <Input
+                    placeholder="Printer Design Back URL"
+                    value={product.printer_design_back_url}
+                    onChange={(e) => handleInputChange(index, 'printer_design_back_url', e.target.value)}
+                />
+            </div>
+            <div style={{ marginBottom: '10px' }}>
+                <label>Note</label>
+                <Input.TextArea
+                    placeholder="Note" nbvvvZ
+                    value={product.note}
+                    onChange={(e) => handleInputChange(index, 'note', e.target.value)}
+                />
+            </div>
+        </div>
+    ))}
+</Modal>
+
         </>
     );
 };
