@@ -1,105 +1,198 @@
 import React, { useState } from 'react';
-import { Table, Modal, Input, Button } from 'antd';
+import { Table, Modal, Input, Button, Tooltip, Dropdown, Menu, Tag } from 'antd';
 import { useOrdersStore } from "../../store/ordersStore";
+import { EditOutlined } from '@ant-design/icons';
 
-const columns = [
-    {
-        title: 'SST',
-        dataIndex: 'sst',
-        key: 'sst',
-        render: (_, record, index) => index,
-        width: '20px'
-    },
-    {
-        title: 'Order Id',
-        dataIndex: 'order_id',
-        key: 'order_id'
-    },
-    {
-        title: 'Package Id',
-        dataIndex: 'pack_id',
-        key: 'pack_id',
-        render: (packId, record) => (
-            <a onClick={() => record.handlePackageClick(record.products)} style={{ cursor: 'pointer' }}>
-                {packId}
-            </a>
-        ),
-    },
-    {
-        title: 'Products Mock Up',
-        dataIndex: 'products',
-        key: 'product_mockup',
-        render: (products) => (
-            <div>
-                {products.length > 0 && (
-                    <>
-                        <img
-                            src={products[0].mock_up_front_url}
-                            alt="Product Mockup"
-                            style={{ width: '100px', height: 'auto', marginRight: '10px' }}
-                        />
-                        <span>{`+${products.length - 1} more`}</span>
-                    </>
-                )}
-            </div>
-        ),
-    },
-    {
-        title: 'Missing Design',
-        dataIndex: 'isMissingDesign',
-        key: 'isMissingDesign',
-        render: (isMissingDesign) => (
-            <span style={{ color: isMissingDesign ? 'red' : 'green' }}>
-                {isMissingDesign ? 'Missing' : 'Complete'}
-            </span>
-        ),
-    },
-    
-    {
-        title: 'Số lượng sản phẩm',
-        dataIndex: 'quantity',
-        key: 'products',
-        render: (_, record) => {
-            const totalQuantity = record.products.reduce((sum, product) => sum + product.quantity, 0)
-            return (
-                <div>{totalQuantity}</div>
-            )
-        }
-    },
-    {
-        title: 'Shipping information',
-        dataIndex: 'linkLabel',
-        key: 'linkLabel',
-        render: (_, record) => (
-            <div>
-                <ul>
-                    <li><strong>Buyer name:</strong> <span>{record.buyer_first_name} {record.buyer_last_name}</span></li>
-                    <li><strong>Buyer email:</strong> <span>{record.buyer_email}</span></li>
-                    <li><strong>Address:</strong> <span>{record.buyer_address1} | {record.buyer_address2}</span></li>
-                    <li><strong>City:</strong> <span>{record.buyer_city}</span></li>
-                    <li><strong>State:</strong> <span>{record.buyer_province_code}</span></li>
-                    <li><strong>Country:</strong> <span>{record.buyer_country_code}</span></li>
-                    <li><strong>Zip code:</strong> <span>{record.buyer_zip}</span></li>
-                </ul>
-            </div>
-        )
-    },
-    {
-        title: 'Label',
-        dataIndex: 'linkLabel',
-        key: 'linkLabel',
-        render: (text) => <a href={text}>{text}</a>
-    },
-];
 
-const AllPackagesTable = ({ data, onSaveSuccess, packageSelected }) => {
+
+const AllPackagesTable = ({ data, onSaveSuccess, packageSelected,packageStatus }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [editedProducts, setEditedProducts] = useState([]);
     const [selectedRows, setSelectedRows] = useState([]);
     const { loadingProductPackage,updateProductPackage,loadingAllPackages } = useOrdersStore();
     const [LoadingSave, setLoadingSave] = useState(loadingProductPackage);
-
+    const { updatePackageStatus } = useOrdersStore();
+    const statuses = [
+        "no_design", "has_design", "print_pending", "printed", 
+        "in_production", "production_done", "shipping_to_us", 
+        "shipped_to_us", "shipping_within_us", "delivered_to_customer", "cancelled"
+    ];
+    const handleUpdatePackage = (id, selectedStatus) => {
+        console.log('handleUpdatePackage: ', id, selectedStatus);
+    
+        const onSuccess = (res) => {
+            if (res) {
+                toast.success('Update thành công!');
+            }
+        };
+    
+        const onFail = (err) => {
+            console.log(err);
+        };
+    
+        if (!selectedStatus) {
+            toast.error('Bạn chưa chọn trạng thái!');
+            return;
+        }
+    
+        const dataSubmit = {
+            status: selectedStatus
+        };
+        console.log('dataSubmit:', dataSubmit);
+    
+        updatePackageStatus(id, dataSubmit, onSuccess, onFail);
+    };
+    const columns = [
+        {
+            title: 'SST',
+            dataIndex: 'sst',
+            key: 'sst',
+            render: (_, record, index) => index,
+            width: '20px'
+        },
+        {
+            title: 'Status',
+            dataIndex: 'status',
+            key: 'status',
+            render: (status) => {
+                const statusColors = {
+                    no_design: 'red',
+                    has_design: 'orange',
+                    print_pending: 'blue',
+                    printed: 'green',
+                    in_production: 'purple',
+                    production_done: 'cyan',
+                    shipping_to_us: 'lime',
+                    shipped_to_us: 'gold',
+                    shipping_within_us: 'magenta',
+                    delivered_to_customer: 'green',
+                    cancelled: 'gray',
+                };
+        
+                const statusLabels = {
+                    no_design: 'No Design',
+                    has_design: 'Has Design',
+                    print_pending: 'Print Pending',
+                    printed: 'Printed',
+                    in_production: 'In Production',
+                    production_done: 'Production Done',
+                    shipping_to_us: 'Shipping to US',
+                    shipped_to_us: 'Shipped to US',
+                    shipping_within_us: 'Shipping within US',
+                    delivered_to_customer: 'Delivered to Customer',
+                    cancelled: 'Cancelled',
+                };
+        
+                return (
+                    <Tag color={statusColors[status] || 'default'}>
+                        {statusLabels[status] || 'Unknown'}
+                    </Tag>
+                );
+            },
+        },
+        {
+            title: 'Order Id',
+            dataIndex: 'order_id',
+            key: 'order_id'
+        },
+        {
+            title: 'Package Id',
+            dataIndex: 'pack_id',
+            key: 'pack_id',
+            render: (packId, record) => (
+                <a onClick={() => record.handlePackageClick(record.products)} style={{ cursor: 'pointer' }}>
+                    {packId}
+                </a>
+            ),
+        },
+        {
+            title: 'Products Mock Up',
+            dataIndex: 'products',
+            key: 'product_mockup',
+            render: (products) => (
+                <div>
+                    {products.length > 0 && (
+                        <>
+                            <img
+                                src={products[0].mock_up_front_url}
+                                alt="Product Mockup"
+                                style={{ width: '100px', height: 'auto', marginRight: '10px' }}
+                            />
+                            <span>{`+${products.length - 1} more`}</span>
+                        </>
+                    )}
+                </div>
+            ),
+        },
+        {
+            title: 'Missing Design',
+            dataIndex: 'isMissingDesign',
+            key: 'isMissingDesign',
+            render: (isMissingDesign) => (
+                <span style={{ color: isMissingDesign ? 'red' : 'green' }}>
+                    {isMissingDesign ? 'Missing' : 'Complete'}
+                </span>
+            ),
+        },
+        
+        {
+            title: 'Số lượng sản phẩm',
+            dataIndex: 'quantity',
+            key: 'products',
+            render: (_, record) => {
+                const totalQuantity = record.products.reduce((sum, product) => sum + product.quantity, 0)
+                return (
+                    <div>{totalQuantity}</div>
+                )
+            }
+        },
+        {
+            title: 'Shipping information',
+            dataIndex: 'linkLabel',
+            key: 'linkLabel',
+            render: (_, record) => (
+                <div>
+                    <ul>
+                        <li><strong>Buyer name:</strong> <span>{record.buyer_first_name} {record.buyer_last_name}</span></li>
+                        <li><strong>Buyer email:</strong> <span>{record.buyer_email}</span></li>
+                        <li><strong>Address:</strong> <span>{record.buyer_address1} | {record.buyer_address2}</span></li>
+                        <li><strong>City:</strong> <span>{record.buyer_city}</span></li>
+                        <li><strong>State:</strong> <span>{record.buyer_province_code}</span></li>
+                        <li><strong>Country:</strong> <span>{record.buyer_country_code}</span></li>
+                        <li><strong>Zip code:</strong> <span>{record.buyer_zip}</span></li>
+                    </ul>
+                </div>
+            )
+        },
+        {
+            title: 'Label',
+            dataIndex: 'linkLabel',
+            key: 'linkLabel',
+            render: (text) => <a href={text}>{text}</a>
+        },
+        {
+            title: 'Action',
+            tabIndex: 'action',
+            key: 'action',
+            fixed: 'right',
+            render: (_, record) => (
+                <Tooltip title="Cập nhật trạng thái">
+                    <Dropdown
+                        overlay={
+                            <Menu
+                                onClick={({ key }) => handleUpdatePackage(record.id, key)}
+                                items={statuses.map(status => ({ key: status, label: status }))}
+                            />
+                        }
+                        trigger={['click']}
+                    >
+                        <Button type='primary' icon={<EditOutlined />}></Button>
+                    </Dropdown>
+                </Tooltip>
+            )
+        }
+    ];
     const handlePackageClick = (products) => {
         setSelectedProducts(products);
         setEditedProducts(products.map(product => ({ ...product }))); // Create a copy for editing

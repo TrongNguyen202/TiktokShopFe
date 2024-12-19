@@ -14,7 +14,19 @@ const optionSort = [
     { value: 'desc', label: 'Mới nhất'},
     { value: 'asc', label: 'Cũ nhất'},
 ];
-
+const status = [
+    { value: 'no_design', label: 'No design' },
+    { value: 'has_design', label: 'Has design' },
+    { value: 'print_pending', label: 'Print pending' },
+    { value: 'printed', label: 'Printed' },
+    { value: 'in_production', label: 'In production' },
+    { value: 'production_done', label: 'Production done' },
+    { value: 'shipping_to_us', label: 'Shipping to us' },
+    { value: 'shipped_to_us', label: 'Shipped to us' },
+    { value: 'shipping_within_us', label: 'Shipping within us' },
+    { value: 'delivered_to_customer', label: 'Delivered to customer' },
+    { value: 'cancelled', label: 'Cancelled' }
+]
 const defaultValues = {
     sort: optionSort[0].value,
     user: [],
@@ -22,9 +34,11 @@ const defaultValues = {
     fulfillment_name: [],
     create_time_gte: '',
     create_time_lt: '',
-    limit: 10,
+    limit: 1000,
     offset: 0,
+    status: [status[0].value]
 };
+
 
 const AllPackages = () => {
     const navigate = useNavigate();
@@ -35,7 +49,7 @@ const AllPackages = () => {
     const [packages, setPackages] = useState([]);
     const { getUserGroup, getAllPackages, loadingAllPackages, updateFulfillmentName,getFlashShipVariants,podVariants,ckfVariants,getCkfVariants } = useOrdersStore();
   
-    console.log("package", packages)
+    // console.log("package", packages)
     function markPacksWithEmptyDesigns(packs) {
         return packs.map(pack => {
           const hasMissingDesign = pack.products.some(product =>
@@ -118,6 +132,12 @@ const AllPackages = () => {
                 return item.value
             })
             query += `&shop_id=${shopIds}`;
+        }
+        if (state?.status) {
+            console.log('status: ', state?.status);
+            
+            const statusString = state?.status.map(status => `&status_name=${status}`).join("");
+            query += statusString;
         }
     
         // Xử lý fulfillment_name nếu có
@@ -269,6 +289,30 @@ const AllPackages = () => {
     //         form.setFieldsValue({ shop: allShops });
     //     }
     // }, [shops, form]);
+    const handleUpdateStatus = () => {
+        const statusUpdate = form.getFieldValue('status');
+
+        const onSuccess = (res) => {
+            if (res) {
+                toast.success('Update thành công!');
+            }         
+        }
+
+        const onFail = (err) => {
+            console.log(err);            
+        }
+
+        if (statusUpdate?.length > 1) toast.error('Bạn đang chọn nhiều trạng thái khác nhau. Vui lòng chỉ chọn 1!');
+        else {
+            packageSelected?.map((item) => {
+                const dataSubmit = {
+                    status: statusUpdate[0]
+                }
+                
+                updatePackageStatus(item.id, dataSubmit, onSuccess, onFail);
+            });
+        }
+    }
     const handleExportFlashShip =()=>{
         const rows = [];
     packageSelected.forEach((packageItem) => {
@@ -481,6 +525,23 @@ const AllPackages = () => {
                             />
                         </Form.Item>
 
+                        <div className="flex flex-wrap items-center gap-5">
+                        <Form.Item
+                            label="Trạng thái"
+                            name="status"
+                            className="w-full md:flex-1"
+                        >
+                            <Select
+                                mode="multiple"
+                                onChange={handleChangeUser}
+                                options={status}
+                            />
+                        </Form.Item>
+
+                        <Form.Item label="Thời gian tạo:" name="sort" className="w-full md:flex-1">
+                            <Radio.Group block options={optionSort} />
+                        </Form.Item>
+
                         <Form.Item
                             label="Create Time (Unix) - Thời gian bắt đầu"
                             name="create_time_gte"
@@ -505,6 +566,7 @@ const AllPackages = () => {
                             />
                         </Form.Item>
                     </div>
+                    </div>
 
                     <div className="flex flex-wrap items-center gap-5">
                         <Button type="primary" disabled={!packageSelected?.length} onClick={handleNavigate}>Chuyển qua xưởng Teelover</Button>
@@ -525,7 +587,11 @@ const AllPackages = () => {
                                 Làm mới 
                             </Button>
                         </Form.Item>
-
+                        <Button type="primary" disabled={!packageSelected?.length} onClick={handleUpdateStatus}>
+                            <Tooltip title="Cập nhật theo trạng thái đã chọn ở trên">
+                                Update status
+                            </Tooltip>
+                        </Button>
                         <Button type="link" onClick={handleReset}>
                             Mặc định
                         </Button>
@@ -534,7 +600,7 @@ const AllPackages = () => {
 
             </div>
 
-            <AllPackagesTable data={packages} loading={loadingAllPackages} packageSelected={handlePackageSelected} onSaveSuccess={onFinish} />
+            <AllPackagesTable data={packages} loading={loadingAllPackages} packageSelected={handlePackageSelected} onSaveSuccess={onFinish} packageStatus={form.getFieldValue('status')}/>
         </div>
     );
 };
