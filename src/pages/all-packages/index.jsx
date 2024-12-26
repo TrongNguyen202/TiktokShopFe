@@ -15,18 +15,29 @@ const optionSort = [
     { value: 'asc', label: 'Cũ nhất'},
 ];
 const status = [
+    { value: 'init', label: 'init' },
     { value: 'no_design', label: 'No design' },
     { value: 'has_design', label: 'Has design' },
     { value: 'print_pending', label: 'Print pending' },
     { value: 'printed', label: 'Printed' },
     { value: 'in_production', label: 'In production' },
     { value: 'production_done', label: 'Production done' },
-    { value: 'shipping_to_us', label: 'Shipping to us' },
-    { value: 'shipped_to_us', label: 'Shipped to us' },
-    { value: 'shipping_within_us', label: 'Shipping within us' },
+    { value: 'shipping_to_us', label: 'Shipping to US' },
+    { value: 'shipped_to_us', label: 'Shipped to US' },
+    { value: 'shipping_within_us', label: 'Shipping within US' },
     { value: 'delivered_to_customer', label: 'Delivered to customer' },
-    { value: 'cancelled', label: 'Cancelled' }
-]
+    { value: 'cancelled', label: 'Cancelled' },
+    { value: 'can_not_produce', label: 'Cannot produce' },
+    { value: 'lack_of_pet', label: 'Lack of pet' },
+    { value: 'wrong_design', label: 'Wrong design' },
+    { value: 'wrong_mockkup', label: 'Wrong mockup' },
+    { value: 'forwarded_to_supify', label: 'Forwarded to Supify' },
+    { value: 'sent_to_onos', label: 'Sent to Onos' },
+    { value: 'fullfilled', label: 'Fulfilled' },
+    { value: 'reforwarded_to_hall', label: 'Reforwarded to hall' }
+];
+
+
 const defaultValues = {
     sort: optionSort[0].value,
     user: [],
@@ -47,8 +58,8 @@ const AllPackages = () => {
     const [shops, setShops] = useState([]);
     const [packageSelected, setPackageSelected] = useState([]);
     const [packages, setPackages] = useState([]);
-    const { getUserGroup, getAllPackages, loadingAllPackages, updateFulfillmentName,getFlashShipVariants,podVariants,ckfVariants,getCkfVariants } = useOrdersStore();
-  
+    const { getUserGroup, getAllPackages, loadingAllPackages, updateFulfillmentName,updatePackageStatus,getUserShops,getUserInfor } = useOrdersStore();
+    
     // console.log("package", packages)
     function markPacksWithEmptyDesigns(packs) {
         return packs.map(pack => {
@@ -58,36 +69,119 @@ const AllPackages = () => {
           return { ...pack, isMissingDesign: hasMissingDesign };
         });
       }
-      
-    const handleChangeUser = (values) => {
-        const idsSet = new Set(values);
-        const userSelected = users.filter(user => idsSet.has(user.value));
-        const allShops = userSelected.flatMap(item => item.shops);
-        const uniqueShops = Array.from(
-            new Map(allShops.map(shop => [shop.id, shop])).values()
-        );
+
+      const filterPackages = (packages, filters) => {
+        const { filterSize, filterColor, filterStyle } = filters;
+        console.log("filter", filters);
         
-        const shopByUser = uniqueShops?.map((shop) => ({
+        return packages.filter((pkg) =>
+            pkg.products.some((product) => {
+                const matchesStyle = filterStyle
+                    ? product.style?.toLowerCase().includes(filterStyle.toLowerCase()) // Sử dụng includes cho style
+                    : true;
+                const matchesColor = filterColor
+                    ? product.color?.toLowerCase() === filterColor.toLowerCase() // So sánh chính xác cho color
+                    : true;
+                const matchesSize = filterSize
+                    ? product.size?.toLowerCase() === filterSize.toLowerCase() // So sánh chính xác cho size
+                    : true;
+    
+                return matchesStyle && matchesColor && matchesSize;
+            })
+        );
+    };
+    
+      
+    const handleChangeUser = (selectedUserIds) => {
+        // Lọc ra các user được chọn dựa trên IDs
+        const selectedUsers = users.filter(user => selectedUserIds.includes(user.value));
+    
+        // Tổng hợp tất cả các cửa hàng từ các user đã chọn
+        const allShops = selectedUsers.flatMap(user => user.shops);
+    
+        // Loại bỏ các cửa hàng trùng lặp
+        const uniqueShops = Array.from(new Map(allShops.map(shop => [shop.id, shop])).values());
+    
+        // Chuyển đổi định dạng phù hợp cho Select
+        const shopOptions = uniqueShops.map(shop => ({
             value: shop.id,
             label: `${shop.id} - ${shop.name}`
         }));
-        setShops(shopByUser);
+    
+        // Cập nhật danh sách cửa hàng
+        setShops(shopOptions);
+    
+        // Cập nhật giá trị của trường `shop` trong form
+        form.setFieldsValue({ shop: shopOptions.map(shop => shop.value) });
+    
+        console.log("Updated shops:", shopOptions); // Debug để kiểm tra danh sách shops
     };
+    
     const [isUserLoaded, setIsUserLoaded] = useState(false);
     useEffect(() => {
-        const onSuccess = (res) => {
-            if (res) {
-                const dataResConvert = res.users?.map((user) => ({
-                    value: user.user_id,
-                    label: user.user_name,
-                    shops: user.shops
-                }));
-                setUsers(dataResConvert);
-                setIsUserLoaded(true); // Đánh dấu dữ liệu đã load xong
+        const fetchData = async () => {
+            try {
+                const onUserInforSuccess = (userInforRes) => {
+                    console.log("User Info:", userInforRes);
+    
+                    if (userInforRes?.role[0] === 1) {
+                        // Nếu role = 1, gọi API getUserGroup
+                        console.log("Role is 1, fetching user group...");
+                        getUserGroup((groupRes) => {
+                            if (groupRes) {
+                                console.log("User Group Response:", groupRes);
+    
+                                const dataResConvert = groupRes.users?.map((user) => ({
+                                    value: user.user_id,
+                                    label: user.user_name,
+                                    shops: user.shops, // Bao gồm danh sách shops của user
+                                }));
+                                setUsers(dataResConvert);
+                                setIsUserLoaded(true); // Đánh dấu dữ liệu đã load xong
+                            }
+                        });
+                    } else {
+                        // Nếu role khác 1, gọi API getUserShops
+                        console.log("Role is not 1, fetching user shops...");
+                        getUserShops((shopRes) => {
+                            if (shopRes) {
+                                console.log("User Shops Response:", shopRes);
+    
+                                // Chuyển đổi dữ liệu tương tự dataResConvert
+                                const shopData = [
+                                    {
+                                        value: userInforRes.id,
+                                        label: userInforRes.username,
+                                        shops: shopRes.map((shop) => ({
+                                            id: shop.id,
+                                            name: shop.shop_name,
+                                        })), // Tạo danh sách shops theo định dạng tương tự
+                                    },
+                                ];
+                                setUsers(shopData); // Cập nhật danh sách user
+                                setShops(
+                                    shopRes.map((shop) => ({
+                                        value: shop.id,
+                                        label: shop.shop_name,
+                                    }))
+                                ); // Cập nhật danh sách shop nếu cần riêng biệt
+                                setIsUserLoaded(true); // Đánh dấu dữ liệu đã load xong
+                            }
+                        });
+                    }
+                };
+    
+                // Gọi API getUserInfor để kiểm tra role
+                getUserInfor(onUserInforSuccess);
+            } catch (error) {
+                console.error("Error fetching data:", error);
             }
         };
-        getUserGroup(onSuccess);
+    
+        fetchData();
     }, []);
+    
+    
     
     useEffect(() => {
         if (isUserLoaded) { // Chỉ chạy khi users đã load xong
@@ -127,11 +221,8 @@ const AllPackages = () => {
         }
     
         if (state?.shop && Array.isArray(state.shop)) {
-            // console.log("state shop", state.shop)
-            const shopIds = state.shop.map((item)=>{
-                return item.value
-            })
-            query += `&shop_id=${shopIds}`;
+            const shopIds = state.shop.map(shop => shop.value || shop); // Lấy giá trị nếu shop là object
+            query += `&shop_id=${shopIds.join(',')}`;
         }
         if (state?.status) {
             console.log('status: ', state?.status);
@@ -139,13 +230,22 @@ const AllPackages = () => {
             const statusString = state?.status.map(status => `&status_name=${status}`).join("");
             query += statusString;
         }
-    
-        // Xử lý fulfillment_name nếu có
-        if (state?.fulfillment_name && Array.isArray(state.fulfillment_name)) {
+        if (Array.isArray(state.fulfillment_name)) {
+            if (state.fulfillment_name.length === 0) {
+                state.fulfillment_name = ["FlashShip","PrintCare","Ckf"]; // Gán giá trị mặc định nếu mảng rỗng
+            }
+            console.log("state?.fulfillment_name", state?.fulfillment_name);
             state.fulfillment_name.forEach(name => {
                 query += `&fulfillment_name=${name}`;
             });
         }
+    
+        // // Xử lý fulfillment_name nếu có
+        // if (state?.fulfillment_name && Array.isArray(state.fulfillment_name)) {
+        //     state.fulfillment_name.forEach(name => {
+        //         query += `&fulfillment_name=${name}`;
+        //     });
+        // }
     
         // Chuyển create_time_gte và create_time_lt sang Unix timestamp khi filter
         if (state?.create_time_gte) {
@@ -211,6 +311,7 @@ const AllPackages = () => {
     };
 
     const onFinish = (values) => {
+        console.log('Received values of form:', values);
         const onSuccess = (res) => {
           if (res) {
             // Đánh dấu các packages
@@ -252,7 +353,7 @@ const AllPackages = () => {
         
         setPackageSelected(data);
     }
-    console.log("package selected", packageSelected);
+    // console.log("package selected", packageSelected);
 
     const handleNavigate = () => {
         const onSuccess = (res) => {
@@ -268,7 +369,8 @@ const AllPackages = () => {
 
         packageSelected?.map((item) => {
             const dataSubmit = {
-                "fulfillment_name": "Teelover"
+                "fulfillment_name": "Teelover",
+                "status":"forwarded_to_supify"
             }
             updateFulfillmentName(item.id, dataSubmit, onSuccess, onFail);
         });
@@ -316,6 +418,20 @@ const AllPackages = () => {
     const handleExportFlashShip =()=>{
         const rows = [];
     packageSelected.forEach((packageItem) => {
+        const onSuccess = (res) => {
+            if (res) {
+                toast.success('Update thành công!');
+            }         
+        }
+
+        const onFail = (err) => {
+            toast.error("Update fail")         
+        }
+        const dataSubmit = {
+            status: 'fullfilled'
+        }
+        
+        updatePackageStatus(packageItem.id, dataSubmit, onSuccess, onFail);
     packageItem.products.forEach((product) => {
         rows.push({
         'External ID': 'POD196',
@@ -350,12 +466,26 @@ const AllPackages = () => {
 
     // Lưu file Excel
     XLSX.writeFile(workbook, "orderflashship.xlsx");
-
-    console.log("Export completed!");
+    toast.success('export thành công!');
+    // console.log("Export completed!");
     }
     const handleExportPrincare =()=>{
         const rows = [];
     packageSelected.forEach((packageItem) => {
+        const onSuccess = (res) => {
+            if (res) {
+                toast.success('Update thành công!');
+            }         
+        }
+
+        const onFail = (err) => {
+            toast.error("Update fail")         
+        }
+        const dataSubmit = {
+            status: 'fullfilled'
+        }
+        
+        updatePackageStatus(packageItem.id, dataSubmit, onSuccess, onFail);
     packageItem.products.forEach((product) => {
         rows.push({
         'External ID': 'POD196',
@@ -372,7 +502,7 @@ const AllPackages = () => {
         City: packageItem.buyer_city,
         Zip: packageItem.buyer_zip,
         Quantity: product.quantity,
-        'Variant ID': product.sku_custom,
+        'Variant ID': product.variant_id,
         'Print area front': product.printer_design_front_url || '',
         'Print area back': product.printer_design_back_url || '',
         'Mockup Front': product.mock_up_front_url || '',
@@ -391,13 +521,27 @@ const AllPackages = () => {
 
     // Lưu file Excel
     XLSX.writeFile(workbook, "orderPrincare.xlsx");
-
-    console.log("Export completed!");
+    toast.success('Export completed!');
+    
     }
     const handleExportCkf =()=>{
         const rows = [];
         const today = new Date();
         packageSelected.forEach((packageItem) => {
+            const onSuccess = (res) => {
+                if (res) {
+                    toast.success('Update thành công!');
+                }         
+            }
+    
+            const onFail = (err) => {
+                toast.error("Update fail")         
+            }
+            const dataSubmit = {
+                status: 'fullfilled'
+            }
+            
+            updatePackageStatus(packageItem.id, dataSubmit, onSuccess, onFail);
         packageItem.products.forEach((product) => {
             rows.push({
                
@@ -440,6 +584,35 @@ const AllPackages = () => {
     
         console.log("Export completed!");
     }
+    const onSaveSuccess = (values) => {
+        const formValues = form.getFieldsValue(values); // Lấy giá trị hiện tại của form
+        console.log("value received", formValues);
+        const onSuccess = (res) => {
+            if (res) {
+                const updatedPackages = markPacksWithEmptyDesigns(res); // Đánh dấu các packages
+                const filteredPackages = filterPackages(updatedPackages, formValues); // Áp dụng filter
+                setPackages(filteredPackages); // Cập nhật lại danh sách packages
+            }
+        };
+        const query = handleQuery(formValues); // Tạo query từ giá trị form
+        getAllPackages(query, onSuccess); // Lấy dữ liệu mới từ API
+    };
+    useEffect(() => {
+       
+            const userSelected = users;
+            const allShops = userSelected.flatMap(item => item.shops);
+            const uniqueShops = Array.from(new Map(allShops.map(shop => [shop.id, shop])).values());
+    
+            const shopByUser = uniqueShops.map(shop => ({
+                value: shop.id,
+                label: `${shop.id} - ${shop.name}`
+            }));
+    
+            setShops(shopByUser);
+            form.setFieldsValue({ shop: shopByUser.map(shop => shop.value) }); // Đồng bộ giá trị shop trong form
+        
+    }, [isUserLoaded, users, form]);
+    
     return (
         <div className="p-10">
             <div className="mb-10">
@@ -466,26 +639,18 @@ const AllPackages = () => {
                             />
                         </Form.Item>
 
-                        <Form.Item
-                            label="Cửa hàng"
-                            name="shop"
-                            className="w-full md:flex-1"
-                        >
-                            <Select
-                                mode="multiple"
-                                options={shops}
-                                maxTagCount="responsive" // Tự động ẩn các thẻ khi có quá nhiều
-                                maxTagPlaceholder={(omittedValues) => (
-                                    <Tooltip
-                                        overlayStyle={{ pointerEvents: 'none' }}
-                                        title={omittedValues.map(({ label }) => label).join(', ')}
-                                    >
-                                        <span>...</span>
-                                    </Tooltip>
-        )}
-    />
-        </Form.Item>
-                    </div>
+                        <Form.Item label="Cửa hàng" name="shop" className="w-full md:flex-1">
+                        <Select
+                            mode="multiple"
+                            options={shops}
+                            maxTagCount="responsive"
+                            onChange={(value) => {
+                                form.setFieldsValue({ shop: value }); // Cập nhật giá trị form
+                                console.log("Selected shops:", value); // Debug xem giá trị có thay đổi không
+                            }}
+                        />
+                    </Form.Item>
+                                        </div>
 
                     <div className="flex flex-wrap items-center gap-5">
                         <Form.Item
@@ -515,9 +680,10 @@ const AllPackages = () => {
                         >
                             <Select
                                 mode="multiple"
+                                initialValue={['FlashShip', 'PrinCare', 'Ckf']} // Giá trị mặc định
                                 options={[
                                     { value: 'FlashShip', label: 'FlashShip' },
-                                    { value: 'PrinCare', label: 'PrinCare' },
+                                    { value: 'PrintCare', label: 'PrintCare' },
                                     { value: 'Ckf', label: 'Ckf' },
                                     { value: 'Platform', label: 'Platform' },
                                     { value: 'TeeClub', label: 'TeeClub' },
@@ -565,6 +731,10 @@ const AllPackages = () => {
                                 // onChange={(date, dateString) => handleDateChange(date, dateString, 'create_time_lt', form)}
                             />
                         </Form.Item>
+                        <Form layout="vertical" form={form} onFinish={onFinish}>
+                    {/* Các Form.Item khác */}
+                    
+                </Form>
                     </div>
                     </div>
 
@@ -597,10 +767,27 @@ const AllPackages = () => {
                         </Button>
                     </div>
                 </Form>
+                <Form layout="vertical" form={form} onFinish={() => onSaveSuccess(form.getFieldsValue())}>
+    <div className="flex flex-wrap items-center gap-5">
+        <Form.Item label="Style" name="filterStyle" className="w-full md:flex-1">
+            <Input placeholder="Enter style to filter" />
+        </Form.Item>
+        <Form.Item label="Color" name="filterColor" className="w-full md:flex-1">
+            <Input placeholder="Enter color to filter" />
+        </Form.Item>
+        <Form.Item label="Size" name="filterSize" className="w-full md:flex-1">
+            <Input placeholder="Enter size to filter" />
+        </Form.Item>
+    </div>
+    <Button type="primary" htmlType="submit">
+        Apply Filters
+    </Button>
+</Form>
+
 
             </div>
 
-            <AllPackagesTable data={packages} loading={loadingAllPackages} packageSelected={handlePackageSelected} onSaveSuccess={onFinish} packageStatus={form.getFieldValue('status')}/>
+            <AllPackagesTable onSaveSuccesss={onSaveSuccess} data={packages} loading={loadingAllPackages} packageSelected={handlePackageSelected} onSaveSuccess={onFinish} packageStatus={form.getFieldValue('status')}/>
         </div>
     );
 };

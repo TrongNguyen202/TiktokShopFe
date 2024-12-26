@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Table, Modal, Input, Button, Tooltip, Menu } from 'antd';
+import { Table, Modal, Input, Button, Tooltip, Menu, Tag } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import { useOrdersStore } from "../../store/ordersStore";
 import { toast } from 'react-toastify';
 import Dropdown from 'antd/es/dropdown/dropdown';
-
+import { Document, Packer, Paragraph, TextRun, ImageRun } from "docx";
+import { saveAs } from "file-saver";
 
 const PackagesStatusTable = ({ data, onSaveSuccess, packageSelected, packageStatus }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -14,11 +15,30 @@ const PackagesStatusTable = ({ data, onSaveSuccess, packageSelected, packageStat
     const { loadingProductPackage,updateProductPackage,loadingAllPackages } = useOrdersStore();
     const [LoadingSave, setLoadingSave] = useState(loadingProductPackage);
     const { updatePackageStatus } = useOrdersStore();
+
     const statuses = [
-        "no_design", "has_design", "print_pending", "printed", 
-        "in_production", "production_done", "shipping_to_us", 
-        "shipped_to_us", "shipping_within_us", "delivered_to_customer", "cancelled"
+        "init",
+        "no_design", 
+        "has_design", 
+        "print_pending", 
+        "printed", 
+        "in_production", 
+        "production_done", 
+        "shipping_to_us", 
+        "shipped_to_us", 
+        "shipping_within_us", 
+        "delivered_to_customer", 
+        "cancelled", 
+        "can_not_produce", 
+        "lack_of_pet", 
+        "wrong_design", 
+        "wrong_mockkup", 
+        "forwarded_to_supify", 
+        "sent_to_onos", 
+        "fullfilled", 
+        "reforwarded_to_hall"
     ];
+    
     const handleUpdatePackage = (id, selectedStatus) => {
         console.log('handleUpdatePackage: ', id, selectedStatus);
     
@@ -91,8 +111,64 @@ const PackagesStatusTable = ({ data, onSaveSuccess, packageSelected, packageStat
             title: 'status',
             dataIndex: 'status',
             key: 'status',
-            width: 200,
-            render: (text) => <a className='w-full block' href={text}>{text}</a>
+            render: (status) => {
+                const statusColors = {
+                    init:'lightgray',
+                    no_design: 'red',
+                    has_design: 'orange',
+                    print_pending: 'blue',
+                    printed: 'green',
+                    in_production: 'purple',
+                    production_done: 'cyan',
+                    shipping_to_us: 'lime',
+                    shipped_to_us: 'gold',
+                    shipping_within_us: 'magenta',
+                    delivered_to_customer: 'green',
+                    cancelled: 'gray',
+                    can_not_produce: 'darkred',
+                    lack_of_pet: 'pink',
+                    wrong_design: 'darkorange',
+                    wrong_mockkup: 'brown',
+                    forwarded_to_supify: 'lightblue',
+                    sent_to_onos: 'teal',
+                    fullfilled: 'darkgreen',
+                    reforwarded_to_hall: 'slategray'
+                };
+        
+                const statusLabels = {
+                    no_design: 'No Design',
+                    has_design: 'Has Design',
+                    print_pending: 'Print Pending',
+                    printed: 'Printed',
+                    in_production: 'In Production',
+                    production_done: 'Production Done',
+                    shipping_to_us: 'Shipping to US',
+                    shipped_to_us: 'Shipped to US',
+                    shipping_within_us: 'Shipping within US',
+                    delivered_to_customer: 'Delivered to Customer',
+                    cancelled: 'Cancelled',
+                    can_not_produce: 'Cannot Produce',
+                    lack_of_pet: 'Lack of Pet',
+                    wrong_design: 'Wrong Design',
+                    wrong_mockkup: 'Wrong Mockup',
+                    forwarded_to_supify: 'Forwarded to Supify',
+                    sent_to_onos: 'Sent to Onos',
+                    fullfilled: 'Fulfilled',
+                    reforwarded_to_hall: 'Reforwarded to Hall',
+                    init:'init'
+                };
+                return (
+                    <Tag color={statusColors[status] || 'default'}>
+                        {statusLabels[status] || 'Unknown'}
+                    </Tag>
+                );
+            },
+        },
+        {
+            title:'fulfillment_name',
+            dataIndex: 'fulfillment_name',
+            key: 'fulfillment_name',
+            render: (text) => <p href={text}>{text}</p>
         },
         
         {
@@ -106,6 +182,22 @@ const PackagesStatusTable = ({ data, onSaveSuccess, packageSelected, packageStat
                     <div>{totalQuantity}</div>
                 )
             }
+        },
+        {
+            title: 'Missing Design',
+            dataIndex: 'isMissingDesign',
+            key: 'isMissingDesign',
+            render: (isMissingDesign) => (
+                <span style={{ color: isMissingDesign ? 'red' : 'green' }}>
+                    {isMissingDesign ? 'Missing' : 'Complete'}
+                </span>
+            ),
+        },
+        {
+            title:'seller_note',
+            dataIndex: 'seller_note',
+            key: 'seller_note',
+            render: (text) => <p href={text}>{text}</p>
         },
         {
             title: 'Shipping information',
@@ -286,7 +378,9 @@ const PackagesStatusTable = ({ data, onSaveSuccess, packageSelected, packageStat
                 loading={loadingAllPackages} 
                 scroll={{
                 x: 'max-content',
+                
             }} 
+            pagination={{ pageSize: 2000 }}
             />
              <Modal
                 title="Edit Products"

@@ -5,7 +5,7 @@ import { EditOutlined } from '@ant-design/icons';
 
 
 
-const AllPackagesTable = ({ data, onSaveSuccess, packageSelected,packageStatus }) => {
+const AllPackagesTable = ({ data, onSaveSuccess, packageSelected,packageStatus,onSaveSuccesss }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [editedProducts, setEditedProducts] = useState([]);
@@ -14,10 +14,29 @@ const AllPackagesTable = ({ data, onSaveSuccess, packageSelected,packageStatus }
     const [LoadingSave, setLoadingSave] = useState(loadingProductPackage);
     const { updatePackageStatus } = useOrdersStore();
     const statuses = [
-        "no_design", "has_design", "print_pending", "printed", 
-        "in_production", "production_done", "shipping_to_us", 
-        "shipped_to_us", "shipping_within_us", "delivered_to_customer", "cancelled"
+        "init",
+        "no_design", 
+        "has_design", 
+        "print_pending", 
+        "printed", 
+        "in_production", 
+        "production_done", 
+        "shipping_to_us", 
+        "shipped_to_us", 
+        "shipping_within_us", 
+        "delivered_to_customer", 
+        "cancelled", 
+        "can_not_produce", 
+        "lack_of_pet", 
+        "wrong_design", 
+        "wrong_mockkup", 
+        "forwarded_to_supify", 
+        "sent_to_onos", 
+        "fullfilled", 
+        "reforwarded_to_hall"
     ];
+    
+    
     const handleUpdatePackage = (id, selectedStatus) => {
         console.log('handleUpdatePackage: ', id, selectedStatus);
     
@@ -57,6 +76,7 @@ const AllPackagesTable = ({ data, onSaveSuccess, packageSelected,packageStatus }
             key: 'status',
             render: (status) => {
                 const statusColors = {
+                    init:'lightgray',
                     no_design: 'red',
                     has_design: 'orange',
                     print_pending: 'blue',
@@ -68,6 +88,14 @@ const AllPackagesTable = ({ data, onSaveSuccess, packageSelected,packageStatus }
                     shipping_within_us: 'magenta',
                     delivered_to_customer: 'green',
                     cancelled: 'gray',
+                    can_not_produce: 'darkred',
+                    lack_of_pet: 'pink',
+                    wrong_design: 'darkorange',
+                    wrong_mockkup: 'brown',
+                    forwarded_to_supify: 'lightblue',
+                    sent_to_onos: 'teal',
+                    fullfilled: 'darkgreen',
+                    reforwarded_to_hall: 'slategray'
                 };
         
                 const statusLabels = {
@@ -82,14 +110,28 @@ const AllPackagesTable = ({ data, onSaveSuccess, packageSelected,packageStatus }
                     shipping_within_us: 'Shipping within US',
                     delivered_to_customer: 'Delivered to Customer',
                     cancelled: 'Cancelled',
+                    can_not_produce: 'Cannot Produce',
+                    lack_of_pet: 'Lack of Pet',
+                    wrong_design: 'Wrong Design',
+                    wrong_mockkup: 'Wrong Mockup',
+                    forwarded_to_supify: 'Forwarded to Supify',
+                    sent_to_onos: 'Sent to Onos',
+                    fullfilled: 'Fulfilled',
+                    reforwarded_to_hall: 'Reforwarded to Hall',
+                    init:'init'
                 };
-        
                 return (
                     <Tag color={statusColors[status] || 'default'}>
                         {statusLabels[status] || 'Unknown'}
                     </Tag>
                 );
             },
+        },
+        {
+            title:'fulfillment_name',
+            dataIndex: 'fulfillment_name',
+            key: 'fulfillment_name',
+            render: (text) => <p href={text}>{text}</p>
         },
         {
             title: 'Order Id',
@@ -166,6 +208,12 @@ const AllPackagesTable = ({ data, onSaveSuccess, packageSelected,packageStatus }
             )
         },
         {
+            title:'seller_note',
+            dataIndex: 'seller_note',
+            key: 'seller_note',
+            render: (text) => <p href={text}>{text}</p>
+        },
+        {
             title: 'Label',
             dataIndex: 'linkLabel',
             key: 'linkLabel',
@@ -214,7 +262,6 @@ const AllPackagesTable = ({ data, onSaveSuccess, packageSelected,packageStatus }
     
             // Tạo các promise để gọi API cho từng product
             const updatePromises = editedProducts.map((product) => {
-                
                 const productPackageId = product?.id;
                 if (!productPackageId) {
                     throw new Error(`Product package ID is missing for product: ${product.name}`);
@@ -223,7 +270,7 @@ const AllPackagesTable = ({ data, onSaveSuccess, packageSelected,packageStatus }
                 // Gọi hàm updateProductPackage cho từng product
                 return updateProductPackage(
                     productPackageId,
-                    {  product }, 
+                    { product },
                     () => {
                         console.log(`Update successful for product ID: ${productPackageId}`);
                     },
@@ -235,17 +282,22 @@ const AllPackagesTable = ({ data, onSaveSuccess, packageSelected,packageStatus }
     
             // Chờ tất cả các API kết thúc
             await Promise.all(updatePromises);
-            
+    
             // Đóng modal sau khi hoàn thành
             setIsModalVisible(false);
             setEditedProducts([]); // Clear the edited products state
             console.log("All updates completed successfully.");
+    
+            // Thực hiện hành động bổ sung, ví dụ: tải lại dữ liệu bảng
+            if (typeof onSaveSuccess === "function") {
+                onSaveSuccesss(); // Gọi callback từ component cha
+            }
+    
         } catch (error) {
             console.error("Save failed:", error);
             // Hiển thị thông báo lỗi thân thiện nếu cần thiết
         } finally {
             setLoadingSave(false); // Reset loading state
-            onSaveSuccess()
         }
     };
 
@@ -260,6 +312,7 @@ const AllPackagesTable = ({ data, onSaveSuccess, packageSelected,packageStatus }
         handlePackageClick: handlePackageClick,
     }))
     .sort((a, b) => (b.isMissingDesign ? 1 : 0) - (a.isMissingDesign ? 1 : 0)); // Đưa packages `isMissingDesign` lên đầu
+    console.log("Data", dataWithHandlers)
 
     const onSelectChange = (_, newSelectedRows) => {
         setSelectedRows(newSelectedRows);
@@ -273,7 +326,7 @@ const AllPackagesTable = ({ data, onSaveSuccess, packageSelected,packageStatus }
 
     return (
         <>
-            <Table rowKey="order_id" rowSelection={rowSelection} columns={columns} dataSource={dataWithHandlers} loading={loadingAllPackages} />
+            <Table rowKey="order_id" rowSelection={rowSelection} columns={columns} dataSource={dataWithHandlers} loading={loadingAllPackages} pagination={{ pageSize: 2000 }}/>
             <Modal
     title="Edit Products"
     visible={isModalVisible}

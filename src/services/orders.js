@@ -25,6 +25,12 @@ const getFlashShipPodVariants =() => {
 const getCkfPodVariants = ()=>{
   return callApi(`/ckf/all`)
 }
+const getUserShop =()=>{
+  return callApi('/shops', 'get')
+}
+const getCurrentUserInfor =() =>{
+  return callApi('/groups/user_login_infor', 'get')
+}
 
 export const orders = {
   getUserGroup,
@@ -33,5 +39,7 @@ export const orders = {
   updatePackageStatus,
   updateFulfillmentName,
   getFlashShipPodVariants,
-  getCkfPodVariants
+  getCkfPodVariants,
+  getUserShop,
+  getCurrentUserInfor
 }

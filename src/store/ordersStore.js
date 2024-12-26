@@ -9,6 +9,7 @@ export const useOrdersStore = create((set) => ({
   loadingProductPackage: false,
   podVariants:[],
   ckfVariants:[],
+  shops:[],
   getFlashShipVariants: async (onSuccess = () => {}, onFail = () => {}) => {
     try {
       // console.log("hello")
@@ -41,6 +42,28 @@ export const useOrdersStore = create((set) => ({
       const response = await RepositoryRemote.orders.getUserGroup()
       set({ users: response.data.data })
       onSuccess(response.data.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  },
+  getUserShops: async (onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.orders.getUserShop()
+      set({ shops: response.data.shops })
+      onSuccess(response.data)
+    } catch (error) {
+      onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
+    }
+    set({ loading: false })
+  },
+  getUserInfor: async (onSuccess = () => {}, onFail = () => {}) => {
+    try {
+      set({ loading: true })
+      const response = await RepositoryRemote.orders.getCurrentUserInfor()
+      // set({ shops: response.data.shops })
+      onSuccess(response.data)
     } catch (error) {
       onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!')
     }
