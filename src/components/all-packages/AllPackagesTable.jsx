@@ -134,6 +134,18 @@ const AllPackagesTable = ({ data, onSaveSuccess, packageSelected,packageStatus,o
             render: (text) => <p href={text}>{text}</p>
         },
         {
+            title:'shop_name',
+            dataIndex: 'shop_name',
+            key: 'shop_name',
+            render: (text) => <p href={text}>{text}</p>
+        },
+        {
+            title:'seller_username',
+            dataIndex: 'seller_username',
+            key: 'seller_username',
+            render: (text) => <p href={text}>{text}</p>
+        },
+        {
             title: 'Order Id',
             dataIndex: 'order_id',
             key: 'order_id'

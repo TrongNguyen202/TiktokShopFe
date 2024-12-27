@@ -686,7 +686,7 @@ const AllPackages = () => {
                                     { value: 'PrintCare', label: 'PrintCare' },
                                     { value: 'Ckf', label: 'Ckf' },
                                     { value: 'Platform', label: 'Platform' },
-                                    { value: 'TeeClub', label: 'TeeClub' },
+                                    { value: 'Teelover', label: 'Teelover' },
                                 ]}
                             />
                         </Form.Item>
