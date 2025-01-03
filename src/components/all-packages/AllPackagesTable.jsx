@@ -338,6 +338,11 @@ const AllPackagesTable = ({ data, onSaveSuccess, packageSelected,packageStatus,o
 
     return (
         <>
+         <div style={{ marginBottom: '16px' }}>
+                <div type="primary">
+                    Số hàng đã chọn: {selectedRows.length}
+                </div>
+            </div>
             <Table rowKey="order_id" rowSelection={rowSelection} columns={columns} dataSource={dataWithHandlers} loading={loadingAllPackages} pagination={{ pageSize: 2000 }}/>
             <Modal
     title="Edit Products"

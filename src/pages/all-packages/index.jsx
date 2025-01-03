@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button, Radio, Form, Input, Select, Tooltip } from 'antd';
-import { ReloadOutlined, CloudDownloadOutlined } from "@ant-design/icons";
+import { ReloadOutlined, CloudDownloadOutlined, SearchOutlined } from "@ant-design/icons";
 import * as XLSX from 'xlsx';
 
 import { useOrdersStore } from "../../store/ordersStore";
@@ -256,6 +256,14 @@ const AllPackages = () => {
             const createTimeLtUnix = dayjs(state.create_time_lt).unix();  // Chuyển ngày thành Unix timestamp
             query += `&create_time[$lt]=${createTimeLtUnix}`;
         }
+        if (state?.product_name) {
+            query += `&product_name=${state.product_name}`;
+        }
+    
+        // Thêm tìm kiếm order_id
+        if (state?.order_id) {
+            query += `&order_id=${state.order_id}`;
+        }
     
         // console.log('Success:', state, query);
     
@@ -359,7 +367,7 @@ const AllPackages = () => {
         const onSuccess = (res) => {
             if (res) {
                 toast.success('Update thành công!');
-                navigate('/all-packages/status');
+                // navigate('/all-packages/status');
             }         
         }
 
@@ -651,6 +659,22 @@ const AllPackages = () => {
                         />
                     </Form.Item>
                                         </div>
+                                        <div className="flex flex-wrap items-center gap-5">
+                                            <Form.Item label="Product Name" name="product_name" className="w-full md:flex-1">
+                                                <Input placeholder="Enter product name to search" />
+                                            </Form.Item>
+                                            <Form.Item label="Order ID" name="order_id" className="w-full md:flex-1">
+                                                <Input placeholder="Enter order ID to search" />
+                                            </Form.Item>
+                                        </div>
+                                        {/* <div className="flex flex-wrap items-center gap-5">
+                                            <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
+                                                Search
+                                            </Button>
+                                            <Button type="link" >
+                                                Reset
+                                            </Button>
+                                        </div> */}
 
                     <div className="flex flex-wrap items-center gap-5">
                         <Form.Item
