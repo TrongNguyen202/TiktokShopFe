@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, Modal, Input, Button, Tooltip, Menu, Tag } from 'antd';
+import { Table, Modal, Input, Button, Tooltip, Menu, Tag, Select } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import { useOrdersStore } from "../../store/ordersStore";
 import { toast } from 'react-toastify';
@@ -15,6 +15,7 @@ const PackagesStatusTable = ({ data, onSaveSuccess, packageSelected, packageStat
     const { loadingProductPackage,updateProductPackage,loadingAllPackages } = useOrdersStore();
     const [LoadingSave, setLoadingSave] = useState(loadingProductPackage);
     const { updatePackageStatus } = useOrdersStore();
+    const [statusFilter, setStatusFilter] = useState([]);
 
     const statuses = [
         "init",
@@ -309,9 +310,13 @@ const PackagesStatusTable = ({ data, onSaveSuccess, packageSelected, packageStat
         setEditedProducts([]);
     };
 
-    const dataWithHandlers = data.map((record) => ({
+    const filteredData = data.filter((record) =>
+        !statusFilter.length || statusFilter.includes(record.status)
+    );
+    
+    const dataWithHandlers = filteredData.map((record) => ({
         ...record,
-        handlePackageClick: handlePackageClick
+        handlePackageClick: handlePackageClick,
     }));
 
     const onSelectChange = (_, newSelectedRows) => {
@@ -370,11 +375,27 @@ const PackagesStatusTable = ({ data, onSaveSuccess, packageSelected, packageStat
 
     return (
         <>
+        <div style={{ marginBottom: '16px' }}>
+                <div type="primary">
+                    Số hàng đã chọn: {selectedRows.length}
+                </div>
+            </div>
+            <div style={{ marginBottom: '16px' }}>
+                <span>Filter by Status: </span>
+                <Select
+                    mode="multiple"
+                    style={{ minWidth: '200px' }}
+                    placeholder="Select status"
+                    options={statuses.map((status) => ({ value: status, label: status }))}
+                    onChange={(selectedStatus) => setStatusFilter(selectedStatus)}
+                />
+            </div>
+
             <Table 
                 rowKey="order_id" 
                 rowSelection={rowSelection} 
                 columns={columns} 
-                dataSource={dataWithHandlers} 
+                dataSource={dataWithHandlers}
                 loading={loadingAllPackages} 
                 scroll={{
                 x: 'max-content',

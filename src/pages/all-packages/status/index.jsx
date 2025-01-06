@@ -176,17 +176,21 @@ const PackagesStatus = () => {
         //     const createTimeLtUnix = dayjs(state.create_time_lt).unix();  // Chuyển ngày thành Unix timestamp
         //     query += `&create_time[$lt]=${createTimeLtUnix}`;
         // }
+        if (state?.product_name) {
+            query += `&product_name=${state.product_name}`;
+        }
     
+        // Thêm tìm kiếm order_id
+        if (state?.order_id) {
+            query += `&order_id=${state.order_id}`;
+        }
         console.log('Success:', state, query);
     
         if (query) return '?' + query;
         else return '';
     };
 
-    const handleReset = () => {
-        form.setFieldsValue(defaultValues);
-    };
-
+   
     const handleExport = () => {
         console.log("package", packages);
         if (packages?.length) {
@@ -380,7 +384,9 @@ const PackagesStatus = () => {
         for (const pkg of selectedPackages) {
             const sections = [];
     
-            for (const product of pkg.products) {
+            for (const [index, product] of pkg.products.entries()) {
+                console.log("dax vao")
+                console.log("Sssca",pkg.products.length)
                 const rows = [
                     new TableRow({
                         children: [
@@ -397,7 +403,7 @@ const PackagesStatus = () => {
                     new TableRow({
                         children: [
                             new TableCell({ children: [new Paragraph({ text: "Số Lượng Áo", bold: true })] }),
-                            new TableCell({ children: [new Paragraph({ text: `${product.quantity}` })] }),
+                            new TableCell({ children: [new Paragraph({ text: `${index + 1}/${pkg.products.length}` })] }),
                         ],
                     }),
                     new TableRow({
@@ -535,7 +541,18 @@ const PackagesStatus = () => {
         )}
     />
         </Form.Item>
+        </div>
+                                        <div className="flex flex-wrap items-center gap-5">
+                                            <Form.Item label="Product Name" name="product_name" className="w-full md:flex-1">
+                                                <Input placeholder="Enter product name to search" />
+                                            </Form.Item>
+                                            <Form.Item label="Order ID" name="order_id" className="w-full md:flex-1">
+                                                <Input placeholder="Enter order ID to search" />
+                                            </Form.Item>
+                                      
+        
                     </div>
+                    
 
                     <div className="flex flex-wrap items-center gap-5">
                         <Form.Item
