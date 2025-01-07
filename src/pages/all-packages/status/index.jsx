@@ -16,26 +16,26 @@ const optionSort = [
 ];
 
 const status = [
-    { value: 'init', label: 'init' },
-    { value: 'no_design', label: 'No design' },
-    { value: 'has_design', label: 'Has design' },
-    { value: 'print_pending', label: 'Print pending' },
-    { value: 'printed', label: 'Printed' },
-    { value: 'in_production', label: 'In production' },
-    { value: 'production_done', label: 'Production done' },
-    { value: 'shipping_to_us', label: 'Shipping to US' },
-    { value: 'shipped_to_us', label: 'Shipped to US' },
-    { value: 'shipping_within_us', label: 'Shipping within US' },
-    { value: 'delivered_to_customer', label: 'Delivered to customer' },
+    { value: 'init', label: 'Đã tiếp nhận' },
+    { value: 'no_design', label: 'Chưa có design' },
+    { value: 'has_design', label: 'Đã có design' },
+    { value: 'print_pending', label: 'Đang in pet' },
+    { value: 'printed', label: 'Đã in xong pet' },
+    { value: 'in_production', label: 'Đang sản xuất' },
+    { value: 'production_done', label: 'Đã sản xuất xong' },
+    { value: 'shipping_to_us', label: 'Đang giao đến US' },
+    { value: 'shipped_to_us', label: 'Đã giao đến US' },
+    { value: 'shipping_within_us', label: 'Đang giao trong US' },
+    { value: 'delivered_to_customer', label: 'Đã giao đến khách hàng' },
     { value: 'cancelled', label: 'Cancelled' },
-    { value: 'can_not_produce', label: 'Cannot produce' },
-    { value: 'lack_of_pet', label: 'Lack of pet' },
-    { value: 'wrong_design', label: 'Wrong design' },
-    { value: 'wrong_mockkup', label: 'Wrong mockup' },
-    { value: 'forwarded_to_supify', label: 'Forwarded to Supify' },
-    { value: 'sent_to_onos', label: 'Sent to Onos' },
-    { value: 'fullfilled', label: 'Fulfilled' },
-    { value: 'reforwarded_to_hall', label: 'Reforwarded to hall' }
+    { value: 'can_not_produce', label: 'Không thể sản xuất' },
+    { value: 'lack_of_pet', label: 'Thiếu pet' },
+    { value: 'wrong_design', label: 'Sai design' },
+    { value: 'wrong_mockkup', label: 'Sai mockup' },
+    { value: 'forwarded_to_supify', label: 'Chuyển tiếp đến xưởng Supify' },
+    { value: 'sent_to_onos', label: 'Đã giao cho Onos' },
+    { value: 'fullfilled', label: 'Đã xuất đơn Fulfilled' },
+    { value: 'reforwarded_to_hall', label: 'Chuyển về sảnh fullfill cũ' }
 ];
 
 

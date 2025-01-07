@@ -18,27 +18,28 @@ const PackagesStatusTable = ({ data, onSaveSuccess, packageSelected, packageStat
     const [statusFilter, setStatusFilter] = useState([]);
 
     const statuses = [
-        "init",
-        "no_design", 
-        "has_design", 
-        "print_pending", 
-        "printed", 
-        "in_production", 
-        "production_done", 
-        "shipping_to_us", 
-        "shipped_to_us", 
-        "shipping_within_us", 
-        "delivered_to_customer", 
-        "cancelled", 
-        "can_not_produce", 
-        "lack_of_pet", 
-        "wrong_design", 
-        "wrong_mockkup", 
-        "forwarded_to_supify", 
-        "sent_to_onos", 
-        "fullfilled", 
-        "reforwarded_to_hall"
+        { value: 'init', label: 'Đã tiếp nhận' },
+        { value: 'no_design', label: 'Chưa có design' },
+        { value: 'has_design', label: 'Đã có design' },
+        { value: 'print_pending', label: 'Đang in pet' },
+        { value: 'printed', label: 'Đã in xong pet' },
+        { value: 'in_production', label: 'Đang sản xuất' },
+        { value: 'production_done', label: 'Đã sản xuất xong' },
+        { value: 'shipping_to_us', label: 'Đang giao đến US' },
+        { value: 'shipped_to_us', label: 'Đã giao đến US' },
+        { value: 'shipping_within_us', label: 'Đang giao trong US' },
+        { value: 'delivered_to_customer', label: 'Đã giao đến khách hàng' },
+        { value: 'cancelled', label: 'Cancelled' },
+        { value: 'can_not_produce', label: 'Không thể sản xuất' },
+        { value: 'lack_of_pet', label: 'Thiếu pet' },
+        { value: 'wrong_design', label: 'Sai design' },
+        { value: 'wrong_mockkup', label: 'Sai mockup' },
+        { value: 'forwarded_to_supify', label: 'Chuyển tiếp đến xưởng Supify' },
+        { value: 'sent_to_onos', label: 'Đã giao cho Onos' },
+        { value: 'fullfilled', label: 'Đã xuất đơn Fulfilled' },
+        { value: 'reforwarded_to_hall', label: 'Chuyển về sảnh fullfill cũ' }
     ];
+    
     
     const handleUpdatePackage = (id, selectedStatus) => {
         console.log('handleUpdatePackage: ', id, selectedStatus);
@@ -136,28 +137,26 @@ const PackagesStatusTable = ({ data, onSaveSuccess, packageSelected, packageStat
                     reforwarded_to_hall: 'slategray'
                 };
         
-                const statusLabels = {
-                    no_design: 'No Design',
-                    has_design: 'Has Design',
-                    print_pending: 'Print Pending',
-                    printed: 'Printed',
-                    in_production: 'In Production',
-                    production_done: 'Production Done',
-                    shipping_to_us: 'Shipping to US',
-                    shipped_to_us: 'Shipped to US',
-                    shipping_within_us: 'Shipping within US',
-                    delivered_to_customer: 'Delivered to Customer',
-                    cancelled: 'Cancelled',
-                    can_not_produce: 'Cannot Produce',
-                    lack_of_pet: 'Lack of Pet',
-                    wrong_design: 'Wrong Design',
-                    wrong_mockkup: 'Wrong Mockup',
-                    forwarded_to_supify: 'Forwarded to Supify',
-                    sent_to_onos: 'Sent to Onos',
-                    fullfilled: 'Fulfilled',
-                    reforwarded_to_hall: 'Reforwarded to Hall',
-                    init:'init'
-                };
+                const statusLabels ={'init': 'Đã tiếp nhận',
+                    'no_design': 'Chưa có design',
+                    'has_design': 'Đã có design',
+                    'print_pending': 'Đang in pet',
+                    'printed': 'Đã in xong pet',
+                    'in_production': 'Đang sản xuất',
+                    'production_done': 'Đã sản xuất xong',
+                    'shipping_to_us': 'Đang giao đến US',
+                    'shipped_to_us': 'Đã giao đến US',
+                    'shipping_within_us': 'Đang giao trong US',
+                    'delivered_to_customer': 'Đã giao đến khách hàng',
+                    'cancelled': 'Cancelled',
+                    'can_not_produce': 'Không thể sản xuất',
+                    'lack_of_pet': 'Thiếu pet',
+                    'wrong_design': 'Sai design',
+                    'wrong_mockkup': 'Sai mockup',
+                    'forwarded_to_supify': 'Chuyển tiếp đến xưởng Supify',
+                    'sent_to_onos': 'Đã giao cho Onos',
+                    'fullfilled': 'Đã xuất đơn Fulfilled',
+                    'reforwarded_to_hall': 'Chuyển về sảnh fullfill cũ'};
                 return (
                     <Tag color={statusColors[status] || 'default'}>
                         {statusLabels[status] || 'Unknown'}
@@ -237,7 +236,7 @@ const PackagesStatusTable = ({ data, onSaveSuccess, packageSelected, packageStat
                         overlay={
                             <Menu
                                 onClick={({ key }) => handleUpdatePackage(record.id, key)}
-                                items={statuses.map(status => ({ key: status, label: status }))}
+                                items={statuses.map(status => ({ key: status.value, label: status.label }))}
                             />
                         }
                         trigger={['click']}
@@ -386,7 +385,7 @@ const PackagesStatusTable = ({ data, onSaveSuccess, packageSelected, packageStat
                     mode="multiple"
                     style={{ minWidth: '200px' }}
                     placeholder="Select status"
-                    options={statuses.map((status) => ({ value: status, label: status }))}
+                    options={statuses.map((status) => ({ value: status.value, label: status.label }))}
                     onChange={(selectedStatus) => setStatusFilter(selectedStatus)}
                 />
             </div>
