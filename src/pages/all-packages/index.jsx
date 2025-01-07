@@ -58,7 +58,7 @@ const AllPackages = () => {
     const [shops, setShops] = useState([]);
     const [packageSelected, setPackageSelected] = useState([]);
     const [packages, setPackages] = useState([]);
-    const { getUserGroup, getAllPackages, loadingAllPackages, updateFulfillmentName,updatePackageStatus,getUserShops,getUserInfor } = useOrdersStore();
+    const { getUserGroup, getAllPackages, loadingAllPackages, updateFulfillmentName,updatePackageStatus,getUserShops,getUserInfor,getPackageNumberSortMax } = useOrdersStore();
     
     // console.log("package", packages)
     function markPacksWithEmptyDesigns(packs) {
@@ -363,26 +363,49 @@ const AllPackages = () => {
     }
     // console.log("package selected", packageSelected);
 
-    const handleNavigate = () => {
+    const handleNavigate = async () => {
         const onSuccess = (res) => {
             if (res) {
                 toast.success('Update thành công!');
                 // navigate('/all-packages/status');
             }         
         }
-
+    
         const onFail = (err) => {
             console.log(err);            
         }
-
-        packageSelected?.map((item) => {
-            const dataSubmit = {
-                "fulfillment_name": "Teelover",
-                "status":"forwarded_to_supify"
+    
+        try {
+            // Gọi API để lấy max_number_sort
+            const onSuccess2 = (res) => {
+                if (res) {
+                    // toast.success('Update thành công!');
+                    // navigate('/all-packages/status');
+                    console.log("ress final max",res.max_number_sort)
+                    const max_number_sort = res.max_number_sort;
+                    packageSelected?.map((item, index) => {
+                        const dataSubmit = {
+                            "fulfillment_name": "Teelover",
+                            "status": "forwarded_to_supify",
+                            "number_sort": max_number_sort + index + 1 // Gán từ max_number_sort + 1
+                        };
+                        updateFulfillmentName(item.id, dataSubmit, onSuccess, onFail);
+                    });
+                }         
             }
-            updateFulfillmentName(item.id, dataSubmit, onSuccess, onFail);
-        });
-    }
+            const response = await getPackageNumberSortMax(onSuccess2,onFail);
+           
+    
+            // Lấy giá trị max_number_sort từ response
+            // const maxNumberSort = response?.data?.data?.data.max_number_sort
+            // console.log("final max", response?.data);
+            // Cập nhật packageSelected với number_sort từ maxNumberSort + 1 trở đi
+            
+        } catch (error) {
+            console.error("Error in handleNavigate:", error);
+            onFail(error);
+        }
+    };
     // console.log("user",users)
     // console.log("shops", shops)
     useEffect(() => {

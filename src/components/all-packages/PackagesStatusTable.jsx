@@ -68,11 +68,17 @@ const PackagesStatusTable = ({ data, onSaveSuccess, packageSelected, packageStat
     };
     
     const columns = [
+        // {
+        //     title: 'SST',
+        //     dataIndex: 'sst',
+        //     key: 'sst',
+        //     render: (_, record, index) => index,
+        //     width: '20px'
+        // },
         {
-            title: 'SST',
-            dataIndex: 'sst',
-            key: 'sst',
-            render: (_, record, index) => index,
+            title: 'STT Supify',
+            dataIndex: 'number_sort',
+            key: 'number_sort',
             width: '20px'
         },
         {

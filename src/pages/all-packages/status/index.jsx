@@ -397,7 +397,7 @@ const PackagesStatus = () => {
                     new TableRow({
                         children: [
                             new TableCell({ children: [new Paragraph({ text: "STT", bold: true })] }),
-                            new TableCell({ children: [new Paragraph({ text: `${product.stt}` })] }),
+                            new TableCell({ children: [new Paragraph({ text: `${pkg.number_sort}` })] }),
                         ],
                     }),
                     new TableRow({

@@ -125,4 +125,16 @@ export const useOrdersStore = create((set) => ({
     }
     set({ loading: false });
   },
+  getPackageNumberSortMax : async (onSuccess = () => {}, onFail = () => {})=>{
+    try {
+      console.log("Starting getPackageNumberSortMax");
+      // set({ loadingPackageNumberSortMax: true });
+      const response = await RepositoryRemote.orders.getPackageNumberSortMax();
+      console.log("Get response:", response);
+      onSuccess(response?.data?.data);
+      } catch (error) {
+        console.error("Get failed:", error);
+        onFail(error?.response?.data?.msg || 'Có lỗi xảy ra!');
+        }
+  }
 }))

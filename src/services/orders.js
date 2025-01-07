@@ -31,7 +31,9 @@ const getUserShop =()=>{
 const getCurrentUserInfor =() =>{
   return callApi('/groups/user_login_infor', 'get')
 }
-
+const getPackageNumberSortMax = () =>{
+  return callApi('/package-max/','get')
+}
 export const orders = {
   getUserGroup,
   getAllPackages,
@@ -41,5 +43,6 @@ export const orders = {
   getFlashShipPodVariants,
   getCkfPodVariants,
   getUserShop,
-  getCurrentUserInfor
+  getCurrentUserInfor,
+  getPackageNumberSortMax
 }
