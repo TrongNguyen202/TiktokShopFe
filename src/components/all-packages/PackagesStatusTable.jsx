@@ -171,6 +171,13 @@ const PackagesStatusTable = ({ data, onSaveSuccess, packageSelected, packageStat
             },
         },
         {
+            title:'supify_create_time',
+            dataIndex: 'supify_create_time',
+            key: 'supify_create_time',
+            render: (text) => <p href={text}>{text}</p>
+        },
+        
+        {
             title:'fulfillment_name',
             dataIndex: 'fulfillment_name',
             key: 'fulfillment_name',
