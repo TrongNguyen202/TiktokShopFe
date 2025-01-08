@@ -126,6 +126,12 @@ const AllPackagesTable = ({ data, onSaveSuccess, packageSelected,packageStatus,o
             },
         },
         {
+            title:'created_at',
+            dataIndex: 'created_at',
+            key: 'created_at',
+            render: (text) => <p href={text}>{text}</p>
+        },
+        {
             title:'fulfillment_name',
             dataIndex: 'fulfillment_name',
             key: 'fulfillment_name',
